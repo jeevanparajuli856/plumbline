@@ -130,49 +130,43 @@ interface Keyframe {
 
 const p = progressOf
 
-/** Rest pose: board on the right of a left-aligned text column. Used by mast and close. */
-const REST: NumericPose = {
-  camera: [0.2, 0.17, 0.3],
-  target: [-0.07, 0, 0],
-  fov: 34,
-  roastMix: 0,
-  explode: 0,
-  plumbOpacity: 1,
+/**
+ * Framing. The board is 0.165 m wide; at about 0.4 m it fills roughly a third of a wide frame.
+ * Text sits in the left seven columns everywhere except `play`, so the look-at target is pushed
+ * left of the board (negative x) to put the board in the right part of the viewport, and right of
+ * it (positive x) in `play`, where the panel is on the right.
+ */
+export const BOARD_RIGHT_X = -0.12
+export const BOARD_LEFT_X = 0.09
+
+/** Camera placed at `target + offset`, so a pose reads as "look at this, from there". */
+function look(
+  target: Vec3,
+  offset: Vec3,
+  fov: number,
+  extra: Partial<NumericPose> = {},
+): NumericPose {
+  return {
+    camera: [target[0] + offset[0], target[1] + offset[1], target[2] + offset[2]],
+    target,
+    fov,
+    roastMix: 0,
+    explode: 0,
+    plumbOpacity: 1,
+    ...extra,
+  }
 }
-const PLAY_LANDED: NumericPose = {
-  camera: [0.07, 0.14, 0.16],
-  target: [0.05, 0, 0],
-  fov: 28,
-  roastMix: 0,
-  explode: 0,
-  plumbOpacity: 1,
-}
-const PLAY_RESOLVED: NumericPose = { ...PLAY_LANDED, camera: [0.08, 0.17, 0.19], fov: 29 }
-const HOW_TOP: NumericPose = {
-  camera: [-0.06, 0.38, 0.02],
-  target: [-0.06, 0, 0],
-  fov: 30,
-  roastMix: 0,
-  explode: 0,
-  plumbOpacity: 1,
-}
-const ROAST: NumericPose = {
-  camera: [-0.02, 0.1, 0.26],
-  target: [-0.07, 0, 0],
-  fov: 30,
-  roastMix: 1,
-  explode: 0,
-  plumbOpacity: 1,
-}
-const AUDIT: NumericPose = { ...ROAST, camera: [-0.03, 0.06, 0.2], fov: 28 }
-const RECEDED: NumericPose = {
-  camera: [0.26, 0.3, 0.46],
-  target: [0.08, 0, 0],
-  fov: 34,
-  roastMix: 0,
-  explode: 0,
-  plumbOpacity: 1,
-}
+
+const RIGHT: Vec3 = [BOARD_RIGHT_X, 0, 0]
+const LEFT: Vec3 = [BOARD_LEFT_X, 0, 0]
+const HOW_TARGET: Vec3 = [-0.1, 0, 0]
+/** Raised 30 mm so the hand plane (+25 mm) and belief plane (+50 mm) stay in frame when exploded. */
+const LAYERS_TARGET: Vec3 = [-0.1, 0.03, 0]
+const ROAST_TARGET: Vec3 = [-0.07, 0, 0]
+
+/** Rest pose for mast and close: three-quarter view, board right of the text. */
+const REST = look(RIGHT, [0.27, 0.17, 0.3], 34)
+const RECEDED = look(LEFT, [0.18, 0.3, 0.46], 34)
 
 /**
  * Keyframes in ascending progress. Explode is non-zero only inside `how`; roastMix only inside
@@ -180,32 +174,23 @@ const RECEDED: NumericPose = {
  */
 export const KEYFRAMES: readonly Keyframe[] = [
   { at: p('mast', 0), pose: REST },
-  { at: p('research', 0), pose: { ...REST, camera: [0.22, 0.24, 0.34], target: [-0.05, 0, 0] } },
-  {
-    at: p('problem', 0),
-    pose: { ...REST, camera: [0.06, 0.12, 0.2], target: [-0.05, 0, 0], fov: 30 },
-  },
-  {
-    at: p('play', 0),
-    pose: { ...PLAY_LANDED, camera: [0.1, 0.2, 0.22], target: [0.06, 0, 0], fov: 30 },
-  },
-  { at: p('play', 1 / 3), pose: { ...PLAY_LANDED, camera: [0.08, 0.16, 0.18] } },
-  { at: p('play', 2 / 3), pose: PLAY_LANDED },
-  { at: p('play', 1), pose: PLAY_RESOLVED },
-  { at: p('how', 1 / 12), pose: HOW_TOP },
-  { at: p('how', 5 / 12), pose: { ...HOW_TOP, camera: [-0.06, 0.34, 0.02] } },
-  { at: p('how', 1 / 2), pose: { ...HOW_TOP, camera: [-0.05, 0.3, 0.1] } },
-  {
-    at: p('how', 3 / 4),
-    pose: { ...HOW_TOP, camera: [-0.18, 0.16, 0.3], target: [-0.06, 0.03, 0], fov: 32, explode: 1 },
-  },
-  {
-    at: p('generalize', 0),
-    pose: { ...REST, camera: [0, 0.18, 0.32], target: [-0.06, 0, 0], fov: 32 },
-  },
-  { at: p('generalize', 0.4), pose: ROAST },
-  { at: p('generalize', 0.75), pose: AUDIT },
-  { at: p('generalize', 0.85), pose: AUDIT },
+  { at: p('research', 0), pose: look(RIGHT, [0.27, 0.24, 0.36], 34) },
+  // Problem: lower and closer over the told row, still clear of the text column.
+  { at: p('problem', 0), pose: look(RIGHT, [0.14, 0.16, 0.3], 32) },
+  // Play: board on the left half, the panel on the right. Distance stays near 0.4 m.
+  { at: p('play', 0), pose: look(LEFT, [0.06, 0.28, 0.29], 30) },
+  { at: p('play', 1 / 3), pose: look(LEFT, [0.05, 0.26, 0.3], 30) },
+  { at: p('play', 2 / 3), pose: look(LEFT, [0.04, 0.25, 0.31], 30) },
+  { at: p('play', 1), pose: look(LEFT, [0.06, 0.28, 0.29], 30) },
+  // How: from above for the first lines, then a low oblique view so the lifted planes separate.
+  { at: p('how', 1 / 12), pose: look(HOW_TARGET, [0, 0.45, 0.03], 30) },
+  { at: p('how', 5 / 12), pose: look(HOW_TARGET, [0, 0.42, 0.08], 30) },
+  { at: p('how', 1 / 2), pose: look(HOW_TARGET, [-0.03, 0.34, 0.2], 30) },
+  { at: p('how', 3 / 4), pose: look(LAYERS_TARGET, [-0.09, 0.15, 0.38], 32, { explode: 1 }) },
+  { at: p('generalize', 0), pose: look([-0.1, 0, 0], [0.06, 0.18, 0.32], 32) },
+  { at: p('generalize', 0.4), pose: look(ROAST_TARGET, [0.05, 0.1, 0.28], 30, { roastMix: 1 }) },
+  { at: p('generalize', 0.75), pose: look(ROAST_TARGET, [0.04, 0.07, 0.27], 30, { roastMix: 1 }) },
+  { at: p('generalize', 0.85), pose: look(ROAST_TARGET, [0.04, 0.07, 0.27], 30, { roastMix: 1 }) },
   { at: p('product', 0), pose: RECEDED },
   { at: p('ladder', 0), pose: RECEDED },
   { at: p('evidence', 0), pose: { ...RECEDED, plumbOpacity: 0 } },

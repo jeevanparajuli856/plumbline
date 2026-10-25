@@ -1,4 +1,6 @@
 import {
+  BOARD_LEFT_X,
+  BOARD_RIGHT_X,
   KEYFRAMES,
   SECTION_ORDER,
   STICKY_STATES,
@@ -107,6 +109,37 @@ describe('poseAt', () => {
     expect(poseAt(progressOf('ladder', 0)).plumbOpacity).toBe(1)
     expect(poseAt(progressOf('evidence', 0)).plumbOpacity).toBe(0)
     expect(poseAt(1).plumbOpacity).toBe(1)
+  })
+})
+
+describe('framing', () => {
+  const dist = (pose: ScenePose) => Math.hypot(...pose.camera.map((c, i) => c - pose.target[i]!))
+
+  it('keeps the camera far enough back that the board never fills the frame', () => {
+    for (const k of KEYFRAMES) expect(dist(poseAt(k.at))).toBeGreaterThanOrEqual(0.28)
+  })
+
+  it('puts the board right of the text column, except in play where the panel is on the right', () => {
+    for (const k of KEYFRAMES) {
+      const { section } = locate(k.at)
+      const pose = poseAt(k.at)
+      if (section === 'play' && k.at > progressOf('play', 0))
+        expect(pose.target[0]).toBe(BOARD_LEFT_X)
+      if (['mast', 'research', 'problem', 'close'].includes(section)) {
+        expect(pose.target[0]).toBe(BOARD_RIGHT_X)
+      }
+      // The keyframe at how f = 0 is play's resolved pose; the move starts there.
+      if ((section === 'how' || section === 'generalize') && k.at > progressOf('how', 0)) {
+        expect(pose.target[0]).toBeLessThan(0)
+      }
+    }
+  })
+
+  it('views the exploded layers from an angle, not straight down', () => {
+    const pose = poseAt(progressOf('how', 0.75))
+    const d = pose.camera.map((c, i) => c - pose.target[i]!)
+    const elevation = Math.atan2(d[1]!, Math.hypot(d[0]!, d[2]!))
+    expect(elevation).toBeLessThan((45 * Math.PI) / 180)
   })
 })
 
