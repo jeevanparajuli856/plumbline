@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useReducedMotion } from '@/a11y/useReducedMotion'
-import { webglSupported } from '@/lib/webgl'
 import { useLanding } from '@/state/landing'
-import { usePrefs } from '@/state/prefs'
 import { useSession } from '@/state/session'
 import s from './landing.module.css'
 import { cx } from './cx'
+import { EdgePlumb } from './EdgePlumb'
 import { Close } from './sections/Close'
 import { Evidence } from './sections/Evidence'
 import { Generalize } from './sections/Generalize'
@@ -37,10 +36,8 @@ export function LandingPage() {
   const rootRef = useRef<HTMLElement>(null)
   const reduced = useReducedMotion()
   const setSceneMode = useLanding((st) => st.setSceneMode)
-  const textOnly = usePrefs((st) => st.textOnly)
   const load = useFixture(FIXTURE_ID)
   const fixture = load.status === 'ready' ? load.fixture : null
-  const hasScene = !textOnly && webglSupported()
 
   useEffect(() => {
     setSceneMode('landing')
@@ -89,7 +86,7 @@ export function LandingPage() {
 
   return (
     <main id="main" ref={rootRef} className={s.root} data-reduced={reduced ? 'true' : 'false'}>
-      <Mast fixture={fixture} hasScene={hasScene} onPlay={() => void playFromMast()} />
+      <Mast reduced={reduced} onPlay={() => void playFromMast()} />
       <Research />
       <Problem fixture={fixture} />
       <Play fixture={fixture} onPlay={() => void play()} onReplay={() => void replay()} />
@@ -99,6 +96,7 @@ export function LandingPage() {
       <Ladder />
       <Evidence fixture={fixture} />
       <Close />
+      <EdgePlumb />
       {load.status === 'missing' && (
         <p role="status" className={cx(s.frame, s.body, 'pb-16')}>
           {load.sentence}

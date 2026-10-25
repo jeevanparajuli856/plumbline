@@ -1,8 +1,9 @@
+import type { CSSProperties } from 'react'
 import evidenceMd from '@docs/EVIDENCE.md?raw'
 import ladderMd from '@docs/brief/Plumbline_Scale_and_Build.md?raw'
 import s from '../landing.module.css'
 import { stripEditorNotes, tableUnder, withRolesForNames } from '../markdownTables'
-import { Caption, Eyebrow, Inline, ScrollRegion, Section } from '../parts'
+import { Caption, Eyebrow, Inline, Section } from '../parts'
 import { cx } from '../cx'
 import { countWord } from '../numberWords'
 
@@ -15,7 +16,7 @@ export function Ladder() {
   const employment = STATS?.rows[0]
   const source = SOURCE_IN_PARENS.exec(stripEditorNotes(employment?.[0] ?? ''))?.[1]
   return (
-    <Section id="ladder" className={cx(s.section, s.sheet)}>
+    <Section id="ladder" className={cx(s.section, s.band)}>
       <div className={cx(s.frame, s.grid, 'gap-y-12')}>
         <header className="col-span-4 md:col-span-8">
           <Eyebrow>Who it is for</Eyebrow>
@@ -29,44 +30,35 @@ export function Ladder() {
           )}
         </header>
         {LADDER && (
-          <div className="col-span-4 md:col-span-12">
-            <ScrollRegion label="Scale ladder table" className={s.rail}>
-              <table className={cx(s.table, 'min-w-[720px]')}>
-                <caption className="sr-only">
-                  Scale ladder: who uses it, what the engine infers, who pays
-                </caption>
-                <thead>
-                  <tr>
-                    {LADDER.headers.map((h) => (
-                      <th key={h} scope="col">
-                        {h}
-                      </th>
+          <ol className={cx(s.stairs, 'col-span-4 md:col-span-12')} aria-label="Scale ladder">
+            {LADDER.rows.map((row, i) => {
+              const [stage = '', ...facts] = row
+              return (
+                <li
+                  key={stage}
+                  className={cx(s.stair, i === 0 && s.stairNow)}
+                  style={{ '--rung': i } as CSSProperties}
+                >
+                  <h3 className={s.stairTitle}>
+                    <Inline text={withRolesForNames(stripEditorNotes(stage))} />
+                  </h3>
+                  <dl className={s.stairFacts}>
+                    {facts.map((cell, j) => (
+                      <div key={LADDER.headers[j + 1] ?? j}>
+                        <dt className={s.label}>{LADDER.headers[j + 1]}</dt>
+                        <dd>
+                          <Inline text={withRolesForNames(stripEditorNotes(cell))} />
+                        </dd>
+                      </div>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {LADDER.rows.map((row, i) => (
-                    <tr key={row[0]} className={cx(s.rung, i === 0 && s.rungNow)}>
-                      {row.map((cell, j) =>
-                        j === 0 ? (
-                          <th key={j} scope="row" className="relative font-semibold">
-                            <Inline text={withRolesForNames(stripEditorNotes(cell))} />
-                          </th>
-                        ) : (
-                          <td key={j}>
-                            <Inline text={withRolesForNames(stripEditorNotes(cell))} />
-                          </td>
-                        ),
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </ScrollRegion>
-          </div>
+                  </dl>
+                </li>
+              )
+            })}
+          </ol>
         )}
         <Caption className="col-span-4 md:col-span-8">
-          Scene: the plumb line becomes this rail. The filled rung is where we are now.
+          Each step down the staircase is a larger market on the same engine. The filled marker is where we are now.
           {source && ` Employment figure: ${source}.`}
         </Caption>
       </div>

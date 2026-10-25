@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import { formatPct } from '@/lib/format'
 import s from '../landing.module.css'
 import { cx } from '../cx'
+import { WarningGlyph } from '../parts'
 import type { PlayFrame, RankedHypothesis } from '../workedExample'
 
 /** Entropy ratios below these read as low / medium uncertainty in words. */
@@ -71,7 +72,7 @@ export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: P
 
       {frame.warning && (
         <p key={frame.readingsShown} className={s.warning}>
-          <span aria-hidden="true">&#x26A0;&#xFE0E; </span>
+          <WarningGlyph className={s.glyph} />
           <span className={s.warningWord}>Warning.</span> Your probe is not where you think it is.
           Most likely {frame.warning.likelyLabel}.
         </p>

@@ -1,11 +1,17 @@
+import { useState } from 'react'
 import type { FixtureT } from '@/engine/schemas'
 import { formatPct } from '@/lib/format'
 import { DOMAINS } from '@/state/domains'
 import { useSession } from '@/state/session'
-import { PRODUCT_LINE } from '../content'
+import { buttonClass } from '@/ui/button'
+import { PRODUCT_LINE, PRODUCTS } from '../content'
 import s from '../landing.module.css'
-import { Caption, Eyebrow, Section } from '../parts'
+import { Caption, Eyebrow, Section, WarningGlyph } from '../parts'
 import { cx } from '../cx'
+import { heroFrame } from '../heroFrame'
+import { HERO_RECORDING_IDS, PHONE_LAG_STEPS, phonePositionAt, useHeroLoop } from '../heroLoop'
+import { countWord } from '../numberWords'
+import { useFixtures } from '../useFixture'
 import { siteLabel } from '../workedExample'
 
 interface ProductProps {
@@ -13,8 +19,79 @@ interface ProductProps {
   onStep(): void
 }
 
-/** The phone text channel, driven by the real session store in replay. Not a picture. */
-function PhoneChannel({ fixture }: { fixture: FixtureT | null }) {
+/** What the phone screen shows, whoever drives it. */
+interface PhoneView {
+  status: string
+  headline: string
+  confidence: number | null
+  lastReading: string | null
+  warning: string | null
+  refusal: string | null
+}
+
+function PhoneScreen({ view }: { view: PhoneView }) {
+  return (
+    <div className={s.phone} role="group" aria-label="Phone preview of the text channel">
+      <div className={s.phoneBar}>
+        <span>Plumbline</span>
+        <span>{view.status}</span>
+      </div>
+      <p className={s.phoneInstruction}>{view.headline}</p>
+      {view.confidence !== null && (
+        <p className="text-lg">
+          Confidence <span className={s.mono}>{formatPct(view.confidence)}</span>
+        </p>
+      )}
+      {view.lastReading && (
+        <p className="text-lg">
+          Last reading{' '}
+          <span className={cx(s.mono, 'font-semibold text-measured')}>{view.lastReading}</span>
+        </p>
+      )}
+      {view.warning && (
+        <p className={s.warning}>
+          <WarningGlyph className={s.glyph} />
+          <span className={s.warningWord}>Warning.</span> {view.warning}
+        </p>
+      )}
+      {view.refusal && <p className={s.refusalNote}>{view.refusal}</p>}
+    </div>
+  )
+}
+
+/** Until the reader steps it, the phone follows the hero instrument a little behind. */
+function HeroPhone() {
+  const load = useFixtures(HERO_RECORDING_IDS)
+  const tick = useHeroLoop((st) => st.state.tick)
+  if (load.status !== 'ready') {
+    return (
+      <PhoneScreen
+        view={{ status: 'Loading', headline: 'Loading.', confidence: null, lastReading: null, warning: null, refusal: null }}
+      />
+    )
+  }
+  const counts = load.fixtures.map((f) => f.steps.length)
+  const { recording, readings } = phonePositionAt(counts, tick)
+  const fx = load.fixtures[recording]!
+  const f = heroFrame(fx, HERO_RECORDING_IDS[recording]!, readings)
+  const spec = DOMAINS[fx.domain]
+  const isDone = f.isResolved || f.unresolvedText !== null
+  return (
+    <PhoneScreen
+      view={{
+        status: isDone ? 'Replay, finished' : 'Replay, listening',
+        headline: f.isResolved && f.diagnosis ? `${f.diagnosis.label}.` : f.unresolvedText ? 'Unresolved.' : f.instruction,
+        confidence: f.isResolved && f.diagnosis ? f.diagnosis.p : null,
+        lastReading: f.readingDigits ? `${f.readingDigits} ${spec.unit}` : null,
+        warning: f.warning ? `Your probe is not where you think it is. Most likely ${f.warning.likelyLabel}.` : null,
+        refusal: f.unresolvedText,
+      }}
+    />
+  )
+}
+
+/** After the reader presses the button, the phone is the real session store in replay mode. */
+function SessionPhone({ fixture }: { fixture: FixtureT | null }) {
   const phase = useSession((st) => st.phase)
   const catalog = useSession((st) => st.catalog)
   const instruction = useSession((st) => st.instruction)
@@ -25,61 +102,41 @@ function PhoneChannel({ fixture }: { fixture: FixtureT | null }) {
   const spec = DOMAINS[domain]
 
   const idleLabel = fixture ? siteLabel(fixture, fixture.prior_instruction.site) : null
-  const idleSite =
-    fixture && idleLabel
-      ? { index: fixture.prior_instruction.site, label: idleLabel, spoken: idleLabel }
-      : null
   const site = instruction && catalog ? catalog.sites[instruction.site] : undefined
   const headline =
     diagnosis && phase === 'resolved'
       ? `${diagnosis.label}.`
       : site
         ? spec.phrases.instruction(site)
-        : fixture && idleSite
-          ? DOMAINS[fixture.domain].phrases.instruction(idleSite)
+        : fixture && idleLabel
+          ? DOMAINS[fixture.domain].phrases.instruction({
+              index: fixture.prior_instruction.site,
+              label: idleLabel,
+              spoken: idleLabel,
+            })
           : 'Loading.'
-
   return (
-    <div className={s.phone} role="group" aria-label="Phone preview of the text channel">
-      <p className={cx(s.mono, 'text-base text-text-2')}>
-        {phase === 'idle'
-          ? 'Replay, ready'
-          : phase === 'resolved'
-            ? 'Replay, resolved'
-            : 'Replay, listening'}
-      </p>
-      <p className={s.phoneInstruction}>{headline}</p>
-      {diagnosis && phase === 'resolved' && (
-        <p className="text-lg">
-          Confidence <span className={s.mono}>{formatPct(diagnosis.confidence)}</span>
-        </p>
-      )}
-      {last && (
-        <p className="text-lg">
-          Last reading{' '}
-          <span className={cx(s.mono, 'font-semibold text-measured')}>
-            {last.value.toFixed(spec.readingDecimals)} {spec.unit}
-          </span>
-        </p>
-      )}
-      {warning && phase !== 'resolved' && (
-        <p className={s.warning}>
-          <span aria-hidden="true">&#x26A0;&#xFE0E; </span>
-          <span className={s.warningWord}>Warning.</span>{' '}
-          {warning.text.replace(/^Warning\.\s*/, '')}
-        </p>
-      )}
-    </div>
+    <PhoneScreen
+      view={{
+        status: phase === 'idle' ? 'Replay, ready' : phase === 'resolved' ? 'Replay, resolved' : 'Replay, listening',
+        headline,
+        confidence: diagnosis && phase === 'resolved' ? diagnosis.confidence : null,
+        lastReading: last ? `${last.value.toFixed(spec.readingDecimals)} ${spec.unit}` : null,
+        warning: warning && phase !== 'resolved' ? warning.text.replace(/^Warning\.\s*/, '') : null,
+        refusal: null,
+      }}
+    />
   )
 }
 
 export function Product({ fixture, onStep }: ProductProps) {
   const phase = useSession((st) => st.phase)
+  const [isStepped, setStepped] = useState(false)
   const isBusy = phase === 'submitting' || phase === 'revealing' || phase === 'starting'
   return (
-    <Section id="product" className={cx(s.section, s.sheet)}>
-      <div className={cx(s.frame, s.grid, 'items-center gap-y-12')}>
-        <div className="col-span-4 md:col-span-6">
+    <Section id="product" className={cx(s.section, s.sheet, s.ruleTop)}>
+      <div className={cx(s.frame, s.grid, 'items-start gap-y-12')}>
+        <div className="col-span-4 md:col-span-12 lg:col-span-7">
           <Eyebrow>The product</Eyebrow>
           <h2 id="product-title" className={cx(s.h2, 'mt-6')}>
             {PRODUCT_LINE}
@@ -89,28 +146,35 @@ export function Product({ fixture, onStep }: ProductProps) {
             reading, and hears the warning. The 3D view on this page is for people who can see it;
             everything it shows is also in words.
           </p>
-          <p className={cx(s.body, 'mt-6')}>
-            The iOS app wraps this same web app, so the phone&apos;s own screen reader speaks every
-            state. The preview on the right is the live text channel running the recorded example,
-            not a screenshot.
-          </p>
-          <div className="mt-8">
-            <button
-              type="button"
-              className={s.button}
-              aria-disabled={isBusy || undefined}
-              onClick={() => !isBusy && onStep()}
-            >
-              {phase === 'resolved' ? 'Start the phone preview over' : 'Next reading on the phone'}
-            </button>
-          </div>
-          <Caption className="mt-8">
-            Phone preview: the same session store the simulator uses, in replay mode, with the
-            recorded worked example.
-          </Caption>
+          <ul data-motion="rows" className={cx(s.productRows, 'mt-12')} aria-label="Products">
+            {PRODUCTS.map((p, i) => (
+              <li key={p.name} className={s.productRow}>
+                <p className={s.productName}>{p.name}</p>
+                <p className="text-base leading-relaxed text-text-2">{p.sentence}</p>
+                <p className={cx(s.productStatus, i === 0 && s.productStatusNow)}>{p.status}</p>
+              </li>
+            ))}
+          </ul>
         </div>
-        <div className="col-span-4 flex justify-center md:col-span-5 md:col-start-8">
-          <PhoneChannel fixture={fixture} />
+        <div className="col-span-4 flex flex-col items-center gap-6 md:col-span-12 lg:col-span-4 lg:col-start-9">
+          {isStepped ? <SessionPhone fixture={fixture} /> : <HeroPhone />}
+          <button
+            type="button"
+            className={buttonClass('secondary')}
+            aria-disabled={isBusy || undefined}
+            onClick={() => {
+              if (isBusy) return
+              setStepped(true)
+              onStep()
+            }}
+          >
+            Next recorded reading
+          </button>
+          <Caption>
+            {isStepped
+              ? 'Phone preview: the same session store the simulator uses, in replay mode, with the recorded worked example. The button steps it one reading at a time.'
+              : `Phone preview: the instrument at the top of the page, ${countWord(PHONE_LAG_STEPS)} steps behind. Press the button to step the recorded worked example yourself.`}
+          </Caption>
         </div>
       </div>
     </Section>

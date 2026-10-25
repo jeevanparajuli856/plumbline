@@ -8,11 +8,14 @@ import {
   STATUS_LINE,
   TEAM,
   UNIVERSITY,
+  VALIDATION_STATS,
   type PhaseState,
+  type ValidationStat,
 } from '../content'
 import s from '../landing.module.css'
-import { statusTone, tableUnder, withoutBriefExpectations } from '../markdownTables'
+import { tableUnder, withoutBriefExpectations } from '../markdownTables'
 import { Caption, Eyebrow, Inline, ScrollRegion, Section, StatusBadge } from '../parts'
+import { Badge } from '@/ui/Badge'
 import { cx } from '../cx'
 import { countWord } from '../numberWords'
 import { fixtureConfig } from '../workedExample'
@@ -37,9 +40,9 @@ export function Evidence({ fixture }: { fixture: FixtureT | null }) {
   const assumed =
     c && c.pSame !== null && c.pPm1 !== null && c.pPm2 !== null ? [c.pSame, c.pPm1, c.pPm2] : null
   return (
-    <Section id="evidence" className={cx(s.section, s.sheet)}>
+    <Section id="evidence" className={cx(s.section, s.sheet, s.ruleTop)}>
       <div className={cx(s.frame, s.grid, 'gap-y-12')}>
-        <header className="col-span-4 md:col-span-9">
+        <header className="col-span-4 md:col-span-12 lg:col-span-5">
           <Eyebrow>Validation status</Eyebrow>
           <h2 id="evidence-title" className={cx(s.h2, 'mt-6')}>
             {STATUS_LINE}
@@ -56,6 +59,10 @@ export function Evidence({ fixture }: { fixture: FixtureT | null }) {
             The one result that would end this project: {KILL_RESULT}
           </p>
         </header>
+
+        <div className="col-span-4 md:col-span-12 lg:col-span-7">
+          <StatGrid />
+        </div>
 
         <div className="col-span-4 md:col-span-12">
           <h3 className={s.h3}>Roadmap</h3>
@@ -99,7 +106,7 @@ export function Evidence({ fixture }: { fixture: FixtureT | null }) {
                         <Inline text={item} />
                       </th>
                       <td className="w-[16%]">
-                        <StatusBadge status={status} tone={statusTone(status)} />
+                        <StatusBadge status={status} />
                       </td>
                       <td className="text-base">
                         <Inline text={withoutBriefExpectations(evidence)} />
@@ -135,5 +142,49 @@ export function Evidence({ fixture }: { fixture: FixtureT | null }) {
         </div>
       </div>
     </Section>
+  )
+}
+
+function statText(st: ValidationStat): string {
+  return `${st.value!.toFixed(st.decimals)}${st.suffix}`
+}
+
+/**
+ * Four ruled cells. Numbers come from docs/results through content.ts; the visible number is the
+ * motion hook (counts up once) and an sr-only twin carries the same text. The pending cell never moves.
+ */
+function StatGrid() {
+  return (
+    <ul className={s.stats} aria-label="Validation results">
+      {VALIDATION_STATS.map((st) =>
+        st.value === null ? (
+          <li key={st.id} className={cx(s.stat, s.statPending)}>
+            <div>
+              <Badge kind="PENDING" />
+            </div>
+            <p className={s.statPendingWord}>Real hands</p>
+            <p className="text-base leading-relaxed">{st.label}</p>
+            <p className={s.statSource}>{st.source}</p>
+          </li>
+        ) : (
+          <li key={st.id} className={s.stat}>
+            <p className={s.statNumber}>
+              <span
+                aria-hidden="true"
+                data-motion="stat"
+                data-motion-value={st.value}
+                data-motion-decimals={st.decimals}
+                data-motion-suffix={st.suffix || undefined}
+              >
+                {statText(st)}
+              </span>
+              <span className="sr-only">{statText(st)}</span>
+            </p>
+            <p className="text-base leading-relaxed">{st.label}</p>
+            <p className={s.statSource}>{st.source}</p>
+          </li>
+        ),
+      )}
+    </ul>
   )
 }

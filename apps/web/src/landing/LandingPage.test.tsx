@@ -9,6 +9,9 @@ import { SECTION_ORDER } from './choreography'
 import { tableUnder } from './markdownTables'
 import { countWord } from './numberWords'
 import { LandingPage, PLAY_PACE_MS } from './LandingPage'
+import { INITIAL_HERO_STATE, useHeroLoop } from './heroLoop'
+import { PHOTOS } from './photos'
+import { VALIDATION_STATS } from './content'
 
 vi.mock('@/lib/webgl', () => ({ webglSupported: () => false }))
 
@@ -27,6 +30,7 @@ async function settle() {
 }
 
 describe('LandingPage', () => {
+  beforeEach(() => useHeroLoop.setState({ state: INITIAL_HERO_STATE }))
   afterEach(() => {
     useSession.getState().replayPause()
     vi.unstubAllGlobals()
@@ -227,5 +231,132 @@ describe('LandingPage', () => {
     const text = container.textContent ?? ''
     expect(text).not.toMatch(/—|Get Started|first ever|Nexus|Read more|Learn more/i)
     expect(text).not.toMatch(/20-second|\b\d+ s\b|\b\d+ seconds?\b/)
+  })
+
+  it('puts the live instrument card in the mast, playing recorded runs without touching the session', async () => {
+    const start = vi.spyOn(useSession.getState(), 'start')
+    const { container } = renderLanding()
+    const mast = within(container.querySelector<HTMLElement>('section#mast')!)
+    const card = mast.getByRole('group', { name: 'Live instrument' })
+    await waitFor(() =>
+      expect(within(card).getByTestId('caption')).toHaveTextContent(/^Recording worked example, /),
+    )
+    expect(within(card).getAllByRole('button')).toHaveLength(1)
+    expect(within(card).getByRole('button', { name: 'Pause' })).toBeInTheDocument()
+    expect(within(card).getByTestId('caption')).not.toHaveAttribute('aria-live')
+    expect(start).not.toHaveBeenCalled()
+    start.mockRestore()
+  })
+
+  it('pauses the card on its button, and reads Play until pressed again', async () => {
+    const { container } = renderLanding()
+    const card = within(container.querySelector<HTMLElement>('section#mast')!).getByRole('group', {
+      name: 'Live instrument',
+    })
+    const button = await within(card).findByRole('button', { name: 'Pause' })
+    fireEvent.click(button)
+    expect(button).toHaveAccessibleName('Play')
+    fireEvent.pointerEnter(card)
+    fireEvent.pointerLeave(card)
+    expect(button).toHaveAccessibleName('Play')
+  })
+
+  it('shows the worked example final state with Play under reduced motion', async () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: query.includes('prefers-reduced-motion'),
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }))
+    const fx = await loadFixture('worked_example')
+    const { container } = renderLanding()
+    const card = within(container.querySelector<HTMLElement>('section#mast')!).getByRole('group', {
+      name: 'Live instrument',
+    })
+    await waitFor(() =>
+      expect(within(card).getByTestId('caption')).toHaveTextContent(
+        `Recording worked example, reading ${fx.steps.length} of ${fx.steps.length}`,
+      ),
+    )
+    expect(within(card).getByRole('button', { name: 'Play' })).toBeInTheDocument()
+  })
+
+  it('renders no photo in the mast, and every photo with alt, size, lazy loading and a credit', async () => {
+    const { container } = renderLanding()
+    await settle()
+    expect(container.querySelector('section#mast img')).toBeNull()
+    const imgs = Array.from(container.querySelectorAll('img'))
+    expect(imgs.map((i) => i.getAttribute('src')).sort()).toEqual(
+      Object.values(PHOTOS).map((p) => p.src).sort(),
+    )
+    for (const img of imgs) {
+      const photo = Object.values(PHOTOS).find((p) => p.src === img.getAttribute('src'))!
+      expect(img).toHaveAttribute('alt', photo.alt)
+      expect(img).toHaveAttribute('width', String(photo.width))
+      expect(img).toHaveAttribute('height', String(photo.height))
+      expect(img).toHaveAttribute('loading', 'lazy')
+      const credit = img.closest('figure')!.querySelector('figcaption')!
+      expect(credit).toHaveTextContent(photo.credit)
+      expect(credit).not.toHaveAttribute('data-testid', 'caption')
+    }
+  })
+
+  it('renders every motion hook the motion module selects, with final values in the static DOM', async () => {
+    const fx = await loadFixture('worked_example')
+    const { container } = renderLanding()
+    await settle()
+    expect(container.querySelector('h1')).toHaveAttribute('data-motion', 'headline')
+    expect(container.querySelectorAll('section#research [data-motion="quote"]')).toHaveLength(3)
+    const play = container.querySelector('section#play')!
+    expect(play).toHaveAttribute('data-motion', 'bars')
+    const published = play.querySelector<HTMLElement>('[data-motion-bar="published"]')!
+    const ours = play.querySelector<HTMLElement>('[data-motion-bar="ours"]')!
+    const stages = (el: HTMLElement) => el.dataset.motionStages!.split(',').map(Number)
+    expect(stages(published)).toHaveLength(3)
+    expect(stages(published)[1]).toBeCloseTo(fx.steps[0]!.baseline.confidence, 3)
+    expect(stages(ours)[2]).toBeCloseTo(fx.steps[1]!.diagnosis!.confidence, 3)
+    expect(ours.style.transform).toBe(`scaleX(${Math.max(...fx.steps[1]!.belief)})`)
+    const rows = container.querySelector('section#product [data-motion="rows"]')!
+    expect(rows.children).toHaveLength(3)
+    const plumb = container.querySelector('[data-motion="plumb"]')!
+    expect(plumb).toHaveAttribute('aria-hidden', 'true')
+    expect(plumb.querySelector('[data-motion-string]')).not.toBeNull()
+    expect(plumb.querySelector('[data-motion-bob]')).not.toBeNull()
+  })
+
+  it('gives each number stat a hidden counting number beside an sr-only twin, and the pending cell no hook', async () => {
+    const { container } = renderLanding()
+    await settle()
+    const evidence = container.querySelector<HTMLElement>('section#evidence')!
+    const stats = Array.from(evidence.querySelectorAll<HTMLElement>('[data-motion="stat"]'))
+    const numbered = VALIDATION_STATS.filter((st) => st.value !== null)
+    expect(stats).toHaveLength(numbered.length)
+    stats.forEach((el, i) => {
+      const st = numbered[i]!
+      expect(el).toHaveAttribute('aria-hidden', 'true')
+      expect(Number(el.dataset.motionValue)).toBe(st.value)
+      expect(el.dataset.motionDecimals).toBe(String(st.decimals))
+      expect(el.nextElementSibling).toHaveClass('sr-only')
+      expect(el.nextElementSibling).toHaveTextContent(el.textContent!)
+      expect(el.closest('li')).toHaveTextContent(st.source)
+    })
+    const pending = within(evidence).getByRole('list', { name: 'Validation results' }).lastElementChild!
+    expect(pending.querySelector('[data-motion]')).toBeNull()
+    expect(within(pending as HTMLElement).getByTestId('badge')).toHaveTextContent('PENDING')
+  })
+
+  it('runs the phone two steps behind the card until the reader steps it', async () => {
+    const { container } = renderLanding()
+    const product = within(container.querySelector<HTMLElement>('section#product')!)
+    const phone = product.getByRole('group', { name: 'Phone preview of the text channel' })
+    await waitFor(() => expect(useHeroLoop.getState().state.total).toBeGreaterThan(0))
+    act(() => useHeroLoop.setState((st) => ({ state: { ...st.state, tick: 3 } })))
+    // Tick 3 is seed_1 before any reading; two ticks earlier is the worked example's first reading.
+    await waitFor(() => expect(phone).toHaveTextContent('Last reading 3.671 V'))
+    expect(phone).toHaveTextContent('Warning.')
+    const replayNext = vi.spyOn(useSession.getState(), 'replayNext')
+    fireEvent.click(product.getByRole('button', { name: 'Next recorded reading' }))
+    await waitFor(() => expect(replayNext).toHaveBeenCalled())
+    replayNext.mockRestore()
   })
 })

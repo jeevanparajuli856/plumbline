@@ -1,5 +1,6 @@
 import s from '../landing.module.css'
-import { Badge, Caption, Eyebrow, Section } from '../parts'
+import { Badge } from '@/ui/Badge'
+import { Caption, Eyebrow, Section } from '../parts'
 import { cx } from '../cx'
 import { ProvenanceLine } from '../ProvenanceLine'
 import { useFixture } from '../useFixture'
@@ -41,9 +42,9 @@ export function Generalize() {
           </div>
         </div>
       </div>
-      <div className={cx(s.section, s.sheet)}>
+      <div className={cx(s.section, s.sheet, s.ruleTop)}>
         <div className={cx(s.frame, s.grid)}>
-          <div className="col-span-4 md:col-span-6">
+          <div className="col-span-4 md:col-span-7">
             <h3 className={s.h3}>Step by step</h3>
             <ol className={cx(s.steps, 'mt-6')} aria-label="Thermometer example, step by step">
               {demo.status === 'ready' ? (

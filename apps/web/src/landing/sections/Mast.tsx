@@ -1,64 +1,60 @@
+import type { CSSProperties } from 'react'
 import { Link } from 'react-router'
-import type { FixtureT } from '@/engine/schemas'
-import { PRODUCT_LINE, STATUS_LINE, UNIVERSITY } from '../content'
+import { buttonClass } from '@/ui/button'
+import { PRODUCT_LINE, STATUS_LINE } from '../content'
 import s from '../landing.module.css'
-import { Caption, Section } from '../parts'
+import { Caption, Eyebrow, Section } from '../parts'
 import { cx } from '../cx'
-import { PlumbFigure } from '../PlumbFigure'
-import { maxEntropy } from '../workedExample'
+import { HERO_INSTRUCTION_MS } from '../heroLoop'
+import { InstrumentCard } from './InstrumentCard'
 
 interface MastProps {
-  fixture: FixtureT | null
-  hasScene: boolean
+  reduced: boolean
   onPlay(): void
 }
 
-export function Mast({ fixture, hasScene, onPlay }: MastProps) {
-  const hMax = fixture ? maxEntropy(fixture) : 0
+/** The status lines arrive when the hero card's first recorded reading lands. */
+const AFTER_FIRST_READING = { animationDelay: `${HERO_INSTRUCTION_MS}ms` } as CSSProperties
+
+export function Mast({ reduced, onPlay }: MastProps) {
   return (
     <Section id="mast" className={cx(s.section, s.mast)}>
-      <div className={cx(s.frame, s.grid, 'w-full items-center')}>
-        <div className="col-span-4 md:col-span-7">
-          <p className={s.eyebrow}>
-            Research preview. Trustworthy measurement for hands that cannot see the tool
-          </p>
-          <h1 id="mast-title" className={cx(s.display, 'mt-6')}>
+      <div className={cx(s.frame, s.grid, 'w-full gap-y-14')}>
+        <div className={cx('col-span-4 md:col-span-12 lg:col-span-7', s.mastText)}>
+          <Eyebrow>Research preview. Trustworthy measurement for hands that cannot see the tool</Eyebrow>
+          <h1 id="mast-title" data-motion="headline" className={cx(s.display, s.headline, 'mt-8')}>
             Measurement you can trust without looking.
           </h1>
-          <p className={cx(s.lead, 'mt-6')}>
+          <p className={cx(s.lead, 'mt-8')}>
             When a blind person measures a circuit, nothing checks whether the probe landed where it
             was told. Plumbline infers the fault and the probe&apos;s true position from each
             reading, and it refuses to guess when the physics cannot tell two faults apart.
           </p>
-          <dl className="mt-8 grid gap-x-6 gap-y-3 border-t border-hairline pt-4 sm:grid-cols-[auto_1fr]">
+          <dl
+            className={cx(s.statusList, s.afterFirstReading, 'mt-10 max-w-[36rem]')}
+            style={reduced ? undefined : AFTER_FIRST_READING}
+          >
             <dt className={s.label}>Status</dt>
-            <dd className="text-lg">{STATUS_LINE}</dd>
+            <dd>{STATUS_LINE}</dd>
             <dt className={s.label}>Product</dt>
-            <dd className="text-lg">{PRODUCT_LINE}</dd>
-            <dt className={s.label}>Built at</dt>
-            <dd className="text-lg">{UNIVERSITY}</dd>
+            <dd>{PRODUCT_LINE}</dd>
           </dl>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <button type="button" className={cx(s.button, s.primary)} onClick={onPlay}>
+          <div className="mt-10 flex flex-wrap items-center gap-4">
+            <button type="button" className={buttonClass('primary')} onClick={onPlay}>
               Go to the worked example and play it
             </button>
-            <Link to="/sim" className={s.button}>
+            <Link to="/sim" className={buttonClass('secondary')}>
               Open the simulator
             </Link>
           </div>
           <Caption className="mt-12">
-            Scene: lab bench, breadboard, nothing measured yet.
-            {fixture
-              ? ` ${fixture.catalog.hypothesis_ids.length} possible faults, uncertainty ${hMax.toFixed(2)} bits.`
-              : ''}{' '}
-            Uncertainty: high. The line hangs still only when the evidence agrees.
+            Right edge of the page: a plumb line hangs at rest. Its bob follows how far down the
+            page you have read; it is decoration and carries no data.
           </Caption>
         </div>
-        {!hasScene && fixture && (
-          <div className="col-span-4 hidden justify-center md:col-span-4 md:col-start-9 md:flex">
-            <PlumbFigure entropyBits={hMax} maxEntropyBits={hMax} />
-          </div>
-        )}
+        <div className="col-span-4 md:col-span-8 md:col-start-3 lg:col-span-5 lg:col-start-8">
+          <InstrumentCard reduced={reduced} />
+        </div>
       </div>
     </Section>
   )

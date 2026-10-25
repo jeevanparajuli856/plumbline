@@ -3,6 +3,7 @@
  * by content.test.ts, so the landing cannot drift from docs/EVIDENCE.md, docs/POSITIONING.md and
  * docs/BUILD_PLAN.md. Fixture numbers never live here; they come from workedExample.ts.
  */
+import { tableUnder, type MarkdownTable } from './markdownTables'
 
 /** Used verbatim wherever status is shown (POSITIONING section 1). */
 export const STATUS_LINE = 'Simulation validated. User validation in progress.'
@@ -132,3 +133,136 @@ export const TEAM: readonly TeamMember[] = [
   { name: 'Pankaj Bhatta', role: 'The original inference engine and experiments' },
 ]
 export const UNIVERSITY = 'University of Louisiana Monroe'
+
+/** The three products, in the order they ship. Status words follow docs/EVIDENCE.md. */
+export const PRODUCTS: readonly { name: string; sentence: string; status: string }[] = [
+  {
+    name: 'Web simulator',
+    sentence: 'The whole instrument in a browser: the circuit, the simulated thermometer and recorded replays.',
+    status: 'Open now',
+  },
+  {
+    name: 'Voice channel',
+    sentence: 'Hear the instruction, say the reading, hear the warning. Speech stays off until you turn it on.',
+    status: 'In progress',
+  },
+  {
+    name: 'iOS app',
+    sentence: 'The same web app wrapped for the phone, so its screen reader speaks every state.',
+    status: 'Next',
+  },
+]
+
+/* ---------- Validation stats, read from the newest run files in docs/results ---------- */
+
+const RESULT_FILES = import.meta.glob(
+  ['@docs/results/stability_*.md', '@docs/results/mismatch_*.md'],
+  { query: '?raw', import: 'default', eager: true },
+) as Record<string, string>
+
+export interface ResultFile {
+  /** Path from the repo root, e.g. docs/results/stability_2026-10-25.md */
+  path: string
+  markdown: string
+  /** Date part of the "Generated:" line. */
+  generated: string | null
+}
+
+/** The newest file for an experiment; names carry the date, so the last one sorted wins. */
+export function latestResult(files: Record<string, string>, experiment: string): ResultFile | null {
+  const key = Object.keys(files)
+    .filter((k) => k.includes(`/results/${experiment}_`))
+    .sort()
+    .at(-1)
+  if (!key) return null
+  const markdown = files[key]!
+  return {
+    path: `docs/results/${key.split('/').at(-1)}`,
+    markdown,
+    generated: /^- Generated: (\d{4}-\d{2}-\d{2})/m.exec(markdown)?.[1] ?? null,
+  }
+}
+
+/** The leading number of a cell such as "99.5 ± 0.4" or "82.7". */
+export function leadingNumber(cell: string | undefined): number | null {
+  const m = /^-?\d+(?:\.\d+)?/.exec((cell ?? '').trim())
+  return m ? Number(m[0]) : null
+}
+
+/** One method's value in the column whose header starts with `column`. */
+export function cellFor(table: MarkdownTable | null, method: string, column: string): number | null {
+  if (!table) return null
+  const col = table.headers.findIndex((h) => h.startsWith(column))
+  const row = table.rows.find((r) => r[0] === method)
+  return col < 0 || !row ? null : leadingNumber(row[col])
+}
+
+export interface ValidationStat {
+  id: string
+  /** null for the cell that waits on user validation. */
+  value: number | null
+  decimals: number
+  suffix: string
+  label: string
+  source: string
+  isSimulated: boolean
+}
+
+const STABILITY = latestResult(RESULT_FILES, 'stability')
+const MISMATCH = latestResult(RESULT_FILES, 'mismatch')
+const STABILITY_TABLE = STABILITY ? tableUnder(STABILITY.markdown, 'Stability') : null
+const BRIDGING_TABLE = MISMATCH ? tableUnder(MISMATCH.markdown, 'bridging') : null
+
+/** "5 seeds x 300 faults" from the run file's "- Seeds: [...]; n per arm per seed: N" line. */
+export function runScope(file: ResultFile | null): string | null {
+  const m = /^- Seeds: \[([^\]]*)\]; n per arm per seed: (\d+)/m.exec(file?.markdown ?? '')
+  if (!m) return null
+  const seeds = m[1]!.split(',').filter((x) => x.trim() !== '').length
+  return `${seeds} ${seeds === 1 ? 'seed' : 'seeds'} x ${m[2]} faults`
+}
+
+function sourceOf(file: ResultFile | null, scenario = ''): string {
+  if (!file) return 'Run file missing.'
+  const scope = [scenario, runScope(file)].filter(Boolean).join(', ')
+  return `${file.path}, run ${file.generated ?? 'undated'}, ${scope}. Simulated.`
+}
+
+/** The four validation cells: three simulated results from our own runs and one that waits on people. */
+export const VALIDATION_STATS: readonly ValidationStat[] = [
+  {
+    id: 'correct',
+    value: cellFor(STABILITY_TABLE, 'plumbline', 'Correct %'),
+    decimals: 1,
+    suffix: '%',
+    label: 'of simulated faults end on the true fault or an honest refusal, mean over seeds.',
+    source: sourceOf(STABILITY),
+    isSimulated: true,
+  },
+  {
+    id: 'confidently-wrong',
+    value: cellFor(STABILITY_TABLE, 'plumbline', 'Confidently wrong %'),
+    decimals: 1,
+    suffix: '%',
+    label: `confidently wrong, against ${cellFor(STABILITY_TABLE, 'entropy_exact', 'Confidently wrong %') ?? 'an unrecorded'}% for the published method on the same faults.`,
+    source: sourceOf(STABILITY),
+    isSimulated: true,
+  },
+  {
+    id: 'bridging',
+    value: cellFor(BRIDGING_TABLE, 'plumbline', 'Correct %'),
+    decimals: 1,
+    suffix: '%',
+    label: 'correct in our hardest stress test, a probe that sometimes bridges two rows. This is where it fails most.',
+    source: sourceOf(MISMATCH, 'bridging scenario'),
+    isSimulated: true,
+  },
+  {
+    id: 'real-hands',
+    value: null,
+    decimals: 0,
+    suffix: '',
+    label: 'How real blind hands miss: the measured placement matrix that replaces the assumed one. No participant results yet.',
+    source: 'docs/EVIDENCE.md, readiness row "Measured confusion matrix". Date to be booked.',
+    isSimulated: false,
+  },
+]

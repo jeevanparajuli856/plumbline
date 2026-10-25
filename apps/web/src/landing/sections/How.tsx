@@ -2,7 +2,8 @@ import type { FixtureT } from '@/engine/schemas'
 import { useLanding } from '@/state/landing'
 import { poseAt } from '../choreography'
 import s from '../landing.module.css'
-import { Caption, Eyebrow, Section } from '../parts'
+import { Caption, Eyebrow, PhotoFigure, Section } from '../parts'
+import { PHOTOS } from '../photos'
 import { cx } from '../cx'
 import { countWord } from '../numberWords'
 import { fixtureConfig, unresolvedGroups, type FixtureConfig } from '../workedExample'
@@ -68,8 +69,13 @@ export function How({ fixture, reduced }: HowProps) {
     <Section id="how">
       <div data-sticky-track className={cx(s.track, s.trackHow)}>
         <div data-sticky-pin className={s.pin}>
-          <div className={cx(s.frame, s.grid, 'w-full py-16 md:py-0')}>
-            <div className={cx('col-span-4 md:col-span-7', s.phonePaper)}>
+          <div className={cx(s.frame, s.grid, 'w-full items-center gap-y-8 py-16 md:py-12')}>
+            <PhotoFigure
+              photo={PHOTOS.brailleRows}
+              sizes="(min-width: 768px) 16vw, 40vw"
+              className={cx(s.ratioStrip, 'hidden md:col-span-2 md:block')}
+            />
+            <div className={cx('col-span-4 md:col-span-6', s.phonePaper)}>
               <Eyebrow>The method</Eyebrow>
               <h2 id="how-title" className={cx(s.h2, 'mt-4')}>
                 {countWord(lines.length, true)} lines of math, not a black box.
@@ -106,7 +112,7 @@ export function How({ fixture, reduced }: HowProps) {
 /** Signature moment 8: two faults the physics cannot separate, held together by a bracket. */
 function Refusal({ labels }: { labels: string[] }) {
   return (
-    <div className={cx(s.section, s.sheet)}>
+    <div className={cx(s.section, s.sheet, s.ruleTop)}>
       <div className={cx(s.frame, s.grid, 'gap-y-8')}>
         <div className="col-span-4 md:col-span-6">
           <h3 className={s.h3}>Refusal is a feature</h3>

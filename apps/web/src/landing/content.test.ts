@@ -2,7 +2,15 @@ import evidenceMd from '@docs/EVIDENCE.md?raw'
 import positioningMd from '@docs/POSITIONING.md?raw'
 import buildPlanMd from '@docs/BUILD_PLAN.md?raw'
 import designMd from '@docs/DESIGN_REFERENCES.md?raw'
+import stabilityMd from '@docs/results/stability_2026-10-25.md?raw'
+import mismatchMd from '@docs/results/mismatch_2026-10-25.md?raw'
+import { act, render } from '@testing-library/react'
+import { createElement } from 'react'
+import { MemoryRouter } from 'react-router'
 import * as content from './content'
+import { LandingPage } from './LandingPage'
+
+vi.mock('@/lib/webgl', () => ({ webglSupported: () => false }))
 
 const flat = (s: string) => s.replace(/\s+/g, ' ')
 
@@ -69,5 +77,104 @@ describe('landing copy is backed by the docs', () => {
   it('contains no em-dashes, exclamation marks or banned phrases', () => {
     const all = JSON.stringify(content)
     expect(all).not.toMatch(/—|!|first ever|Get Started|Nexus/i)
+  })
+})
+
+describe('validation stats are read from docs/results', () => {
+  const byId = Object.fromEntries(content.VALIDATION_STATS.map((st) => [st.id, st]))
+
+  it('has four cells, exactly one of them waiting on user validation with no number', () => {
+    expect(content.VALIDATION_STATS).toHaveLength(4)
+    const pending = content.VALIDATION_STATS.filter((st) => st.value === null)
+    expect(pending.map((st) => st.id)).toEqual(['real-hands'])
+    expect(pending[0]!.label).toContain('No participant results yet.')
+  })
+
+  it('takes the stability numbers from the plumbline and published-method rows of the newest run', () => {
+    const cells = (method: string) =>
+      stabilityMd
+        .split('\n')
+        .find((l) => l.startsWith(`| ${method} |`))!
+        .split('|')
+        .map((c) => c.trim())
+    // Columns: Method, Faults, Correct, Resolved correct, Confidently wrong, ...
+    const ours = cells('plumbline')
+    const published = cells('entropy_exact')
+    expect(ours[3]).toMatch(new RegExp(`^${byId.correct!.value!.toFixed(1)} ±`))
+    expect(ours[5]).toMatch(new RegExp(`^${byId['confidently-wrong']!.value!.toFixed(1)} ±`))
+    const publishedWrong = published[5]!.split(' ')[0]
+    expect(byId['confidently-wrong']!.label).toContain(`${publishedWrong}% for the published method`)
+  })
+
+  it('takes the bridging stress test from the bridging section of the newest mismatch run', () => {
+    const section = mismatchMd.split('## bridging')[1]!.split('## ')[0]!
+    const row = section.split('\n').find((l) => l.startsWith('| plumbline |'))!
+    expect(row.split('|')[3]!.trim()).toBe(byId.bridging!.value!.toFixed(1))
+  })
+
+  it('names the file, the run date and the seeds and faults on every simulated cell', () => {
+    for (const st of content.VALIDATION_STATS.filter((x) => x.isSimulated)) {
+      expect(st.source).toMatch(/^docs\/results\/(stability|mismatch)_\d{4}-\d{2}-\d{2}\.md, run \d{4}-\d{2}-\d{2}, /)
+      expect(st.source).toMatch(/\d+ seeds? x \d+ faults\. Simulated\.$/)
+    }
+    expect(byId.correct!.source).toContain('5 seeds x 300 faults')
+    expect(byId.bridging!.source).toContain('1 seed x 300 faults')
+  })
+
+  it('picks the newest dated file and parses leading numbers', () => {
+    const files = { '/x/results/stability_2026-10-01.md': 'old', '/x/results/stability_2026-11-02.md': '- Generated: 2026-11-02T00:00\n' }
+    expect(content.latestResult(files, 'stability')).toEqual({
+      path: 'docs/results/stability_2026-11-02.md',
+      markdown: files['/x/results/stability_2026-11-02.md'],
+      generated: '2026-11-02',
+    })
+    expect(content.latestResult(files, 'sweep')).toBeNull()
+    expect(content.leadingNumber('99.5 ± 0.4')).toBe(99.5)
+    expect(content.leadingNumber('n/a')).toBeNull()
+  })
+})
+
+/** Copy tropes from docs/POSITIONING.md section 4.3, checked on our strings and the rendered page. */
+const TROPES: ReadonlyArray<readonly [string, RegExp]> = [
+  ['em-dash', /\u2014/],
+  ['emoji', /\p{Extended_Pictographic}/u],
+  ['exclamation mark', /!/],
+  ["it's not X, it's Y", /\bit(?:'|\u2019)?s not\b[^.]{0,60}[,;]\s*it(?:'|\u2019)?s\b/i],
+  ['not just', /\bnot just\b/i],
+  [
+    'buzzword',
+    /\b(revolutionary|game-changing|seamless(?:ly)?|cutting-edge|next-gen|unlock|empower|supercharge|leverage|synergy|world-class|effortless(?:ly)?)\b/i,
+  ],
+]
+
+function stringsIn(value: unknown): string[] {
+  if (typeof value === 'string') return [value]
+  if (Array.isArray(value)) return value.flatMap(stringsIn)
+  if (value && typeof value === 'object') return Object.values(value).flatMap(stringsIn)
+  return []
+}
+
+describe('copy tropes', () => {
+  it('none appears in any content.ts string', () => {
+    const all = stringsIn({ ...content })
+    expect(all.length).toBeGreaterThan(20)
+    for (const text of all) {
+      for (const [name, re] of TROPES) expect({ name, text, hit: re.test(text) }).toMatchObject({ hit: false })
+    }
+  })
+
+  it('none appears in the rendered landing text', async () => {
+    const { container } = render(createElement(MemoryRouter, null, createElement(LandingPage)))
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0))
+    })
+    const text = container.textContent ?? ''
+    expect(text.length).toBeGreaterThan(2000)
+    for (const [name, re] of TROPES) expect({ name, hit: re.exec(text)?.[0] ?? null }).toEqual({ name, hit: null })
+  })
+
+  it('the trope patterns catch what they are meant to catch', () => {
+    const samples = ['a \u2014 b', 'ok \u{1F680}', 'Wow!', "It's not a meter, it's a partner", 'not just a tool', 'Unlock insight']
+    samples.forEach((sample, i) => expect(TROPES[i]![1].test(sample)).toBe(true))
   })
 })
