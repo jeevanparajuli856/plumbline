@@ -11,7 +11,7 @@ import {
   type PhaseState,
 } from '../content'
 import s from '../landing.module.css'
-import { statusTone, tableUnder } from '../markdownTables'
+import { statusTone, tableUnder, withoutBriefExpectations } from '../markdownTables'
 import { Caption, Eyebrow, Inline, ScrollRegion, Section, StatusBadge } from '../parts'
 import { cx } from '../cx'
 import { fixtureConfig } from '../workedExample'
@@ -101,7 +101,7 @@ export function Evidence({ fixture }: { fixture: FixtureT | null }) {
                         <StatusBadge status={status} tone={statusTone(status)} />
                       </td>
                       <td className="text-base">
-                        <Inline text={evidence} />
+                        <Inline text={withoutBriefExpectations(evidence)} />
                       </td>
                     </tr>
                   ))}
@@ -128,7 +128,8 @@ export function Evidence({ fixture }: { fixture: FixtureT | null }) {
           </ul>
           <Caption className="mt-8">
             Built at {UNIVERSITY}. This table is rendered from our evidence file at build time; a
-            row says DONE only when it names a command, a file or a source.
+            row says DONE only when it names a command, a file or a source. Expectations from
+            earlier runs are left out until the same command runs here.
           </Caption>
         </div>
       </div>

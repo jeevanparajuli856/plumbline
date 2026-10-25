@@ -29,7 +29,7 @@ function scale(p: number): CSSProperties {
 export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: PlayPanelProps) {
   const ratio = frame.maxEntropyBits > 0 ? frame.entropyBits / frame.maxEntropyBits : 0
   return (
-    <div className={cx(s.panel, 'grid gap-6')}>
+    <div className={cx(s.panel, 'grid gap-5')}>
       <ol className={s.rows} aria-label="Breadboard rows in the worked example">
         {siteLabels.map((label, i) => {
           const isTold = i === frame.told
@@ -44,19 +44,30 @@ export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: P
         })}
       </ol>
 
-      <div className="flex flex-wrap items-baseline justify-between gap-4">
+      <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-end">
         <div>
           <p className="text-base text-text-2">Meter reading</p>
           <p className={cx(s.reading, !frame.reading && s.readingEmpty)}>
             {frame.reading ?? (isTravelling ? 'Probe travelling' : 'No reading yet')}
           </p>
         </div>
-        <p className="max-w-[22em] text-base text-text-2">
-          {frame.landedLabel
-            ? `Told ${frame.toldLabel}. Landed on ${frame.landedLabel}.`
-            : `Told ${frame.toldLabel}. The landed row stays hidden until the reading is accepted.`}
-        </p>
+        <div>
+          <div className="flex flex-wrap justify-between gap-x-4 text-base">
+            <span className="whitespace-nowrap">Uncertainty: {uncertaintyWord(ratio)}</span>
+            <span className={cx(s.mono, 'whitespace-nowrap')}>
+              {frame.entropyBits.toFixed(2)} of {frame.maxEntropyBits.toFixed(2)} bits
+            </span>
+          </div>
+          <div className={cx(s.entropy, 'mt-2')} aria-hidden="true">
+            <div className={s.entropyFill} style={scale(ratio)} />
+          </div>
+        </div>
       </div>
+      {!frame.landedLabel && (
+        <p className="text-base text-text-2">
+          Told {frame.toldLabel}. The landed row stays hidden until the reading is accepted.
+        </p>
+      )}
 
       {frame.warning && (
         <p key={frame.readingsShown} className={s.warning}>
@@ -91,18 +102,6 @@ export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: P
           trueHypothesis={frame.isResolved ? trueHypothesis : null}
           empty="Waits for the first reading."
         />
-      </div>
-
-      <div>
-        <div className="flex justify-between gap-4 text-base">
-          <span>Uncertainty: {uncertaintyWord(ratio)}</span>
-          <span className={s.mono}>
-            {frame.entropyBits.toFixed(2)} of {frame.maxEntropyBits.toFixed(2)} bits
-          </span>
-        </div>
-        <div className={cx(s.entropy, 'mt-2')} aria-hidden="true">
-          <div className={s.entropyFill} style={scale(ratio)} />
-        </div>
       </div>
     </div>
   )

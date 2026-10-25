@@ -109,3 +109,11 @@ export function statusTone(status: string): StatusTone {
   if (s.includes('DONE')) return 'done'
   return 'pending'
 }
+
+/**
+ * Drops the brief's expectation numbers from an evidence cell. They are the teammate's original run,
+ * not ours, and docs/POSITIONING.md keeps them off the site until the same command runs here.
+ */
+export function withoutBriefExpectations(text: string): string {
+  return text.replace(/[;.,]?\s*[Bb]rief expect(?:ed|ation)\b[\s\S]*$/, '').trim()
+}

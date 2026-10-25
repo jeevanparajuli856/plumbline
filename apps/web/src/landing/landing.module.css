@@ -174,9 +174,7 @@
   }
 }
 .mast {
-  min-height: calc(100vh - 57px);
-  display: flex;
-  align-items: center;
+  padding-top: var(--space-8);
 }
 .tall {
   min-height: 100vh;
@@ -355,7 +353,7 @@
   border: 1px solid var(--hairline);
   border-radius: var(--radius-soft);
   box-shadow: var(--shadow-panel);
-  padding: var(--space-8);
+  padding: var(--space-6);
 }
 @media (max-width: 767px) {
   .panel {
@@ -373,7 +371,7 @@
 }
 .row {
   position: relative;
-  min-height: 64px;
+  min-height: 56px;
   border: 1px solid var(--hairline);
   border-radius: var(--radius-hard);
   padding: var(--space-2);
@@ -392,9 +390,11 @@
   }
 }
 .rowTold {
-  border: 2px dashed var(--inferred);
+  outline: 2px dashed var(--inferred);
+  outline-offset: 2px;
   background: var(--surface-1);
 }
+.rowTold.rowLanded,
 .rowLanded {
   background: var(--measured-fill);
   border: 2px solid var(--measured-fill);
@@ -678,9 +678,14 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: var(--space-2);
+}
+@media (max-width: 1023px) {
+  .phases {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 .phase {
   display: grid;
@@ -688,7 +693,6 @@
   padding: var(--space-2) var(--space-4);
   border: 1.5px solid var(--border-strong);
   border-radius: var(--radius-hard);
-  min-width: 160px;
 }
 .phaseDone {
   background: var(--surface-2);

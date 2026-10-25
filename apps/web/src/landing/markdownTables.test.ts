@@ -7,6 +7,7 @@ import {
   statusTone,
   stripEditorNotes,
   tableUnder,
+  withoutBriefExpectations,
 } from './markdownTables'
 
 describe('splitRow', () => {
@@ -105,5 +106,25 @@ describe('statusTone', () => {
     expect(statusTone('scratch DONE, engine PENDING')).toBe('pending')
     expect(statusTone('SIMULATED')).toBe('simulated')
     expect(statusTone('unknown')).toBe('pending')
+  })
+})
+
+describe('withoutBriefExpectations', () => {
+  it('cuts the brief expectation clause and keeps our own evidence', () => {
+    expect(withoutBriefExpectations('`cmd`; file.md. Brief expectation: 99.0% correct')).toBe(
+      '`cmd`; file.md',
+    )
+    expect(withoutBriefExpectations('Scratch: 32 classes; brief expected 31')).toBe(
+      'Scratch: 32 classes',
+    )
+    expect(withoutBriefExpectations('no expectations here')).toBe('no expectations here')
+  })
+
+  it('keeps every brief headline number out of the rendered readiness table', () => {
+    const t = tableUnder(evidenceMd, '1. Readiness')!
+    const rendered = t.rows.map((r) => withoutBriefExpectations(r[2] ?? '')).join(' ')
+    for (const n of ['99.0', '21.2', '78.7', '176 of 178', '63.5', '97.6', 'under 2%']) {
+      expect(rendered).not.toContain(n)
+    }
   })
 })
