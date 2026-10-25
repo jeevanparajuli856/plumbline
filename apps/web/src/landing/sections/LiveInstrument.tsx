@@ -14,6 +14,7 @@ import { Caption } from '../parts'
 import { viewFromFrame } from '../phone/appScreen'
 import { IPhone } from '../phone/IPhone'
 import { useFixtures } from '../useFixture'
+import { cx } from '../cx'
 
 interface LiveInstrumentProps {
   reduced: boolean
@@ -22,7 +23,8 @@ interface LiveInstrumentProps {
 /**
  * The live hero (UI_CONTRACT 5.2): the Truehand app on an iPhone, playing recorded engine runs on a
  * loop with one Pause/Play button. Hover or focus inside holds it. It never touches the session
- * store, so it never speaks or fights a replay the reader starts elsewhere.
+ * store, so it never speaks or fights a replay the reader starts elsewhere. Two still phones
+ * behind it show the worked example's warning and its answer; they are pictures (aria-hidden).
  */
 export function LiveInstrument({ reduced }: LiveInstrumentProps) {
   const load = useFixtures(HERO_RECORDING_IDS)
@@ -37,6 +39,16 @@ export function LiveInstrument({ reduced }: LiveInstrumentProps) {
     const { recording, readings } = positionAt(counts, state.tick)
     return heroFrame(fixtures[recording]!, HERO_RECORDING_IDS[recording]!, readings)
   }, [fixtures, counts, state.tick])
+
+  const backdrop = useMemo(() => {
+    const worked = fixtures?.[0]
+    if (!worked || worked.steps.length === 0) return null
+    const id = HERO_RECORDING_IDS[0]!
+    return {
+      warning: viewFromFrame(heroFrame(worked, id, 1)),
+      answer: viewFromFrame(heroFrame(worked, id, worked.steps.length)),
+    }
+  }, [fixtures])
 
   const onBlur = (e: FocusEvent<HTMLDivElement>) => {
     if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
@@ -55,20 +67,32 @@ export function LiveInstrument({ reduced }: LiveInstrumentProps) {
       onFocus={() => dispatch({ type: 'focus', inside: true })}
       onBlur={onBlur}
     >
-      {frame ? (
-        <IPhone view={viewFromFrame(frame)} frameKey={String(state.tick)} />
-      ) : (
-        <p className={s.liveLoading}>
-          {load.status === 'missing' ? load.sentence : 'Loading the recorded runs.'}
-        </p>
-      )}
+      <div className={s.phoneStage}>
+        {backdrop ? (
+          <>
+            <div className={cx(s.sidePhone, s.sideLeft)} aria-hidden="true" inert>
+              <IPhone still view={backdrop.warning} frameKey="warning" />
+            </div>
+            <div className={cx(s.sidePhone, s.sideRight)} aria-hidden="true" inert>
+              <IPhone still view={backdrop.answer} frameKey="answer" />
+            </div>
+          </>
+        ) : null}
+        <div className={s.centerPhone}>
+          {frame ? (
+            <IPhone view={viewFromFrame(frame)} frameKey={String(state.tick)} />
+          ) : (
+            <p className={s.liveLoading}>
+              {load.status === 'missing' ? load.sentence : 'Loading the recorded runs.'}
+            </p>
+          )}
+        </div>
+      </div>
       <div className={s.liveControls}>
-        <Caption className={s.liveCaption}>
-          {frame ? heroCaption(frame) : 'Recording loading.'}
-        </Caption>
+        <Caption className="sr-only">{frame ? heroCaption(frame) : 'Recording loading.'}</Caption>
         <button
           type="button"
-          className={buttonClass('secondary')}
+          className={buttonClass('secondary', 'rounded-full px-5')}
           aria-disabled={!fixtures || undefined}
           onClick={() => fixtures && dispatch({ type: 'toggle' })}
         >

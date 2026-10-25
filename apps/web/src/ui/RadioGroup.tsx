@@ -26,11 +26,13 @@ interface RadioGroupProps<T extends string> {
 const LAYOUT = {
   inline: {
     root: 'flex flex-wrap items-center gap-x-3 gap-y-1',
-    group: 'inline-flex flex-wrap',
+    group: 'inline-flex flex-wrap rounded-[22px]',
+    option: 'rounded-full',
   },
   stacked: {
     root: 'grid gap-2',
-    group: 'grid grid-cols-2',
+    group: 'grid grid-cols-2 rounded-soft',
+    option: 'rounded-[9px]',
   },
 } as const
 
@@ -99,7 +101,7 @@ export function RadioGroup<T extends string>({
         aria-labelledby={labelId}
         aria-describedby={explicit ? hintId : undefined}
         onBlur={onBlur}
-        className={`${LAYOUT[layout].group} gap-0.5 rounded-button border-[1.5px] border-border-strong bg-surface-1 p-[3px]`}
+        className={`${LAYOUT[layout].group} gap-0.5 border-[1.5px] border-border-strong bg-surface-1 p-[3px]`}
       >
         {options.map((option, i) => {
           const checked = i === selected
@@ -115,7 +117,7 @@ export function RadioGroup<T extends string>({
               tabIndex={checked ? 0 : -1}
               onClick={() => choose(option.value)}
               onKeyDown={onKeyDown}
-              className="min-h-11 rounded-[5px] px-3 font-medium text-text-2 transition-colors duration-[var(--motion-fast)] hover:bg-surface-2 hover:text-text aria-checked:bg-text aria-checked:font-semibold aria-checked:text-bench aria-checked:hover:bg-text forced-colors:aria-checked:underline forced-colors:aria-checked:decoration-2 forced-colors:aria-checked:underline-offset-4"
+              className={`${LAYOUT[layout].option} min-h-11 px-4 font-medium text-text-2 transition-[color,background-color,scale] duration-[var(--motion-fast)] ease-[var(--ease-smooth)] hover:bg-surface-2 hover:text-text active:scale-[0.97] aria-checked:bg-text aria-checked:font-semibold aria-checked:text-bench aria-checked:hover:bg-text forced-colors:aria-checked:underline forced-colors:aria-checked:decoration-2 forced-colors:aria-checked:underline-offset-4`}
             >
               {option.label}
             </button>

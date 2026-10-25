@@ -15,6 +15,7 @@ export const SPA_ROUTES = [
   'accessibility',
   'contact',
   'about',
+  'docs',
 ] as const
 
 export function spaRouteCopies(outDir = 'dist'): Plugin {

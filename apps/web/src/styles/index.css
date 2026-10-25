@@ -139,6 +139,13 @@ html {
   font-size: 100%;
   line-height: var(--leading-body);
   -webkit-text-size-adjust: 100%;
+  /* The header is sticky: anchors and focused fields land below it. */
+  scroll-padding-top: calc(var(--header-height) + env(safe-area-inset-top) + var(--space-4));
+}
+
+/* The phone tab bar is fixed: focused controls scroll clear of it (WCAG 2.4.11). */
+html:has(.tabbar) {
+  scroll-padding-bottom: calc(5rem + env(safe-area-inset-bottom));
 }
 
 body {

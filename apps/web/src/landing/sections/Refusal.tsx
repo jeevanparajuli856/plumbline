@@ -23,9 +23,8 @@ export function Refusal({ fixture }: { fixture: FixtureT | null }) {
             It refuses to guess.
           </h2>
           <p className={cx(s.lead, 'mt-6')}>
-            Some faults look identical from every row you can reach. When that happens, Truehand
-            names both, says it cannot tell them apart, and asks for a different measurement. It
-            never picks one to sound sure.
+            When two faults read the same from every row, Truehand names both and asks for a
+            different measurement.
           </p>
           {labels.length > 1 && (
             <figure className={cx(s.refusalCard, 'mt-10')}>

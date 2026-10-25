@@ -13,6 +13,7 @@ import { FOUNDER_NAMES, METHOD_WORDS, TROPES } from '@/test/copyGuards'
 import { AccessibilityPage } from './AccessibilityPage'
 import { AppPage } from './AppPage'
 import { ContactPage } from './contact/ContactPage'
+import { DocsPage } from './DocsPage'
 import { HomePage } from './HomePage'
 import { HowItWorksPage } from './HowItWorksPage'
 
@@ -28,6 +29,7 @@ const PAGES: ReadonlyArray<readonly [string, () => ReactElement]> = [
   ['/accessibility', () => <AccessibilityPage />],
   ['/contact', () => <ContactPage />],
   ['/about', () => <AboutPage />],
+  ['/docs', () => <DocsPage />],
 ]
 
 /** Pages that sell the product and carry no validation talk. */

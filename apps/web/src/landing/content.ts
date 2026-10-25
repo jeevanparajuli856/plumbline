@@ -91,7 +91,7 @@ export const SAFETY_SCOPE =
 
 /** Home hero: one confident sentence on what the app does. */
 export const HERO_LEAD =
-  'Truehand tells you where to probe, hears your reading, catches a slipped probe, and names the fault. When two faults look the same, it says so instead of guessing.'
+  'Say the reading. Truehand catches a slipped probe and names the fault.'
 
 /** Where Truehand is used (Home, audience). Roles, never organization names. */
 export const USE_CASES: readonly { name: string; sentence: string; buyer: string }[] = [
@@ -114,21 +114,27 @@ export const USE_CASES: readonly { name: string; sentence: string; buyer: string
   },
 ]
 
-/** What changes for the user (Home, outcomes). Says what Truehand does, never how. */
-export const OUTCOMES: readonly { name: string; sentence: string }[] = [
+/** The four steps of one run (Home and How it works). Says what Truehand does, never how. */
+export const STEPS: readonly { name: string; sentence: string }[] = [
   {
-    name: 'Told where to probe',
-    sentence: 'Truehand names the next row to measure, in words, and waits for your reading.',
+    name: 'It tells you where to touch',
+    sentence:
+      'Truehand speaks one instruction at a time: the row to touch, in words, and nothing else.',
   },
   {
-    name: 'Warned when the probe slipped',
+    name: 'You say the number',
     sentence:
-      'When a reading says the probe touched a different row, you hear it at once, with the row it most likely touched.',
+      'Read it off the talking meter you already own. Say it out loud, or type it if the room is noisy.',
   },
   {
-    name: 'Never handed a guess',
+    name: 'It checks where the probe landed',
     sentence:
-      'When two faults read the same everywhere it can measure, it says so and asks for another measurement.',
+      'If the number fits a different row better, you hear at once that your probe slipped, and which row it most likely found.',
+  },
+  {
+    name: 'It names the fault, or says it cannot tell',
+    sentence:
+      'When the readings agree, you hear the fault. When two faults read the same everywhere, it asks for another measurement instead of guessing.',
   },
 ]
 

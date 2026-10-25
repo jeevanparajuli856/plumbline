@@ -16,6 +16,6 @@ export function ProvenanceLine({ fixture, className }: ProvenanceLineProps) {
   const p = provenance(fixture)
   if (!p) return null
   return (
-    <Caption className={className}>Recorded run, simulated hand, {monthLabel(p.date)}.</Caption>
+    <Caption visible className={className}>Recorded run, simulated hand, {monthLabel(p.date)}.</Caption>
   )
 }

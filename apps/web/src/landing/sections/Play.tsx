@@ -9,7 +9,6 @@ import { Badge } from '@/ui/Badge'
 import { SceneRender } from '../art/SceneRender'
 import { Caption, Eyebrow, Section } from '../parts'
 import { countWord } from '../numberWords'
-import { BRAND_IDEA, FOUND_LINE } from '../content'
 import { cx } from '../cx'
 import {
   comparisonRows,
@@ -92,12 +91,8 @@ export function Play({ fixture, onPlay, onReplay }: PlayProps) {
                 The reading is right. The row is wrong.
               </h2>
               <p className={cx(s.lead, 'mt-5')}>
-                {fixture ? `${slipSentence(fixture)} ` : ''}A conventional assistant trusts the
-                instruction and is certain at once. Truehand keeps the doubt until the next reading
-                settles it.
-              </p>
-              <p className={cx(s.body, 'mt-4 text-on-feature-muted')}>
-                {BRAND_IDEA} {FOUND_LINE}.
+                {fixture ? `${slipSentence(fixture)} ` : ''}Truehand keeps the doubt until the next
+                reading settles it.
               </p>
               {fixture && <Race fixture={fixture} />}
               <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -304,9 +299,7 @@ function PlayRecord({ fixture }: { fixture: FixtureT }) {
           </table>
         </div>
         <p className={cx(s.body, 'mt-6 text-on-feature-muted')}>
-          A conventional assistant takes every reading as coming from the row it asked for. On the
-          same readings it names the wrong fault with full confidence. True fault in this recording:{' '}
-          {labelOf(fixture, fixture.true_hypothesis)}.
+          True fault in this recording: {labelOf(fixture, fixture.true_hypothesis)}.
         </p>
         <ProvenanceLine fixture={fixture} className="mt-4" />
         {isProvisional(fixture) && (

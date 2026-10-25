@@ -9,28 +9,29 @@ const LINKS = [
   { to: '/evidence', label: 'Evidence' },
   { to: '/app', label: 'The app' },
   { to: '/accessibility', label: 'Accessibility' },
+  { to: '/docs', label: 'Docs' },
 ] as const
 
-// The underline draws from the left on hover and keyboard focus and stays drawn on the current page.
+// The current page gets a soft pill; hover previews it.
 const NAV_LINK =
-  'relative inline-flex min-h-11 items-center px-3 font-medium text-text-2 transition-colors duration-[var(--motion-fast)] hover:text-text aria-[current=page]:text-text max-sm:px-0 after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-[var(--motion-fast)] after:ease-[var(--ease-smooth)] hover:after:scale-x-100 focus-visible:after:scale-x-100 aria-[current=page]:after:scale-x-100 max-sm:after:inset-x-0'
+  'relative inline-flex min-h-10 items-center rounded-full px-3.5 font-medium text-text-2 transition-[color,background-color] duration-[var(--motion-fast)] ease-[var(--ease-smooth)] hover:bg-surface-2 hover:text-text aria-[current=page]:bg-surface-2 aria-[current=page]:text-text'
 
 /** Tailwind's lg. The CSS below and this query must agree. */
-const ONE_ROW = '(min-width: 64rem)'
+export const ONE_ROW = '(min-width: 64rem)'
 
 /**
- * One 72px bar that follows the theme: wordmark, primary nav, theme toggle, Demo.
- * Below lg the nav drops to a second row under a hairline so nothing scrolls sideways at 390px,
- * and moves after Demo in the DOM so Tab follows the rows as drawn.
+ * One sticky, frosted bar that follows the theme. At lg and up: wordmark, primary nav, theme
+ * toggle, Demo. Below lg the bar keeps the wordmark and the toggle; the primary nav and Demo live
+ * in the phone tab bar at the bottom of the screen (TabBar).
  */
 export function SiteHeader() {
   const isOneRow = useMediaQuery(ONE_ROW, true)
   return (
-    <header className="site-header border-b border-hairline bg-bench">
-      <div className="relative mx-auto flex max-w-[90rem] flex-wrap items-center gap-x-3 px-4 sm:gap-x-4 sm:px-8 lg:flex-nowrap lg:gap-x-6 lg:px-16">
+    <header className="site-header border-b border-hairline bg-[color-mix(in_srgb,var(--bench)_80%,transparent)] pt-[env(safe-area-inset-top)] backdrop-blur-xl backdrop-saturate-150">
+      <div className="relative mx-auto flex max-w-[90rem] items-center gap-x-3 px-4 sm:gap-x-4 sm:px-8 lg:gap-x-6 lg:px-16">
         <Link
           to="/"
-          className="mr-auto inline-flex h-[var(--header-height)] shrink-0 items-center gap-2.5 rounded-hard"
+          className="mr-auto inline-flex h-14 shrink-0 items-center gap-2.5 rounded-hard lg:h-[var(--header-height)]"
         >
           <BrandMark />
           <span className="font-display text-lg font-semibold leading-none tracking-tight">
@@ -39,10 +40,11 @@ export function SiteHeader() {
         </Link>
         {isOneRow ? <PrimaryNav /> : null}
         <ThemeToggle />
-        <Link to="/sim" className={buttonClass('ink', 'shrink-0')}>
-          Demo
-        </Link>
-        {isOneRow ? null : <PrimaryNav />}
+        {isOneRow ? (
+          <Link to="/sim" className={buttonClass('ink', 'shrink-0 rounded-full px-5')}>
+            Demo
+          </Link>
+        ) : null}
       </div>
     </header>
   )
@@ -50,11 +52,8 @@ export function SiteHeader() {
 
 function PrimaryNav() {
   return (
-    <nav
-      aria-label="Primary"
-      className="basis-full border-t border-hairline lg:basis-auto lg:border-t-0"
-    >
-      <ul className="flex flex-wrap max-sm:justify-between sm:-mx-3">
+    <nav aria-label="Primary">
+      <ul className="flex gap-1">
         {LINKS.map((l) => (
           <li key={l.to}>
             <NavLink to={l.to} className={NAV_LINK}>

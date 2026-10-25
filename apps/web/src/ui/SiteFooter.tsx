@@ -14,6 +14,16 @@ export function SiteFooter() {
         </p>
         <ul className="flex flex-wrap gap-x-6 gap-y-2">
           <li>
+            <Link to="/docs" className={FOOTER_LINK}>
+              Docs
+            </Link>
+          </li>
+          <li>
+            <Link to="/docs#privacy" className={FOOTER_LINK}>
+              Privacy
+            </Link>
+          </li>
+          <li>
             <Link to="/contact" className={FOOTER_LINK}>
               Contact
             </Link>

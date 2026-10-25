@@ -37,9 +37,9 @@ export function Switch({
       </span>
       <span
         aria-hidden="true"
-        className="relative inline-block h-6 w-11 shrink-0 rounded-hard border-[1.5px] border-border-strong bg-surface-1 transition-colors duration-[var(--motion-fast)] group-aria-checked:bg-text"
+        className="relative inline-block h-7 w-12 shrink-0 rounded-full border-[1.5px] border-border-strong bg-surface-2 transition-colors duration-[var(--motion-normal)] ease-[var(--ease-smooth)] group-aria-checked:bg-text"
       >
-        <span className="absolute left-[3px] top-[3px] size-[15px] rounded-[1px] bg-border-strong transition-transform duration-[var(--motion-fast)] ease-[var(--ease-smooth)] group-aria-checked:translate-x-5 group-aria-checked:bg-bench" />
+        <span className="absolute left-[3px] top-[3px] size-[19px] rounded-full bg-border-strong shadow-sm transition-[translate,background-color,width] duration-[var(--motion-normal)] ease-[var(--ease-smooth)] group-active:w-[23px] group-aria-checked:translate-x-5 group-aria-checked:bg-bench group-aria-checked:group-active:translate-x-4" />
       </span>
       <span aria-hidden="true" className="w-7 font-mono text-caption text-text-2 tnum">
         {checked ? 'On' : 'Off'}
