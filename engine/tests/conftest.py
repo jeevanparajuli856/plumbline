@@ -25,3 +25,7 @@ def load_fixture(name: str) -> dict[str, Any]:
 @pytest.fixture(scope="session")
 def worked_example() -> dict[str, Any]:
     return load_fixture("worked_example")
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    config.addinivalue_line("markers", "slow: experiment smoke tests")

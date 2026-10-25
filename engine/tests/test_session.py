@@ -184,3 +184,17 @@ def test_led_reversed_ends_unresolved_between_the_indistinguishable_pair(engine:
     assert last["status"] == "unresolved"
     assert last["unresolved"]["reason"] == "indistinguishable"
     assert last["unresolved"]["classes"] == [["LED_open", "LED_reversed"]]
+
+
+def test_max_steps_lists_the_top_classes_instead_of_forcing_one() -> None:
+    from plumbline.config import EngineConfig
+
+    capped = Engine(CircuitModel(), EngineConfig(max_steps=1))
+    session = Session(capped, mode="live", seed=0)
+    session.step(3.671)
+    last = session.view(include_truth=False)["steps"][-1]
+    assert last["status"] == "unresolved"
+    assert last["unresolved"]["reason"] == "max_steps"
+    assert last["unresolved"]["classes"][:2] == [["R3_short"], ["R3_10x_low"]]
+    assert 2 <= len(last["unresolved"]["classes"]) <= 5
+    assert last["diagnosis"] is None and "Most likely" in last["unresolved"]["text"]
