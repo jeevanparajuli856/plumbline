@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Annotated
 
-from pydantic import AliasChoices, Field, field_validator
+from pydantic import AliasChoices, Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 # The product was renamed (ADR-0013). Render still holds the old variable until the blueprint is
@@ -17,6 +17,8 @@ DEFAULT_CORS_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:4173",
 ]
+DEFAULT_CONTACT_TO = "support@truehand.tech"
+DEFAULT_CONTACT_FROM = "Truehand <contact@truehand.tech>"
 
 
 class Settings(BaseSettings):
@@ -29,6 +31,21 @@ class Settings(BaseSettings):
     session_max: int = 500
     session_ttl_s: int = 3600
     fixtures_dir: Path = Path(__file__).resolve().parent.parent / "fixtures" / "parity"
+    # Contact form (ADR-0014 decision 6). No key: POST /v1/contact answers 503 contact_unavailable.
+    resend_api_key: SecretStr | None = None
+    contact_to: str = DEFAULT_CONTACT_TO
+    contact_from: str = DEFAULT_CONTACT_FROM
+    contact_max_per_window: int = Field(default=3, ge=1)
+    contact_window_s: int = Field(default=600, ge=1)
+    contact_global_per_hour: int = Field(default=20, ge=1)
+
+    @field_validator("resend_api_key", mode="before")
+    @classmethod
+    def _blank_key_is_missing(cls, value: object) -> object:
+        """Render may hold the variable with an empty value until the user sets it."""
+        if isinstance(value, str):
+            return value.strip() or None
+        return value
 
     @field_validator("cors_origins", mode="before")
     @classmethod
