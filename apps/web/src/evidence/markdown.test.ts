@@ -156,7 +156,7 @@ describe('summary', () => {
       ev.readiness.length,
     )
     const commands = experimentCommands(ev)
-    expect(commands).toContain('python -m plumbline.experiments.stability')
+    expect(commands).toContain('uv run --project engine python -m plumbline.experiments.stability')
     expect(new Set(commands).size).toBe(commands.length)
   })
 })
@@ -206,14 +206,11 @@ describe('DONE needs proof', () => {
     expect(rows[0]?.unproven).toBe(true)
   })
 
-  it('keeps the proven scratch DONE in the real file', () => {
-    const row = parseEvidence(evidenceMd).readiness.find((r) =>
-      r.statusText.includes('scratch DONE'),
+  it('finds proof for every DONE row in the real file', () => {
+    const done = parseEvidence(evidenceMd).readiness.filter((r) =>
+      r.statuses.every((s) => s.status === 'DONE'),
     )
-    expect(row?.statuses).toEqual([
-      { qualifier: 'scratch', status: 'DONE' },
-      { qualifier: 'engine', status: 'PENDING' },
-    ])
-    expect(row?.unproven).toBe(false)
+    expect(done.length).toBeGreaterThan(0)
+    expect(done.filter((r) => r.unproven).map((r) => r.item)).toEqual([])
   })
 })

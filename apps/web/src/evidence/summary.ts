@@ -7,7 +7,7 @@ export function experimentCommands(ev: Evidence): string[] {
   const all = ev.readiness
     .flatMap((r) => r.evidence)
     .flatMap((p) => (p.kind === 'code' ? [p.text] : []))
-  return [...new Set(all.filter((c) => c.startsWith(EXPERIMENT_PREFIX)))]
+  return [...new Set(all.filter((c) => c.includes(EXPERIMENT_PREFIX)))]
 }
 
 export function statusCounts(ev: Evidence): Record<StatusKind, number> {

@@ -193,7 +193,7 @@ Each sticky scene is a `<section aria-labelledby>` whose static mono caption is 
    - Motion: two candidate bars that stay equal, with a bracket and the word "Unresolved". No motion beyond the bracket draw.
    - DOM twin: "Unresolved. LED open and LED reversed give the same voltages at every row. Plumbline asks for a different measurement instead of guessing."
 
-Play never auto-starts on scroll (ADR-0007). Scrubbed scenes show states; the "Play the 20-second example" button runs the timed replay with Pause and Replay controls (WCAG 2.2.2 Pause, Stop, Hide, https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html , applies to moving content that starts automatically and lasts more than five seconds).
+Play never auto-starts on scroll (ADR-0007). Scrubbed scenes show states; the "Play the worked example" button runs the timed replay with Pause and Replay controls (WCAG 2.2.2 Pause, Stop, Hide, https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html , applies to moving content that starts automatically and lasts more than five seconds).
 
 Reduced motion basis: WCAG 2.3.3 Animation from Interactions (https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html) names parallax as "often non-essential" and cites "dizziness, nausea and headaches" for vestibular disorders. We meet it with both the OS query and an in-page toggle.
 
@@ -262,7 +262,7 @@ The POSITIONING order already maps onto Sequoia's. What the 90-second reader nee
 ### E3. The sentences that carry the pitch
 Each is sourced; bracketed values fill only from files named.
 1. "Plumbline is the first assistant that infers the fault and the probe's true position from each reading." (POSITIONING copy rule; never "first ever")
-2. "In three peer-reviewed studies with 51 blind participants, AI tools increased the work of checking answers instead of removing it." (EVIDENCE section 2, studies 1 to 3)
+2. "In three studies with 51 blind participants, two peer reviewed and one preprint, AI tools increased the work of checking answers instead of removing it." (EVIDENCE section 2, studies 1 to 3)
 3. "Talking multimeters solved the display. Nobody solved the probe." (brief section 3, EEVblog)
 4. "Every published diagnosis method assumes the test you asked for is the test that ran. We model the hand as a noisy actuator and recover where it really landed." (brief section 4)
 5. "Told row 3, the hand lands on row 2 and reads 3.671 volts. The published method is certain of the wrong part. Plumbline warns, asks once more, and names the right one." (fixture values only)

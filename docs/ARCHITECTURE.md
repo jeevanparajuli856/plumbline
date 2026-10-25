@@ -94,12 +94,17 @@ Constants (`config.py`, values from plan A2):
 | `CONFUSION` | P(same) 0.78, P(plus or minus 1) 0.08 each, P(plus or minus 2) 0.03 each (assumed; measured later) | `RESOLVE_THRESHOLD` | 0.95 |
 | `MIN_USEFUL_GAIN_BITS` | 1e-3 | `CLASS_TOLERANCE_VOLTS` | 1e-3 |
 | `MAX_STEPS` | 12 | `GH_QUADRATURE_POINTS` | 20 |
+| `OUT_OF_MODEL_SIGMAS` | 5.0 | `MIN_SIGMA` | 1e-6 (smallest sigma the API accepts) |
 
 ### Why Gauss-Hermite and not Monte Carlo
 
 Expected information gain integrates over the reading r. We use 20-point Gauss-Hermite quadrature. Reasons: it is deterministic, so the TypeScript port needs no RNG parity; the nodes and weights are written into every fixture (`config.quadrature`), so both languages use the same numbers; and 20 points is cheap enough for a per-step choice over six sites. Monte Carlo would need a seed and a parity story for every sample, and we would have no way to check it against a fixture. Tests check that the gain is never below -1e-9 and that an unchanged belief gives zero delta gain (plan A7).
 
 Resolution order and thresholds: `docs/API_CONTRACT.md` section 7 (invariant 9). The refusal path (`unresolved`, reason `indistinguishable`) is the honesty feature, not an error. The published method (`entropy_exact`) runs on the same readings in shadow mode, so the comparison uses identical inputs; checklist, random, and remeasure-until-agree exist only for experiments.
+
+### Misfit refusal
+
+A reading can be impossible under every hypothesis: a bridged probe reads between two rows, a poor contact reads near 0 V. The engine measures how far the reading sits from the nearest predicted reading at the sites the hand could reach, in sigma. Beyond `OUT_OF_MODEL_SIGMAS` (5.0), the step is out of model. The belief is not updated, the placement falls back to the landing prior, the warning stays off, and the user is asked to measure the same site again. The step still counts toward `MAX_STEPS`. The response shape is `misfit` (API_CONTRACT section 3.6, invariant 11). `MIN_SIGMA` (1e-6) is the smallest sigma the API accepts. The mismatch run records 7 out-of-model readings for bridging and 0 for poor contact (`docs/results/mismatch_2026-10-25.md`). A 0 V reading is never out of model, because for every told row some hypothesis predicts about 0 V at a reachable row (`R3_short` puts row 3 at ground for told rows 1 and 2; `R1_open` predicts 0 V at row 5 for told rows 3 to 6).
 
 ## 5. Domains
 
@@ -123,9 +128,9 @@ Nominal node voltages (rows 1 to 6): 9.000, 3.871, 1.733, 2.499, 0.416, 0.866 V.
 
 Catalog scheme: `nominal`; `R{1..7}_{open, short, 10x_high, 10x_low}` (open 1e9 ohm, short 1e-3 ohm); `LED_open`, `LED_short` (1e6 S), `LED_reversed` (no element); `battery_low` (7.2 V). Total 1 + 28 + 3 + 1 = 33 hypotheses.
 
-Distinguishability at tolerance 1e-3 V: 33 hypotheses form **32 classes**. The exact pair is {`LED_open`, `LED_reversed`}. The near pair is `R7_short` against `R7_10x_low` (45 mV apart, at row 5 only). The brief and the rules file say 31; that count is not what the reconstruction gives, and we report 32 until the teammate's `circuit.py` re-bases it (catalog is data).
+Distinguishability at tolerance 1e-3 V: 33 hypotheses form **32 classes**, the engine's own result (`engine/tests/test_circuit.py::test_class_count_is_what_the_solver_computes`). The only multi-member class is {`LED_open`, `LED_reversed`}. The near pair is `R7_short` against `R7_10x_low` (45 mV apart, at row 5 only; `test_r7_short_and_r7_10x_low_differ_only_at_row_five` asserts the separation is above 1 mV). The brief and the rules file say 31; we report 32.
 
-Worked example (scratch, A1; confusion 0.78/0.08/0.03, sigma 0.02 V, uniform prior, 5.044 bits): true `R3_10x_low`, told row 3, lands row 2, reads 3.671 V. Top candidate `R3_short` 0.631, `R3_10x_low` 0.345, placement [0, 1, 0, 0, 0, 0], P(off) 1.0, so the warning fires. Published method: `R2_short` 1.000 (wrong). At 0.338 V told row 3, `R3_10x_low` 0.975, resolved. The brief said 63.5% and 97.6%; ours are 63.1% and 97.5%, labeled.
+Worked example (recorded in `engine/fixtures/parity/worked_example.json`, git_sha d4731fc; confusion 0.78/0.08/0.03, sigma 0.02 V, uniform prior, 5.044 bits): true `R3_10x_low`, told row 3, lands row 2, reads 3.671 V. Top candidate `R3_short` 0.631, `R3_10x_low` 0.345, placement [0, 1, 0, 0, 0, 0] (to 1e-6), P(off) 1.0, so the warning fires. Published method: `R2_short` 1.000 (wrong). At 0.338 V told row 3, `R3_10x_low` 0.975, resolved. The brief said 63.5% and 97.6%; the recorded values are 63.1% and 97.5%, and the brief's numbers are expectations, not our claim.
 
 ### 5.2 Thermometer (simulated, labeled SIMULATED everywhere)
 
@@ -133,7 +138,7 @@ A kitchen probe thermometer reading a sphere of radius 6 cm cooked in a 120 C ov
 
 Six depth sites: 0.5, 1.5, 2.5, 3.5, 4.5, 5.5 cm. Seven doneness classes (center temperature): cold_center 40, rare 50, medium_rare 55, medium 60, medium_well 65, well_done 70, overdone 75 C. The `medium` class note cites the USDA 62.8 C guidance. Sources: Incropera et al. ch. 5; ASHRAE Refrigeration, "Thermal Properties of Foods".
 
-Scratch: minimum adjacent-class separation per site [2.96, 3.57, 4.11, 4.53, 4.83, 4.98] C. Demo: true `medium`, told 5.5 cm, lands 3.5 cm, reads 65.65 C, gives `medium_well` 0.947 with P(off) 0.009 (no warning). Next instruction is the surface.
+Minimum adjacent-class separation per site, from the engine's expected readings (an engine check, not pinned by a test): [2.96, 3.57, 4.11, 4.53, 4.83, 4.98] C. Demo (`engine/fixtures/parity/thermometer_demo.json`, SIMULATED): true `medium`, told 5.5 cm, lands 3.5 cm, reads 65.65 C. Step 1 gives `medium_well` 0.947 with P(off site) 0.059 from the engine, so no warning fires. Next instruction is the surface.
 
 Honest finding: a 2 cm slip is not detectable from one reading, because the profiles are shift-invariant. The engine recovers at step 2, and the retrospective audit then says "your first reading came from about 3.5 cm". The landing copy and video shot 7 tell that story. We do not fake a first-step warning.
 
@@ -337,7 +342,7 @@ Motion: instant 80, fast 180, normal 350, slow 600, crawl 1000 ms; easing `cubic
 - Nine fixtures in `engine/fixtures/parity/`: `worked_example`, `seed_1` to `seed_5`, `slip_heavy`, `unresolved_pair` (true `LED_reversed`), `thermometer_demo`. Content and shape: `docs/API_CONTRACT.md` section 8.
 - Vitest reads them through a Vite alias, `@fixtures`, which points at `engine/fixtures/parity`. No copy, no drift. Pytest reads the same files.
 - Public build: the static site must serve the JSON at runtime. The plan's B3 lists `scripts/sync-fixtures.mjs` copying into `public/fixtures/`, but reconciliation 3 says alias, not copy. This is open; settle it at bootstrap and record the decision in `docs/decisions/`.
-- Provisional rule: until day 4 of Sprint 1, web lanes use a hand-typed fixture in `apps/web/src/fixtures/provisional/`. The UI badges it PROVISIONAL, and the production build refuses it. The badge also applies to any fixture without the generator fields (A5 names `generated_by`; B3 says `recorded_by`; settle the name at bootstrap).
+- Provisional fixture retired (main 9a997a5): the hand-typed `apps/web/src/fixtures/provisional/worked_example.json` is gone. Web replay loads only the recorded fixtures (`loadFixture` in `apps/web/src/state/replay.ts`); an unknown id fails with `fixture_missing`. The PROVISIONAL badge in `SimPage` remains for any fixture without provenance, but no shipped fixture is provisional now. The generator field is `generated_by` (A5 name; B3's `recorded_by` is not used).
 - Tolerances: belief, placement, audit, expected gain, and entropy within 1e-6 absolute; `engine_choice.site`, `status`, and `warning` exact; circuit voltages within 1e-3 V (pytest).
 - Parity gate: the TS port drives replay or simulate only after parity passes on all nine fixtures (ADR 0006).
 
