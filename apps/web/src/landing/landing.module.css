@@ -574,7 +574,8 @@
   background: var(--surface-2);
   padding: 0 4px;
   border-radius: var(--radius-hard);
-  overflow-wrap: anywhere;
+  /* Wrap long commands at spaces; break inside a token only when it cannot fit a line. */
+  overflow-wrap: break-word;
 }
 
 /* ---------- How: six lines ---------- */
