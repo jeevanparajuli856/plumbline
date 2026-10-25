@@ -94,80 +94,82 @@ interface IPhoneProps {
  */
 export function IPhone({ view, frameKey }: IPhoneProps) {
   return (
-    <div className={p.device}>
-      <div className={p.screen}>
-        <div className={p.statusBar} aria-hidden="true">
-          <span className={p.clock}>9:41</span>
-          <span className={p.island} />
-          <StatusIcons />
-        </div>
+    <div data-motion="device" className={p.deviceWrap}>
+      <div className={p.device}>
+        <div className={p.screen}>
+          <div className={p.statusBar} aria-hidden="true">
+            <span className={p.clock}>9:41</span>
+            <span className={p.island} />
+            <StatusIcons />
+          </div>
 
-        <header className={p.navBar}>
-          <p className={p.largeTitle}>Truehand</p>
-          <span className={p.chip}>{view.mode}</span>
-        </header>
-        <p className={p.step}>{view.step}</p>
+          <header className={p.navBar}>
+            <p className={p.largeTitle}>Truehand</p>
+            <span className={p.chip}>{view.mode}</span>
+          </header>
+          <p className={p.step}>{view.step}</p>
 
-        <Verdict view={view} />
+          <Verdict view={view} />
 
-        <div className={p.readingBlock}>
-          <p className={p.cardLabel}>Last reading</p>
-          {view.reading ? (
-            <p className={p.reading}>
-              <span className="sr-only">
-                {view.reading.digits} {view.reading.unit}
-              </span>
-              <span aria-hidden="true">
-                {view.reading.digits.split('').map((ch, i) => (
-                  <span
-                    key={`${frameKey}-${i}`}
-                    className={p.digit}
-                    style={{ '--i': i } as CSSProperties}
-                  >
-                    {ch}
-                  </span>
-                ))}
-                <span className={p.unit}>{view.reading.unit}</span>
-              </span>
-            </p>
-          ) : (
-            <p className={cx(p.reading, p.readingEmpty)}>Waiting for your reading</p>
-          )}
-        </div>
-
-        {view.warning && (
-          <p key={frameKey} className={p.warning}>
-            <WarningGlyph className={p.glyph} />
-            <span className={p.warningWord}>Warning.</span> {view.warning}
-          </p>
-        )}
-
-        <div className={p.belief}>
-          <p className={p.cardLabel}>Most likely</p>
-          <ul className={p.beliefList}>
-            {view.belief.map((h, i) => (
-              <li key={i}>
-                <span className={p.beliefLabel}>{h.label}</span>
-                <span className={p.mono}>{formatPct(h.p, 0)}</span>
-                <span className={p.beliefTrack} aria-hidden="true">
-                  <span
-                    className={p.beliefFill}
-                    style={{ transform: `scaleX(${Math.max(0, Math.min(1, h.p))})` }}
-                  />
+          <div className={p.readingBlock}>
+            <p className={p.cardLabel}>Last reading</p>
+            {view.reading ? (
+              <p className={p.reading}>
+                <span className="sr-only">
+                  {view.reading.digits} {view.reading.unit}
                 </span>
-              </li>
-            ))}
-          </ul>
-        </div>
+                <span aria-hidden="true">
+                  {view.reading.digits.split('').map((ch, i) => (
+                    <span
+                      key={`${frameKey}-${i}`}
+                      className={p.digit}
+                      style={{ '--i': i } as CSSProperties}
+                    >
+                      {ch}
+                    </span>
+                  ))}
+                  <span className={p.unit}>{view.reading.unit}</span>
+                </span>
+              </p>
+            ) : (
+              <p className={cx(p.reading, p.readingEmpty)}>Waiting for your reading</p>
+            )}
+          </div>
 
-        <div className={p.actions} aria-hidden="true">
-          <span className={cx(p.action, p.actionPrimary)}>
-            <MicGlyph />
-            Say reading
-          </span>
-          <span className={p.action}>Type reading</span>
+          {view.warning && (
+            <p key={frameKey} className={p.warning}>
+              <WarningGlyph className={p.glyph} />
+              <span className={p.warningWord}>Warning.</span> {view.warning}
+            </p>
+          )}
+
+          <div className={p.belief}>
+            <p className={p.cardLabel}>Most likely</p>
+            <ul className={p.beliefList}>
+              {view.belief.map((h, i) => (
+                <li key={i}>
+                  <span className={p.beliefLabel}>{h.label}</span>
+                  <span className={p.mono}>{formatPct(h.p, 0)}</span>
+                  <span className={p.beliefTrack} aria-hidden="true">
+                    <span
+                      className={p.beliefFill}
+                      style={{ transform: `scaleX(${Math.max(0, Math.min(1, h.p))})` }}
+                    />
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className={p.actions} aria-hidden="true">
+            <span className={cx(p.action, p.actionPrimary)}>
+              <MicGlyph />
+              Say reading
+            </span>
+            <span className={p.action}>Type reading</span>
+          </div>
+          <span className={p.homeIndicator} aria-hidden="true" />
         </div>
-        <span className={p.homeIndicator} aria-hidden="true" />
       </div>
     </div>
   )

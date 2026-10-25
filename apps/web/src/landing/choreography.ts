@@ -155,15 +155,19 @@ function look(
   }
 }
 
-const RIGHT: Vec3 = [BOARD_RIGHT_X, 0, 0]
 const LEFT: Vec3 = [BOARD_LEFT_X, 0, 0]
 const HOW_TARGET: Vec3 = [-0.15, 0, 0]
 /** Raised 30 mm so the hand plane (+25 mm) and belief plane (+50 mm) stay in frame when exploded. */
 const LAYERS_TARGET: Vec3 = [-0.17, 0.03, 0]
 const ROAST_TARGET: Vec3 = [-0.09, 0, 0]
 
+/**
+ * Intro target: further left of the board than RIGHT, so the board sits in the right half and
+ * never under the five-column intro text at desktop widths.
+ */
+export const INTRO_X = -0.24
 /** Rest pose for the intro: three-quarter view, board right of the text. */
-const REST = look(RIGHT, [0.05, 0.26, 0.5], 32)
+const REST = look([INTRO_X, 0, 0], [0.05, 0.26, 0.5], 32)
 
 /**
  * Keyframes in ascending progress. Explode is non-zero only inside the refusal band; roastMix only

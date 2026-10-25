@@ -4,7 +4,6 @@ import s from './landing.module.css'
 import { cx } from './cx'
 import { Badge, type BadgeKind } from '@/ui/Badge'
 import { inlineSegments, statusTone, type StatusTone } from './markdownTables'
-import type { Photo } from './photos'
 
 interface SectionProps {
   id: string
@@ -13,17 +12,20 @@ interface SectionProps {
   motion?: string | undefined
   /** Scroll key for the scene's progress (How it works only; see HOW_IT_WORKS_SCENE_KEYS). */
   sceneKey?: LandingSection | undefined
+  /** Enter reveal (UI_CONTRACT 5.3); ignored when the section carries another motion hook. */
+  reveal?: 'up' | 'mask' | 'stagger' | undefined
   children: ReactNode
 }
 
 /** Every marketing section: a labelled landmark. Heading id is `${id}-title`. */
-export function Section({ id, className, motion, sceneKey, children }: SectionProps) {
+export function Section({ id, className, motion, sceneKey, reveal, children }: SectionProps) {
   return (
     <section
       id={id}
       aria-labelledby={`${id}-title`}
       data-landing-section={sceneKey}
-      data-motion={motion}
+      data-motion={motion ?? (reveal ? 'reveal' : undefined)}
+      data-motion-reveal={motion ? undefined : reveal}
       className={className}
     >
       {children}
@@ -88,36 +90,6 @@ export function WarningGlyph({ className }: { className?: string | undefined }) 
       <path d="M10 8v4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
       <circle cx="10" cy="14.9" r="1.1" fill="currentColor" />
     </svg>
-  )
-}
-
-interface PhotoProps {
-  photo: Photo
-  /** CSS sizes hint for the browser's srcset choice. */
-  sizes: string
-  className?: string | undefined
-}
-
-/** A credited stock photo: lazy, fixed size, never in the hero. The credit is a figcaption, not a scene caption. */
-export function PhotoFigure({ photo, sizes, className }: PhotoProps) {
-  return (
-    <figure className={cx(s.photo, className)} data-photo={photo.id}>
-      <img
-        src={photo.src}
-        srcSet={photo.srcSet}
-        sizes={sizes}
-        alt={photo.alt}
-        width={photo.width}
-        height={photo.height}
-        loading="lazy"
-        decoding="async"
-      />
-      <figcaption className={s.credit}>
-        <a href={photo.sourceUrl} rel="noreferrer">
-          {photo.credit}
-        </a>
-      </figcaption>
-    </figure>
   )
 }
 

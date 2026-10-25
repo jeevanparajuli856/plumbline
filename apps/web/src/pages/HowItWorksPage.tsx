@@ -20,7 +20,7 @@ export function HowItWorksPage() {
         className={cx(s.section, s.sceneSection, s.introSection)}
       >
         <div className={cx(s.frame, s.grid, 'w-full')}>
-          <div className={cx('col-span-4 md:col-span-6', s.phonePaper)}>
+          <div className={cx('col-span-4 md:col-span-6 lg:col-span-5', s.phonePaper)}>
             <Eyebrow>How it works</Eyebrow>
             <h1 id="intro-title" tabIndex={-1} className={cx(s.display, 'mt-8')}>
               You hold the probe. Truehand checks where it went.

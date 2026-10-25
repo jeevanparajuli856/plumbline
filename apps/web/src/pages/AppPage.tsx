@@ -4,6 +4,7 @@ import { BUYERS, CONTACT_EMAIL, MODES, PRODUCT_LINE } from '@/landing/content'
 import { cx } from '@/landing/cx'
 import s from '@/landing/landing.module.css'
 import { MarketingPage } from '@/landing/MarketingPage'
+import { MeterPhoneArt } from '@/landing/art/Illustrations'
 import { Eyebrow, Section } from '@/landing/parts'
 import pr from '@/landing/product.module.css'
 import { AnswerPhone, PhonePreview } from '@/landing/sections/PhonePreview'
@@ -49,6 +50,7 @@ export function AppPage() {
             <h2 id="modes-title" className={cx(s.h2, 'mt-6')}>
               Three ways to use it
             </h2>
+            <MeterPhoneArt className="mt-10 max-w-[24rem]" />
           </div>
           <ul data-motion="rows" className={cx(pr.productRows, 'col-span-4 md:col-span-8')}>
             {MODES.map((m) => (
@@ -89,9 +91,13 @@ export function AppPage() {
               For the people who equip technicians
             </h2>
           </div>
-          <ul className={cx(s.outcomes, 'col-span-4 md:col-span-8')}>
+          <ul
+            data-motion="reveal"
+            data-motion-reveal="stagger"
+            className={cx(s.outcomes, 'col-span-4 md:col-span-8')}
+          >
             {BUYERS.map((b) => (
-              <li key={b.name} className={s.outcome}>
+              <li key={b.name} data-motion-item className={s.outcome}>
                 <h3 className={s.h3}>{b.name}</h3>
                 <p className={s.body}>{b.sentence}</p>
               </li>
@@ -100,16 +106,16 @@ export function AppPage() {
         </div>
       </Section>
 
-      <Section id="cta" className={cx(s.section, s.sectionTight, s.ink)}>
+      <Section id="cta" reveal="mask" className={cx(s.section, s.sectionTight, s.feature)}>
         <div className={cx(s.frame, s.grid, 'items-end gap-y-8')}>
           <h2 id="cta-title" className={cx(s.h2, 'col-span-4 md:col-span-7')}>
             Try it in your browser today, or run a pilot with your students.
           </h2>
           <div className="col-span-4 flex flex-wrap gap-4 md:col-span-5 md:justify-end">
-            <Link to="/sim" className={s.inkPrimary}>
+            <Link to="/sim" className={s.featurePrimary}>
               Try Truehand
             </Link>
-            <Link to="/contact" className={s.inkButton}>
+            <Link to="/contact" className={s.featureButton}>
               Write to {CONTACT_EMAIL}
             </Link>
           </div>

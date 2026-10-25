@@ -135,7 +135,7 @@ export function ContactPage() {
 
   return (
     <MarketingPage>
-      <Section id="contact" className={cx(s.section, s.sheet)}>
+      <Section id="contact" reveal="up" className={cx(s.section, s.sheet)}>
         <div className={cx(s.frame, s.grid, 'gap-y-10')}>
           <div className="col-span-4 md:col-span-5">
             <Eyebrow>Contact</Eyebrow>

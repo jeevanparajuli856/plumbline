@@ -8,7 +8,7 @@ import { heroCaption, heroFrame } from '@/landing/heroFrame'
 import { HERO_RECORDING_IDS, positionAt, totalTicks } from '@/landing/heroLoop'
 import { viewFromFrame } from '@/landing/phone/appScreen'
 import { loadFixture } from '@/state/replay'
-import { PHOTOS } from '@/landing/photos'
+import { BOARD_RENDER } from '@/landing/art/renders'
 import { FOUNDER_NAMES, METHOD_WORDS, TROPES } from '@/test/copyGuards'
 import { AccessibilityPage } from './AccessibilityPage'
 import { AppPage } from './AppPage'
@@ -89,16 +89,19 @@ describe.each(PAGES)('the rendered copy of %s', (path, page) => {
     expect(text).not.toMatch(/Roadmap|Nexus|Get Started|Read more|Learn more/i)
   })
 
-  it('renders every photo with its alt, size, lazy loading and a credit', async () => {
+  it('uses only our own imagery: scene renders with alt, size and lazy loading; named line art', async () => {
     const { root } = await renderedText(page)
     for (const img of root.querySelectorAll('img')) {
-      const photo = Object.values(PHOTOS).find((p) => p.src === img.getAttribute('src'))
-      expect(photo).toBeDefined()
-      expect(img).toHaveAttribute('alt', photo!.alt)
-      expect(img).toHaveAttribute('width', String(photo!.width))
+      expect(img.getAttribute('src')).toMatch(/board-(light|dark)-1600/)
+      expect(img).toHaveAttribute('alt', BOARD_RENDER.alt)
+      expect(img).toHaveAttribute('width', '1600')
       expect(img).toHaveAttribute('loading', 'lazy')
-      expect(img.closest('figure')!.querySelector('figcaption')).toHaveTextContent(photo!.credit)
+      expect(img.closest('[data-motion="parallax"]')).not.toBeNull()
     }
+    for (const art of root.querySelectorAll('svg[role="img"]')) {
+      expect(art.getAttribute('aria-label')?.length ?? 0).toBeGreaterThan(30)
+    }
+    expect(root.textContent).not.toMatch(/Unsplash|Stock photo/)
   })
 })
 

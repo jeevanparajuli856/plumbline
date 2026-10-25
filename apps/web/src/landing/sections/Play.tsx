@@ -6,8 +6,8 @@ import { stickyStateAt } from '../choreography'
 import s from '../landing.module.css'
 import rc from '../race.module.css'
 import { Badge } from '@/ui/Badge'
-import { Caption, Eyebrow, PhotoFigure, Section } from '../parts'
-import { PHOTOS } from '../photos'
+import { SceneRender } from '../art/SceneRender'
+import { Caption, Eyebrow, Section } from '../parts'
 import { countWord } from '../numberWords'
 import { BRAND_IDEA, FOUND_LINE } from '../content'
 import { cx } from '../cx'
@@ -78,7 +78,7 @@ export function Play({ fixture, onPlay, onReplay }: PlayProps) {
         : `Paused after reading ${readingCount} of ${fixture?.steps.length ?? 0}.`
 
   return (
-    <Section id="play" motion="bars" sceneKey="play" className={s.ink}>
+    <Section id="play" motion="bars" sceneKey="play" className={s.feature}>
       {/* No CSS sticky track: the motion module pins this block and its spacer gives the scroll length. */}
       <div className={s.playStage}>
         <div className="w-full">
@@ -96,7 +96,7 @@ export function Play({ fixture, onPlay, onReplay }: PlayProps) {
                 instruction and is certain at once. Truehand keeps the doubt until the next reading
                 settles it.
               </p>
-              <p className={cx(s.body, 'mt-4 text-on-ink-muted')}>
+              <p className={cx(s.body, 'mt-4 text-on-feature-muted')}>
                 {BRAND_IDEA} {FOUND_LINE}.
               </p>
               {fixture && <Race fixture={fixture} />}
@@ -120,7 +120,7 @@ export function Play({ fixture, onPlay, onReplay }: PlayProps) {
                   Replay
                 </ControlButton>
               </div>
-              <p className="mt-3 text-base text-on-ink-muted">{status}</p>
+              <p className="mt-3 text-base text-on-feature-muted">{status}</p>
             </div>
             <div className="col-span-4 md:col-span-12 lg:col-span-7">
               {fixture && view ? (
@@ -244,7 +244,7 @@ function ControlButton({ id, primary, isUnavailable, onPress, children }: Contro
       type="button"
       aria-disabled={isUnavailable || undefined}
       onClick={() => !isUnavailable && onPress()}
-      className={primary ? s.inkPrimary : s.inkButton}
+      className={primary ? s.featurePrimary : s.featureButton}
     >
       {children}
     </button>
@@ -286,7 +286,7 @@ function PlayRecord({ fixture }: { fixture: FixtureT }) {
                 <tr key={r.step}>
                   <th scope="row" className="font-normal">
                     <span className={cx(s.mono, 'block')}>{r.reading}</span>
-                    <span className="block text-base text-on-ink-muted">
+                    <span className="block text-base text-on-feature-muted">
                       told {r.told}, landed {r.landed}
                     </span>
                   </th>
@@ -303,7 +303,7 @@ function PlayRecord({ fixture }: { fixture: FixtureT }) {
             </tbody>
           </table>
         </div>
-        <p className={cx(s.body, 'mt-6 text-on-ink-muted')}>
+        <p className={cx(s.body, 'mt-6 text-on-feature-muted')}>
           A conventional assistant takes every reading as coming from the row it asked for. On the
           same readings it names the wrong fault with full confidence. True fault in this recording:{' '}
           {labelOf(fixture, fixture.true_hypothesis)}.
@@ -315,11 +315,7 @@ function PlayRecord({ fixture }: { fixture: FixtureT }) {
             are replaced when the engine records this run.
           </p>
         )}
-        <PhotoFigure
-          photo={PHOTOS.breadboardWired}
-          sizes="(min-width: 768px) 50vw, 100vw"
-          className={cx(s.ratioWide, 'mt-12')}
-        />
+        <SceneRender sizes="(min-width: 768px) 50vw, 100vw" className="mt-12" />
       </div>
     </div>
   )

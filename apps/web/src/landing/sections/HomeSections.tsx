@@ -20,9 +20,13 @@ export function Outcomes() {
             You hold the probe. Truehand does the checking.
           </h2>
         </div>
-        <ol className={cx(s.outcomes, 'col-span-4 md:col-span-8')}>
+        <ol
+          data-motion="reveal"
+          data-motion-reveal="stagger"
+          className={cx(s.outcomes, 'col-span-4 md:col-span-8')}
+        >
           {OUTCOMES.map((o) => (
-            <li key={o.name} className={s.outcome}>
+            <li key={o.name} data-motion-item className={s.outcome}>
               <h3 className={s.h3}>{o.name}</h3>
               <p className={s.body}>{o.sentence}</p>
             </li>
@@ -37,7 +41,7 @@ export function Outcomes() {
 export function Proof() {
   const stats = VALIDATION_STATS.filter((st) => PROOF_STAT_IDS.includes(st.id))
   return (
-    <Section id="proof" className={cx(s.section, s.sectionTight, s.band)}>
+    <Section id="proof" reveal="up" className={cx(s.section, s.sectionTight, s.band)}>
       <div className={cx(s.frame, s.grid, 'items-end gap-y-10')}>
         <div className="col-span-4 md:col-span-5">
           <Eyebrow>Results</Eyebrow>
@@ -63,16 +67,16 @@ export function Proof() {
 /** Ink band: the promise and the exits. */
 export function HomeCta() {
   return (
-    <Section id="cta" className={cx(s.section, s.sectionTight, s.ink)}>
+    <Section id="cta" reveal="mask" className={cx(s.section, s.sectionTight, s.feature)}>
       <div className={cx(s.frame, s.grid, 'items-end gap-y-10')}>
         <h2 id="cta-title" className={cx(s.h2, 'col-span-4 md:col-span-8')}>
           {PROMISE}
         </h2>
         <div className="col-span-4 flex flex-wrap gap-4 md:col-span-4 md:justify-end">
-          <Link to="/sim" className={s.inkPrimary}>
+          <Link to="/sim" className={s.featurePrimary}>
             Try Truehand
           </Link>
-          <Link to="/contact" className={s.inkButton}>
+          <Link to="/contact" className={s.featureButton}>
             Talk to us about a pilot
           </Link>
         </div>

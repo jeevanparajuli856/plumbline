@@ -158,28 +158,28 @@
   }
 }
 
-/* ---------- Ink sections (technology, close): paper colors flip to the on-ink set ---------- */
-.ink {
-  background: var(--ink);
-  color: var(--on-ink);
+/* ---------- Feature bands (technology, CTA): warm light band in light, ink in dark, black in hc ---------- */
+.feature {
+  background: var(--feature);
+  color: var(--on-feature);
 }
-.ink .eyebrow,
-.ink .label {
-  color: var(--on-ink-muted);
+.feature .eyebrow,
+.feature .label {
+  color: var(--on-feature-muted);
 }
-.ink .lead {
-  color: var(--on-ink-muted);
+.feature .lead {
+  color: var(--on-feature-muted);
 }
-.ink .caption {
-  color: var(--on-ink-muted);
-  border-top-color: var(--ink-divider);
+.feature .caption {
+  color: var(--on-feature-muted);
+  border-top-color: var(--feature-divider);
 }
-.ink .code {
-  background: var(--ink-divider);
+.feature .code {
+  background: var(--feature-divider);
 }
-.ink :focus-visible {
-  outline-color: var(--ink-measured);
-  box-shadow: 0 0 0 2px var(--ink);
+.feature :focus-visible {
+  outline-color: var(--focus);
+  box-shadow: 0 0 0 2px var(--feature);
 }
 
 /* ---------- Sticky scenes ---------- */
@@ -208,9 +208,9 @@
   }
 }
 
-/* ---------- Buttons on ink (paper sections use buttonClass from @/ui/button) ---------- */
-.inkButton,
-.inkPrimary {
+/* ---------- Buttons on feature bands (paper sections use buttonClass from @/ui/button) ---------- */
+.featureButton,
+.featurePrimary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -227,34 +227,32 @@
   transition-duration: var(--motion-fast);
   transition-timing-function: var(--ease-smooth);
 }
-.inkButton {
+.featureButton {
   background: transparent;
-  color: var(--on-ink);
-  border: 1.5px solid var(--on-ink-muted);
+  color: var(--on-feature);
+  border: 1.5px solid var(--border-strong);
 }
-.inkButton:hover {
-  background: var(--ink-divider);
-  border-color: var(--on-ink);
+.featureButton:hover {
+  background: var(--feature-divider);
 }
-.inkPrimary {
-  background: var(--ink-measured);
-  color: var(--ink);
-  border: 1.5px solid var(--ink-measured);
+.featurePrimary {
+  background: var(--measured-fill);
+  color: var(--on-measured);
+  border: 1.5px solid var(--measured-fill);
 }
-.inkPrimary:hover {
-  background: var(--on-ink);
-  border-color: var(--on-ink);
+.featurePrimary:hover {
+  border-color: var(--on-feature);
 }
-.inkButton:active,
-.inkPrimary:active {
+.featureButton:active,
+.featurePrimary:active {
   transform: translateY(1px);
 }
-.inkButton[aria-disabled='true'],
-.inkPrimary[aria-disabled='true'] {
+.featureButton[aria-disabled='true'],
+.featurePrimary[aria-disabled='true'] {
   cursor: not-allowed;
   background: transparent;
-  color: var(--on-ink-muted);
-  border-color: var(--ink-divider);
+  color: var(--on-feature-muted);
+  border-color: var(--feature-divider);
   border-style: dashed;
   transform: none;
 }
@@ -362,38 +360,6 @@
   font-weight: 700;
 }
 
-/* ---------- Photos: sharp, cover, fixed aspect box; never in the hero ---------- */
-.photo {
-}
-.photo img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: var(--ratio, 4 / 3);
-  object-fit: cover;
-  background: var(--surface-2);
-}
-
-.ratioWide {
-  --ratio: 3 / 2;
-}
-.credit {
-  margin-top: var(--space-2);
-  font-family: var(--font-mono);
-  font-size: 0.8125rem;
-  line-height: 1.4;
-  color: var(--text-2);
-}
-.credit a {
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-}
-.ink .credit {
-  color: var(--on-ink-muted);
-}
-
 /* ---------- Research (2:3, pinned left, offset numbered list) ---------- */
 @media (min-width: 768px) {
   .pinned {
@@ -487,13 +453,13 @@
   color: var(--text-2);
   border-top: 2px solid var(--text);
 }
-.ink .table th,
-.ink .table td {
-  border-top-color: var(--ink-divider);
+.feature .table th,
+.feature .table td {
+  border-top-color: var(--feature-divider);
 }
-.ink .table thead th {
-  color: var(--on-ink-muted);
-  border-top-color: var(--on-ink);
+.feature .table thead th {
+  color: var(--on-feature-muted);
+  border-top-color: var(--on-feature);
 }
 .tableScroll {
   overflow-x: auto;
@@ -508,7 +474,7 @@
   font-style: italic;
 }
 
-/* ---------- Technology (ink, 5:7): the two-method race ---------- */
+/* ---------- Technology (feature band, 5:7): the two-method race ---------- */
 .playStage {
   position: relative;
 }
@@ -545,14 +511,14 @@
   box-shadow: inset 4px 0 0 var(--warning);
   padding-left: var(--space-3);
 }
-.ink .step {
-  border-top-color: var(--ink-divider);
+.feature .step {
+  border-top-color: var(--feature-divider);
 }
-.ink .step::before {
-  color: var(--on-ink-muted);
+.feature .step::before {
+  color: var(--on-feature-muted);
 }
-.ink .stepWarning {
-  box-shadow: inset 4px 0 0 var(--ink-warning);
+.feature .stepWarning {
+  box-shadow: inset 4px 0 0 var(--feature-warning);
 }
 
 /* ---------- Refusal: two equal bars held by a bracket ---------- */
