@@ -309,3 +309,22 @@ export function provenance(fx: FixtureT): Provenance | null {
     seed: recordedSeed(fx),
   }
 }
+
+export interface RaceStages {
+  /** Top-fault probability (0 to 1) before any reading, then after each recorded reading. */
+  published: number[]
+  ours: number[]
+}
+
+/**
+ * The two-method race in `play`: each method's top-fault probability before any reading and
+ * after each reading. Before a reading both hold the uniform prior; after it, Plumbline's top
+ * belief and the published method's confidence, as recorded.
+ */
+export function raceStages(fx: FixtureT): RaceStages {
+  const prior = 1 / Math.max(1, fx.catalog.hypothesis_ids.length)
+  return {
+    published: [prior, ...fx.steps.map((s) => s.baseline.confidence)],
+    ours: [prior, ...fx.steps.map((s) => Math.max(...s.belief))],
+  }
+}

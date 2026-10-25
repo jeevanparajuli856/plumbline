@@ -6,6 +6,7 @@ import {
   frameAt,
   isProvisional,
   maxEntropy,
+  raceStages,
   rank,
   transcript,
   unresolvedGroups,
@@ -193,5 +194,18 @@ describe('engine-shaped fixtures (schema_version 2)', () => {
     expect(items.filter((t) => t.kind === 'reading')).toHaveLength(recorded.steps.length)
     expect(frameAt(recorded, 1).reading).not.toBeNull()
     expect(comparisonRows(recorded)).toHaveLength(recorded.steps.length)
+  })
+})
+
+describe('raceStages', () => {
+  it('starts both methods at the uniform prior and follows the recorded top probabilities', () => {
+    const { published, ours } = raceStages(fx)
+    const prior = 1 / fx.catalog.hypothesis_ids.length
+    expect(published).toHaveLength(fx.steps.length + 1)
+    expect(published[0]).toBeCloseTo(prior, 12)
+    expect(ours[0]).toBeCloseTo(prior, 12)
+    expect(published.slice(1)).toEqual(fx.steps.map((s) => s.baseline.confidence))
+    expect(ours[1]).toBeCloseTo(rank(fx, fx.steps[0]!.belief, 1)[0]!.p, 12)
+    expect(ours[2]).toBeCloseTo(fx.steps[1]!.diagnosis!.confidence, 6)
   })
 })
