@@ -13,7 +13,7 @@ export function NotFound() {
         </Link>{' '}
         or{' '}
         <Link to="/sim" className="font-medium text-inferred underline underline-offset-4">
-          open the simulator
+          try the demo
         </Link>
         .
       </p>

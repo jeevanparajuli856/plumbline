@@ -1,0 +1,7 @@
+/* Theme switch: the circular reveal from the toggle replaces the default cross-fade, and only for
+   that reveal (themeReveal.ts sets html[data-theme-reveal] for its duration). */
+html[data-theme-reveal]::view-transition-old(root),
+html[data-theme-reveal]::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}

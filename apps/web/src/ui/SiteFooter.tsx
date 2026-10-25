@@ -1,32 +1,34 @@
 import { Link } from 'react-router'
 
-/** Team and university live here only (POSITIONING: the competition is never named). */
+const FOOTER_LINK =
+  'font-medium text-text underline decoration-hairline underline-offset-4 hover:decoration-text'
+
+/** The product line and where to reach us. No names, no university (ADR-0014). */
 export function SiteFooter() {
   return (
     <footer className="mt-24 border-t border-hairline bg-bench">
-      <div className="mx-auto grid max-w-[90rem] gap-x-6 gap-y-4 px-4 py-10 sm:px-8 md:grid-cols-12 lg:px-16">
-        <p className="md:col-span-5">
+      <div className="mx-auto flex max-w-[90rem] flex-wrap items-baseline justify-between gap-x-6 gap-y-4 px-4 py-10 sm:px-8 lg:px-16">
+        <p>
           <span className="font-display font-semibold">Truehand.</span>{' '}
-          <span className="text-text-2">Research preview. Not a safety device.</span>
+          <span className="text-text-2">Not a safety device.</span>
         </p>
-        <p className="text-text-2 md:col-span-7 md:text-right">
-          Jeevan Parajuli and Pankaj Bhatta, University of Louisiana Monroe.{' '}
-          <a
-            href="mailto:support@truehand.tech"
-            className="font-medium text-text underline decoration-hairline underline-offset-4 hover:decoration-text"
-          >
-            support@truehand.tech
-          </a>
-          <span aria-hidden="true" className="px-2 text-text-muted">
-            /
-          </span>
-          <Link
-            to="/about"
-            className="font-medium text-text underline decoration-hairline underline-offset-4 hover:decoration-text"
-          >
-            About
-          </Link>
-        </p>
+        <ul className="flex flex-wrap gap-x-6 gap-y-2">
+          <li>
+            <Link to="/contact" className={FOOTER_LINK}>
+              Contact
+            </Link>
+          </li>
+          <li>
+            <Link to="/about" className={FOOTER_LINK}>
+              About
+            </Link>
+          </li>
+          <li>
+            <a href="mailto:support@truehand.tech" className={FOOTER_LINK}>
+              support@truehand.tech
+            </a>
+          </li>
+        </ul>
       </div>
     </footer>
   )
