@@ -1,6 +1,7 @@
 import {
   BOARD_LEFT_X,
   BOARD_RIGHT_X,
+  HOW_IT_WORKS_SCENE_KEYS,
   KEYFRAMES,
   SECTION_ORDER,
   STICKY_STATES,
@@ -93,22 +94,8 @@ describe('poseAt', () => {
     expect(poseAt(progressOf('generalize', 0.4)).scene).toBe('roast')
   })
 
-  it('walks mathLine 0..5 across how and is -1 elsewhere', () => {
-    const lines = sample(progressOf('how', 0), progressOf('how', 0.999), 600).map(
-      (x) => poseAt(x).mathLine,
-    )
-    expect(lines[0]).toBe(0)
-    expect(lines[lines.length - 1]).toBe(5)
-    expect(new Set(lines)).toEqual(new Set([0, 1, 2, 3, 4, 5]))
-    lines.forEach((v, i) => i === 0 || expect(v).toBeGreaterThanOrEqual(lines[i - 1]!))
-    expect(poseAt(progressOf('play', 0.5)).mathLine).toBe(-1)
-    expect(poseAt(progressOf('generalize', 0)).mathLine).toBe(-1)
-  })
-
-  it('fades the plumb line out across ladder and back to rest at close', () => {
-    expect(poseAt(progressOf('ladder', 0)).plumbOpacity).toBe(1)
-    expect(poseAt(progressOf('evidence', 0)).plumbOpacity).toBe(0)
-    expect(poseAt(1).plumbOpacity).toBe(1)
+  it('never lights a math line: the method section is gone from the site', () => {
+    for (const x of sample(0, 1, 200)) expect(poseAt(x).mathLine).toBe(-1)
   })
 })
 
@@ -119,16 +106,13 @@ describe('framing', () => {
     for (const k of KEYFRAMES) expect(dist(poseAt(k.at))).toBeGreaterThanOrEqual(0.28)
   })
 
-  it('puts the board right of the text column, except in play where the panel is on the right', () => {
+  it('puts the board right of the intro text, and left of the panel in play', () => {
     for (const k of KEYFRAMES) {
       const { section } = locate(k.at)
       const pose = poseAt(k.at)
       if (section === 'play' && k.at > progressOf('play', 0))
         expect(pose.target[0]).toBe(BOARD_LEFT_X)
-      if (['mast', 'research', 'problem', 'close'].includes(section)) {
-        expect(pose.target[0]).toBeLessThanOrEqual(BOARD_RIGHT_X)
-      }
-      // The keyframe at how f = 0 is play's resolved pose; the move starts there.
+      if (section === 'mast') expect(pose.target[0]).toBeLessThanOrEqual(BOARD_RIGHT_X)
       if ((section === 'how' || section === 'generalize') && k.at > progressOf('how', 0)) {
         expect(pose.target[0]).toBeLessThan(0)
       }
@@ -144,19 +128,10 @@ describe('framing', () => {
 })
 
 describe('sections and named states', () => {
-  it('lists the ten sections in page order', () => {
-    expect(SECTION_ORDER).toEqual([
-      'mast',
-      'research',
-      'problem',
-      'play',
-      'how',
-      'generalize',
-      'product',
-      'ladder',
-      'evidence',
-      'close',
-    ])
+  it('lists the four How it works scroll keys in page order, one per section id', () => {
+    expect(SECTION_ORDER).toEqual(['mast', 'play', 'how', 'generalize'])
+    expect(Object.values(HOW_IT_WORKS_SCENE_KEYS)).toEqual([...SECTION_ORDER])
+    expect(Object.keys(HOW_IT_WORKS_SCENE_KEYS)).toEqual(['intro', 'play', 'refusal', 'domains'])
   })
 
   it('gives every sticky scene three to five named states', () => {
@@ -174,13 +149,12 @@ describe('sections and named states', () => {
     }
     for (const s of STICKY_STATES.play) expect(onKeyframe('play', s.name)).toBe(true)
     for (const s of STICKY_STATES.generalize) expect(onKeyframe('generalize', s.name)).toBe(true)
-    // `choose` and `refuse` change only the lit math line; the camera keeps moving between them.
-    for (const name of ['hand', 'update', 'layers']) expect(onKeyframe('how', name)).toBe(true)
+    for (const name of ['oblique', 'layers']) expect(onKeyframe('how', name)).toBe(true)
   })
 
   it('locates progress into a section and fraction', () => {
     expect(locate(0)).toEqual({ section: 'mast', f: 0 })
-    expect(locate(1)).toEqual({ section: 'close', f: 1 })
+    expect(locate(1)).toEqual({ section: 'generalize', f: 1 })
     expect(locate(progressOf('how', 0.5)).section).toBe('how')
     expect(locate(progressOf('how', 0.5)).f).toBeCloseTo(0.5, 9)
   })
@@ -195,7 +169,7 @@ describe('sections and named states', () => {
       section: 'generalize',
       state: 'roast',
     })
-    expect(stickyStateAt(progressOf('research', 0.5))).toBeNull()
+    expect(stickyStateAt(progressOf('mast', 0.5))).toBeNull()
   })
 
   it('quantizes to the nearest keyframe for reduced motion', () => {

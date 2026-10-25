@@ -1,5 +1,7 @@
 import s from '../landing.module.css'
-import { Badge, Caption, Eyebrow, Section } from '../parts'
+import { Badge } from '@/ui/Badge'
+import { Caption, Eyebrow, Section } from '../parts'
+import { HOW_IT_WORKS_SCENE_KEYS } from '../choreography'
 import { cx } from '../cx'
 import { ProvenanceLine } from '../ProvenanceLine'
 import { useFixture } from '../useFixture'
@@ -10,10 +12,10 @@ import { transcript } from '../workedExample'
  * The recorded steps sit below the pinned scene so the badge and heading always fit the viewport.
  * Without the recording the story is told in words, including that one reading cannot catch this slip.
  */
-export function Generalize() {
+export function Domains() {
   const demo = useFixture('thermometer_demo')
   return (
-    <Section id="generalize">
+    <Section id="domains" sceneKey={HOW_IT_WORKS_SCENE_KEYS.domains}>
       <div data-sticky-track className={cx(s.track, s.trackGeneralize)}>
         <div data-sticky-pin className={s.pin}>
           <div className={cx(s.frame, s.grid, 'w-full py-16 md:py-0')}>
@@ -22,28 +24,28 @@ export function Generalize() {
               <div className="mt-4">
                 <Eyebrow>Beyond circuits</Eyebrow>
               </div>
-              <h2 id="generalize-title" className={cx(s.h2, 'mt-4')}>
+              <h2 id="domains-title" className={cx(s.h2, 'mt-4')}>
                 Same engine, different instrument.
               </h2>
               <p className={cx(s.lead, 'mt-6')}>
-                A kitchen probe thermometer in a simulated roast. The engine infers both doneness
-                and how deep the tip really is. The instrument model is a textbook heat equation,
-                not a real probe.
+                A kitchen probe thermometer in a simulated roast. Truehand works out both how done
+                the meat is and how deep the tip really went. The roast and the probe are simulated,
+                not real.
               </p>
               <Caption className="mt-6">
                 SIMULATED. Scene: a sliced roast with a temperature gradient. The tip depth is
                 uncertain and drawn as a band, not a point.
                 {demo.status === 'ready'
                   ? ''
-                  : ' Recorded numbers appear in the steps below once the engine records this run.'}
+                  : ' Recorded numbers appear in the steps below once this run is recorded.'}
               </Caption>
             </div>
           </div>
         </div>
       </div>
-      <div className={cx(s.section, s.sheet)}>
+      <div className={cx(s.section, s.sheet, s.ruleTop)}>
         <div className={cx(s.frame, s.grid)}>
-          <div className="col-span-4 md:col-span-6">
+          <div className="col-span-4 md:col-span-7">
             <h3 className={s.h3}>Step by step</h3>
             <ol className={cx(s.steps, 'mt-6')} aria-label="Thermometer example, step by step">
               {demo.status === 'ready' ? (
@@ -71,8 +73,8 @@ export function Generalize() {
                   </li>
                   <li className={s.step}>
                     <span>
-                      The second reading disagrees with the shallow story. The engine recovers, and
-                      its audit then says where the first reading really came from.
+                      The second reading disagrees with the shallow story. Truehand recovers, and
+                      then says where the first reading really came from.
                     </span>
                   </li>
                 </>

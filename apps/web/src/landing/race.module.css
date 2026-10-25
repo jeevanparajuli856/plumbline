@@ -1,0 +1,49 @@
+/* The two-method race in the technology band. Colors, radii, shadows and durations come from tokens.css; reduced motion zeroes the duration tokens on the landing root. */
+.race {
+  display: grid;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--ink-divider);
+}
+.raceLabel {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+.raceTrack {
+  position: relative;
+  height: 14px;
+  margin-top: 6px;
+  border-bottom: 1px solid var(--ink-divider);
+}
+.raceFill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left;
+  transition: transform var(--motion-belief-bars) var(--ease-smooth);
+}
+.raceOurs {
+  background: var(--ink-inferred);
+}
+.racePublished {
+  border: 2px dashed var(--on-ink-muted);
+}
+.raceVerdict {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--on-ink-muted);
+}
+
+/* Stacked race labels: every stage holds the same cell; only the shown one is visible. */
+.stageLabels {
+  display: inline-grid;
+  justify-items: end;
+}
+.stageLabels > * {
+  grid-area: 1 / 1;
+}
+.stageHidden {
+  visibility: hidden;
+}

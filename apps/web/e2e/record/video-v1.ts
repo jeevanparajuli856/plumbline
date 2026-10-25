@@ -69,7 +69,7 @@ async function waitForSceneOrText(page: Page): Promise<boolean> {
 
 async function scrollToSection(page: Page, id: string): Promise<void> {
   await new LandingPage(page)
-    .section(id as 'mast')
+    .section(id as 'hero')
     .evaluate((el) => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), undefined, {
       timeout: STEP_TIMEOUT_MS,
     })

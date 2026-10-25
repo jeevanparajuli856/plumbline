@@ -6,6 +6,7 @@ import {
   frameAt,
   isProvisional,
   maxEntropy,
+  raceStages,
   rank,
   transcript,
   unresolvedGroups,
@@ -36,13 +37,13 @@ describe('transcript', () => {
     expect(readings[0]!.text).toContain(s.reading.toFixed(3))
   })
 
-  it('adds one warning per warned step and names the published method next to every belief', () => {
+  it('adds one warning per warned step and names the conventional assistant next to every belief', () => {
     const items = transcript(fx)
     expect(items.filter((t) => t.kind === 'warning')).toHaveLength(
       fx.steps.filter((s) => s.warning).length,
     )
     for (const t of items.filter((i) => i.kind === 'belief' || i.kind === 'diagnosis')) {
-      expect(t.text).toContain('Published method')
+      expect(t.text).toContain('A conventional assistant')
     }
     for (const t of items) expect(t.text).not.toContain('—')
   })
@@ -62,7 +63,9 @@ describe('transcript for the thermometer', () => {
   it('speaks in doneness classes, depths and degrees, with the domain instruction', () => {
     const items = transcript(thermo)
     const text = items.map((t) => t.text).join(' ')
-    expect(items[0]!.text).toContain(`${thermo.catalog.hypothesis_ids.length} possible doneness classes`)
+    expect(items[0]!.text).toContain(
+      `${thermo.catalog.hypothesis_ids.length} possible doneness classes`,
+    )
     expect(items[0]!.text).toContain(
       `Insert the probe to ${thermo.catalog.site_labels[thermo.prior_instruction.site]}.`,
     )
@@ -80,7 +83,7 @@ describe('comparisonRows', () => {
     const rows = comparisonRows(fx)
     expect(rows).toHaveLength(fx.steps.length)
     const last = rows[rows.length - 1]!
-    expect(last.plumbline.isTrue).toBe(last.plumbline.id === fx.true_hypothesis)
+    expect(last.truehand.isTrue).toBe(last.truehand.id === fx.true_hypothesis)
     expect(last.published.isTrue).toBe(last.published.id === fx.true_hypothesis)
   })
 })
@@ -193,5 +196,18 @@ describe('engine-shaped fixtures (schema_version 2)', () => {
     expect(items.filter((t) => t.kind === 'reading')).toHaveLength(recorded.steps.length)
     expect(frameAt(recorded, 1).reading).not.toBeNull()
     expect(comparisonRows(recorded)).toHaveLength(recorded.steps.length)
+  })
+})
+
+describe('raceStages', () => {
+  it('starts both methods at the uniform prior and follows the recorded top probabilities', () => {
+    const { published, ours } = raceStages(fx)
+    const prior = 1 / fx.catalog.hypothesis_ids.length
+    expect(published).toHaveLength(fx.steps.length + 1)
+    expect(published[0]).toBeCloseTo(prior, 12)
+    expect(ours[0]).toBeCloseTo(prior, 12)
+    expect(published.slice(1)).toEqual(fx.steps.map((s) => s.baseline.confidence))
+    expect(ours[1]).toBeCloseTo(rank(fx, fx.steps[0]!.belief, 1)[0]!.p, 12)
+    expect(ours[2]).toBeCloseTo(fx.steps[1]!.diagnosis!.confidence, 6)
   })
 })

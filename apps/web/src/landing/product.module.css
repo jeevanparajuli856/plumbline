@@ -1,0 +1,48 @@
+/* Product rows and the phone preview. Colors, radii, shadows and durations come from tokens.css; reduced motion zeroes the duration tokens on the landing root. */
+.productRows {
+  list-style: none;
+  padding: 0;
+  border-top: 1px solid var(--text);
+}
+.productRow {
+  display: grid;
+  grid-template-columns: minmax(0, 11rem) minmax(0, 1fr) auto;
+  column-gap: var(--space-6);
+  row-gap: var(--space-1);
+  align-items: baseline;
+  padding-block: var(--space-6);
+  border-bottom: 1px solid var(--hairline);
+}
+@media (min-width: 768px) {
+  .productRow:nth-child(2) {
+    margin-left: 8%;
+  }
+  .productRow:nth-child(3) {
+    margin-left: 16%;
+  }
+}
+@media (max-width: 767px) {
+  .productRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .productRow > p:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+.productName {
+  font-weight: 700;
+  font-size: var(--text-md);
+}
+.productStatus {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-2);
+}
+.productStatusNow {
+  color: var(--measured);
+  font-weight: 700;
+}

@@ -25,7 +25,7 @@ export interface ComparisonRow {
   reading: string
   told: string
   landed: string
-  plumbline: RankedHypothesis & { isTrue: boolean }
+  truehand: RankedHypothesis & { isTrue: boolean }
   published: RankedHypothesis & { isTrue: boolean }
 }
 
@@ -37,7 +37,7 @@ export interface PlayFrame {
   landedLabel: string | null
   reading: string | null
   warning: { likelyLabel: string; pOff: number } | null
-  plumbline: RankedHypothesis[]
+  truehand: RankedHypothesis[]
   published: RankedHypothesis | null
   entropyBits: number
   maxEntropyBits: number
@@ -156,7 +156,7 @@ export function transcript(fx: FixtureT): TranscriptItem[] {
     {
       key: 'start',
       kind: 'start',
-      text: `Start. ${n} possible ${noun.plural}, all equally likely: uncertainty ${maxEntropy(fx).toFixed(2)} bits. Told: ${instructionFor(fx, fx.prior_instruction.site)}.`,
+      text: `Start. ${n} possible ${noun.plural}, all equally likely. Told: ${instructionFor(fx, fx.prior_instruction.site)}.`,
     },
   ]
   fx.steps.forEach((step, i) => {
@@ -175,32 +175,32 @@ export function transcript(fx: FixtureT): TranscriptItem[] {
         text: `Warning. Your probe is not where you think it is. Most likely ${siteLabel(fx, argmax(step.placement))}. Chance it was not ${siteLabel(fx, step.told_site)}: ${formatPct(step.p_off_site)}.`,
       })
     }
-    const published = `Published method: ${labelOf(fx, step.baseline.top)}, ${formatPct(step.baseline.confidence)}`
+    const published = `A conventional assistant: ${labelOf(fx, step.baseline.top)}, ${formatPct(step.baseline.confidence)}`
     if (step.diagnosis) {
       const isTrue = step.diagnosis.hypothesis_id === fx.true_hypothesis
       items.push({
         key: `diagnosis-${k}`,
         kind: 'diagnosis',
-        text: `Plumbline: ${labelOf(fx, step.diagnosis.hypothesis_id)}, ${formatPct(step.diagnosis.confidence)}.${isTrue ? ` That is ${noun.truth}.` : ''} ${published}${verdict(fx, step.baseline)}`,
+        text: `Truehand: ${labelOf(fx, step.diagnosis.hypothesis_id)}, ${formatPct(step.diagnosis.confidence)}.${isTrue ? ` That is ${noun.truth}.` : ''} ${published}${verdict(fx, step.baseline)}`,
       })
     } else if (step.status === 'unresolved') {
       items.push({
         key: `unresolved-${k}`,
         kind: 'unresolved',
-        text: `Unresolved. ${step.unresolved?.text ?? `These ${noun.plural} give the same readings at every ${siteNoun}.`} Plumbline asks for a different measurement instead of guessing.`,
+        text: `Unresolved. ${step.unresolved?.text ?? `These ${noun.plural} give the same readings at every ${siteNoun}.`} Truehand asks for a different measurement instead of guessing.`,
       })
     } else {
       items.push({
         key: `belief-${k}`,
         kind: 'belief',
-        text: `Plumbline: ${rankedText(rank(fx, step.belief, 2))}. Not sure yet, so it asks for another reading. ${published}${verdict(fx, step.baseline)}`,
+        text: `Truehand: ${rankedText(rank(fx, step.belief, 2))}. Not sure yet, so it asks for another reading. ${published}${verdict(fx, step.baseline)}`,
       })
     }
   })
   return items
 }
 
-/** One row per reading: Plumbline's top candidate against the published method's, with the truth marked. */
+/** One row per reading: Truehand's top candidate against a conventional assistant's, with the truth marked. */
 export function comparisonRows(fx: FixtureT): ComparisonRow[] {
   return fx.steps.map((step, i) => {
     const top = rank(fx, step.belief, 1)[0]!
@@ -209,7 +209,7 @@ export function comparisonRows(fx: FixtureT): ComparisonRow[] {
       reading: formatValue(fx, step.reading),
       told: siteLabel(fx, step.told_site),
       landed: step.landed_site === null ? 'unknown' : siteLabel(fx, step.landed_site),
-      plumbline: { ...top, isTrue: top.id === fx.true_hypothesis },
+      truehand: { ...top, isTrue: top.id === fx.true_hypothesis },
       published: {
         id: step.baseline.top,
         label: labelOf(fx, step.baseline.top),
@@ -249,7 +249,7 @@ export function frameAt(fx: FixtureT, readingsShown: number, revealed = true): P
       last?.warning && revealed
         ? { likelyLabel: siteLabel(fx, argmax(last.placement)), pOff: last.p_off_site }
         : null,
-    plumbline: rank(fx, last ? last.belief : uniform),
+    truehand: rank(fx, last ? last.belief : uniform),
     published: last
       ? {
           id: last.baseline.top,
@@ -308,4 +308,34 @@ export function provenance(fx: FixtureT): Provenance | null {
     date: fx.generated_at ? fx.generated_at.slice(0, 10) : null,
     seed: recordedSeed(fx),
   }
+}
+
+export interface RaceStages {
+  /** Top-fault probability (0 to 1) before any reading, then after each recorded reading. */
+  published: number[]
+  ours: number[]
+}
+
+/**
+ * The two-method race in `play`: each method's top-fault probability before any reading and
+ * after each reading. Before a reading both hold the uniform prior; after it, Truehand's top
+ * belief and the conventional assistant's confidence, as recorded.
+ */
+export function raceStages(fx: FixtureT): RaceStages {
+  const prior = 1 / Math.max(1, fx.catalog.hypothesis_ids.length)
+  return {
+    published: [prior, ...fx.steps.map((s) => s.baseline.confidence)],
+    ours: [prior, ...fx.steps.map((s) => Math.max(...s.belief))],
+  }
+}
+
+/** Uncertainty below these fractions of its maximum reads as low / medium in words. */
+const LOW_UNCERTAINTY = 0.1
+const MEDIUM_UNCERTAINTY = 0.5
+
+/** Uncertainty in words for a frame: the site shows the word, never the figure behind it. */
+export function uncertaintyWord(frame: Pick<PlayFrame, 'entropyBits' | 'maxEntropyBits'>): string {
+  const ratio = frame.maxEntropyBits > 0 ? frame.entropyBits / frame.maxEntropyBits : 0
+  if (ratio < LOW_UNCERTAINTY) return 'low'
+  return ratio < MEDIUM_UNCERTAINTY ? 'medium' : 'high'
 }

@@ -1,0 +1,66 @@
+/* The contact form. Colors, radii and durations come from tokens.css. */
+.form {
+  display: grid;
+  gap: var(--space-6);
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  padding: var(--space-8);
+}
+@media (max-width: 767px) {
+  .form {
+    padding: var(--space-4);
+  }
+}
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+.label {
+  font-weight: 700;
+  font-size: var(--text-md);
+}
+.input {
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-3) var(--space-4);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-button);
+  background: var(--bench);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-md);
+}
+.input:hover {
+  background: var(--surface-1);
+}
+/* Form errors use ink weight, not the warning hue: vermilion is reserved for placement warnings. */
+.input[aria-invalid='true'] {
+  border-color: var(--text);
+  border-width: 3px;
+}
+.error {
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.result {
+  padding: var(--space-4);
+  border-left: 4px solid var(--inferred);
+  background: var(--bench);
+  font-size: var(--text-md);
+  line-height: 1.5;
+}
+.resultError {
+  border-left-color: var(--text);
+  background: var(--surface-2);
+  font-weight: 700;
+}
+/* Off screen, not display:none, so autofilling bots still find it. */
+.honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

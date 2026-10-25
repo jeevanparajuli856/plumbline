@@ -1,4 +1,16 @@
-const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten']
+const WORDS = [
+  'zero',
+  'one',
+  'two',
+  'three',
+  'four',
+  'five',
+  'six',
+  'seven',
+  'eight',
+  'nine',
+  'ten',
+]
 
 /** A count from data, spelled for prose ("four rungs"); digits once the word list runs out. */
 export function countWord(n: number, capitalized = false): string {

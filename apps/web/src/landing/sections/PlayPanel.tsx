@@ -1,24 +1,16 @@
 import type { CSSProperties } from 'react'
 import { formatPct } from '@/lib/format'
 import s from '../landing.module.css'
+import pp from '../playPanel.module.css'
 import { cx } from '../cx'
-import type { PlayFrame, RankedHypothesis } from '../workedExample'
-
-/** Entropy ratios below these read as low / medium uncertainty in words. */
-const LOW_UNCERTAINTY = 0.1
-const MEDIUM_UNCERTAINTY = 0.5
+import { WarningGlyph } from '../parts'
+import { uncertaintyWord, type PlayFrame, type RankedHypothesis } from '../workedExample'
 
 interface PlayPanelProps {
   frame: PlayFrame
   siteLabels: readonly string[]
   trueHypothesis: string
   isTravelling: boolean
-}
-
-function uncertaintyWord(ratio: number): string {
-  if (ratio < LOW_UNCERTAINTY) return 'low'
-  if (ratio < MEDIUM_UNCERTAINTY) return 'medium'
-  return 'high'
 }
 
 function scale(p: number): CSSProperties {
@@ -29,16 +21,16 @@ function scale(p: number): CSSProperties {
 export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: PlayPanelProps) {
   const ratio = frame.maxEntropyBits > 0 ? frame.entropyBits / frame.maxEntropyBits : 0
   return (
-    <div className={cx(s.panel, 'grid gap-5')}>
-      <ol className={s.rows} aria-label="Breadboard rows in the worked example">
+    <div className={cx(pp.panel, 'grid gap-5')}>
+      <ol className={pp.rows} aria-label="Breadboard rows in the worked example">
         {siteLabels.map((label, i) => {
           const isTold = i === frame.told
           const isLanded = i === frame.landed
           const tags = [isTold && 'told', isLanded && 'landed'].filter(Boolean).join(', ')
           return (
-            <li key={label} className={cx(s.row, isTold && s.rowTold, isLanded && s.rowLanded)}>
+            <li key={label} className={cx(pp.row, isTold && pp.rowTold, isLanded && pp.rowLanded)}>
               <span>{label}</span>
-              {tags && <span className={s.rowTag}>{tags}</span>}
+              {tags && <span className={pp.rowTag}>{tags}</span>}
             </li>
           )
         })}
@@ -47,19 +39,16 @@ export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: P
       <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-end">
         <div>
           <p className="text-base text-text-2">Meter reading</p>
-          <p className={cx(s.reading, !frame.reading && s.readingEmpty)}>
+          <p className={cx(pp.reading, !frame.reading && pp.readingEmpty)}>
             {frame.reading ?? (isTravelling ? 'Probe travelling' : 'No reading yet')}
           </p>
         </div>
         <div>
           <div className="flex flex-wrap justify-between gap-x-4 text-base">
-            <span className="whitespace-nowrap">Uncertainty: {uncertaintyWord(ratio)}</span>
-            <span className={cx(s.mono, 'whitespace-nowrap')}>
-              {frame.entropyBits.toFixed(2)} of {frame.maxEntropyBits.toFixed(2)} bits
-            </span>
+            <span className="whitespace-nowrap">Uncertainty: {uncertaintyWord(frame)}</span>
           </div>
-          <div className={cx(s.entropy, 'mt-2')} aria-hidden="true">
-            <div className={s.entropyFill} style={scale(ratio)} />
+          <div className={cx(pp.entropy, 'mt-2')} aria-hidden="true">
+            <div className={pp.entropyFill} style={scale(ratio)} />
           </div>
         </div>
       </div>
@@ -71,7 +60,7 @@ export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: P
 
       {frame.warning && (
         <p key={frame.readingsShown} className={s.warning}>
-          <span aria-hidden="true">&#x26A0;&#xFE0E; </span>
+          <WarningGlyph className={s.glyph} />
           <span className={s.warningWord}>Warning.</span> Your probe is not where you think it is.
           Most likely {frame.warning.likelyLabel}.
         </p>
@@ -80,7 +69,7 @@ export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: P
       <div className="grid gap-6 sm:grid-cols-2">
         {frame.readingsShown === 0 ? (
           <div>
-            <h3 className="text-lg font-semibold">Plumbline</h3>
+            <h3 className="text-lg font-semibold">Truehand</h3>
             <p className="mt-2 text-base text-text-2">
               {frame.hypothesisCount} faults, all equally likely:{' '}
               <span className={s.mono}>{formatPct(1 / Math.max(1, frame.hypothesisCount))}</span>{' '}
@@ -89,14 +78,14 @@ export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: P
           </div>
         ) : (
           <BarList
-            title="Plumbline"
-            items={frame.plumbline}
-            tone="plumbline"
+            title="Truehand"
+            items={frame.truehand}
+            tone="truehand"
             trueHypothesis={frame.isResolved ? trueHypothesis : null}
           />
         )}
         <BarList
-          title="Published method"
+          title="Conventional assistant"
           items={frame.published ? [frame.published] : []}
           tone="published"
           trueHypothesis={frame.isResolved ? trueHypothesis : null}
@@ -110,7 +99,7 @@ export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: P
 interface BarListProps {
   title: string
   items: readonly RankedHypothesis[]
-  tone: 'plumbline' | 'published'
+  tone: 'truehand' | 'published'
   trueHypothesis: string | null
   empty?: string
 }
@@ -141,10 +130,7 @@ function BarList({ title, items, tone, trueHypothesis, empty }: BarListProps) {
                 </div>
                 <div className={s.barTrack} aria-hidden="true">
                   <div
-                    className={cx(
-                      s.barFill,
-                      tone === 'plumbline' ? s.barPlumbline : s.barPublished,
-                    )}
+                    className={cx(s.barFill, tone === 'truehand' ? s.barTruehand : s.barPublished)}
                     style={scale(h.p)}
                   />
                 </div>

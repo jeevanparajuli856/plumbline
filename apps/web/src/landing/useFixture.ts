@@ -38,3 +38,27 @@ export function useFixture(id: string): FixtureLoad {
   }, [id])
   return state
 }
+
+export type FixturesLoad =
+  | { status: 'loading' }
+  | { status: 'ready'; fixtures: FixtureT[] }
+  | { status: 'missing'; sentence: string }
+
+/** Loads several recordings once per page view, in order. Each is its own lazy chunk. */
+export function useFixtures(ids: readonly string[]): FixturesLoad {
+  const [state, setState] = useState<FixturesLoad>({ status: 'loading' })
+  const key = ids.join(',')
+  useEffect(() => {
+    let alive = true
+    Promise.all(key.split(',').map(load)).then(
+      (fixtures) => alive && setState({ status: 'ready', fixtures }),
+      () =>
+        alive &&
+        setState({ status: 'missing', sentence: 'The recorded runs are not available here.' }),
+    )
+    return () => {
+      alive = false
+    }
+  }, [key])
+  return state
+}

@@ -15,7 +15,11 @@ const THEMES: ThemeName[] = ['light', 'dark', 'hc']
 const PAGES: { path: string; fullUi: boolean }[] = [
   { path: '/', fullUi: false },
   { path: '/sim?demo=worked-example', fullUi: true },
+  { path: '/how-it-works', fullUi: false },
   { path: '/evidence', fullUi: false },
+  { path: '/app', fullUi: false },
+  { path: '/accessibility', fullUi: false },
+  { path: '/contact', fullUi: false },
   { path: '/about', fullUi: false },
 ]
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']

@@ -1,6 +1,6 @@
-/* Landing-only styles. Colors, durations and easings come from tokens.css custom properties. */
+/* Landing-only styles (B2 board). Colors, radii, shadows and durations come from tokens.css. */
 
-/* Reduced motion from useReducedMotion (OS, or the app-wide switch once web-shell extends the hook). */
+/* Reduced motion from useReducedMotion (OS, or the app-wide switch): every duration snaps to zero. */
 .root[data-reduced='true'],
 :global(html[data-reduce-motion='true']) .root {
   --motion-instant: 0ms;
@@ -11,58 +11,62 @@
 }
 
 .root {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+  overflow-x: clip;
 }
 
-/* ---------- Type scale (DESIGN_REFERENCES D3) ---------- */
+/* ---------- Type ---------- */
 .display {
-  font-size: 4.25rem;
-  line-height: 4.5rem;
-  letter-spacing: -0.01em;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  line-height: var(--leading-display);
+  font-weight: 560;
+  font-optical-sizing: auto;
+  letter-spacing: -0.02em;
   text-wrap: balance;
 }
 .h2 {
-  font-size: 2.75rem;
-  line-height: 3.25rem;
-  letter-spacing: -0.005em;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  line-height: var(--leading-h2);
+  font-weight: 560;
+  font-optical-sizing: auto;
+  letter-spacing: -0.015em;
   text-wrap: balance;
 }
 .h3 {
-  font-size: 1.75rem;
-  line-height: 2.25rem;
-  font-weight: 500;
+  font-size: var(--text-h3);
+  line-height: var(--leading-h3);
+  font-weight: 700;
   text-wrap: balance;
 }
 .lead {
-  font-size: 1.375rem;
-  line-height: 2.125rem;
+  font-size: var(--text-lead);
+  line-height: 1.55;
   color: var(--text-2);
   text-wrap: pretty;
-  max-width: 40em;
+  max-width: 34em;
 }
 .body {
-  font-size: 1.125rem;
-  line-height: 1.75rem;
+  font-size: var(--text-md);
+  line-height: 1.6;
   text-wrap: pretty;
   max-width: 36em;
 }
 .caption {
   font-family: var(--font-mono);
-  font-size: 1rem;
-  line-height: 1.5rem;
+  font-size: var(--text-caption);
+  line-height: 1.55;
   font-variant-numeric: tabular-nums;
   color: var(--text-2);
   border-top: 1px solid var(--hairline);
   padding-top: var(--space-2);
-  max-width: 44em;
+  max-width: 52em;
   text-wrap: pretty;
 }
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 1rem;
+  font-size: var(--text-caption);
   line-height: 1.5rem;
   font-weight: 500;
   letter-spacing: var(--tracking-caps);
@@ -76,16 +80,14 @@
 .eyebrow::before {
   content: '';
   width: 24px;
-  height: 0;
   margin-top: 11px;
-  border-top: 2px solid var(--text);
+  border-top: 2px solid currentColor;
   flex: none;
 }
-/* Mono label without the tick, for definition terms and small headings. */
 .label {
   font-family: var(--font-mono);
-  font-size: 1rem;
-  line-height: 1.75rem;
+  font-size: var(--text-caption);
+  line-height: 1.6rem;
   font-weight: 500;
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
@@ -95,27 +97,25 @@
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
-
-@media (max-width: 767px) {
-  .display {
-    font-size: 2.75rem;
-    line-height: 3rem;
-  }
-  .h2 {
-    font-size: 2rem;
-    line-height: 2.5rem;
-  }
-  .h3 {
-    font-size: 1.375rem;
-    line-height: 1.875rem;
-  }
-  .lead {
-    font-size: 1.25rem;
-    line-height: 1.875rem;
-  }
+.code {
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  background: var(--surface-2);
+  padding: 0 4px;
+  border-radius: var(--radius-hard);
+  overflow-wrap: break-word;
+}
+.link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.link:hover {
+  text-decoration-thickness: 2px;
 }
 
-/* ---------- Layout: 12 columns, 24px gutters, 64px margins (16px on phones) ---------- */
+/* ---------- Layout: 12 columns; 64px margins, 16px on phones ---------- */
 .frame {
   max-width: 1440px;
   margin-inline: auto;
@@ -130,10 +130,20 @@
   position: relative;
   padding-block: 128px;
 }
-/* Paper sheets slide over the fixed scene; scene sections stay transparent. */
+/* Paper over the fixed scene. Scene sections (how, generalize) stay see-through on purpose. */
 .sheet {
   background: var(--bench);
+}
+.band {
+  background: var(--surface-2);
+}
+.ruleTop {
   border-top: 1px solid var(--hairline);
+}
+@media (max-width: 1023px) {
+  .frame {
+    padding-inline: 32px;
+  }
 }
 @media (max-width: 767px) {
   .frame {
@@ -144,12 +154,35 @@
     column-gap: 16px;
   }
   .section {
-    padding-block: 64px;
+    padding-block: 72px;
   }
 }
 
-/* ---------- Sticky scenes (DESIGN_REFERENCES D4) ---------- */
-/* Pinned only when there is room; otherwise the scene sections read in normal flow. */
+/* ---------- Ink sections (technology, close): paper colors flip to the on-ink set ---------- */
+.ink {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+.ink .eyebrow,
+.ink .label {
+  color: var(--on-ink-muted);
+}
+.ink .lead {
+  color: var(--on-ink-muted);
+}
+.ink .caption {
+  color: var(--on-ink-muted);
+  border-top-color: var(--ink-divider);
+}
+.ink .code {
+  background: var(--ink-divider);
+}
+.ink :focus-visible {
+  outline-color: var(--ink-measured);
+  box-shadow: 0 0 0 2px var(--ink);
+}
+
+/* ---------- Sticky scenes ---------- */
 .track {
   position: relative;
 }
@@ -157,35 +190,16 @@
   position: relative;
 }
 @media (min-width: 768px) and (min-height: 720px) {
-  .trackPlay {
-    height: 300vh;
-  }
-  .trackHow {
-    height: 250vh;
-  }
   .trackGeneralize {
     height: 200vh;
   }
   .pin {
     position: sticky;
     top: 0;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     align-items: center;
   }
-}
-.mast {
-  padding-top: var(--space-8);
-}
-.tall {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-}
-.close {
-  min-height: 80vh;
-  display: flex;
-  align-items: center;
 }
 @media (max-width: 767px) {
   /* On phones the scene panels get paper so text never sits on the canvas. */
@@ -194,239 +208,80 @@
   }
 }
 
-/* ---------- Controls ---------- */
-.button {
+/* ---------- Buttons on ink (paper sections use buttonClass from @/ui/button) ---------- */
+.inkButton,
+.inkPrimary {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
+  justify-content: center;
   min-height: 48px;
   padding: 0 var(--space-6);
-  border-radius: var(--radius-hard);
-  font-weight: 600;
-  font-size: 1.125rem;
-  line-height: 1;
-  border: 2px solid var(--border-strong);
-  background: var(--surface-1);
-  color: var(--text);
+  border-radius: var(--radius-button);
+  font: inherit;
+  font-weight: 700;
+  font-size: var(--text-md);
+  line-height: 1.2;
   cursor: pointer;
-  transition-property: background-color, border-color, transform, box-shadow;
+  text-decoration: none;
+  transition-property: background-color, border-color, color;
   transition-duration: var(--motion-fast);
   transition-timing-function: var(--ease-smooth);
-  text-decoration: none;
 }
-.button:hover {
-  border-color: var(--text);
-  background: var(--surface-2);
+.inkButton {
+  background: transparent;
+  color: var(--on-ink);
+  border: 1.5px solid var(--on-ink-muted);
 }
-.button:active {
+.inkButton:hover {
+  background: var(--ink-divider);
+  border-color: var(--on-ink);
+}
+.inkPrimary {
+  background: var(--ink-measured);
+  color: var(--ink);
+  border: 1.5px solid var(--ink-measured);
+}
+.inkPrimary:hover {
+  background: var(--on-ink);
+  border-color: var(--on-ink);
+}
+.inkButton:active,
+.inkPrimary:active {
   transform: translateY(1px);
 }
-.button:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 3px;
-  box-shadow: 0 0 0 3px var(--focus-gap);
-}
-.button:disabled,
-.button[aria-disabled='true'] {
+.inkButton[aria-disabled='true'],
+.inkPrimary[aria-disabled='true'] {
   cursor: not-allowed;
-  color: var(--text-muted);
-  border-color: var(--hairline);
   background: transparent;
+  color: var(--on-ink-muted);
+  border-color: var(--ink-divider);
+  border-style: dashed;
   transform: none;
 }
-.primary {
-  background: var(--inferred-fill);
-  border-color: var(--inferred);
-  color: var(--on-inferred);
-}
-.primary:hover {
-  background: var(--inferred-fill);
-  border-color: var(--text);
-  box-shadow: inset 0 -3px 0 var(--inferred);
-}
-.link {
-  color: var(--text);
-  text-decoration: underline;
-  text-decoration-color: var(--border-strong);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 4px;
-  transition-property: text-decoration-color, text-decoration-thickness;
-  transition-duration: var(--motion-fast);
-}
-.link:hover {
-  text-decoration-color: var(--text);
-  text-decoration-thickness: 2px;
-}
-.link:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 3px;
-  box-shadow: 0 0 0 3px var(--focus-gap);
-  border-radius: var(--radius-hard);
-}
 
-/* Switch (role=switch) */
-.switch {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-3);
-  min-height: 44px;
-  padding: 0 var(--space-2);
-  background: transparent;
-  border: 0;
-  color: var(--text);
-  font: inherit;
-  font-size: 1rem;
-  cursor: pointer;
-  border-radius: var(--radius-hard);
-}
-.switch:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 2px var(--focus-gap);
-}
-.switch[aria-disabled='true'] {
-  cursor: default;
-}
-.switchTrack {
-  position: relative;
-  width: 40px;
-  height: 24px;
-  border: 2px solid var(--border-strong);
-  border-radius: 12px;
-  background: var(--surface-1);
-  transition: background-color var(--motion-fast) var(--ease-smooth);
-}
-.switchThumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--text-2);
-  transition: transform var(--motion-fast) var(--ease-smooth);
-}
-.switch[aria-checked='true'] .switchTrack {
-  background: var(--inferred-fill);
-  border-color: var(--inferred);
-}
-.switch[aria-checked='true'] .switchThumb {
-  transform: translateX(16px);
-  background: var(--on-inferred);
-}
-
-/* ---------- Badges (honesty labels are text, part of the system) ---------- */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  line-height: 1.5rem;
-  font-weight: 600;
-  letter-spacing: var(--tracking-caps);
-  padding: 0 var(--space-2);
-  border: 1.5px solid currentColor;
-  border-radius: var(--radius-hard);
-  white-space: nowrap;
-}
-.badgeProvisional,
-.badgePending {
-  color: var(--text);
-  border-style: dashed;
-}
-.badgeSimulated {
-  color: var(--inferred);
-  border-style: dashed;
-}
-.badgeProgress {
-  color: var(--measured);
-}
-.badgeDone {
-  color: var(--on-measured);
-  background: var(--measured-fill);
-  border-color: var(--measured-fill);
-}
-
-/* ---------- Play panel ---------- */
-.panel {
-  background: var(--surface-1);
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-soft);
-  box-shadow: var(--shadow-panel);
-  padding: var(--space-6);
-}
-@media (max-width: 767px) {
-  .panel {
-    padding: var(--space-4);
-  }
-}
-.rows {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
-  gap: var(--space-2);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.row {
-  position: relative;
-  min-height: 56px;
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-hard);
-  padding: var(--space-2);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  line-height: 1.25rem;
+/* ---------- Mast (hero, 7:5) ---------- */
+.mast {
   background: var(--bench);
+  padding-top: 56px;
+  padding-bottom: 72px;
 }
-@media (max-width: 639px) {
-  .rows {
-    grid-auto-flow: row;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+.mastText {
+  align-self: center;
 }
-.rowTold {
-  outline: 2px dashed var(--inferred);
-  outline-offset: 2px;
-  background: var(--surface-1);
-}
-.rowTold.rowLanded,
-.rowLanded {
-  background: var(--measured-fill);
-  border: 2px solid var(--measured-fill);
-  color: var(--on-measured);
-}
-.rowTag {
-  font-size: 1rem;
-  font-weight: 600;
+/* A fixed line-height keeps line boxes identical when a runtime splitter wraps the words in spans. */
+.headline {
+  line-height: calc(var(--leading-display) * 1em);
 }
 
-.reading {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  font-size: 1.75rem;
-  line-height: 2.25rem;
-  font-weight: 600;
-  color: var(--measured);
-}
-.readingEmpty {
-  color: var(--text-muted);
-  font-weight: 400;
-}
-
-/* Warning: vermilion left rule drawn top to bottom once, glyph, the word. */
+/* ---------- Warning: vermilion left rule, glyph, the word. Strikes in from the left once. ---------- */
 .warning {
   position: relative;
   padding: var(--space-3) var(--space-4) var(--space-3) var(--space-6);
   background: var(--warning-surface);
   color: var(--text);
-  font-size: 1.125rem;
-  line-height: 1.75rem;
+  font-size: var(--text-md);
+  line-height: 1.5;
+  animation: strike-in var(--motion-warning-strike) var(--ease-sharp) both;
 }
 .warning::before {
   content: '';
@@ -437,13 +292,31 @@
   width: 6px;
   background: var(--warning);
   transform-origin: top;
-  animation: strike var(--motion-warning-strike) var(--ease-sharp) both;
+  animation: rule-draw var(--motion-normal) var(--ease-sharp) both;
 }
 .warningWord {
   color: var(--warning-text);
-  font-weight: 600;
+  font-weight: 700;
 }
-@keyframes strike {
+.glyph {
+  display: inline-block;
+  width: 1.05em;
+  height: 1.05em;
+  margin-right: 6px;
+  vertical-align: -0.15em;
+  color: var(--warning-text);
+}
+@keyframes strike-in {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes rule-draw {
   from {
     transform: scaleY(0);
   }
@@ -452,10 +325,9 @@
   }
 }
 
-/* Belief bars: Plumbline outlined cyan, published method dashed neutral. Width follows the fixture. */
+/* ---------- Belief bars: Truehand outlined cyan, published method dashed neutral ---------- */
 .bars {
   list-style: none;
-  margin: 0;
   padding: 0;
   display: grid;
   gap: var(--space-3);
@@ -465,7 +337,7 @@
   justify-content: space-between;
   gap: var(--space-3);
   font-size: 1rem;
-  line-height: 1.5rem;
+  line-height: 1.4;
 }
 .barTrack {
   position: relative;
@@ -479,49 +351,189 @@
   transform-origin: left;
   transition: transform var(--motion-belief-bars) var(--ease-smooth);
 }
-.barPlumbline {
+.barTruehand {
   border: 2px solid var(--inferred);
   background: color-mix(in srgb, var(--inferred-fill) 35%, transparent);
 }
 .barPublished {
   border: 2px dashed var(--baseline);
-  background: transparent;
 }
 .barTrue {
-  font-weight: 600;
+  font-weight: 700;
 }
 
-.entropy {
-  position: relative;
-  height: 8px;
+/* ---------- Photos: sharp, cover, fixed aspect box; never in the hero ---------- */
+.photo {
+}
+.photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--ratio, 4 / 3);
+  object-fit: cover;
   background: var(--surface-2);
-  border-radius: 4px;
-  overflow: hidden;
-}
-.entropyFill {
-  position: absolute;
-  inset: 0;
-  background: var(--text-2);
-  transform-origin: left;
-  transition: transform var(--motion-crawl) var(--ease-smooth);
 }
 
-/* ---------- Transcript, tables ---------- */
+.ratioWide {
+  --ratio: 3 / 2;
+}
+.credit {
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--text-2);
+}
+.credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.ink .credit {
+  color: var(--on-ink-muted);
+}
+
+/* ---------- Research (2:3, pinned left, offset numbered list) ---------- */
+@media (min-width: 768px) {
+  .pinned {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-8));
+    align-self: start;
+  }
+}
+.studies {
+  list-style: none;
+  padding: 0;
+  counter-reset: study;
+}
+.study {
+  counter-increment: study;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  column-gap: var(--space-6);
+  padding-block: var(--space-12);
+  border-top: 1px solid var(--text);
+}
+.study::before {
+  content: counter(study, decimal-leading-zero);
+  font-family: var(--font-display);
+  font-size: 3rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--measured);
+}
+@media (min-width: 768px) {
+  .study:nth-child(2) {
+    margin-left: 12%;
+  }
+  .study:nth-child(3) {
+    margin-left: 6%;
+  }
+}
+@media (max-width: 767px) {
+  .study {
+    grid-template-columns: 48px minmax(0, 1fr);
+    column-gap: var(--space-4);
+    padding-block: var(--space-8);
+  }
+  .study::before {
+    font-size: 2rem;
+  }
+}
+.studyMeta {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  line-height: 1.6;
+  color: var(--text-2);
+}
+.studyVenue {
+  font-weight: 700;
+  color: var(--text);
+}
+.quote {
+  font-size: clamp(1.375rem, 1.1rem + 0.7vw, 1.75rem);
+  line-height: 1.4;
+  font-weight: 500;
+  text-wrap: pretty;
+  margin: var(--space-4) 0 0;
+}
+.speaker {
+  margin-top: var(--space-3);
+  font-size: 1rem;
+  color: var(--text-2);
+}
+
+/* ---------- Tables: sharp, hairline rules ---------- */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+.table th,
+.table td {
+  text-align: left;
+  vertical-align: top;
+  padding: var(--space-3) var(--space-4) var(--space-3) 0;
+  border-top: 1px solid var(--hairline);
+}
+.table thead th {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-2);
+  border-top: 2px solid var(--text);
+}
+.ink .table th,
+.ink .table td {
+  border-top-color: var(--ink-divider);
+}
+.ink .table thead th {
+  color: var(--on-ink-muted);
+  border-top-color: var(--on-ink);
+}
+.tableScroll {
+  overflow-x: auto;
+}
+
+/* ---------- Problem band (7:5) ---------- */
+.forumQuote {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 1.4rem + 2vw, 3rem);
+  line-height: 1.1;
+  font-weight: 500;
+  font-style: italic;
+}
+
+/* ---------- Technology (ink, 5:7): the two-method race ---------- */
+.playStage {
+  position: relative;
+}
+@media (min-width: 1024px) {
+  .playStage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+  }
+}
+/* ---------- Transcript ---------- */
 .steps {
   list-style: none;
   counter-reset: step;
-  margin: 0;
   padding: 0;
 }
 .step {
   counter-increment: step;
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr);
+  grid-template-columns: 36px minmax(0, 1fr);
   gap: var(--space-4);
   padding-block: var(--space-4);
   border-top: 1px solid var(--hairline);
-  font-size: 1.125rem;
-  line-height: 1.75rem;
+  font-size: 1.0625rem;
+  line-height: 1.6;
 }
 .step::before {
   content: counter(step);
@@ -533,87 +545,18 @@
   box-shadow: inset 4px 0 0 var(--warning);
   padding-left: var(--space-3);
 }
-.stepWarning::before {
-  color: var(--warning-text);
+.ink .step {
+  border-top-color: var(--ink-divider);
 }
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 1.125rem;
-  line-height: 1.75rem;
+.ink .step::before {
+  color: var(--on-ink-muted);
 }
-.table caption {
-  text-align: left;
-  font-weight: 600;
-  padding-bottom: var(--space-3);
-}
-.table th,
-.table td {
-  text-align: left;
-  vertical-align: top;
-  padding: var(--space-3) var(--space-4) var(--space-3) 0;
-  border-top: 1px solid var(--hairline);
-}
-.table thead th {
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--text-2);
-  border-top: 2px solid var(--text);
-}
-.tableScroll {
-  overflow-x: auto;
-}
-.tableScroll:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-}
-.code {
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  background: var(--surface-2);
-  padding: 0 4px;
-  border-radius: var(--radius-hard);
-  /* Wrap long commands at spaces; break inside a token only when it cannot fit a line. */
-  overflow-wrap: break-word;
+.ink .stepWarning {
+  box-shadow: inset 4px 0 0 var(--ink-warning);
 }
 
-/* ---------- How: six lines ---------- */
-.math {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: var(--space-2);
-}
-.mathLine {
-  padding: var(--space-2) var(--space-4);
-  border-left: 2px solid var(--hairline);
-  color: var(--text-2);
-  transition-property: color, border-color;
-  transition-duration: var(--motion-fast);
-}
-.mathLineLit,
-.mathLinePast {
-  color: var(--text);
-}
-.mathLineLit {
-  border-left-color: var(--inferred);
-  background: var(--surface-1);
-}
-.formula {
-  font-family: var(--font-mono);
-  font-size: 1.125rem;
-  line-height: 1.75rem;
-  font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
-}
-.gloss {
-  font-size: 1rem;
-  line-height: 1.5rem;
-}
+/* ---------- Refusal: two equal bars held by a bracket ---------- */
 
-/* Refusal: two equal bars held by a bracket. */
 .refusal {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -627,123 +570,106 @@
   border-left: 0;
 }
 
-/* ---------- Plumb line figure (DOM fallback when there is no scene) ---------- */
-.plumb {
-  width: 100%;
-  max-width: 280px;
-  height: auto;
-  color: var(--text);
+/* ---------- Multi-page rhythm (ADR-0014) ---------- */
+.sectionTight {
+  padding-block: 72px;
 }
-.plumbSpread {
-  fill: color-mix(in srgb, var(--inferred-fill) 25%, transparent);
-  stroke: var(--inferred);
-  stroke-dasharray: 4 4;
-}
-.plumbBob {
-  fill: var(--measured-fill);
-  stroke: var(--text);
-}
-
-/* ---------- Ladder rail: the plumb line becomes a DOM rule ---------- */
-.rail {
-  position: relative;
-  padding-left: var(--space-8);
-}
-.rail::before {
-  content: '';
-  position: absolute;
-  left: 7px;
-  top: 0;
-  bottom: 0;
-  border-left: 2px solid var(--text);
-}
-.rung {
-  position: relative;
-}
-.rung > :first-child::before {
-  content: '';
-  position: absolute;
-  left: calc(-1 * var(--space-8) + 1px);
-  top: 26px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 2px solid var(--text);
-  background: var(--bench);
-}
-.rungNow > :first-child::before {
-  background: var(--measured-fill);
-}
-
-/* ---------- Phases ---------- */
-.phases {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: var(--space-2);
-}
-@media (max-width: 1023px) {
-  .phases {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (max-width: 767px) {
+  .sectionTight {
+    padding-block: 64px;
   }
 }
-.phase {
-  display: grid;
-  gap: 2px;
-  padding: var(--space-2) var(--space-4);
-  border: 1.5px solid var(--border-strong);
-  border-radius: var(--radius-hard);
+/* See-through sections on How it works let the 3D scene show behind the text. */
+.sceneSection {
+  background: transparent;
 }
-.phaseDone {
-  background: var(--surface-2);
-  border-color: var(--surface-2);
-}
-.phaseInProgress {
-  border-color: var(--measured);
-}
-.phaseNow {
-  background: var(--measured-fill);
-  border-color: var(--measured-fill);
-  color: var(--on-measured);
-}
-.phaseNext {
-  border-style: dashed;
-}
-
-/* ---------- Phone frame (real store, replay) ---------- */
-.phone {
-  width: min(100%, 340px);
-  aspect-ratio: 9 / 16;
-  border: 10px solid var(--text);
-  border-radius: 44px;
-  background: var(--surface-1);
-  box-shadow: var(--shadow-panel);
-  padding: var(--space-8) var(--space-4) var(--space-6);
+.introSection {
+  min-height: 86vh;
   display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  overflow: hidden;
+  align-items: center;
 }
-.phoneInstruction {
-  font-size: 1.75rem;
-  line-height: 2.25rem;
-  font-weight: 600;
-  text-wrap: balance;
+.refusalCard {
+  margin: 0;
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+}
+.settingsCard {
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+}
+/* A ruled list of short claims: title left, sentence right; offset, never cards. */
+.outcomes {
+  list-style: none;
+  padding: 0;
+  border-top: 1px solid var(--text);
+}
+.outcome {
+  display: grid;
+  grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+  column-gap: var(--space-8);
+  row-gap: var(--space-2);
+  align-items: baseline;
+  padding-block: var(--space-6);
+  border-bottom: 1px solid var(--hairline);
+}
+@media (min-width: 768px) {
+  .outcome:nth-child(2) {
+    margin-left: 6%;
+  }
+  .outcome:nth-child(3) {
+    margin-left: 12%;
+  }
+}
+@media (max-width: 767px) {
+  .outcome {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
-/* One damped settle per entropy change; amplitude set inline from the fixture's entropy. */
-.plumbSwing {
-  transform-box: view-box;
-  transform-origin: 50% 16px;
-  animation: settle var(--motion-pendulum-settle) var(--ease-smooth) both;
+.rungTitle {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  line-height: 1.3;
+  font-weight: 560;
 }
-@keyframes settle {
-  from {
-    transform: rotate(var(--amp, 0deg));
-  }
-  to {
-    transform: rotate(0deg);
-  }
+/* ---------- Live instrument: the phone, then its caption and Pause control ---------- */
+.liveInstrument {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+}
+.liveLoading {
+  display: grid;
+  place-items: center;
+  width: min(100%, 300px);
+  height: 620px;
+  color: var(--text-2);
+}
+.liveControls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--space-4);
+  width: min(100%, 420px);
+}
+.liveCaption {
+  font-size: 0.8125rem;
+}
+.productLine {
+  font-size: var(--text-md);
+  font-weight: 700;
+}
+.buyer {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--text-2);
+}
+.fieldSession {
+  font-weight: 700;
+  border-left: 3px solid var(--inferred);
+  padding-left: var(--space-4);
 }

@@ -51,17 +51,12 @@ describe('trackFraction', () => {
 describe('computeProgress', () => {
   const boxes = (scroll: number): SectionBox[] => {
     let y = 0
+    // How it works: intro, play (pinned), refusal, domains (pinned), under their scroll keys.
     const heights: Array<[SectionBox['id'], number, boolean]> = [
       ['mast', VH, false],
-      ['research', 1.2 * VH, false],
-      ['problem', VH, false],
       ['play', 3 * VH, true],
-      ['how', 2.5 * VH, true],
+      ['how', 1.5 * VH, false],
       ['generalize', 2 * VH, true],
-      ['product', VH, false],
-      ['ladder', VH, false],
-      ['evidence', 1.5 * VH, false],
-      ['close', 0.8 * VH, false],
     ]
     return heights.map(([id, h, sticky]) => {
       const top = y - scroll
@@ -69,12 +64,12 @@ describe('computeProgress', () => {
       return sticky ? { id, top, height: h, track: { top, height: h } } : { id, top, height: h }
     })
   }
-  const total = VH * (1 + 1.2 + 1 + 3 + 2.5 + 2 + 1 + 1 + 1.5 + 0.8)
+  const total = VH * (1 + 3 + 1.5 + 2)
 
   it('is 0 at the top and 1 at the bottom of the document', () => {
     expect(computeProgress(boxes(0), VH)).toEqual({ progress: 0, section: 'mast', f: 0 })
     const end = computeProgress(boxes(total - VH), VH)
-    expect(end.section).toBe('close')
+    expect(end.section).toBe('generalize')
     expect(end.progress).toBeCloseTo(1, 9)
   })
 
@@ -88,7 +83,7 @@ describe('computeProgress', () => {
   })
 
   it('reports the pinned fraction of a sticky track', () => {
-    const playTop = VH * (1 + 1.2 + 1)
+    const playTop = VH * 1
     const r = computeProgress(boxes(playTop + VH), VH)
     expect(r.section).toBe('play')
     expect(r.progress).toBeCloseTo(progressOf('play', 0.5), 9)

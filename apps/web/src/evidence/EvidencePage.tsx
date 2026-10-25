@@ -1,113 +1,104 @@
-import evidenceMd from '@docs/EVIDENCE.md?raw'
-import { InlineText } from './InlineText'
-import { EvidenceTable } from './EvidenceTable'
-import { parseEvidence, type Evidence } from './markdown'
-import { experimentCommands, statusCounts } from './summary'
-import { ScrollRegion } from '@/ui/ScrollRegion'
+import {
+  FIELD_SESSION,
+  KILL_RESULT,
+  SAFETY_SCOPE,
+  SIMULATION_SCOPE,
+  STATUS_LINE,
+  STUDIES,
+  TOTAL_PARTICIPANTS,
+  VALIDATION_STATS,
+} from '@/landing/content'
+import { cx } from '@/landing/cx'
+import s from '@/landing/landing.module.css'
+import { MarketingPage } from '@/landing/MarketingPage'
+import { countWord } from '@/landing/numberWords'
+import { Caption, Eyebrow, PhotoFigure, Section } from '@/landing/parts'
+import { PHOTOS } from '@/landing/photos'
+import { StatGrid } from '@/landing/sections/StatGrid'
 
-const evidence: Evidence = parseEvidence(evidenceMd)
-
-/** /evidence: the readiness table rendered at runtime from docs/EVIDENCE.md. */
+/** /evidence: why it matters (research), how far validation has come (results), and its limits (scope). */
 export function EvidencePage() {
-  const counts = statusCounts(evidence)
-  const commands = experimentCommands(evidence)
   return (
-    <main id="main" className="mx-auto max-w-[90rem] px-4 pb-16 pt-10 sm:px-8 lg:px-16 lg:pt-16">
-      <div className="grid gap-x-12 gap-y-6 lg:grid-cols-12">
-        <div className="lg:col-span-8">
-          <p className="label-caps">Validation status</p>
-          <h1 tabIndex={-1} className="mt-3 text-2xl font-semibold leading-tight tracking-tight">
-            Simulation validated. User validation in progress.
-          </h1>
-          <p className="mt-5 max-w-[62ch] text-md text-text-2">
-            Every row below is read from{' '}
-            <code className="font-mono text-text">docs/EVIDENCE.md</code> in our repository each
-            time this page loads. A row is done only when a command, a file, a link or a date proves
-            it. Results here come from simulated faults and a simulated hand. We have not yet
-            measured how real hands miss.
-          </p>
+    <MarketingPage>
+      <Section id="research" className={cx(s.section, s.sheet)}>
+        <div className={cx(s.frame, s.grid, 'gap-y-12')}>
+          <div className={cx('col-span-4 md:col-span-5', s.pinned)}>
+            <Eyebrow>Evidence</Eyebrow>
+            <h1 id="research-title" tabIndex={-1} className={cx(s.h2, 'mt-6')}>
+              {STATUS_LINE}
+            </h1>
+            <p className={cx(s.lead, 'mt-6')}>
+              In {countWord(STUDIES.length)} recent studies with {TOTAL_PARTICIPANTS} blind
+              participants, AI tools added work: people had to check the answers. Truehand is built
+              so that the checking is done for you.
+            </p>
+            <PhotoFigure
+              photo={PHOTOS.brailleDisplay}
+              sizes="(min-width: 768px) 40vw, 100vw"
+              className={cx(s.ratioWide, 'mt-8 max-w-[26rem]')}
+            />
+          </div>
+          <ol className={cx(s.studies, 'col-span-4 md:col-span-7')} aria-label="Studies">
+            {STUDIES.map((study) => (
+              <li key={study.id} className={s.study}>
+                <div>
+                  <p className={s.studyMeta}>
+                    <span className={s.studyVenue}>{study.venue}</span>, {study.institution}
+                    <br />
+                    {study.title}, {study.participantPhrase}
+                  </p>
+                  <figure className="m-0">
+                    <blockquote data-motion="quote" className={s.quote}>
+                      &ldquo;{study.quote}&rdquo;
+                    </blockquote>
+                    <figcaption className={s.speaker}>{study.speaker}</figcaption>
+                  </figure>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
-        <dl className="grid content-end gap-px self-end overflow-hidden rounded-hard border-2 border-border-strong bg-border-strong sm:grid-cols-3 lg:col-span-4">
-          {(['DONE', 'IN PROGRESS', 'PENDING'] as const).map((k) => (
-            <div key={k} className="bg-surface-1 px-4 py-3">
-              <dt className="label-caps">
-                {k === 'IN PROGRESS' ? 'In progress' : k === 'DONE' ? 'Done' : 'Pending'}
-              </dt>
-              <dd className="m-0 mt-1 font-mono tnum text-2xl leading-none">{counts[k]}</dd>
-            </div>
-          ))}
-        </dl>
-      </div>
+      </Section>
 
-      <section aria-labelledby="readiness-heading" className="mt-14">
-        <h2 id="readiness-heading" className="text-lg font-semibold">
-          Readiness, {evidence.readiness.length} items
-        </h2>
-        <p className="mt-1 text-text-2">Preliminary. Not peer reviewed.</p>
-        <div className="mt-5">
-          <EvidenceTable rows={evidence.readiness} />
+      <Section id="results" className={cx(s.section, s.sectionTight, s.band)}>
+        <div className={cx(s.frame, s.grid, 'gap-y-10')}>
+          <div className="col-span-4 md:col-span-4">
+            <Eyebrow>Results</Eyebrow>
+            <h2 id="results-title" className={cx(s.h2, 'mt-6')}>
+              What the simulation shows
+            </h2>
+            <p className={cx(s.body, 'mt-6 text-text-2')}>
+              Same faults, same readings: Truehand against a conventional assistant that trusts
+              every instruction. Each number comes from our own recorded runs, labeled simulated.
+              Preliminary. Not peer reviewed.
+            </p>
+          </div>
+          <div className="col-span-4 md:col-span-8">
+            <StatGrid stats={VALIDATION_STATS} />
+            <Caption className="mt-6">
+              Each cell names how many simulated runs it rests on and the month they ran. The cell
+              without a number waits on sessions with blind participants.
+            </Caption>
+          </div>
         </div>
-      </section>
+      </Section>
 
-      <section
-        aria-labelledby="figures-heading"
-        className="mt-14 grid gap-x-12 gap-y-4 lg:grid-cols-12"
-      >
-        <div className="lg:col-span-4">
-          <h2 id="figures-heading" className="text-lg font-semibold">
-            Figures
-          </h2>
-          <p className="mt-1 text-text-2">
-            Not yet run. Each figure appears here once its command has written a result file.
-          </p>
+      <Section id="scope" className={cx(s.section, s.sectionTight, s.sheet)}>
+        <div className={cx(s.frame, s.grid, 'gap-y-8')}>
+          <div className="col-span-4 md:col-span-4">
+            <Eyebrow>Scope</Eyebrow>
+            <h2 id="scope-title" className={cx(s.h2, 'mt-6')}>
+              What we have not measured yet
+            </h2>
+          </div>
+          <div className="col-span-4 grid gap-6 md:col-span-7 md:col-start-6">
+            <p className={s.lead}>{SIMULATION_SCOPE}</p>
+            <p className={s.fieldSession}>{FIELD_SESSION}</p>
+            <p className={s.body}>The result that would change our minds: {KILL_RESULT}</p>
+            <p className={cx(s.body, 'text-text-2')}>{SAFETY_SCOPE}</p>
+          </div>
         </div>
-        <ul className="grid gap-2 lg:col-span-8">
-          {commands.map((c) => (
-            <li
-              key={c}
-              className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-hairline py-2"
-            >
-              <span className="label-caps">Not yet run</span>
-              <code className="font-mono">{c}</code>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section aria-labelledby="stats-heading" className="mt-14">
-        <h2 id="stats-heading" className="text-lg font-semibold">
-          Employment and prevalence
-        </h2>
-        <ScrollRegion label="Employment and prevalence table" className="mt-4">
-          <table
-            aria-label="Employment and prevalence"
-            className="w-full min-w-[40rem] border-collapse text-left"
-          >
-            <thead>
-              <tr className="text-text-2">
-                <th scope="col" className="w-1/2 border-b-2 border-text py-2 pr-6 font-medium">
-                  Statistic
-                </th>
-                <th scope="col" className="border-b-2 border-text py-2 font-medium">
-                  Source
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {evidence.statistics.map((s, i) => (
-                <tr key={i} className="align-top">
-                  <td className="border-b border-hairline py-3 pr-6">
-                    <InlineText parts={s.statistic} />
-                  </td>
-                  <td className="border-b border-hairline py-3">
-                    <InlineText parts={s.source} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </ScrollRegion>
-      </section>
-    </main>
+      </Section>
+    </MarketingPage>
   )
 }

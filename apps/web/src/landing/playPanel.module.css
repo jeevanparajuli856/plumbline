@@ -1,0 +1,79 @@
+/* The worked-example panel in the technology band, a paper card on ink. Colors, radii, shadows and durations come from tokens.css; reduced motion zeroes the duration tokens on the landing root. */
+.panel {
+  background: var(--surface-1);
+  color: var(--text);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+}
+@media (max-width: 767px) {
+  .panel {
+    padding: var(--space-4);
+  }
+}
+.rows {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  list-style: none;
+  padding: 0;
+}
+.row {
+  min-height: 56px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-hard);
+  padding: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  line-height: 1.25rem;
+  background: var(--bench);
+}
+@media (max-width: 639px) {
+  .rows {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.rowTold {
+  outline: 2px dashed var(--inferred);
+  outline-offset: 2px;
+  background: var(--surface-1);
+}
+.rowLanded {
+  background: var(--measured-fill);
+  border-color: var(--measured-fill);
+  color: var(--on-measured);
+}
+.rowTag {
+  font-weight: 700;
+}
+.reading {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.75rem;
+  line-height: 2.25rem;
+  font-weight: 600;
+  color: var(--measured);
+}
+.readingEmpty {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: var(--text-md);
+}
+.entropy {
+  position: relative;
+  height: 8px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.entropyFill {
+  position: absolute;
+  inset: 0;
+  background: var(--text-2);
+  transform-origin: left;
+  transition: transform var(--motion-crawl) var(--ease-smooth);
+}

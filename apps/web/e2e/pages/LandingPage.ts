@@ -1,38 +1,39 @@
 import type { Locator, Page } from '@playwright/test'
 
-export const LANDING_SECTION_IDS = [
-  'mast',
-  'research',
-  'problem',
-  'play',
-  'how',
-  'generalize',
-  'product',
-  'ladder',
-  'evidence',
-  'close',
-] as const
-export type LandingSectionId = (typeof LANDING_SECTION_IDS)[number]
+/** Home `/` sections (POSITIONING section 2, ADR-0014). */
+export const HOME_SECTION_IDS = ['hero', 'problem', 'outcomes', 'proof', 'audience', 'cta'] as const
+/** How it works `/how-it-works` sections; the worked example and its controls live in `play`. */
+export const HOW_IT_WORKS_SECTION_IDS = ['intro', 'play', 'refusal', 'domains'] as const
+export type LandingSectionId =
+  (typeof HOME_SECTION_IDS)[number] | (typeof HOW_IT_WORKS_SECTION_IDS)[number]
 
-/** Selectors for `/`, as bound in docs/UI_CONTRACT.md section 2. */
+/** Selectors for the marketing pages, as bound in docs/UI_CONTRACT.md section 2. */
 export class LandingPage {
   readonly heading: Locator
   readonly play: Locator
-  readonly openSimulator: Locator
+  readonly tryTruehand: Locator
+  readonly liveInstrument: Locator
   readonly transcript: Locator
   readonly captions: Locator
 
   constructor(readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 })
     this.play = page.getByRole('button', { name: 'Play the worked example' })
-    // The landing's call to action, scoped to main so banner links (Demo) never match it.
-    this.openSimulator = page.getByRole('main').getByRole('link', { name: 'Open the simulator' })
+    // Home's call to action, scoped to main so banner links (Demo) never match it.
+    // The hero's call to action; the CTA band repeats it lower on the page.
+    this.tryTruehand = page.getByRole('main').getByRole('link', { name: 'Try Truehand' }).first()
+    this.liveInstrument = page.getByRole('group', { name: 'Live instrument' })
     this.transcript = page.getByRole('list', { name: 'Worked example, step by step' })
     this.captions = page.getByTestId('caption')
   }
 
   async goto(query = ''): Promise<void> {
     await this.page.goto(`/${query}`)
+  }
+
+  /** How it works holds the worked example, its Play controls and the transcript. */
+  async gotoHowItWorks(query = ''): Promise<void> {
+    await this.page.goto(`/how-it-works${query}`)
   }
 
   /**
