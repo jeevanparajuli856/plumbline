@@ -7,6 +7,7 @@ import {
   type VoiceEffect,
   type VoiceEvent,
   type VoiceState,
+  type Transition,
   type VoiceStatus,
 } from './voiceMachine'
 
@@ -181,6 +182,38 @@ describe('voiceMachine reading results', () => {
     const opened = { ...listening, status: 'listening' as const }
     expect(voiceReducer(opened, result('3.671')).state.status).toBe('submitting')
     expect(voiceReducer(opened, { type: 'CANCEL' }).state.status).toBe('speaking')
+  })
+})
+
+describe('voiceMachine confirmation answers', () => {
+  const submits = (t: Transition) => t.effects.filter((e) => e.type === 'submit')
+
+  it.each(['yes', 'yes please', 'yeah send it', 'correct', 'yep that is right'])('%j sends the candidate', (phrase) => {
+    expect(submits(voiceReducer(at('confirming'), result(phrase)))).toEqual([{ type: 'submit', value: 3.671 }])
+  })
+
+  it.each(['no', "that's not right", "don't send it", 'not right', 'never', 'wrong', 'no thats wrong'])(
+    '%j does not send and says so',
+    (phrase) => {
+      const next = voiceReducer(at('confirming'), result(phrase))
+      expect(submits(next)).toEqual([])
+      expect(next.state.status).toBe('idle')
+      expect(next.effects).toEqual([{ type: 'announce', text: voicePhrases.notSent, priority: 'polite' }])
+    },
+  )
+
+  it('never sends the old candidate when the answer also carries a number', () => {
+    const next = voiceReducer(at('confirming'), result('3.617 right'))
+    expect(submits(next)).toEqual([])
+    expect(next.state.candidate).toBeNull()
+  })
+
+  it('treats a bare number as a fresh reading even if a lower alternative says yes', () => {
+    expect(submits(voiceReducer(at('confirming'), result('3.617', 'yes')))).toEqual([{ type: 'submit', value: 3.617 }])
+  })
+
+  it('does not take an answer with unknown words as yes', () => {
+    expect(submits(voiceReducer(at('confirming'), result('yes but row two')))).toEqual([])
   })
 })
 

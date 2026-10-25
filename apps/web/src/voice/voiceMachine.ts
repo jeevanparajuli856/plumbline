@@ -63,7 +63,9 @@ export const initialVoiceState: VoiceState = {
 }
 
 const YES = new Set(['yes', 'yeah', 'yep', 'yup', 'correct', 'right', 'confirm', 'sure', 'send'])
-const NO = new Set(['no', 'nope', 'wrong', 'incorrect'])
+/** Words allowed beside a yes; anything else makes the answer unclear, and unclear never sends. */
+const YES_FILLER = new Set(['please', 'it', 'that', 'thats', 'is', 'its', 'go', 'ahead', 'ok', 'okay'])
+const NO = new Set(['no', 'nope', 'nah', 'not', 'dont', 'don', 'never', 'wrong', 'incorrect'])
 const COMMANDS: Record<string, 'typeInstead' | 'stop' | 'repeat'> = {
   type: 'typeInstead',
   'type instead': 'typeInstead',
@@ -182,13 +184,24 @@ function onResult(state: VoiceState, alternatives: string[], spec: VoiceSpec): T
   if (command === 'stop') return rest(state, [announce(voicePhrases.stopped)])
   if (command === 'repeat') return rest(state, [{ type: 'repeat' }])
   if (state.status === 'confirming' && state.candidate !== null) {
-    const heard = words(top)
-    const yes = heard.some((w) => YES.has(w))
-    const no = heard.some((w) => NO.has(w))
-    if (yes && !no) return submit(state, state.candidate)
-    if (no && !yes) return rest(state, [announce(voicePhrases.notSent)])
+    const hasNumber = alternatives.some((a) => 'value' in parseReading(a, spec))
+    const answer = hasNumber ? null : confirmAnswer(top)
+    if (answer === 'yes') return submit(state, state.candidate)
+    if (answer === 'no') return rest(state, [announce(voicePhrases.notSent)])
   }
   return onReading(state, alternatives, spec)
+}
+
+/** Digits are kept as tokens so "3.617 right" can never read as a plain yes. */
+function confirmAnswer(transcript: string): 'yes' | 'no' | null {
+  const tokens = transcript
+    .toLowerCase()
+    .replace(/['’]/g, '')
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
+  if (tokens.some((t) => NO.has(t))) return 'no'
+  const isPlainYes = tokens.some((t) => YES.has(t)) && tokens.every((t) => YES.has(t) || YES_FILLER.has(t))
+  return isPlainYes ? 'yes' : null
 }
 
 function onReading(state: VoiceState, alternatives: string[], spec: VoiceSpec): Transition {
