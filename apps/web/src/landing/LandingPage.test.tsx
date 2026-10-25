@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { useLanding } from '@/state/landing'
 import { loadFixture } from '@/state/replay'
@@ -123,7 +123,7 @@ describe('LandingPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Play the worked example' }))
     await settle()
     expect(start).toHaveBeenCalledWith({ mode: 'replay', fixture: 'worked_example', silent: false })
-    expect(replayPlay).toHaveBeenCalledWith(4000)
+    await waitFor(() => expect(replayPlay).toHaveBeenCalledWith(4000))
     expect(PLAY_PACE_MS).toBe(4000)
     start.mockRestore()
     replayPlay.mockRestore()
@@ -167,7 +167,7 @@ describe('LandingPage', () => {
     fireEvent.click(mast.getByRole('button', { name: 'Go to the worked example and play it' }))
     await settle()
     expect(scrollIntoView).toHaveBeenCalled()
-    expect(replayPlay).toHaveBeenCalledWith(PLAY_PACE_MS)
+    await waitFor(() => expect(replayPlay).toHaveBeenCalledWith(PLAY_PACE_MS))
     replayPlay.mockRestore()
   })
 
@@ -176,7 +176,7 @@ describe('LandingPage', () => {
     await settle()
     fireEvent.click(screen.getByRole('button', { name: 'Play the worked example' }))
     await settle()
-    expect(useSession.getState().replay?.autoplay).toBe(true)
+    await waitFor(() => expect(useSession.getState().replay?.autoplay).toBe(true))
     const replayPause = vi.spyOn(useSession.getState(), 'replayPause')
     unmount()
     expect(replayPause).toHaveBeenCalled()

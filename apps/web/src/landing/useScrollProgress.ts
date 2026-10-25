@@ -45,6 +45,7 @@ export function useScrollProgress(rootRef: RefObject<HTMLElement | null>, reduce
     let frame = 0
     let idle: number | undefined
     let pointerDown = false
+    let scrolledWhileDown = false
     let lastProgress = -1
     let lastSection: LandingSection | null = null
 
@@ -73,22 +74,32 @@ export function useScrollProgress(rootRef: RefObject<HTMLElement | null>, reduce
       window.scrollTo({ top: target.scrollY, behavior: reduced ? 'instant' : 'smooth' })
     }
 
-    const onScroll = () => {
+    const requestUpdate = () => {
       if (!frame) frame = requestAnimationFrame(update)
+    }
+    const armSnap = () => {
       window.clearTimeout(idle)
       idle = window.setTimeout(snap, SNAP_IDLE_MS)
     }
+    const onScroll = () => {
+      requestUpdate()
+      if (pointerDown) scrolledWhileDown = true
+      else armSnap()
+    }
     const onPointerDown = () => {
       pointerDown = true
+      scrolledWhileDown = false
+      window.clearTimeout(idle)
     }
     const onPointerUp = () => {
       pointerDown = false
-      onScroll()
+      if (scrolledWhileDown) armSnap()
+      scrolledWhileDown = false
     }
 
     update()
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll, { passive: true })
+    window.addEventListener('resize', requestUpdate, { passive: true })
     window.addEventListener('pointerdown', onPointerDown, { passive: true })
     window.addEventListener('pointerup', onPointerUp, { passive: true })
     window.addEventListener('pointercancel', onPointerUp, { passive: true })
@@ -96,7 +107,7 @@ export function useScrollProgress(rootRef: RefObject<HTMLElement | null>, reduce
       cancelAnimationFrame(frame)
       window.clearTimeout(idle)
       window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
+      window.removeEventListener('resize', requestUpdate)
       window.removeEventListener('pointerdown', onPointerDown)
       window.removeEventListener('pointerup', onPointerUp)
       window.removeEventListener('pointercancel', onPointerUp)
