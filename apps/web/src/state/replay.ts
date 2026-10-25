@@ -57,8 +57,9 @@ export function stepViewFromFixture(fx: FixtureT, index: number): StepViewT {
   const catalog = catalogFromFixture(fx)
   const step = fx.steps[index]
   if (!step) throw new EngineError('session_lost', 'The recording has no more steps.')
+  // Gains are per site and computed from the belief before this step, whichever site was told.
   const prior = index === 0 ? fx.prior_instruction : fx.steps[index - 1]!.engine_choice
-  const toldGain = prior.site === step.told_site ? prior.gain_bits : step.engine_choice.gain_bits
+  const toldGain = prior.gain_bits
   const likely = step.placement.indexOf(Math.max(...step.placement))
   const next = fx.steps[index + 1]
   const diagnosis = step.diagnosis
