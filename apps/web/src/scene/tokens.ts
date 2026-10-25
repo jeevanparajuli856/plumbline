@@ -10,6 +10,10 @@ export interface SceneTokens {
   sceneBg: string
   sceneBoard: string
   sceneHole: string
+  /** Text-safe accents; 3:1 or more on the board in every theme, so used for strokes and edges. */
+  measured: string
+  inferred: string
+  /** Pale fills: glow bodies and areas only, never a stroke (1.2:1 on the light board). */
   measuredFill: string
   inferredFill: string
   warning: string
@@ -35,6 +39,8 @@ const COLOUR_SOURCES: Record<ColourKey, [cssVar: string, fallback: string]> = {
   sceneBg: ['--scene-bg', 'hsl(43, 37%, 94%)'],
   sceneBoard: ['--scene-board', 'hsl(40, 19%, 81%)'],
   sceneHole: ['--scene-hole', 'hsl(40, 13%, 20%)'],
+  measured: ['--measured', 'hsl(36, 100%, 27%)'],
+  inferred: ['--inferred', 'hsl(191, 83%, 26%)'],
   measuredFill: ['--measured-fill', 'hsl(36, 88%, 59%)'],
   inferredFill: ['--inferred-fill', 'hsl(189, 75%, 64%)'],
   warning: ['--warning', 'hsl(8, 77%, 39%)'],

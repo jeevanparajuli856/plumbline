@@ -128,7 +128,7 @@ export function PlumbLine() {
         </mesh>
         <mesh name="plumb-bob" position-y={-LINE_LENGTH - BOB_HEIGHT / 2} rotation-x={Math.PI}>
           <coneGeometry args={[BOB_RADIUS, BOB_HEIGHT, 16]} />
-          <meshBasicMaterial ref={bobMaterial} color={tokens.inferredFill} transparent />
+          <meshBasicMaterial ref={bobMaterial} color={tokens.inferred} transparent />
         </mesh>
       </group>
     </group>

@@ -6,12 +6,13 @@ import { BOARD, ROW_FRAME, siteX } from '../layout'
 import { livePose } from '../livePose'
 import { landedSite, toldSite, warningSite } from '../selectors'
 import { useSceneTokens } from '../tokens'
-import { box, mergeAll } from './geometry'
+import { box, mergeAll, rectFrame } from './geometry'
 
 const DASH = 0.0013
 const GAP = 0.0008
 const DASH_THICKNESS = 0.0005
 const SOLID_THICKNESS = 0.0009
+const EDGE_THICKNESS = 0.0004
 const LIFT = 0.0003
 /** How far the hand-confusion plane rises when the landing explodes the layers. */
 const HAND_PLANE_RISE = 0.025
@@ -39,20 +40,9 @@ const DASHED_FRAME = mergeAll([
 ])
 
 /** Solid and heavier = warning, so the change is shape as well as colour. */
-const SOLID_FRAME = mergeAll([
-  box(
-    [ROW_FRAME.width + SOLID_THICKNESS, 0.0001, SOLID_THICKNESS],
-    [0, 0, -ROW_FRAME.depth / 2],
-    WHITE,
-  ),
-  box(
-    [ROW_FRAME.width + SOLID_THICKNESS, 0.0001, SOLID_THICKNESS],
-    [0, 0, ROW_FRAME.depth / 2],
-    WHITE,
-  ),
-  box([SOLID_THICKNESS, 0.0001, ROW_FRAME.depth], [-ROW_FRAME.width / 2, 0, 0], WHITE),
-  box([SOLID_THICKNESS, 0.0001, ROW_FRAME.depth], [ROW_FRAME.width / 2, 0, 0], WHITE),
-])
+const SOLID_FRAME = rectFrame(ROW_FRAME.width, ROW_FRAME.depth, SOLID_THICKNESS)
+/** Thin edge on the landed fill: the amber body is 1.3:1 on the light board, the edge 3:1+. */
+const LANDED_EDGE = rectFrame(ROW_FRAME.width - 0.001, ROW_FRAME.depth - 0.001, EDGE_THICKNESS)
 
 /** Told row outline (cyan dashed, vermilion solid on warning) and the landed row fill (amber). */
 export function NoisyHand() {
@@ -76,7 +66,7 @@ export function NoisyHand() {
           visible={dashedSite !== null}
           position={[siteX(dashedSite ?? 0), BOARD.top + LIFT, ROW_FRAME.centreZ]}
         >
-          <meshBasicMaterial color={tokens.inferredFill} toneMapped={false} />
+          <meshBasicMaterial color={tokens.inferred} toneMapped={false} />
         </mesh>
         <mesh
           name="warning-outline"
@@ -102,6 +92,14 @@ export function NoisyHand() {
           polygonOffset
           polygonOffsetFactor={-1}
         />
+      </mesh>
+      <mesh
+        name="landed-edge"
+        geometry={LANDED_EDGE}
+        visible={landed !== null}
+        position={[siteX(landed ?? 0), BOARD.top + LIFT, ROW_FRAME.centreZ]}
+      >
+        <meshBasicMaterial color={tokens.measured} toneMapped={false} />
       </mesh>
     </group>
   )

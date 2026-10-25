@@ -78,3 +78,16 @@ export function mergeAll(parts: THREE.BufferGeometry[]): THREE.BufferGeometry {
   if (!merged) throw new Error('mergeGeometries failed: attribute sets differ')
   return merged
 }
+
+/** Placeholder vertex colour for geometry whose material sets the colour. */
+const PLAIN = new THREE.Color(1, 1, 1)
+
+/** A flat rectangular outline of the given stroke width, centred on the origin. */
+export function rectFrame(width: number, depth: number, stroke: number): THREE.BufferGeometry {
+  return mergeAll([
+    box([width + stroke, 0.0001, stroke], [0, 0, -depth / 2], PLAIN),
+    box([width + stroke, 0.0001, stroke], [0, 0, depth / 2], PLAIN),
+    box([stroke, 0.0001, depth], [-width / 2, 0, 0], PLAIN),
+    box([stroke, 0.0001, depth], [width / 2, 0, 0], PLAIN),
+  ])
+}

@@ -23,12 +23,12 @@ export function Bracket() {
     <group name="bracket">
       <mesh position={[(left + right) / 2, y, BRACKET_Z]}>
         <boxGeometry args={[right - left, 0.0002, BAR]} />
-        <meshBasicMaterial color={tokens.inferredFill} toneMapped={false} />
+        <meshBasicMaterial color={tokens.inferred} toneMapped={false} />
       </mesh>
       {[left, right].map((x) => (
         <mesh key={x} position={[x, y, BRACKET_Z + TICK / 2]}>
           <boxGeometry args={[BAR, 0.0002, TICK]} />
-          <meshBasicMaterial color={tokens.inferredFill} toneMapped={false} />
+          <meshBasicMaterial color={tokens.inferred} toneMapped={false} />
         </mesh>
       ))}
     </group>
