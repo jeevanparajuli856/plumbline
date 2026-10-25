@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { useSession } from '@/state/session'
 import type { ReadingEntry, SessionState } from '@/state/types'
-import { bracketRows, landedSite, plumbCandidates, toldSite, warningSite } from './selectors'
+import {
+  bracketRows,
+  landedSite,
+  plumbCandidates,
+  plumbRestParts,
+  toldSite,
+  warningSite,
+} from './selectors'
 
 const reading = (over: Partial<ReadingEntry> = {}): ReadingEntry => ({
   step: 0,
@@ -92,5 +99,13 @@ describe('scene selectors', () => {
       },
     })
     expect(bracketRows(s)).toEqual([3, 4])
+  })
+})
+
+describe('plumbRestParts', () => {
+  it('cycles every candidate normally and points at the first one under reduced motion', () => {
+    expect(plumbRestParts(['R7', 'R3'], false)).toEqual(['R7', 'R3'])
+    expect(plumbRestParts(['R7', 'R3'], true)).toEqual(['R7'])
+    expect(plumbRestParts([], true)).toEqual([])
   })
 })

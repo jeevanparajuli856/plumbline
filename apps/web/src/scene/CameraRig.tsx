@@ -7,7 +7,7 @@ import { SIM_POSE, poseAt } from '@/landing/choreography'
 import { useLanding } from '@/state/landing'
 import { useSession } from '@/state/session'
 import { clampDelta, damp } from './easing'
-import { CIRCUIT_FRAME, ROAST_FRAME, framedCamera } from './framing'
+import { CIRCUIT_FRAME, ROAST_FRAME, framedCamera, shouldFly } from './framing'
 import { livePose } from './livePose'
 import { onViewReset } from './viewControl'
 
@@ -56,6 +56,9 @@ export function CameraRig({ controls = true }: CameraRigProps) {
   const goalLook = useMemo(() => new THREE.Vector3(), [])
   const flying = useRef(true)
   const placed = useRef(false)
+  /** Set when the user drags the orbit controls; cleared by a new framing or Reset view. */
+  const userOrbited = useRef(false)
+  const flightKey = useRef({ sceneMode, frame })
   const reducedRef = useRef(reduced)
 
   useEffect(() => {
@@ -64,12 +67,20 @@ export function CameraRig({ controls = true }: CameraRigProps) {
   useEffect(() => useLanding.subscribe(() => invalidate()), [invalidate])
   useEffect(() => {
     sim.current = { camera: simCamera, target: frame.target }
+    const next = { sceneMode, frame }
+    const fly = shouldFly(flightKey.current, next, userOrbited.current)
+    if (flightKey.current.sceneMode !== sceneMode || flightKey.current.frame !== frame) {
+      userOrbited.current = false
+    }
+    flightKey.current = next
+    if (!fly) return
     flying.current = true
     invalidate()
   }, [sceneMode, simCamera, frame, invalidate])
   useEffect(
     () =>
       onViewReset(() => {
+        userOrbited.current = false
         flying.current = true
         invalidate()
       }),
@@ -117,12 +128,16 @@ export function CameraRig({ controls = true }: CameraRigProps) {
       camera.position.lerp(goal, k)
       look.lerp(goalLook, k)
       camera.lookAt(look)
+      let fovSettled = true
       if (camera instanceof THREE.PerspectiveCamera) {
         camera.fov = dampTo(camera.fov, pose.fov, CAMERA_LAMBDA, dt, SETTLED_FOV)
         camera.updateProjectionMatrix()
+        fovSettled = camera.fov === pose.fov
       }
       const settled =
-        camera.position.distanceTo(goal) < SETTLED_M && look.distanceTo(goalLook) < SETTLED_M
+        fovSettled &&
+        camera.position.distanceTo(goal) < SETTLED_M &&
+        look.distanceTo(goalLook) < SETTLED_M
       if (orbit.current) {
         orbit.current.target.copy(look)
         orbit.current.enabled = !isLanding && settled
@@ -144,6 +159,9 @@ export function CameraRig({ controls = true }: CameraRigProps) {
       minDistance={MIN_DISTANCE}
       maxDistance={MAX_DISTANCE}
       target={frame.target}
+      onStart={() => {
+        userOrbited.current = true
+      }}
     />
   )
 }

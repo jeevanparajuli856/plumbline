@@ -44,6 +44,14 @@ export function plumbCandidates(s: SessionState): PartId[] {
   return []
 }
 
+/**
+ * Parts the plumb line visits. Reduced motion cannot alternate, so it points at the first
+ * candidate and the static bracket covers the rest.
+ */
+export function plumbRestParts(candidates: readonly PartId[], reduced: boolean): PartId[] {
+  return reduced ? candidates.slice(0, 1) : [...candidates]
+}
+
 export const BRACKET_SPREAD_ROWS = 2
 
 /**

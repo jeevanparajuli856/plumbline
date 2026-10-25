@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CIRCUIT_FRAME, fitDistance, framedCamera } from './framing'
+import { CIRCUIT_FRAME, ROAST_FRAME, fitDistance, framedCamera, shouldFly } from './framing'
 
 const SIM = { camera: [0.18, 0.22, 0.28], target: [0, 0, 0] }
 
@@ -44,5 +44,18 @@ describe('framing', () => {
       cam[2] - CIRCUIT_FRAME.target[2],
     )
     expect(d).toBeLessThan(Math.hypot(0.18, 0.22, 0.28))
+  })
+})
+
+describe('shouldFly', () => {
+  const circuit = { sceneMode: 'sim', frame: CIRCUIT_FRAME } as const
+  it('flies when the mode or instrument changes, even after the user orbited', () => {
+    expect(shouldFly(circuit, { ...circuit, sceneMode: 'landing' }, true)).toBe(true)
+    expect(shouldFly(circuit, { ...circuit, frame: ROAST_FRAME }, true)).toBe(true)
+  })
+
+  it('refits on resize only while the user has not orbited', () => {
+    expect(shouldFly(circuit, circuit, false)).toBe(true)
+    expect(shouldFly(circuit, circuit, true)).toBe(false)
   })
 })

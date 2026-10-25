@@ -8,7 +8,7 @@ import { clampDelta, damp } from './easing'
 import { ROW_FRAME, partCenter, type PartId } from './layout'
 import { livePose } from './livePose'
 import { ALTERNATE_PERIOD_MS, pendulumAmplitude, pendulumAngle } from './motionMath'
-import { plumbCandidates } from './selectors'
+import { plumbCandidates, plumbRestParts } from './selectors'
 import { useSceneTokens } from './tokens'
 
 export const PIVOT_HEIGHT = 0.06
@@ -24,13 +24,10 @@ const REST = [0, 0, ROW_FRAME.centreZ] as const
 
 type Point = readonly [number, number, number]
 
-/** Rest points to cycle through; one averaged point under reduced motion. */
-function restPoints(candidates: readonly PartId[], average: boolean): Point[] {
-  if (candidates.length === 0) return [REST]
-  const pts = candidates.map(partCenter)
-  if (!average || pts.length === 1) return pts
-  const n = pts.length
-  return [[pts.reduce((s, p) => s + p[0], 0) / n, 0, pts.reduce((s, p) => s + p[2], 0) / n]]
+/** Rest points to cycle through, over real parts (an average could hang over nothing). */
+function restPoints(candidates: readonly PartId[], reduced: boolean): Point[] {
+  const parts = plumbRestParts(candidates, reduced)
+  return parts.length === 0 ? [REST] : parts.map(partCenter)
 }
 
 /**

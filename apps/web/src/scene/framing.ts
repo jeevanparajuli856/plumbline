@@ -60,3 +60,17 @@ export function framedCamera(
     spec.target[2] + (dz / length) * d,
   ]
 }
+
+export interface FlightKey {
+  sceneMode: string
+  frame: FrameSpec
+}
+
+/**
+ * Whether the rig should fly to the framed pose. A new mode or instrument always flies; a resize
+ * (same key, new aspect) refits only if the user has not orbited away from the framed view.
+ */
+export function shouldFly(previous: FlightKey, next: FlightKey, userOrbited: boolean): boolean {
+  const keyChanged = previous.sceneMode !== next.sceneMode || previous.frame !== next.frame
+  return keyChanged || !userOrbited
+}
