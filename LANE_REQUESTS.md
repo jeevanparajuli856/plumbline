@@ -52,3 +52,10 @@ schemas.py is the source of truth (contract section 12). The divergences:
 
 - The root `.coverage` (the coverage database) is tracked on main (commit 4e25913), and every coverage run from the repo root dirties it. Untrack it and add `.coverage` and `.coverage.*` to the root `.gitignore` at integration. This lane restored the root file each time and did not commit it.
 - This lane did accidentally commit `engine/.coverage`, in 56a3aa6 and 1c3d21c. It is now untracked (`git rm --cached`) and ignored by a new `engine/.gitignore`.
+
+## 6. `pnpm verify` blocker in the web lane (one stale assertion)
+
+- `apps/web/src/state/session.test.ts:14` expects `replay.provisional` to be `true`.
+- `loadFixture` (`apps/web/src/state/replay.ts:17`) correctly prefers the recorded `@fixtures/parity/worked_example.json` and falls back to the provisional file only when no recording exists. The recording has existed since eb105b2, so `provisional` is now `false`.
+- The other 9 web tests pass against the recorded fixture. This was run with Node v22.23.4; the default shell Node is v20.20.2, and under it vitest cannot start its workers at all.
+- Requested change: expect `false` and rename the `describe` block. Alternatively, keep a separate test that the provisional fallback is used when no recording matches the id.
