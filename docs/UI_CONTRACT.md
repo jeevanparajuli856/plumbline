@@ -40,7 +40,7 @@ Keyboard guard: no single-key shortcut fires when focus is in an input, textarea
 | Element         | Selector contract                                                                                                       |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | H1              | "Measurement you can trust without looking."                                                                            |
-| Play            | `getByRole('button', { name: 'Play the 20-second example' })`; never autoplays                                          |
+| Play            | `getByRole('button', { name: 'Play the worked example' })`; never autoplays                                          |
 | Open simulator  | `getByRole('link', { name: 'Open the simulator' })` to `/sim`                                                           |
 | Sections        | `<section aria-labelledby>` with ids `mast, research, problem, play, how, generalize, product, ladder, evidence, close` |
 | Play transcript | `getByRole('list', { name: 'Worked example, step by step' })`, always in the DOM                                        |
@@ -74,11 +74,11 @@ Recorded fixtures must parse with `Fixture` in `apps/web/src/engine/schemas.ts` 
 |---|---|
 | 1 | Live regions: `#live-polite` and `#live-assertive` (from `a11y/LiveRegion.tsx`) are contract selectors. |
 | 2 | Superseded 2026-10-25 by the web-shell review (M5): no element on `/sim` carries `role="alert"` for engine events. `#live-assertive` is `aria-live="assertive"` (no role), the banner is a focusable region (section 1 "Warning"). Specs select the banner by test id and the spoken copy via `#live-assertive`. Form validation may still use `role="alert"`. |
-| 3 | Landing play controls inside `section#play`: buttons "Play the 20-second example", "Pause" and "Replay" (exact names). |
+| 3 | Landing play controls inside `section#play`: buttons "Play the worked example", "Pause" and "Replay" (exact names). Renamed 2026-10-25 from "Play the 20-second example", a timing claim no code produced. |
 | 4 | Aiming: the placement-strip `listitem` for `aimedSite` carries `aria-current="true"` and the visible word "aimed". At integration the announcer also says "Aiming at row n." politely. |
 | 5 | `/sim?view=text` turns the "Text only" switch on (no `#scene-slot`, no canvas). `view=scene` and `view=both` are the other values; `both` is the default. |
 | 6 | `[` (Previous step) returns the replay to the state after the previous accepted reading (implemented as reset plus replay to `stepIndex - 1`, each reveal finished at once). After a diagnosis, `[` gives one accepted reading and no diagnosis. |
-| 7 | Replay pacing stays at the store default of 1800 ms for `P` and landing Play; the storyboard uses 1800 ms. No `?pace` parameter in Sprint 1. |
+| 7 | Replay pacing: `/sim` `P` uses the store default of 1800 ms. Landing Play uses 4000 ms per step (`replayPlay(4000)`) so a sighted reader can watch the reveal and the warning; amended 2026-10-25 in the landing review. No `?pace` parameter in Sprint 1. |
 | 8 | Scene readiness for recordings: `window.__plumblineScene.frames > 0` (section 3). There is no `scene-ready` test id. |
 | 9 | Landing sections are addressed by id, never by index. |
 | 10 | Refused replay reading: when a typed reading is not the next recorded one, the store sets error `not_next_in_replay`; `/sim` shows its sentence (from `state/session.ts`) and adds no log row. Specs wait for the sentence, then assert no new row. |

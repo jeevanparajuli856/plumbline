@@ -22,10 +22,10 @@ Product line: **"Web simulator open now. iOS app next."**
 
 | # | Section id | Job | Copy anchors |
 |---|---|---|---|
-| 0 | `mast` | State the category and the one promise; two exits | Eyebrow "Research preview. Trustworthy measurement for hands that cannot see the tool". H1 "Measurement you can trust without looking." Status, Product, Built-at triplet under the lead. Buttons "Play the 20-second example", "Open the simulator" |
+| 0 | `mast` | State the category and the one promise; two exits | Eyebrow "Research preview. Trustworthy measurement for hands that cannot see the tool". H1 "Measurement you can trust without looking." Status, Product, Built-at triplet under the lead. Buttons "Play the worked example", "Open the simulator" |
 | 1 | `research` | Show the evidence base like a company shows its papers | Three study cards (CHI 2026 UMD "Say It My Way"; ASSETS 2024 Michigan "Misfitting With AI"; arXiv 2602.18623 Stony Brook) with one quote each; a prior-art strip (Gao 2014; IEEE 2019 sequential diagnosis; de Kleer and Williams 1987) and the one-sentence difference: "those model sensor noise, we model actuator noise with a recoverable hidden state" |
 | 2 | `problem` | Make the hand, not the meter, the unsolved problem | EEVblog quote "He can't see the probes"; "the display was solved, the probe was never solved" |
-| 3 | `play` | The technology: the 20-second worked example, Plumbline vs the published method | Eyebrow "The technology". Six-step transcript always in the DOM. Play runs the real replay fixture |
+| 3 | `play` | The technology: the worked example (told row 3, lands row 2, two readings), Plumbline vs the published method | Eyebrow "The technology". Six-step transcript always in the DOM. Play runs the real replay fixture |
 | 4 | `how` | Six lines of math, not a black box | Each line with a plain-English gloss |
 | 5 | `generalize` | The engine is domain-agnostic | Roast thermometer, SIMULATED badge, the honest step-2 recovery story |
 | 6 | `ladder` | Who it is for and who pays | Four rungs from docs/brief/Plumbline_Scale_and_Build.md |
