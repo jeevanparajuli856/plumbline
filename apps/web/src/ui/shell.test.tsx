@@ -1,9 +1,11 @@
 import { act, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react'
+import { StrictMode } from 'react'
 import { createMemoryRouter, MemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { App } from '@/App'
 import { usePrefs } from '@/state/prefs'
 import { SmallScreenDisclosure } from './SmallScreenDisclosure'
+import { useMediaQuery } from './useMediaQuery'
 import { useSystemTheme } from './useSystemTheme'
 
 type Listener = () => void
@@ -53,6 +55,24 @@ describe('useSystemTheme', () => {
   })
 })
 
+describe('useMediaQuery', () => {
+  it('re-renders when the query starts or stops matching', () => {
+    const state = { '(min-width: 80rem)': false }
+    const { mm, fire } = fakeMatchMedia(state)
+    vi.stubGlobal('matchMedia', mm)
+    const { result } = renderHook(() => useMediaQuery('(min-width: 80rem)', true))
+    expect(result.current).toBe(false)
+    state['(min-width: 80rem)'] = true
+    act(() => fire('(min-width: 80rem)'))
+    expect(result.current).toBe(true)
+  })
+
+  it('returns the fallback without matchMedia', () => {
+    const { result } = renderHook(() => useMediaQuery('(min-width: 80rem)', true))
+    expect(result.current).toBe(true)
+  })
+})
+
 describe('SmallScreenDisclosure', () => {
   it('toggles its region and reports expanded state', () => {
     render(
@@ -84,7 +104,7 @@ describe('NotFound', () => {
 })
 
 describe('App shell', () => {
-  function renderApp(url: string) {
+  function renderApp(url: string, { strict = false } = {}) {
     const page = (name: string) => () => (
       <main id="main">
         <h1>{name}</h1>
@@ -113,7 +133,8 @@ describe('App shell', () => {
       ],
       { initialEntries: [url] },
     )
-    render(<RouterProvider router={router} />)
+    const app = <RouterProvider router={router} />
+    render(strict ? <StrictMode>{app}</StrictMode> : app)
     return router
   }
 
@@ -172,6 +193,8 @@ describe('App shell', () => {
     expect(dialog.className).toContain('border-border-strong')
     expect(dialog.className).toContain('border-[1.5px]')
     expect(dialog.className).not.toContain('border-hairline')
+    // Focusable itself, so a click on its text keeps focus (and the Tab trap) inside.
+    expect(dialog).toHaveAttribute('tabindex', '-1')
   })
 
   it('has one banner with the wordmark, the four primary links and the simulator link, no university', () => {
@@ -309,6 +332,56 @@ describe('App shell', () => {
       expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Research' })),
     )
     expect(scrollIntoView).toHaveBeenCalled()
+  })
+
+  describe('hash links', () => {
+    const frames = () => new Promise((resolve) => setTimeout(resolve, 60))
+    const researchTitle = () => screen.getByRole('heading', { name: 'Research' })
+    const primaryLink = (name: string) =>
+      within(screen.getByRole('navigation', { name: 'Primary' })).getByRole('link', { name })
+
+    afterEach(() => {
+      // @ts-expect-error jsdom has no scrollIntoView; tests install a spy and remove it here.
+      delete Element.prototype.scrollIntoView
+    })
+
+    it('scrolls on first load with a hash but leaves focus alone, also under StrictMode', async () => {
+      const scrollIntoView = vi.fn()
+      Element.prototype.scrollIntoView = scrollIntoView
+      renderApp('/#research', { strict: true })
+      await waitFor(() => expect(scrollIntoView).toHaveBeenCalled())
+      await frames()
+      expect(document.activeElement).not.toBe(researchTitle())
+    })
+
+    it('focuses the section heading again when the same hash link is clicked twice', async () => {
+      Element.prototype.scrollIntoView = vi.fn()
+      renderApp('/')
+      fireEvent.click(primaryLink('Research'))
+      await waitFor(() => expect(document.activeElement).toBe(researchTitle()))
+      researchTitle().blur()
+      fireEvent.click(primaryLink('Research'))
+      await waitFor(() => expect(document.activeElement).toBe(researchTitle()))
+    })
+
+    it('is a no-op for a missing target or a malformed hash', async () => {
+      const scrollIntoView = vi.fn()
+      Element.prototype.scrollIntoView = scrollIntoView
+      const router = renderApp('/#%E0%A4%A')
+      fireEvent.click(primaryLink('Product'))
+      await frames()
+      await act(() => router.navigate('/#%zz'))
+      await frames()
+      expect(scrollIntoView).not.toHaveBeenCalled()
+      expect(screen.getByRole('heading', { name: 'Home', level: 1 })).toBeInTheDocument()
+    })
+
+    it('focuses research-title when Research is followed from another route', async () => {
+      Element.prototype.scrollIntoView = vi.fn()
+      renderApp('/evidence')
+      fireEvent.click(primaryLink('Research'))
+      await waitFor(() => expect(document.activeElement).toBe(researchTitle()))
+    })
   })
 
   it('hides header and footer in presentation mode', () => {

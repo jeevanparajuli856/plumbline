@@ -1,5 +1,5 @@
 const TABBABLE =
-  'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]'
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]'
 
 /**
  * Tab wrap for a non-modal popover. Returns the index to focus when Tab leaves an edge (or

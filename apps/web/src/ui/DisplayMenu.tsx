@@ -33,7 +33,8 @@ export function DisplayMenu() {
       setOpenAt(null)
       buttonRef.current?.focus()
     }
-    popover.querySelector<HTMLElement>('[role="radio"][aria-checked="true"]')?.focus()
+    const checked = popover.querySelector<HTMLElement>('[role="radio"][aria-checked="true"]')
+    ;(checked ?? tabbables(popover)[0])?.focus()
     const onPointerDown = (event: PointerEvent) => {
       if (!rootRef.current?.contains(event.target as Node)) setOpenAt(null)
     }
@@ -81,6 +82,7 @@ export function DisplayMenu() {
         ref={popoverRef}
         id={popoverId}
         role="dialog"
+        tabIndex={-1}
         aria-labelledby={titleId}
         hidden={!open}
         className="absolute inset-x-4 top-[calc(var(--header-height)-0.5rem)] z-30 rounded-card border-[1.5px] border-border-strong bg-surface-1 p-5 text-text sm:inset-x-auto sm:right-0 sm:top-[calc(100%+0.75rem)] sm:w-[21rem]"

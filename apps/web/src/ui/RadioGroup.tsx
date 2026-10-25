@@ -115,7 +115,7 @@ export function RadioGroup<T extends string>({
               tabIndex={checked ? 0 : -1}
               onClick={() => choose(option.value)}
               onKeyDown={onKeyDown}
-              className="min-h-10 rounded-[5px] px-3 font-medium text-text-2 transition-colors duration-[var(--motion-fast)] hover:bg-surface-2 hover:text-text aria-checked:bg-text aria-checked:font-semibold aria-checked:text-bench aria-checked:hover:bg-text forced-colors:aria-checked:underline forced-colors:aria-checked:decoration-2 forced-colors:aria-checked:underline-offset-4"
+              className="min-h-11 rounded-[5px] px-3 font-medium text-text-2 transition-colors duration-[var(--motion-fast)] hover:bg-surface-2 hover:text-text aria-checked:bg-text aria-checked:font-semibold aria-checked:text-bench aria-checked:hover:bg-text forced-colors:aria-checked:underline forced-colors:aria-checked:decoration-2 forced-colors:aria-checked:underline-offset-4"
             >
               {option.label}
             </button>
