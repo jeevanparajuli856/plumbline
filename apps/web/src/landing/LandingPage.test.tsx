@@ -103,6 +103,17 @@ describe('LandingPage', () => {
     )
   })
 
+  it('tells the thermometer run from its recording, in its own words, under a SIMULATED badge', async () => {
+    const { container } = renderLanding()
+    await settle()
+    const section = within(container.querySelector<HTMLElement>('section#generalize')!)
+    expect(section.getAllByTestId('badge').map((b) => b.textContent)).toContain('SIMULATED')
+    const list = section.getByRole('list', { name: 'Thermometer example, step by step' })
+    expect(list).toHaveTextContent('Insert the probe to 5.5 cm')
+    expect(list).toHaveTextContent('degrees Celsius')
+    expect(list.textContent).not.toMatch(/fault|volts/i)
+  })
+
   it('does not start the replay on render; Play starts it in replay mode and plays', async () => {
     const start = vi.spyOn(useSession.getState(), 'start')
     const replayPlay = vi.spyOn(useSession.getState(), 'replayPlay')

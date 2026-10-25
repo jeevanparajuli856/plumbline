@@ -6,6 +6,7 @@ import { PRODUCT_LINE } from '../content'
 import s from '../landing.module.css'
 import { Caption, Eyebrow, Section } from '../parts'
 import { cx } from '../cx'
+import { siteLabel } from '../workedExample'
 
 interface ProductProps {
   fixture: FixtureT | null
@@ -23,15 +24,19 @@ function PhoneChannel({ fixture }: { fixture: FixtureT | null }) {
   const domain = useSession((st) => st.domain)
   const spec = DOMAINS[domain]
 
-  const idleSite = fixture ? fixture.catalog.site_labels[fixture.prior_instruction.site] : null
+  const idleLabel = fixture ? siteLabel(fixture, fixture.prior_instruction.site) : null
+  const idleSite =
+    fixture && idleLabel
+      ? { index: fixture.prior_instruction.site, label: idleLabel, spoken: idleLabel }
+      : null
   const site = instruction && catalog ? catalog.sites[instruction.site] : undefined
   const headline =
     diagnosis && phase === 'resolved'
       ? `${diagnosis.label}.`
       : site
         ? spec.phrases.instruction(site)
-        : idleSite
-          ? `Touch the red probe to ${idleSite}. Say or type the reading.`
+        : fixture && idleSite
+          ? DOMAINS[fixture.domain].phrases.instruction(idleSite)
           : 'Loading.'
 
   return (

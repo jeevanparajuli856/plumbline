@@ -6,6 +6,7 @@ import { confusionBand } from '@/about/confusionBand'
 import type { FixtureT } from '@/engine/schemas'
 import { formatPct } from '@/lib/format'
 import { DOMAINS } from '@/state/domains'
+import type { DomainId } from '@/state/types'
 
 export interface RankedHypothesis {
   id: string
@@ -129,23 +130,43 @@ function rankedText(list: readonly RankedHypothesis[]): string {
   return list.map((h) => `${h.label}, ${formatPct(h.p)}`).join('; ')
 }
 
+/** What a hypothesis is called in each domain; site nouns, units and instructions come from DOMAINS. */
+const HYPOTHESIS_NOUN: Record<DomainId, { plural: string; truth: string }> = {
+  circuit: { plural: 'faults', truth: 'the true fault' },
+  thermometer: { plural: 'doneness classes', truth: 'the true doneness' },
+}
+
+function lowerFirst(text: string): string {
+  return text.charAt(0).toLowerCase() + text.slice(1)
+}
+
+/** The domain's instruction for a site, without the "say or type" sentence: "Touch the red probe to row 3". */
+function instructionFor(fx: FixtureT, site: number): string {
+  const label = siteLabel(fx, site)
+  const sentence = DOMAINS[fx.domain].phrases.instruction({ index: site, label, spoken: label })
+  return (sentence.split('. ')[0] ?? sentence).replace(/\.$/, '')
+}
+
 /** The always-present step list: a start line, then per reading what happened and what each method believes. */
 export function transcript(fx: FixtureT): TranscriptItem[] {
   const n = fx.catalog.hypothesis_ids.length
+  const noun = HYPOTHESIS_NOUN[fx.domain]
+  const siteNoun = DOMAINS[fx.domain].siteNoun
   const items: TranscriptItem[] = [
     {
       key: 'start',
       kind: 'start',
-      text: `Start. ${n} possible faults, all equally likely: uncertainty ${maxEntropy(fx).toFixed(2)} bits. Told: touch the red probe to ${siteLabel(fx, fx.prior_instruction.site)}.`,
+      text: `Start. ${n} possible ${noun.plural}, all equally likely: uncertainty ${maxEntropy(fx).toFixed(2)} bits. Told: ${instructionFor(fx, fx.prior_instruction.site)}.`,
     },
   ]
   fx.steps.forEach((step, i) => {
     const k = i + 1
-    const landed = step.landed_site === null ? 'an unknown row' : siteLabel(fx, step.landed_site)
+    const landed =
+      step.landed_site === null ? `an unknown ${siteNoun}` : siteLabel(fx, step.landed_site)
     items.push({
       key: `reading-${k}`,
       kind: 'reading',
-      text: `Step ${k}. Told: touch ${siteLabel(fx, step.told_site)}. The hand lands on ${landed}. Reading: ${formatValue(fx, step.reading)}.`,
+      text: `Step ${k}. Told: ${lowerFirst(instructionFor(fx, step.told_site))}. The hand lands on ${landed}. Reading: ${formatValue(fx, step.reading)}.`,
     })
     if (step.warning) {
       items.push({
@@ -160,13 +181,13 @@ export function transcript(fx: FixtureT): TranscriptItem[] {
       items.push({
         key: `diagnosis-${k}`,
         kind: 'diagnosis',
-        text: `Plumbline: ${labelOf(fx, step.diagnosis.hypothesis_id)}, ${formatPct(step.diagnosis.confidence)}.${isTrue ? ' That is the true fault.' : ''} ${published}${verdict(fx, step.baseline)}`,
+        text: `Plumbline: ${labelOf(fx, step.diagnosis.hypothesis_id)}, ${formatPct(step.diagnosis.confidence)}.${isTrue ? ` That is ${noun.truth}.` : ''} ${published}${verdict(fx, step.baseline)}`,
       })
     } else if (step.status === 'unresolved') {
       items.push({
         key: `unresolved-${k}`,
         kind: 'unresolved',
-        text: `Unresolved. ${step.unresolved?.text ?? 'These faults give the same readings at every row.'} Plumbline asks for a different measurement instead of guessing.`,
+        text: `Unresolved. ${step.unresolved?.text ?? `These ${noun.plural} give the same readings at every ${siteNoun}.`} Plumbline asks for a different measurement instead of guessing.`,
       })
     } else {
       items.push({

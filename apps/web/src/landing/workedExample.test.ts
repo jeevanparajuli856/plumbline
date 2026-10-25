@@ -29,7 +29,9 @@ describe('transcript', () => {
     const readings = transcript(fx).filter((t) => t.kind === 'reading')
     expect(readings).toHaveLength(fx.steps.length)
     const s = fx.steps[0]!
-    expect(readings[0]!.text).toContain(`Told: touch ${fx.catalog.site_labels[s.told_site]}`)
+    expect(readings[0]!.text).toContain(
+      `Told: touch the red probe to ${fx.catalog.site_labels[s.told_site]}.`,
+    )
     expect(readings[0]!.text).toContain(`lands on ${fx.catalog.site_labels[s.landed_site!]}`)
     expect(readings[0]!.text).toContain(s.reading.toFixed(3))
   })
@@ -47,6 +49,29 @@ describe('transcript', () => {
 
   it('has six steps for the worked example', () => {
     expect(transcript(fx)).toHaveLength(6)
+  })
+})
+
+describe('transcript for the thermometer', () => {
+  let thermo: FixtureT
+
+  beforeAll(async () => {
+    thermo = await loadFixture('thermometer_demo')
+  })
+
+  it('speaks in doneness classes, depths and degrees, with the domain instruction', () => {
+    const items = transcript(thermo)
+    const text = items.map((t) => t.text).join(' ')
+    expect(items[0]!.text).toContain(`${thermo.catalog.hypothesis_ids.length} possible doneness classes`)
+    expect(items[0]!.text).toContain(
+      `Insert the probe to ${thermo.catalog.site_labels[thermo.prior_instruction.site]}.`,
+    )
+    expect(items[1]!.text).toContain(
+      `Told: insert the probe to ${thermo.catalog.site_labels[thermo.steps[0]!.told_site]}.`,
+    )
+    expect(items[1]!.text).toContain(`${thermo.steps[0]!.reading.toFixed(1)} degrees Celsius`)
+    expect(text).toContain('That is the true doneness.')
+    expect(text).not.toMatch(/fault|volts|red probe|\brow\b/i)
   })
 })
 
