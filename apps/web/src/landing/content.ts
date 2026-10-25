@@ -11,6 +11,13 @@ export const STATUS_LINE = 'Simulation validated. User validation in progress.'
 export const PRODUCT_LINE = 'Web simulator open now. iOS app next.'
 export const PROMISE = 'It cannot tell you something it has not measured.'
 
+/** The idea the Truehand mark is built on (POSITIONING section 1.1, ADR-0013). */
+export const BRAND_IDEA =
+  'A braille cell and a breadboard are the same shape. Both are grids of dots, read by fingertip, where every hole feels identical to the one beside it.'
+/** Truehand "works out", never "knows" (POSITIONING section 1.1). */
+export const FOUND_LINE = 'Truehand works out which hole your probe actually found'
+export const CONTACT_EMAIL = 'support@truehand.tech'
+
 export interface Study {
   id: string
   venue: string
@@ -138,12 +145,14 @@ export const UNIVERSITY = 'University of Louisiana Monroe'
 export const PRODUCTS: readonly { name: string; sentence: string; status: string }[] = [
   {
     name: 'Web simulator',
-    sentence: 'The whole instrument in a browser: the circuit, the simulated thermometer and recorded replays.',
+    sentence:
+      'The whole instrument in a browser: the circuit, the simulated thermometer and recorded replays.',
     status: 'Open now',
   },
   {
     name: 'Voice channel',
-    sentence: 'Hear the instruction, say the reading, hear the warning. Speech stays off until you turn it on.',
+    sentence:
+      'Hear the instruction, say the reading, hear the warning. Speech stays off until you turn it on.',
     status: 'In progress',
   },
   {
@@ -190,7 +199,11 @@ export function leadingNumber(cell: string | undefined): number | null {
 }
 
 /** One method's value in the column whose header starts with `column`. */
-export function cellFor(table: MarkdownTable | null, method: string, column: string): number | null {
+export function cellFor(
+  table: MarkdownTable | null,
+  method: string,
+  column: string,
+): number | null {
   if (!table) return null
   const col = table.headers.findIndex((h) => h.startsWith(column))
   const row = table.rows.find((r) => r[0] === method)
@@ -231,7 +244,7 @@ function sourceOf(file: ResultFile | null, scenario = ''): string {
 export const VALIDATION_STATS: readonly ValidationStat[] = [
   {
     id: 'correct',
-    value: cellFor(STABILITY_TABLE, 'plumbline', 'Correct %'),
+    value: cellFor(STABILITY_TABLE, 'truehand', 'Correct %'),
     decimals: 1,
     suffix: '%',
     label: 'of simulated faults end on the true fault or an honest refusal, mean over seeds.',
@@ -240,7 +253,7 @@ export const VALIDATION_STATS: readonly ValidationStat[] = [
   },
   {
     id: 'confidently-wrong',
-    value: cellFor(STABILITY_TABLE, 'plumbline', 'Confidently wrong %'),
+    value: cellFor(STABILITY_TABLE, 'truehand', 'Confidently wrong %'),
     decimals: 1,
     suffix: '%',
     label: `confidently wrong, against ${cellFor(STABILITY_TABLE, 'entropy_exact', 'Confidently wrong %') ?? 'an unrecorded'}% for the published method on the same faults.`,
@@ -249,10 +262,11 @@ export const VALIDATION_STATS: readonly ValidationStat[] = [
   },
   {
     id: 'bridging',
-    value: cellFor(BRIDGING_TABLE, 'plumbline', 'Correct %'),
+    value: cellFor(BRIDGING_TABLE, 'truehand', 'Correct %'),
     decimals: 1,
     suffix: '%',
-    label: 'correct in our hardest stress test, a probe that sometimes bridges two rows. This is where it fails most.',
+    label:
+      'correct in our hardest stress test, a probe that sometimes bridges two rows. This is where it fails most.',
     source: sourceOf(MISMATCH, 'bridging scenario'),
     isSimulated: true,
   },
@@ -261,7 +275,8 @@ export const VALIDATION_STATS: readonly ValidationStat[] = [
     value: null,
     decimals: 0,
     suffix: '',
-    label: 'How real blind hands miss: the measured placement matrix that replaces the assumed one. No participant results yet.',
+    label:
+      'How real blind hands miss: the measured placement matrix that replaces the assumed one. No participant results yet.',
     source: 'docs/EVIDENCE.md, readiness row "Measured confusion matrix". Date to be booked.',
     isSimulated: false,
   },

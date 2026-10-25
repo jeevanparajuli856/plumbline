@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { PROMISE, SAFETY_SCOPE } from '../content'
+import { CONTACT_EMAIL, PROMISE, SAFETY_SCOPE } from '../content'
 import s from '../landing.module.css'
 import { Caption, PhotoFigure, Section } from '../parts'
 import { cx } from '../cx'
@@ -38,7 +38,11 @@ export function Close() {
           </ul>
           <p className={cx(s.body, 'mt-10 text-on-ink-muted')}>
             Join the pilot is for blindness organizations and instructors. Partner with us is for
-            instrument makers and rehabilitation agencies.
+            instrument makers and rehabilitation agencies. Pilots, partnerships and support:{' '}
+            <a href={`mailto:${CONTACT_EMAIL}`} className={s.link}>
+              {CONTACT_EMAIL}
+            </a>
+            .
           </p>
           <Caption className="mt-8">{SAFETY_SCOPE}</Caption>
         </div>

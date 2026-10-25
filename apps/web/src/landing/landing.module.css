@@ -533,7 +533,7 @@
   line-height: 1.5;
 }
 
-/* ---------- Belief bars: Plumbline outlined cyan, published method dashed neutral ---------- */
+/* ---------- Belief bars: Truehand outlined cyan, published method dashed neutral ---------- */
 .bars {
   list-style: none;
   padding: 0;
@@ -559,7 +559,7 @@
   transform-origin: left;
   transition: transform var(--motion-belief-bars) var(--ease-smooth);
 }
-.barPlumbline {
+.barTruehand {
   border: 2px solid var(--inferred);
   background: color-mix(in srgb, var(--inferred-fill) 35%, transparent);
 }
@@ -1156,45 +1156,79 @@
   color: var(--text-2);
 }
 
-/* ---------- Edge plumb line: hangs at the right page edge, decorative ---------- */
+/* ---------- Edge cell column: identical holes at the right page edge, decorative ---------- */
 .edgePlumb {
   position: fixed;
-  top: 0;
-  bottom: 0;
-  right: 6px;
-  width: 16px;
+  top: calc(var(--header-height) + var(--space-6));
+  bottom: var(--space-6);
+  right: 4px;
+  width: 20px;
   z-index: 30;
   pointer-events: none;
-  --bob-y: 38vh;
 }
 .edgeString {
   position: absolute;
-  left: 50%;
-  top: 0;
-  width: 1px;
-  height: var(--bob-y);
-  background: var(--inferred);
-  transform-origin: top;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
 }
+.edgeHole {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-muted);
+}
+/* The found dot: a ring and a filled centre in the mark's red, resting on the first hole. */
 .edgeBob {
   position: absolute;
+  top: -5px;
   left: 50%;
-  top: var(--bob-y);
-  width: 12px;
+  width: 18px;
   height: 18px;
-  margin-left: -6px;
-  background: var(--measured-fill);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  transform-origin: 50% 0;
+  margin-left: -9px;
+  border-radius: 50%;
+  border: 2px solid var(--brand);
+  display: grid;
+  place-items: center;
+}
+.edgeBob::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brand);
 }
 @media (max-width: 767px) {
   .edgePlumb {
-    right: 2px;
-    width: 10px;
+    right: 0;
+    width: 14px;
+  }
+  .edgeHole {
+    width: 6px;
+    height: 6px;
   }
   .edgeBob {
-    width: 8px;
-    height: 12px;
-    margin-left: -4px;
+    width: 14px;
+    height: 14px;
+    margin-left: -7px;
+    top: -4px;
   }
+  .edgeBob::after {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+/* Stacked race labels: every stage holds the same cell; only the shown one is visible. */
+.stageLabels {
+  display: inline-grid;
+  justify-items: end;
+}
+.stageLabels > * {
+  grid-area: 1 / 1;
+}
+.stageHidden {
+  visibility: hidden;
 }

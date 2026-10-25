@@ -29,7 +29,13 @@ export function Section({ id, className, motion, children }: SectionProps) {
   )
 }
 
-export function Eyebrow({ children, className }: { children: ReactNode; className?: string | undefined }) {
+export function Eyebrow({
+  children,
+  className,
+}: {
+  children: ReactNode
+  className?: string | undefined
+}) {
   return <p className={cx(s.eyebrow, className)}>{children}</p>
 }
 
@@ -70,7 +76,13 @@ export function StatusBadge({ status }: { status: string }) {
 export function WarningGlyph({ className }: { className?: string | undefined }) {
   return (
     <svg viewBox="0 0 20 20" className={className} aria-hidden="true" focusable="false">
-      <path d="M10 2.5 18.5 17.5H1.5Z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <path
+        d="M10 2.5 18.5 17.5H1.5Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
       <path d="M10 8v4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
       <circle cx="10" cy="14.9" r="1.1" fill="currentColor" />
     </svg>

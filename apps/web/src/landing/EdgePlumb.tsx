@@ -1,14 +1,22 @@
 import s from './landing.module.css'
 
+/** Holes in the edge column, top to bottom. */
+export const EDGE_HOLE_COUNT = 24
+
 /**
- * The plumb line pinned at the right page edge (UI_CONTRACT 5.3, `data-motion="plumb"`). Static DOM
- * is the line hanging at rest; the motion module slides the bob with scroll and sets the swing.
+ * The edge cell column (UI_CONTRACT 5.3, ADR-0013): identical hollow holes down the right page edge
+ * and one ringed dot in --brand, the hole the probe found. Static DOM rests the dot on the first
+ * hole; the motion module slides it with scroll. Hook names stay "plumb" from the earlier motif.
  * Decorative: its text twin is the caption in the mast.
  */
 export function EdgePlumb() {
   return (
     <div className={s.edgePlumb} aria-hidden="true" data-motion="plumb">
-      <span className={s.edgeString} data-motion-string />
+      <span className={s.edgeString} data-motion-string>
+        {Array.from({ length: EDGE_HOLE_COUNT }, (_, i) => (
+          <span key={i} className={s.edgeHole} />
+        ))}
+      </span>
       <span className={s.edgeBob} data-motion-bob />
     </div>
   )

@@ -21,7 +21,8 @@ export function Ladder() {
         <header className="col-span-4 md:col-span-8">
           <Eyebrow>Who it is for</Eyebrow>
           <h2 id="ladder-title" className={cx(s.h2, 'mt-6')}>
-            One engine, {countWord(LADDER?.rows.length ?? 0)} rungs. Electronics is the first because its physics is exact.
+            One engine, {countWord(LADDER?.rows.length ?? 0)} rungs. Electronics is the first
+            because its physics is exact.
           </h2>
           {employment && (
             <p className={cx(s.lead, 'mt-6')}>
@@ -58,7 +59,8 @@ export function Ladder() {
           </ol>
         )}
         <Caption className="col-span-4 md:col-span-8">
-          Each step down the staircase is a larger market on the same engine. The filled marker is where we are now.
+          Each step down the staircase is a larger market on the same engine. The filled marker is
+          where we are now.
           {source && ` Employment figure: ${source}.`}
         </Caption>
       </div>

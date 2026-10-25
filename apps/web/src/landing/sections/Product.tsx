@@ -33,7 +33,7 @@ function PhoneScreen({ view }: { view: PhoneView }) {
   return (
     <div className={s.phone} role="group" aria-label="Phone preview of the text channel">
       <div className={s.phoneBar}>
-        <span>Plumbline</span>
+        <span>Truehand</span>
         <span>{view.status}</span>
       </div>
       <p className={s.phoneInstruction}>{view.headline}</p>
@@ -66,7 +66,14 @@ function HeroPhone() {
   if (load.status !== 'ready') {
     return (
       <PhoneScreen
-        view={{ status: 'Loading', headline: 'Loading.', confidence: null, lastReading: null, warning: null, refusal: null }}
+        view={{
+          status: 'Loading',
+          headline: 'Loading.',
+          confidence: null,
+          lastReading: null,
+          warning: null,
+          refusal: null,
+        }}
       />
     )
   }
@@ -80,10 +87,17 @@ function HeroPhone() {
     <PhoneScreen
       view={{
         status: isDone ? 'Replay, finished' : 'Replay, listening',
-        headline: f.isResolved && f.diagnosis ? `${f.diagnosis.label}.` : f.unresolvedText ? 'Unresolved.' : f.instruction,
+        headline:
+          f.isResolved && f.diagnosis
+            ? `${f.diagnosis.label}.`
+            : f.unresolvedText
+              ? 'Unresolved.'
+              : f.instruction,
         confidence: f.isResolved && f.diagnosis ? f.diagnosis.p : null,
         lastReading: f.readingDigits ? `${f.readingDigits} ${spec.unit}` : null,
-        warning: f.warning ? `Your probe is not where you think it is. Most likely ${f.warning.likelyLabel}.` : null,
+        warning: f.warning
+          ? `Your probe is not where you think it is. Most likely ${f.warning.likelyLabel}.`
+          : null,
         refusal: f.unresolvedText,
       }}
     />
@@ -118,7 +132,12 @@ function SessionPhone({ fixture }: { fixture: FixtureT | null }) {
   return (
     <PhoneScreen
       view={{
-        status: phase === 'idle' ? 'Replay, ready' : phase === 'resolved' ? 'Replay, resolved' : 'Replay, listening',
+        status:
+          phase === 'idle'
+            ? 'Replay, ready'
+            : phase === 'resolved'
+              ? 'Replay, resolved'
+              : 'Replay, listening',
         headline,
         confidence: diagnosis && phase === 'resolved' ? diagnosis.confidence : null,
         lastReading: last ? `${last.value.toFixed(spec.readingDecimals)} ${spec.unit}` : null,

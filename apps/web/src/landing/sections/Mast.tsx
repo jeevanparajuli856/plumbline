@@ -21,13 +21,15 @@ export function Mast({ reduced, onPlay }: MastProps) {
     <Section id="mast" className={cx(s.section, s.mast)}>
       <div className={cx(s.frame, s.grid, 'w-full gap-y-14')}>
         <div className={cx('col-span-4 md:col-span-12 lg:col-span-7', s.mastText)}>
-          <Eyebrow>Research preview. Trustworthy measurement for hands that cannot see the tool</Eyebrow>
+          <Eyebrow>
+            Research preview. Trustworthy measurement for hands that cannot see the tool
+          </Eyebrow>
           <h1 id="mast-title" data-motion="headline" className={cx(s.display, s.headline, 'mt-8')}>
             Measurement you can trust without looking.
           </h1>
           <p className={cx(s.lead, 'mt-8')}>
             When a blind person measures a circuit, nothing checks whether the probe landed where it
-            was told. Plumbline infers the fault and the probe&apos;s true position from each
+            was told. Truehand works out the fault and the row the probe actually found from each
             reading, and it refuses to guess when the physics cannot tell two faults apart.
           </p>
           <dl
@@ -48,8 +50,9 @@ export function Mast({ reduced, onPlay }: MastProps) {
             </Link>
           </div>
           <Caption className="mt-12">
-            Right edge of the page: a plumb line hangs at rest. Its bob follows how far down the
-            page you have read; it is decoration and carries no data.
+            Right edge of the page: a column of identical holes, like a braille cell or a
+            breadboard. The ringed dot moves to your place on the page; it is decoration and carries
+            no data.
           </Caption>
         </div>
         <div className="col-span-4 md:col-span-8 md:col-start-3 lg:col-span-5 lg:col-start-8">

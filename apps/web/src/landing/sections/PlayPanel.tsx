@@ -81,7 +81,7 @@ export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: P
       <div className="grid gap-6 sm:grid-cols-2">
         {frame.readingsShown === 0 ? (
           <div>
-            <h3 className="text-lg font-semibold">Plumbline</h3>
+            <h3 className="text-lg font-semibold">Truehand</h3>
             <p className="mt-2 text-base text-text-2">
               {frame.hypothesisCount} faults, all equally likely:{' '}
               <span className={s.mono}>{formatPct(1 / Math.max(1, frame.hypothesisCount))}</span>{' '}
@@ -90,9 +90,9 @@ export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: P
           </div>
         ) : (
           <BarList
-            title="Plumbline"
-            items={frame.plumbline}
-            tone="plumbline"
+            title="Truehand"
+            items={frame.truehand}
+            tone="truehand"
             trueHypothesis={frame.isResolved ? trueHypothesis : null}
           />
         )}
@@ -111,7 +111,7 @@ export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: P
 interface BarListProps {
   title: string
   items: readonly RankedHypothesis[]
-  tone: 'plumbline' | 'published'
+  tone: 'truehand' | 'published'
   trueHypothesis: string | null
   empty?: string
 }
@@ -142,10 +142,7 @@ function BarList({ title, items, tone, trueHypothesis, empty }: BarListProps) {
                 </div>
                 <div className={s.barTrack} aria-hidden="true">
                   <div
-                    className={cx(
-                      s.barFill,
-                      tone === 'plumbline' ? s.barPlumbline : s.barPublished,
-                    )}
+                    className={cx(s.barFill, tone === 'truehand' ? s.barTruehand : s.barPublished)}
                     style={scale(h.p)}
                   />
                 </div>

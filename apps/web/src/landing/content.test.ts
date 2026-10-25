@@ -21,6 +21,15 @@ describe('landing copy is backed by the docs', () => {
     expect(positioningMd).toContain(content.PROMISE)
   })
 
+  it('takes the brand idea, the found line and the contact address from POSITIONING', () => {
+    const plain = flat(positioningMd).replace(/\*\*/g, '')
+    const idea = content.BRAND_IDEA.charAt(0).toLowerCase() + content.BRAND_IDEA.slice(1)
+    expect(plain).toContain(idea)
+    expect(positioningMd).toContain(content.FOUND_LINE)
+    expect(positioningMd).toContain(content.CONTACT_EMAIL)
+    expect(content.FOUND_LINE).not.toMatch(/knows/)
+  })
+
   it('quotes each study, its venue and its participant count exactly as EVIDENCE states them', () => {
     for (const s of content.STUDIES) {
       expect(evidenceMd).toContain(s.quote)
@@ -71,7 +80,9 @@ describe('landing copy is backed by the docs', () => {
   it('names only the partner with permission on file in the simulation scope (rule F21)', () => {
     // Permission to name the Louisiana Center for the Blind is on file (2026-10-25); no address.
     expect(content.SIMULATION_SCOPE).toContain('Louisiana Center for the Blind')
-    expect(content.SIMULATION_SCOPE).not.toMatch(/Louisiana Rehabilitation|American Printing House|APH\b|Street|Ruston/)
+    expect(content.SIMULATION_SCOPE).not.toMatch(
+      /Louisiana Rehabilitation|American Printing House|APH\b|Street|Ruston/,
+    )
   })
 
   it('contains no em-dashes, exclamation marks or banned phrases', () => {
@@ -90,7 +101,7 @@ describe('validation stats are read from docs/results', () => {
     expect(pending[0]!.label).toContain('No participant results yet.')
   })
 
-  it('takes the stability numbers from the plumbline and published-method rows of the newest run', () => {
+  it('takes the stability numbers from the truehand and published-method rows of the newest run', () => {
     const cells = (method: string) =>
       stabilityMd
         .split('\n')
@@ -98,23 +109,27 @@ describe('validation stats are read from docs/results', () => {
         .split('|')
         .map((c) => c.trim())
     // Columns: Method, Faults, Correct, Resolved correct, Confidently wrong, ...
-    const ours = cells('plumbline')
+    const ours = cells('truehand')
     const published = cells('entropy_exact')
     expect(ours[3]).toMatch(new RegExp(`^${byId.correct!.value!.toFixed(1)} ±`))
     expect(ours[5]).toMatch(new RegExp(`^${byId['confidently-wrong']!.value!.toFixed(1)} ±`))
     const publishedWrong = published[5]!.split(' ')[0]
-    expect(byId['confidently-wrong']!.label).toContain(`${publishedWrong}% for the published method`)
+    expect(byId['confidently-wrong']!.label).toContain(
+      `${publishedWrong}% for the published method`,
+    )
   })
 
   it('takes the bridging stress test from the bridging section of the newest mismatch run', () => {
     const section = mismatchMd.split('## bridging')[1]!.split('## ')[0]!
-    const row = section.split('\n').find((l) => l.startsWith('| plumbline |'))!
+    const row = section.split('\n').find((l) => l.startsWith('| truehand |'))!
     expect(row.split('|')[3]!.trim()).toBe(byId.bridging!.value!.toFixed(1))
   })
 
   it('names the file, the run date and the seeds and faults on every simulated cell', () => {
     for (const st of content.VALIDATION_STATS.filter((x) => x.isSimulated)) {
-      expect(st.source).toMatch(/^docs\/results\/(stability|mismatch)_\d{4}-\d{2}-\d{2}\.md, run \d{4}-\d{2}-\d{2}, /)
+      expect(st.source).toMatch(
+        /^docs\/results\/(stability|mismatch)_\d{4}-\d{2}-\d{2}\.md, run \d{4}-\d{2}-\d{2}, /,
+      )
       expect(st.source).toMatch(/\d+ seeds? x \d+ faults\. Simulated\.$/)
     }
     expect(byId.correct!.source).toContain('5 seeds x 300 faults')
@@ -122,7 +137,10 @@ describe('validation stats are read from docs/results', () => {
   })
 
   it('picks the newest dated file and parses leading numbers', () => {
-    const files = { '/x/results/stability_2026-10-01.md': 'old', '/x/results/stability_2026-11-02.md': '- Generated: 2026-11-02T00:00\n' }
+    const files = {
+      '/x/results/stability_2026-10-01.md': 'old',
+      '/x/results/stability_2026-11-02.md': '- Generated: 2026-11-02T00:00\n',
+    }
     expect(content.latestResult(files, 'stability')).toEqual({
       path: 'docs/results/stability_2026-11-02.md',
       markdown: files['/x/results/stability_2026-11-02.md'],
@@ -159,7 +177,8 @@ describe('copy tropes', () => {
     const all = stringsIn({ ...content })
     expect(all.length).toBeGreaterThan(20)
     for (const text of all) {
-      for (const [name, re] of TROPES) expect({ name, text, hit: re.test(text) }).toMatchObject({ hit: false })
+      for (const [name, re] of TROPES)
+        expect({ name, text, hit: re.test(text) }).toMatchObject({ hit: false })
     }
   })
 
@@ -170,11 +189,19 @@ describe('copy tropes', () => {
     })
     const text = container.textContent ?? ''
     expect(text.length).toBeGreaterThan(2000)
-    for (const [name, re] of TROPES) expect({ name, hit: re.exec(text)?.[0] ?? null }).toEqual({ name, hit: null })
+    for (const [name, re] of TROPES)
+      expect({ name, hit: re.exec(text)?.[0] ?? null }).toEqual({ name, hit: null })
   })
 
   it('the trope patterns catch what they are meant to catch', () => {
-    const samples = ['a \u2014 b', 'ok \u{1F680}', 'Wow!', "It's not a meter, it's a partner", 'not just a tool', 'Unlock insight']
+    const samples = [
+      'a \u2014 b',
+      'ok \u{1F680}',
+      'Wow!',
+      "It's not a meter, it's a partner",
+      'not just a tool',
+      'Unlock insight',
+    ]
     samples.forEach((sample, i) => expect(TROPES[i]![1].test(sample)).toBe(true))
   })
 })

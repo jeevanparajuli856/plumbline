@@ -4,13 +4,7 @@ import { buttonClass } from '@/ui/button'
 import s from '../landing.module.css'
 import { cx } from '../cx'
 import { heroCaption, heroFrame, type HeroFrame } from '../heroFrame'
-import {
-  HERO_RECORDING_IDS,
-  isRunning,
-  positionAt,
-  useHeroDriver,
-  useHeroLoop,
-} from '../heroLoop'
+import { HERO_RECORDING_IDS, isRunning, positionAt, useHeroDriver, useHeroLoop } from '../heroLoop'
 import { Caption, WarningGlyph } from '../parts'
 import { useFixtures } from '../useFixture'
 
@@ -60,7 +54,9 @@ export function InstrumentCard({ reduced }: InstrumentCardProps) {
           Live instrument, recorded runs
           <br />
           <span className={s.instRecording}>
-            {frame ? `${frame.recordingName}, reading ${frame.readingsShown} of ${frame.stepCount}` : 'Loading'}
+            {frame
+              ? `${frame.recordingName}, reading ${frame.readingsShown} of ${frame.stepCount}`
+              : 'Loading'}
           </span>
         </p>
         <button
@@ -118,7 +114,11 @@ function InstrumentView({ frame, tick }: { frame: HeroFrame; tick: number }) {
               <span className="sr-only">{frame.reading}</span>
               <span aria-hidden="true">
                 {frame.readingDigits.split('').map((ch, i) => (
-                  <span key={`${tick}-${i}`} className={s.digit} style={{ '--i': i } as CSSProperties}>
+                  <span
+                    key={`${tick}-${i}`}
+                    className={s.digit}
+                    style={{ '--i': i } as CSSProperties}
+                  >
                     {ch}
                   </span>
                 ))}
@@ -158,7 +158,7 @@ function Verdict({ frame }: { frame: HeroFrame }) {
   if (frame.unresolvedText) {
     return (
       <p className={s.refusalNote}>
-        {frame.unresolvedText} Plumbline asks for a different measurement instead of guessing.
+        {frame.unresolvedText} Truehand asks for a different measurement instead of guessing.
       </p>
     )
   }
@@ -185,18 +185,18 @@ function Belief({ frame }: { frame: HeroFrame }) {
   return (
     <div className="grid gap-4">
       <div className={s.beliefHead}>
-        <p className={s.label}>Plumbline belief, top {frame.plumbline.length}</p>
+        <p className={s.label}>Truehand belief, top {frame.truehand.length}</p>
         <p className={cx(s.mono, 'text-sm text-text-2')}>{frame.hypothesisCount} faults</p>
       </div>
       <ul className={s.bars}>
-        {frame.plumbline.map((h, i) => (
+        {frame.truehand.map((h, i) => (
           <li key={i}>
             <div className={s.barLabel}>
               <span>{h.label}</span>
               <span className={s.mono}>{formatPct(h.p)}</span>
             </div>
             <div className={s.barTrack} aria-hidden="true">
-              <div className={cx(s.barFill, s.barPlumbline)} style={scale(h.p)} />
+              <div className={cx(s.barFill, s.barTruehand)} style={scale(h.p)} />
             </div>
           </li>
         ))}

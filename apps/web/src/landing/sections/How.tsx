@@ -17,7 +17,7 @@ function fmt(value: number | null, fallback: string): string {
   return value === null ? fallback : String(value)
 }
 
-/** The six lines from .claude/rules/00-plumbline.md, with the fixture's own parameters filled in. */
+/** The six lines from .claude/rules/00-truehand.md, with the fixture's own parameters filled in. */
 function mathLines(c: FixtureConfig | null): MathLine[] {
   const pSame = fmt(c?.pSame ?? null, 'p_same')
   const pPm1 = fmt(c?.pPm1 ?? null, 'p_1')
@@ -117,7 +117,7 @@ function Refusal({ labels }: { labels: string[] }) {
         <div className="col-span-4 md:col-span-6">
           <h3 className={s.h3}>Refusal is a feature</h3>
           <p className={cx(s.body, 'mt-4')}>
-            When two faults produce the same voltages at every row, Plumbline says it cannot tell
+            When two faults produce the same voltages at every row, Truehand says it cannot tell
             them apart and asks for a different measurement. It does not pick one.
           </p>
         </div>
@@ -132,7 +132,7 @@ function Refusal({ labels }: { labels: string[] }) {
                   </div>
                   <div className={s.barTrack} aria-hidden="true">
                     <div
-                      className={cx(s.barFill, s.barPlumbline)}
+                      className={cx(s.barFill, s.barTruehand)}
                       style={{ transform: `scaleX(${1 / labels.length})` }}
                     />
                   </div>
@@ -146,8 +146,9 @@ function Refusal({ labels }: { labels: string[] }) {
           </div>
           <figcaption className="mt-4">
             <Caption>
-              Unresolved. {countWord(labels.length, true)} faults, “{labels.join('” and “')}”, give the same voltages at every
-              row. Plumbline asks for a different measurement instead of guessing.
+              Unresolved. {countWord(labels.length, true)} faults, “{labels.join('” and “')}”, give
+              the same voltages at every row. Truehand asks for a different measurement instead of
+              guessing.
             </Caption>
           </figcaption>
         </figure>

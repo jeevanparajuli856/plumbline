@@ -52,7 +52,9 @@ export function useFixtures(ids: readonly string[]): FixturesLoad {
     let alive = true
     Promise.all(key.split(',').map(load)).then(
       (fixtures) => alive && setState({ status: 'ready', fixtures }),
-      () => alive && setState({ status: 'missing', sentence: 'The recorded runs are not available here.' }),
+      () =>
+        alive &&
+        setState({ status: 'missing', sentence: 'The recorded runs are not available here.' }),
     )
     return () => {
       alive = false

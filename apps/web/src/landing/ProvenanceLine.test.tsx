@@ -16,7 +16,7 @@ beforeAll(async () => {
   const fx = await loadFixture('worked_example')
   recorded = {
     ...fx,
-    generated_by: 'python -m plumbline.record_fixtures --fixture worked_example',
+    generated_by: 'python -m truehand.record_fixtures --fixture worked_example',
     git_sha: '0123456789abcdef0123',
     generated_at: '2026-10-26T12:00:00Z',
   }
@@ -62,7 +62,7 @@ describe('ProvenanceLine', () => {
     render(<ProvenanceLine fixture={withSeed(recorded, null)} />)
     const caption = screen.getByTestId('caption')
     expect(caption).toHaveTextContent(
-      'Recorded by python -m plumbline.record_fixtures --fixture worked_example, commit 0123456, 2026-10-26. Preliminary. Not peer reviewed.',
+      'Recorded by python -m truehand.record_fixtures --fixture worked_example, commit 0123456, 2026-10-26. Preliminary. Not peer reviewed.',
     )
     expect(caption.querySelectorAll('code')).toHaveLength(2)
     expect(caption).not.toHaveAttribute('aria-live')

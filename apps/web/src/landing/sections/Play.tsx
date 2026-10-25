@@ -7,6 +7,7 @@ import s from '../landing.module.css'
 import { Badge } from '@/ui/Badge'
 import { Caption, Eyebrow, PhotoFigure, Section } from '../parts'
 import { PHOTOS } from '../photos'
+import { BRAND_IDEA, FOUND_LINE } from '../content'
 import { cx } from '../cx'
 import {
   comparisonRows,
@@ -89,8 +90,11 @@ export function Play({ fixture, onPlay, onReplay }: PlayProps) {
               </h2>
               <p className={cx(s.lead, 'mt-5')}>
                 {fixture ? `${slipSentence(fixture)} ` : ''}The published method trusts the
-                instruction and is certain at once. Plumbline keeps the doubt until the next reading
+                instruction and is certain at once. Truehand keeps the doubt until the next reading
                 settles it.
+              </p>
+              <p className={cx(s.body, 'mt-4 text-on-ink-muted')}>
+                {BRAND_IDEA} {FOUND_LINE}.
               </p>
               {fixture && <Race fixture={fixture} />}
               <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -156,7 +160,7 @@ function Race({ fixture }: { fixture: FixtureT }) {
     },
     {
       key: 'ours',
-      name: 'Plumbline',
+      name: 'Truehand',
       stages: stages.ours,
       top: last ? (rank(fixture, last.belief, 1)[0]?.label ?? '') : '',
       isTrue: last ? rank(fixture, last.belief, 1)[0]?.id === fixture.true_hypothesis : false,
@@ -174,8 +178,17 @@ function Race({ fixture }: { fixture: FixtureT }) {
               <span>
                 <strong>{r.name}</strong>: {r.top}
               </span>
-              <span className={s.mono} data-motion-stage-label>
-                {formatPct(final)}
+              {/* One label per stage, stacked; the static page shows the last, the scrub swaps them. */}
+              <span className={cx(s.mono, s.stageLabels)}>
+                {r.stages.map((p, i) => (
+                  <span
+                    key={i}
+                    data-motion-stage-label={String(i)}
+                    className={i === r.stages.length - 1 ? undefined : s.stageHidden}
+                  >
+                    {formatPct(p)}
+                  </span>
+                ))}
               </span>
             </div>
             <div className={s.raceTrack} aria-hidden="true">
@@ -256,12 +269,12 @@ function PlayRecord({ fixture }: { fixture: FixtureT }) {
         <div className={cx(s.tableScroll, 'mt-6')}>
           <table className={s.table}>
             <caption className="sr-only">
-              Plumbline and the published method on the same readings
+              Truehand and the published method on the same readings
             </caption>
             <thead>
               <tr>
                 <th scope="col">Reading</th>
-                <th scope="col">Plumbline</th>
+                <th scope="col">Truehand</th>
                 <th scope="col">Published method</th>
               </tr>
             </thead>
@@ -274,9 +287,9 @@ function PlayRecord({ fixture }: { fixture: FixtureT }) {
                       told {r.told}, landed {r.landed}
                     </span>
                   </th>
-                  <td className={r.plumbline.isTrue ? 'font-bold' : undefined}>
-                    {r.plumbline.label}, <span className={s.mono}>{formatPct(r.plumbline.p)}</span>
-                    {r.plumbline.isTrue && <span className="block text-base">true fault</span>}
+                  <td className={r.truehand.isTrue ? 'font-bold' : undefined}>
+                    {r.truehand.label}, <span className={s.mono}>{formatPct(r.truehand.p)}</span>
+                    {r.truehand.isTrue && <span className="block text-base">true fault</span>}
                   </td>
                   <td className={r.published.isTrue ? 'font-bold' : undefined}>
                     {r.published.label}, <span className={s.mono}>{formatPct(r.published.p)}</span>
@@ -289,8 +302,8 @@ function PlayRecord({ fixture }: { fixture: FixtureT }) {
         </div>
         <p className={cx(s.body, 'mt-6 text-on-ink-muted')}>
           Published method: entropy-based test selection that assumes the probe is where you were
-          told (Gao et al., 2014). It is our implementation, run in shadow on the identical readings.
-          True fault in this recording: {labelOf(fixture, fixture.true_hypothesis)}.
+          told (Gao et al., 2014). It is our implementation, run in shadow on the identical
+          readings. True fault in this recording: {labelOf(fixture, fixture.true_hypothesis)}.
         </p>
         <ProvenanceLine fixture={fixture} className="mt-4" />
         {isProvisional(fixture) && (

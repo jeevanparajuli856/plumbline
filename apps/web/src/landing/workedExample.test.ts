@@ -63,7 +63,9 @@ describe('transcript for the thermometer', () => {
   it('speaks in doneness classes, depths and degrees, with the domain instruction', () => {
     const items = transcript(thermo)
     const text = items.map((t) => t.text).join(' ')
-    expect(items[0]!.text).toContain(`${thermo.catalog.hypothesis_ids.length} possible doneness classes`)
+    expect(items[0]!.text).toContain(
+      `${thermo.catalog.hypothesis_ids.length} possible doneness classes`,
+    )
     expect(items[0]!.text).toContain(
       `Insert the probe to ${thermo.catalog.site_labels[thermo.prior_instruction.site]}.`,
     )
@@ -81,7 +83,7 @@ describe('comparisonRows', () => {
     const rows = comparisonRows(fx)
     expect(rows).toHaveLength(fx.steps.length)
     const last = rows[rows.length - 1]!
-    expect(last.plumbline.isTrue).toBe(last.plumbline.id === fx.true_hypothesis)
+    expect(last.truehand.isTrue).toBe(last.truehand.id === fx.true_hypothesis)
     expect(last.published.isTrue).toBe(last.published.id === fx.true_hypothesis)
   })
 })

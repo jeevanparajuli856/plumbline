@@ -11,6 +11,7 @@ import { countWord } from './numberWords'
 import { LandingPage, PLAY_PACE_MS } from './LandingPage'
 import { INITIAL_HERO_STATE, useHeroLoop } from './heroLoop'
 import { PHOTOS } from './photos'
+import { EDGE_HOLE_COUNT } from './EdgePlumb'
 import { VALIDATION_STATS } from './content'
 
 vi.mock('@/lib/webgl', () => ({ webglSupported: () => false }))
@@ -104,7 +105,10 @@ describe('LandingPage', () => {
     expect(lines[0]).toHaveTextContent('0.78 same row, 0.08 one row off, 0.03 two rows off')
     expect(lines[4]).toHaveTextContent('> 0.5')
     const problem = within(container.querySelector<HTMLElement>('section#problem')!)
-    const caption = problem.getAllByTestId('caption').map((c) => c.textContent).join(' ')
+    const caption = problem
+      .getAllByTestId('caption')
+      .map((c) => c.textContent)
+      .join(' ')
     expect(caption).toMatch(/78%.*8%.*3%/)
     expect(container.querySelector('section#evidence')).toHaveTextContent(
       'three assumed numbers: 0.78, 0.08, 0.03',
@@ -132,11 +136,17 @@ describe('LandingPage', () => {
     )
     const pair = fx.catalog.classes.find((c) => c.length > 1)!
     const how = within(container.querySelector<HTMLElement>('section#how')!)
-    const refusal = how.getAllByTestId('caption').find((c) => c.textContent?.startsWith('Unresolved'))
+    const refusal = how
+      .getAllByTestId('caption')
+      .find((c) => c.textContent?.startsWith('Unresolved'))
     expect(refusal).toHaveTextContent(`Unresolved. ${countWord(pair.length, true)} faults`)
-    const source = /\(([^)]*)\)\s*$/.exec(tableUnder(evidenceMd, '3. Employment')!.rows[0]![0]!)![1]!
+    const source = /\(([^)]*)\)\s*$/.exec(
+      tableUnder(evidenceMd, '3. Employment')!.rows[0]![0]!,
+    )![1]!
     const ladder = within(container.querySelector<HTMLElement>('section#ladder')!)
-    expect(ladder.getAllByTestId('caption').at(-1)).toHaveTextContent(`Employment figure: ${source}.`)
+    expect(ladder.getAllByTestId('caption').at(-1)).toHaveTextContent(
+      `Employment figure: ${source}.`,
+    )
   })
 
   it('does not start the replay on render; Play starts it in replay mode and plays', async () => {
@@ -287,7 +297,9 @@ describe('LandingPage', () => {
     expect(container.querySelector('section#mast img')).toBeNull()
     const imgs = Array.from(container.querySelectorAll('img'))
     expect(imgs.map((i) => i.getAttribute('src')).sort()).toEqual(
-      Object.values(PHOTOS).map((p) => p.src).sort(),
+      Object.values(PHOTOS)
+        .map((p) => p.src)
+        .sort(),
     )
     for (const img of imgs) {
       const photo = Object.values(PHOTOS).find((p) => p.src === img.getAttribute('src'))!
@@ -320,8 +332,27 @@ describe('LandingPage', () => {
     expect(rows.children).toHaveLength(3)
     const plumb = container.querySelector('[data-motion="plumb"]')!
     expect(plumb).toHaveAttribute('aria-hidden', 'true')
-    expect(plumb.querySelector('[data-motion-string]')).not.toBeNull()
-    expect(plumb.querySelector('[data-motion-bob]')).not.toBeNull()
+    const holes = plumb.querySelector('[data-motion-string]')!.children
+    expect(holes).toHaveLength(EDGE_HOLE_COUNT)
+    expect(Array.from(holes).every((h) => h.childElementCount === 0)).toBe(true)
+    // The found dot is an HTML element, so the motion module can restore its transform exactly.
+    expect(plumb.querySelector('[data-motion-bob]')).toBeInstanceOf(HTMLElement)
+    expect(plumb.querySelector('[data-motion-bob]')).not.toBeInstanceOf(SVGElement)
+    // Headline and quotes are plain text, so the splitter does not skip them.
+    for (const el of container.querySelectorAll(
+      '[data-motion="headline"], [data-motion="quote"]',
+    )) {
+      expect(el.childElementCount).toBe(0)
+    }
+    // Stage labels carry their index; only the last is visible before any scrub.
+    for (const bar of ['published', 'ours']) {
+      // bar -> its track -> the row that holds the label
+      const track = play.querySelector(`[data-motion-bar="${bar}"]`)!.parentElement!.parentElement!
+      const labels = Array.from(track.querySelectorAll<HTMLElement>('[data-motion-stage-label]'))
+      expect(labels.map((l) => l.dataset.motionStageLabel)).toEqual(['0', '1', '2'])
+      expect(labels.map((l) => l.className.includes('stageHidden'))).toEqual([true, true, false])
+      expect(labels.every((l) => !l.hidden && l.style.display !== 'none')).toBe(true)
+    }
   })
 
   it('gives each number stat a hidden counting number beside an sr-only twin, and the pending cell no hook', async () => {
@@ -340,7 +371,9 @@ describe('LandingPage', () => {
       expect(el.nextElementSibling).toHaveTextContent(el.textContent!)
       expect(el.closest('li')).toHaveTextContent(st.source)
     })
-    const pending = within(evidence).getByRole('list', { name: 'Validation results' }).lastElementChild!
+    const pending = within(evidence).getByRole('list', {
+      name: 'Validation results',
+    }).lastElementChild!
     expect(pending.querySelector('[data-motion]')).toBeNull()
     expect(within(pending as HTMLElement).getByTestId('badge')).toHaveTextContent('PENDING')
   })
@@ -358,5 +391,18 @@ describe('LandingPage', () => {
     fireEvent.click(product.getByRole('button', { name: 'Next recorded reading' }))
     await waitFor(() => expect(replayNext).toHaveBeenCalled())
     replayNext.mockRestore()
+  })
+
+  it('names Truehand, never the old name, and gives the contact address in the close band', async () => {
+    const { container } = renderLanding()
+    await settle()
+    expect(container.textContent).not.toMatch(/Plumbline/)
+    const mail = within(container.querySelector<HTMLElement>('section#close')!).getByRole('link', {
+      name: 'support@truehand.tech',
+    })
+    expect(mail).toHaveAttribute('href', 'mailto:support@truehand.tech')
+    expect(container.querySelector('section#play')).toHaveTextContent(
+      'A braille cell and a breadboard are the same shape.',
+    )
   })
 })
