@@ -26,14 +26,26 @@ export class LandingPage {
   constructor(readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 })
     this.play = page.getByRole('button', { name: 'Play the worked example' })
-    this.openSimulator = page.getByRole('link', { name: 'Open the simulator' })
+    // The banner has its own "Open the simulator" (UI_CONTRACT 5.1); the landing's is in main.
+    this.openSimulator = page.getByRole('main').getByRole('link', { name: 'Open the simulator' })
     this.transcript = page.getByRole('list', { name: 'Worked example, step by step' })
     this.captions = page.getByTestId('caption')
-    this.reduceMotion = page.getByRole('switch', { name: 'Reduce motion' })
+    this.reduceMotion = page
+      .getByRole('dialog', { name: 'Display' })
+      .getByRole('switch', { name: 'Reduce motion' })
   }
 
   async goto(query = ''): Promise<void> {
     await this.page.goto(`/${query}`)
+  }
+
+  /** Opens the Display popover from the banner's theme button; Reduce motion lives inside it. */
+  async openDisplay(): Promise<void> {
+    await this.page
+      .getByRole('banner')
+      .getByRole('button', { name: /^Theme: / })
+      .click()
+    await this.page.getByRole('dialog', { name: 'Display' }).waitFor()
   }
 
   section(id: LandingSectionId): Locator {
