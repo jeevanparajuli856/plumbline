@@ -59,7 +59,7 @@ test.describe('no WebGL', () => {
 })
 
 test.describe('text-only view', () => {
-  needsFullUi('web-shell (Text only switch, view=text)')
+  needsFullUi('web-shell (view=text; the Text only switch is on /accessibility)')
 
   test('view=text mounts no scene and the replay completes', async ({ page }) => {
     const errors = collectPageErrors(page)

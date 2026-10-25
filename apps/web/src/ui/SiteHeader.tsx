@@ -11,8 +11,9 @@ const LINKS = [
   { to: '/accessibility', label: 'Accessibility' },
 ] as const
 
+// The underline draws from the left on hover and keyboard focus and stays drawn on the current page.
 const NAV_LINK =
-  'inline-flex min-h-11 items-center border-b-2 border-transparent px-3 font-medium text-text-2 transition-colors duration-[var(--motion-fast)] hover:border-hairline hover:text-text aria-[current=page]:border-text aria-[current=page]:text-text max-sm:px-0'
+  'relative inline-flex min-h-11 items-center px-3 font-medium text-text-2 transition-colors duration-[var(--motion-fast)] hover:text-text aria-[current=page]:text-text max-sm:px-0 after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-[var(--motion-fast)] after:ease-[var(--ease-smooth)] hover:after:scale-x-100 focus-visible:after:scale-x-100 aria-[current=page]:after:scale-x-100 max-sm:after:inset-x-0'
 
 /** Tailwind's lg. The CSS below and this query must agree. */
 const ONE_ROW = '(min-width: 64rem)'
@@ -25,7 +26,7 @@ const ONE_ROW = '(min-width: 64rem)'
 export function SiteHeader() {
   const isOneRow = useMediaQuery(ONE_ROW, true)
   return (
-    <header className="border-b border-hairline bg-bench">
+    <header className="site-header border-b border-hairline bg-bench">
       <div className="relative mx-auto flex max-w-[90rem] flex-wrap items-center gap-x-3 px-4 sm:gap-x-4 sm:px-8 lg:flex-nowrap lg:gap-x-6 lg:px-16">
         <Link
           to="/"

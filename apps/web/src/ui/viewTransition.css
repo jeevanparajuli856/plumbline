@@ -1,7 +1,95 @@
-/* Theme switch: the circular reveal from the toggle replaces the default cross-fade, and only for
-   that reveal (themeReveal.ts sets html[data-theme-reveal] for its duration). */
+/* View transitions. Two kinds, kept apart: the theme reveal (html[data-theme-reveal], set by
+   themeReveal.ts) and route changes (the .route class on the Outlet boundary's exit and enter, plus
+   html[data-route-transition] while one runs). Reduced motion never starts either. */
+
+/* Theme reveal: the circular clip from the toggle replaces the default cross-fade. */
 html[data-theme-reveal]::view-transition-old(root),
 html[data-theme-reveal]::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+}
+
+/* The toggle glyph gets its own group during the reveal and turns a quarter while it swaps. */
+html[data-theme-reveal] .theme-glyph {
+  view-transition-name: theme-glyph;
+}
+
+html[data-theme-reveal]::view-transition-old(theme-glyph) {
+  animation: glyph-out var(--motion-normal) var(--ease-smooth) both;
+}
+
+html[data-theme-reveal]::view-transition-new(theme-glyph) {
+  animation: glyph-in var(--motion-normal) var(--ease-smooth) both;
+}
+
+@keyframes glyph-out {
+  to {
+    opacity: 0;
+    rotate: 90deg;
+  }
+}
+
+@keyframes glyph-in {
+  from {
+    opacity: 0;
+    rotate: -90deg;
+  }
+}
+
+/* Route change: the header is its own group and holds still. Outside the theme reveal only, so
+   the reveal's clip still covers it. */
+html:not([data-theme-reveal]) .site-header {
+  view-transition-name: site-header;
+}
+
+::view-transition-group(site-header),
+::view-transition-old(site-header),
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+/* Everything outside the page boundary (footer, bench) cuts rather than cross-fades. */
+html[data-route-transition]::view-transition-old(root),
+html[data-route-transition]::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* The old page fades and lifts 12px; the new one rises in. */
+::view-transition-old(.route) {
+  animation: route-out calc(var(--motion-normal) * 0.8) var(--ease-smooth) both;
+}
+
+::view-transition-new(.route) {
+  animation: route-in var(--motion-normal) var(--ease-smooth) both;
+}
+
+@keyframes route-out {
+  to {
+    opacity: 0;
+    translate: 0 -12px;
+  }
+}
+
+@keyframes route-in {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+}
+
+/* Reduced motion (OS or the in-page switch): React may still open a transition for a route change;
+   every part of it snaps so the new page is simply there. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+html[data-reduce-motion]::view-transition-group(*),
+html[data-reduce-motion]::view-transition-old(*),
+html[data-reduce-motion]::view-transition-new(*) {
+  animation: none !important;
 }

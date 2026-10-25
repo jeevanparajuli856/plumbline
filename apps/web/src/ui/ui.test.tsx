@@ -226,6 +226,10 @@ describe('Badge and buttons', () => {
     expect(buttonClass()).toContain('border-border-strong')
     expect(buttonClass('primary')).toContain('rounded-button')
     expect(buttonClass('primary')).not.toContain('translate-y')
+    // A press, not an elevation: real controls scale a touch and shift background.
+    expect(buttonClass('primary')).toContain('active:scale-[0.98]')
+    expect(buttonClass('ink')).toContain('active:scale-[0.98]')
+    expect(buttonClass('quiet')).not.toContain('active:scale-[0.98]')
     expect(buttonClass('primary')).toContain('disabled:border-dashed')
   })
 })
@@ -282,6 +286,21 @@ describe('DisplaySettings', () => {
 })
 
 describe('SiteHeader and SiteFooter', () => {
+  it('draws the nav underline from the left on hover and focus, and holds it on the current page', () => {
+    render(
+      <MemoryRouter initialEntries={['/evidence']}>
+        <SiteHeader />
+      </MemoryRouter>,
+    )
+    const link = screen.getByRole('link', { name: 'Evidence' })
+    expect(link.className).toContain('after:origin-left')
+    expect(link.className).toContain('after:scale-x-0')
+    expect(link.className).toContain('hover:after:scale-x-100')
+    expect(link.className).toContain('focus-visible:after:scale-x-100')
+    expect(link.className).toContain('aria-[current=page]:after:scale-x-100')
+    expect(screen.getByRole('banner')).toHaveClass('site-header')
+  })
+
   it('marks the current page and keeps names out of both', () => {
     render(
       <MemoryRouter initialEntries={['/accessibility']}>

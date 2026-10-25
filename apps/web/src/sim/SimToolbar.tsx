@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
+import { Link } from 'react-router'
+import { useMotionPref } from '@/a11y/motionPref'
 import type { ApiHealth, DomainId, Mode } from '@/state/types'
 import { Badge } from '@/ui/Badge'
-import { DisplaySettings } from '@/ui/DisplaySettings'
 import { KEYCAP } from '@/ui/button'
 import { RadioGroup, type RadioOption } from '@/ui/RadioGroup'
 import { SmallScreenDisclosure } from '@/ui/SmallScreenDisclosure'
@@ -35,8 +36,8 @@ interface SimToolbarProps {
 }
 
 /**
- * Web app settings strip. Read left to right: what you measure, how, how it talks, how it looks,
- * engine status.
+ * Web app settings strip. Read left to right: what you measure, how, how it talks, motion, the
+ * way to the display settings, engine status.
  */
 export function SimToolbar(props: SimToolbarProps) {
   const { domain, mode, simulated, speech, health } = props
@@ -70,7 +71,7 @@ export function SimToolbar(props: SimToolbarProps) {
             description="Spoken output. Off by default; screen-reader text is always on."
           />
           {props.listen}
-          <DisplaySettings layout="inline" />
+          <ReduceMotionSwitch />
           <button
             type="button"
             onClick={props.onShortcuts}
@@ -83,6 +84,13 @@ export function SimToolbar(props: SimToolbarProps) {
               ?
             </kbd>
           </button>
+          {/* Theme and Text only live on /accessibility (ADR-0014); one step away from here. */}
+          <Link
+            to="/accessibility"
+            className="inline-flex min-h-11 items-center px-2 font-medium text-text underline decoration-hairline underline-offset-4 hover:decoration-text"
+          >
+            Display settings
+          </Link>
         </SmallScreenDisclosure>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           {simulated ? (
@@ -96,4 +104,10 @@ export function SimToolbar(props: SimToolbarProps) {
       </div>
     </section>
   )
+}
+
+function ReduceMotionSwitch() {
+  const reduceMotion = useMotionPref((s) => s.reduceMotion)
+  const setReduceMotion = useMotionPref((s) => s.setReduceMotion)
+  return <Switch label="Reduce motion" checked={reduceMotion} onChange={setReduceMotion} />
 }

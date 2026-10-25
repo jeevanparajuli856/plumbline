@@ -35,7 +35,10 @@ export function ThemeToggle() {
       onClick={onClick}
       className="inline-flex size-11 shrink-0 items-center justify-center rounded-button border-[1.5px] border-border-strong text-text transition-colors duration-[var(--motion-fast)] hover:bg-surface-2"
     >
-      <ThemeGlyph theme={target} />
+      {/* Named during the reveal (viewTransition.css) so it turns while the theme swaps. */}
+      <span className="theme-glyph inline-flex">
+        <ThemeGlyph theme={target} />
+      </span>
       <span className="sr-only">Switch to {target} theme</span>
     </button>
   )
