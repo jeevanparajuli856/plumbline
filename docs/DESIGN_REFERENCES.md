@@ -262,7 +262,7 @@ The POSITIONING order already maps onto Sequoia's. What the 90-second reader nee
 ### E3. The sentences that carry the pitch
 Each is sourced; bracketed values fill only from files named.
 1. "Plumbline is the first assistant that infers the fault and the probe's true position from each reading." (POSITIONING copy rule; never "first ever")
-2. "In three peer-reviewed studies with 51 blind participants, AI tools increased the work of checking answers instead of removing it." (EVIDENCE section 2, studies 1 to 3)
+2. "In three studies with 51 blind participants, two peer reviewed and one preprint, AI tools increased the work of checking answers instead of removing it." (EVIDENCE section 2, studies 1 to 3)
 3. "Talking multimeters solved the display. Nobody solved the probe." (brief section 3, EEVblog)
 4. "Every published diagnosis method assumes the test you asked for is the test that ran. We model the hand as a noisy actuator and recover where it really landed." (brief section 4)
 5. "Told row 3, the hand lands on row 2 and reads 3.671 volts. The published method is certain of the wrong part. Plumbline warns, asks once more, and names the right one." (fixture values only)
