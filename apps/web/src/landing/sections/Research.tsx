@@ -9,44 +9,47 @@ import { PHOTOS } from '../photos'
 export function Research() {
   return (
     <Section id="research" className={cx(s.section, s.sheet, s.ruleTop)}>
-      <div className={cx(s.frame, s.grid, 'gap-y-12')}>
-        <div className={cx('col-span-4 md:col-span-5', s.pinned)}>
-          <Eyebrow>The research</Eyebrow>
-          <h2 id="research-title" className={cx(s.h2, 'mt-6')}>
-            In {countWord(STUDIES.length)} studies with {TOTAL_PARTICIPANTS} blind participants, AI
-            tools added work: people had to check the answers.
-          </h2>
-          <p className={cx(s.body, 'mt-6 text-text-2')}>
-            Two of the studies are peer reviewed and one is a preprint. Across all three, the
-            burden that remains is verification: knowing whether an answer can be trusted.
-          </p>
-          <p className={cx(s.difference, 'mt-8')}>{DIFFERENCE}</p>
-          <PhotoFigure
-            photo={PHOTOS.brailleDisplay}
-            sizes="(min-width: 768px) 40vw, 100vw"
-            className="mt-10"
-          />
-        </div>
+      <div className={cx(s.frame, s.grid, 'gap-y-16')}>
+        {/* Own row, so the pinned column stops before the prior-art table. */}
+        <div className={cx(s.grid, 'col-span-4 gap-y-12 md:col-span-12')}>
+          <div className={cx('col-span-4 md:col-span-5', s.pinned)}>
+            <Eyebrow>The research</Eyebrow>
+            <h2 id="research-title" className={cx(s.h2, 'mt-6')}>
+              In {countWord(STUDIES.length)} studies with {TOTAL_PARTICIPANTS} blind participants,
+              AI tools added work: people had to check the answers.
+            </h2>
+            <p className={cx(s.body, 'mt-6 text-text-2')}>
+              Two of the studies are peer reviewed and one is a preprint. Across all three, the
+              burden that remains is verification: knowing whether an answer can be trusted.
+            </p>
+            <p className={cx(s.difference, 'mt-8')}>{DIFFERENCE}</p>
+            <PhotoFigure
+              photo={PHOTOS.brailleDisplay}
+              sizes="(min-width: 768px) 40vw, 100vw"
+              className={cx(s.ratioWide, 'mt-8 max-w-[26rem]')}
+            />
+          </div>
 
-        <ol className={cx(s.studies, 'col-span-4 md:col-span-7')} aria-label="Studies">
-          {STUDIES.map((study) => (
-            <li key={study.id} className={s.study}>
-              <div>
-                <p className={s.studyMeta}>
-                  <span className={s.studyVenue}>{study.venue}</span>, {study.institution}
-                  <br />
-                  {study.title}, {study.participantPhrase}
-                </p>
-                <figure className="m-0">
-                  <blockquote data-motion="quote" className={s.quote}>
-                    &ldquo;{study.quote}&rdquo;
-                  </blockquote>
-                  <figcaption className={s.speaker}>{study.speaker}</figcaption>
-                </figure>
-              </div>
-            </li>
-          ))}
-        </ol>
+          <ol className={cx(s.studies, 'col-span-4 md:col-span-7')} aria-label="Studies">
+            {STUDIES.map((study) => (
+              <li key={study.id} className={s.study}>
+                <div>
+                  <p className={s.studyMeta}>
+                    <span className={s.studyVenue}>{study.venue}</span>, {study.institution}
+                    <br />
+                    {study.title}, {study.participantPhrase}
+                  </p>
+                  <figure className="m-0">
+                    <blockquote data-motion="quote" className={s.quote}>
+                      &ldquo;{study.quote}&rdquo;
+                    </blockquote>
+                    <figcaption className={s.speaker}>{study.speaker}</figcaption>
+                  </figure>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
 
         <div className="col-span-4 md:col-span-12">
           <h3 className={s.h3}>What we build on</h3>

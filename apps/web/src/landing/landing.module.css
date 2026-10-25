@@ -278,14 +278,9 @@
 .mastText {
   align-self: center;
 }
-/* The headline keeps its line boxes when a runtime splitter wraps its words. */
+/* A fixed line-height keeps line boxes identical when a runtime splitter wraps the words in spans. */
 .headline {
-  min-height: calc(3 * var(--leading-display) * var(--text-display));
-}
-@media (max-width: 767px) {
-  .headline {
-    min-height: calc(4 * var(--leading-display) * var(--text-display));
-  }
+  line-height: calc(var(--leading-display) * 1em);
 }
 .statusList {
   display: grid;
@@ -297,7 +292,6 @@
 .statusList > dd {
   padding-block: var(--space-3);
   border-bottom: 1px solid var(--hairline);
-  margin: 0;
 }
 .statusList > dd {
   font-size: var(--text-md);
@@ -373,7 +367,6 @@
   grid-template-columns: repeat(var(--sites, 6), minmax(0, 1fr));
   gap: 6px;
   list-style: none;
-  margin: 0;
   padding: 0;
 }
 .stripRow {
@@ -543,7 +536,6 @@
 /* ---------- Belief bars: Plumbline outlined cyan, published method dashed neutral ---------- */
 .bars {
   list-style: none;
-  margin: 0;
   padding: 0;
   display: grid;
   gap: var(--space-3);
@@ -586,7 +578,6 @@
 
 /* ---------- Photos: sharp, cover, fixed aspect box; never in the hero ---------- */
 .photo {
-  margin: 0;
 }
 .photo img {
   display: block;
@@ -632,7 +623,6 @@
 }
 .studies {
   list-style: none;
-  margin: 0;
   padding: 0;
   counter-reset: study;
 }
@@ -802,7 +792,6 @@
   grid-auto-columns: minmax(0, 1fr);
   gap: var(--space-2);
   list-style: none;
-  margin: 0;
   padding: 0;
 }
 .row {
@@ -868,7 +857,6 @@
 .steps {
   list-style: none;
   counter-reset: step;
-  margin: 0;
   padding: 0;
 }
 .step {
@@ -904,7 +892,6 @@
 /* ---------- How: the six lines beside a narrow strip ---------- */
 .math {
   list-style: none;
-  margin: 0;
   padding: 0;
   display: grid;
   gap: var(--space-1);
@@ -955,7 +942,6 @@
 /* ---------- Product (3:2): offset rows and the phone ---------- */
 .productRows {
   list-style: none;
-  margin: 0;
   padding: 0;
   border-top: 1px solid var(--text);
 }
@@ -1003,7 +989,7 @@
 }
 .phone {
   width: min(100%, 340px);
-  min-height: 560px;
+  min-height: 480px;
   border: 1px solid var(--hairline);
   border-radius: var(--radius-phone);
   background: var(--surface-1);
@@ -1034,7 +1020,6 @@
 /* ---------- Ladder: a ruled staircase ---------- */
 .stairs {
   list-style: none;
-  margin: 0;
   padding: 0;
 }
 .stair {
@@ -1079,7 +1064,6 @@
 .stairFacts {
   display: grid;
   gap: var(--space-3);
-  margin: 0;
 }
 .stairFacts > div {
   display: grid;
@@ -1093,7 +1077,6 @@
   }
 }
 .stairFacts dd {
-  margin: 0;
   font-size: 1.0625rem;
   line-height: 1.55;
 }
@@ -1146,7 +1129,6 @@
 }
 .phases {
   list-style: none;
-  margin: 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
