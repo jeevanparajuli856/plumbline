@@ -27,6 +27,8 @@ export const METHOD_WORDS: ReadonlyArray<readonly [string, RegExp]> = [
   ['commit hash', /\b(?=[0-9a-f]*\d)(?=[0-9a-f]*[a-f])[0-9a-f]{7,40}\b/],
   ['simulator', /simulator/i],
   ['research preview', /research preview/i],
+  ['real recorded', /\breal recorded\b/i],
+  ['repo path', /\bdocs\/|\bengine\/|\.md\b|\.json\b/],
 ]
 
 /** Names that appear on /about only (ADR-0014). */

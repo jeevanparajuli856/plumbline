@@ -242,7 +242,7 @@ describe('heroFrame', () => {
     expect(f.readingDigits).toBe(worked.steps[0]!.reading.toFixed(3))
     expect(f.warning).not.toBeNull()
     expect(heroCaption(f)).toBe(
-      `Recording worked example, simulated hand, reading 1 of 2: told ${f.toldLabel}, landed ${f.landedLabel}, read ${f.reading}. Warning: the probe is probably not on the told row.`,
+      `Recording the worked example, simulated hand, reading 1 of 2: told ${f.toldLabel}, landed ${f.landedLabel}, read ${f.reading}. Warning: the probe is probably not on the told row.`,
     )
   })
 

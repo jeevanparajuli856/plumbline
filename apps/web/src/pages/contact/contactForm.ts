@@ -108,9 +108,17 @@ interface ErrorEnvelope {
 }
 
 /** A prefilled email to support, for when the form cannot send (503 or no network). */
+/** Mail clients and browsers truncate long mailto links; the body stops here. */
+export const MAILTO_BODY_MAX = 1800
+const SHORTENED = ' (message shortened)'
+
 export function mailtoFor(input: ContactInputT): string {
   const subject = encodeURIComponent(`${input.reason}: ${input.name}`)
-  const body = encodeURIComponent(input.message)
+  const text =
+    input.message.length > MAILTO_BODY_MAX
+      ? `${input.message.slice(0, MAILTO_BODY_MAX)}${SHORTENED}`
+      : input.message
+  const body = encodeURIComponent(text)
   return `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`
 }
 

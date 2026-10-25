@@ -20,7 +20,8 @@ export class LandingPage {
     this.heading = page.getByRole('heading', { level: 1 })
     this.play = page.getByRole('button', { name: 'Play the worked example' })
     // Home's call to action, scoped to main so banner links (Demo) never match it.
-    this.tryTruehand = page.getByRole('main').getByRole('link', { name: 'Try Truehand' })
+    // The hero's call to action; the CTA band repeats it lower on the page.
+    this.tryTruehand = page.getByRole('main').getByRole('link', { name: 'Try Truehand' }).first()
     this.liveInstrument = page.getByRole('group', { name: 'Live instrument' })
     this.transcript = page.getByRole('list', { name: 'Worked example, step by step' })
     this.captions = page.getByTestId('caption')

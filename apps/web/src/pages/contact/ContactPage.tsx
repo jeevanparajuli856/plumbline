@@ -21,6 +21,16 @@ import {
 
 type Outcome = SendResult | { kind: 'errors'; errors: FieldErrors } | null
 
+/** The sentence under a field the API refused (422), so the field is marked, not only listed. */
+const SERVER_FIELD_ERROR = 'The server could not accept this field.'
+
+function fieldErrorsOf(outcome: Outcome): FieldErrors {
+  if (outcome?.kind === 'errors') return outcome.errors
+  if (outcome?.kind === 'invalid')
+    return Object.fromEntries(outcome.fields.map((f) => [f, SERVER_FIELD_ERROR])) as FieldErrors
+  return {}
+}
+
 function fieldList(fields: readonly FieldName[]): string {
   return fields.map((f) => FIELD_LABELS[f]).join(', ')
 }
@@ -96,7 +106,7 @@ export function ContactPage() {
   const [outcome, setOutcome] = useState<Outcome>(null)
   const [isSending, setSending] = useState(false)
   const resultRef = useRef<HTMLDivElement>(null)
-  const errors = outcome?.kind === 'errors' ? outcome.errors : {}
+  const errors = fieldErrorsOf(outcome)
 
   useEffect(() => {
     if (outcome) resultRef.current?.focus()
@@ -143,7 +153,12 @@ export function ContactPage() {
             onSubmit={(e) => void onSubmit(e)}
             className={cx(c.form, 'col-span-4 md:col-span-6 md:col-start-7')}
           >
-            {outcome && (
+            {isSending && (
+              <p role="status" className={c.result}>
+                Sending your message.
+              </p>
+            )}
+            {!isSending && outcome && (
               <div
                 ref={resultRef}
                 tabIndex={-1}
@@ -231,7 +246,7 @@ export function ContactPage() {
                 className={buttonClass('primary')}
                 aria-disabled={isSending || undefined}
               >
-                Send message
+                {isSending ? 'Sending' : 'Send message'}
               </button>
             </div>
           </form>

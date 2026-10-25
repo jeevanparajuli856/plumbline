@@ -4,10 +4,9 @@ import { BUYERS, CONTACT_EMAIL, MODES, PRODUCT_LINE } from '@/landing/content'
 import { cx } from '@/landing/cx'
 import s from '@/landing/landing.module.css'
 import { MarketingPage } from '@/landing/MarketingPage'
-import { Eyebrow, PhotoFigure, Section } from '@/landing/parts'
-import { PHOTOS } from '@/landing/photos'
+import { Eyebrow, Section } from '@/landing/parts'
 import pr from '@/landing/product.module.css'
-import { PhonePreview } from '@/landing/sections/PhonePreview'
+import { AnswerPhone, PhonePreview } from '@/landing/sections/PhonePreview'
 import { useWorkedReplay } from '@/landing/useWorkedReplay'
 
 /** The app: what the user does and what they get, the modes, the phone preview, who buys it. */
@@ -37,8 +36,8 @@ export function AppPage() {
               </Link>
             </div>
           </div>
-          <div className="col-span-4 md:col-span-5">
-            <PhotoFigure photo={PHOTOS.breadboardWired} sizes="(min-width: 768px) 40vw, 100vw" />
+          <div className="col-span-4 flex justify-center md:col-span-5">
+            <AnswerPhone fixture={fixture} />
           </div>
         </div>
       </Section>
@@ -71,8 +70,9 @@ export function AppPage() {
               Hear where to probe. Say the reading.
             </h2>
             <p className={cx(s.lead, 'mt-6')}>
-              Get warned when the probe slips, and an answer only when Truehand is sure. One app on
-              iPhone and on the web, with every step spoken by the screen reader you already use.
+              Get warned when the probe slips, and an answer only when Truehand is sure. One app for
+              the web now and iPhone next, with every step spoken by the screen reader you already
+              use.
             </p>
           </div>
           <div className="col-span-4 md:col-span-5 md:col-start-8">
@@ -107,7 +107,7 @@ export function AppPage() {
           </h2>
           <div className="col-span-4 flex flex-wrap gap-4 md:col-span-5 md:justify-end">
             <Link to="/sim" className={s.inkPrimary}>
-              Open the web app
+              Try Truehand
             </Link>
             <Link to="/contact" className={s.inkButton}>
               Write to {CONTACT_EMAIL}

@@ -4,6 +4,10 @@ import { MemoryRouter } from 'react-router'
 import { AboutPage } from '@/about/AboutPage'
 import { EvidencePage } from '@/evidence/EvidencePage'
 import { STATUS_LINE } from '@/landing/content'
+import { heroCaption, heroFrame } from '@/landing/heroFrame'
+import { HERO_RECORDING_IDS, positionAt, totalTicks } from '@/landing/heroLoop'
+import { viewFromFrame } from '@/landing/phone/appScreen'
+import { loadFixture } from '@/state/replay'
 import { PHOTOS } from '@/landing/photos'
 import { FOUNDER_NAMES, METHOD_WORDS, TROPES } from '@/test/copyGuards'
 import { AccessibilityPage } from './AccessibilityPage'
@@ -112,7 +116,35 @@ describe('the method guard', () => {
       'commit d4731fc',
       'Open the simulator',
       'Research preview',
+      'one real recorded session',
+      'see docs/results/stability.md',
     ]
     samples.forEach((sample, i) => expect(METHOD_WORDS[i]![1].test(sample)).toBe(true))
+  })
+})
+
+describe('every hero loop tick', () => {
+  it('captions and screen text pass the method and trope guards, with reader-facing names', async () => {
+    const fixtures = await Promise.all(HERO_RECORDING_IDS.map((id) => loadFixture(id)))
+    const counts = fixtures.map((f) => f.steps.length)
+    for (let tick = 0; tick < totalTicks(counts); tick += 1) {
+      const { recording, readings } = positionAt(counts, tick)
+      const frame = heroFrame(fixtures[recording]!, HERO_RECORDING_IDS[recording]!, readings)
+      const view = viewFromFrame(frame)
+      const text = [
+        heroCaption(frame),
+        view.mode,
+        view.step,
+        view.instruction,
+        view.warning ?? '',
+        view.verdict?.kind === 'unresolved' ? view.verdict.text : (view.verdict?.label ?? ''),
+        ...view.belief.map((b) => b.label),
+      ].join(' ')
+      expect(text).toContain('simulated')
+      expect(text).not.toMatch(/seed_|worked_example|unresolved_pair/)
+      for (const [name, re] of [...METHOD_WORDS, ...TROPES]) {
+        expect({ tick, name, hit: re.exec(text)?.[0] ?? null }).toEqual({ tick, name, hit: null })
+      }
+    }
   })
 })

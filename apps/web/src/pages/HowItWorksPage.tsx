@@ -27,8 +27,8 @@ export function HowItWorksPage() {
             </h1>
             <p className={cx(s.lead, 'mt-8')}>
               It tells you which row to touch, listens to each reading, and works out where the
-              probe actually landed. When the readings agree, it names the fault. Below is one real
-              recorded session, step by step.
+              probe actually landed. When the readings agree, it names the fault. Below is one
+              recorded run with a simulated hand, step by step.
             </p>
             <Caption className="mt-10">
               Scene: a breadboard circuit on a lab bench, the red probe above it. Everything the

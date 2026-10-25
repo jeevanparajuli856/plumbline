@@ -68,7 +68,9 @@ describe('Home', () => {
       'Measurement you can trust without looking.',
     )
     const main = screen.getByRole('main')
-    expect(within(main).getByRole('link', { name: 'Try Truehand' })).toHaveAttribute('href', '/sim')
+    const tryLinks = within(main).getAllByRole('link', { name: 'Try Truehand' })
+    expect(tryLinks.length).toBeGreaterThan(0)
+    for (const link of tryLinks) expect(link).toHaveAttribute('href', '/sim')
     expect(within(main).getByRole('link', { name: 'See how it works' })).toHaveAttribute(
       'href',
       '/how-it-works',
@@ -129,10 +131,10 @@ describe('Home live instrument card', () => {
     renderPage(<HomePage />)
     await waitFor(() =>
       expect(within(card()).getByTestId('caption')).toHaveTextContent(
-        /^Recording worked example, simulated hand, /,
+        /^Recording the worked example, simulated hand, /,
       ),
     )
-    expect(card()).toHaveTextContent('Recorded run')
+    expect(card()).toHaveTextContent('Simulated run')
     expect(card()).toHaveTextContent('Truehand')
     expect(within(card()).getAllByRole('button')).toHaveLength(1)
     // The two app buttons drawn on the screen are pictures, never controls.
@@ -164,7 +166,7 @@ describe('Home live instrument card', () => {
     const n = fx.steps.length
     await waitFor(() =>
       expect(within(card()).getByTestId('caption')).toHaveTextContent(
-        `Recording worked example, simulated hand, reading ${n} of ${n}`,
+        `Recording the worked example, simulated hand, reading ${n} of ${n}`,
       ),
     )
     expect(within(card()).getByRole('button', { name: 'Play' })).toBeInTheDocument()
@@ -259,7 +261,7 @@ describe('The app', () => {
       useHeroLoop.setState((st) => ({ state: { ...st.state, tick: 3, isButtonPaused: true } })),
     )
     await waitFor(() => expect(phone).toHaveTextContent('3.671 V'))
-    expect(phone).toHaveTextContent('Recorded run')
+    expect(phone).toHaveTextContent('Simulated run')
     expect(phone).toHaveTextContent('Warning.')
     const replayNext = vi.spyOn(useSession.getState(), 'replayNext')
     fireEvent.click(screen.getByRole('button', { name: 'Next recorded reading' }))

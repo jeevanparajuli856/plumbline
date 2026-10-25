@@ -14,11 +14,19 @@ describe('StatGrid', () => {
     expect(document.querySelectorAll('[data-motion="stat"]')).toHaveLength(3)
   })
 
-  it('says "Not recorded in <path>" and never animates when the run file is missing', () => {
+  it('says "Not recorded yet", never a path, and never animates when the run file is missing', () => {
     render(<StatGrid stats={buildValidationStats({})} />)
     expect(document.querySelector('[data-motion="stat"]')).toBeNull()
-    expect(screen.getAllByText('Not recorded in docs/results/stability_<date>.md')).toHaveLength(2)
-    expect(screen.getByText('Not recorded in docs/results/mismatch_<date>.md')).toBeInTheDocument()
+    expect(screen.getAllByText('Not recorded yet')).toHaveLength(3)
+    expect(document.body.textContent).not.toMatch(/docs\/|\.md\b/)
+    const sources = Array.from(document.querySelectorAll<HTMLElement>('[data-source]')).map(
+      (el) => el.dataset.source,
+    )
+    expect(sources).toEqual([
+      'docs/results/stability_<date>.md',
+      'docs/results/stability_<date>.md',
+      'docs/results/mismatch_<date>.md',
+    ])
     expect(screen.getAllByTestId('badge').map((b) => b.textContent)).toEqual(['PENDING'])
   })
 
@@ -35,8 +43,10 @@ describe('StatGrid', () => {
     const hooks = Array.from(document.querySelectorAll<HTMLElement>('[data-motion="stat"]'))
     expect(hooks.map((h) => h.dataset.motionValue)).toEqual(['90'])
     expect(
-      screen.getByText('Not recorded in docs/results/stability_2026-10-25.md'),
-    ).toBeInTheDocument()
+      screen
+        .getAllByText('Not recorded yet')
+        .map((el) => el.closest('li')?.getAttribute('data-source')),
+    ).toContain('docs/results/stability_2026-10-25.md')
     expect(document.body.textContent).not.toMatch(/\s%|undefined|null/)
   })
 })

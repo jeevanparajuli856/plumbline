@@ -196,9 +196,12 @@ describe('ContactPage', () => {
     const form = renderForm()
     fill(form)
     fireEvent.click(within(form).getByRole('button', { name: 'Send message' }))
-    const status = await within(form).findByRole('status')
-    expect(status).toHaveTextContent('Thanks. We will reply from support@truehand.tech.')
-    await waitFor(() => expect(status).toHaveFocus())
+    await waitFor(() =>
+      expect(within(form).getByRole('status')).toHaveTextContent(
+        'Thanks. We will reply from support@truehand.tech.',
+      ),
+    )
+    await waitFor(() => expect(within(form).getByRole('status')).toHaveFocus())
   })
 
   it('says to try later on 429', async () => {
@@ -209,6 +212,28 @@ describe('ContactPage', () => {
     expect(await within(form).findByRole('alert')).toHaveTextContent(
       'Too many messages from here. Please try again in a few minutes.',
     )
+  })
+
+  it('caps the email fallback body so the link stays usable', () => {
+    const long = validate({ ...VALID, message: 'x'.repeat(3000) })
+    if (!long.ok) throw new Error('fixture invalid')
+    const body = decodeURIComponent(mailtoFor(long.value).split('&body=')[1]!)
+    expect(body).toBe(`${'x'.repeat(1800)} (message shortened)`)
+  })
+
+  it('shows Sending and a polite status while the request is in flight', async () => {
+    let release: (r: Response) => void = () => {}
+    vi.stubGlobal('fetch', vi.fn().mockReturnValue(new Promise<Response>((r) => (release = r))))
+    const form = renderForm()
+    fill(form)
+    fireEvent.click(within(form).getByRole('button', { name: 'Send message' }))
+    expect(await within(form).findByRole('button', { name: 'Sending' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    )
+    expect(within(form).getByRole('status')).toHaveTextContent('Sending your message.')
+    release(new Response('{"status":"sent"}', { status: 202 }))
+    await waitFor(() => expect(within(form).getByRole('status')).toHaveTextContent('Thanks.'))
   })
 
   it('names the fields the server rejected on 422', async () => {
@@ -254,8 +279,7 @@ describe('ContactPage', () => {
       const form = renderForm()
       fill(form)
       fireEvent.click(within(form).getByRole('button', { name: 'Send message' }))
-      const status = await within(form).findByRole('status')
-      const link = within(status).getByRole('link', { name: 'Send it by email instead' })
+      const link = await within(form).findByRole('link', { name: 'Send it by email instead' })
       expect(link.getAttribute('href')).toMatch(
         /^mailto:support@truehand\.tech\?subject=Pilot%3A%20Ada%20Lovelace&body=/,
       )

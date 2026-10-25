@@ -21,8 +21,19 @@ export interface HeroFrame extends PlayFrame {
   unresolvedLabels: string[]
 }
 
+/** Reader-facing names for the recordings; ids never reach the page. */
+const RECORDING_NAMES: Record<string, string> = {
+  worked_example: 'the worked example',
+  seed_1: 'practice run 1',
+  seed_2: 'practice run 2',
+  seed_3: 'practice run 3',
+  seed_4: 'practice run 4',
+  seed_5: 'practice run 5',
+  unresolved_pair: 'two look-alike faults',
+}
+
 export function recordingName(id: string): string {
-  return id.replace(/_/g, ' ')
+  return RECORDING_NAMES[id] ?? id.replace(/_/g, ' ')
 }
 
 export function heroFrame(fx: FixtureT, id: string, readings: number): HeroFrame {

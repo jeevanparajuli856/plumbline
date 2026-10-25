@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { buttonClass } from '@/ui/button'
 import { OUTCOMES, PROMISE, VALIDATION_STATS } from '../content'
 import s from '../landing.module.css'
-import { Caption, Eyebrow, Section } from '../parts'
+import { Eyebrow, Section } from '../parts'
 import { cx } from '../cx'
 import { StatGrid } from './StatGrid'
 
@@ -70,16 +70,12 @@ export function HomeCta() {
         </h2>
         <div className="col-span-4 flex flex-wrap gap-4 md:col-span-4 md:justify-end">
           <Link to="/sim" className={s.inkPrimary}>
-            Open the web app
+            Try Truehand
           </Link>
           <Link to="/contact" className={s.inkButton}>
             Talk to us about a pilot
           </Link>
         </div>
-        <Caption className="col-span-4 md:col-span-8">
-          Right edge of the page: a column of identical holes, like a braille cell or a breadboard.
-          The ringed dot moves to your place on the page; it is decoration and carries no data.
-        </Caption>
       </div>
     </Section>
   )

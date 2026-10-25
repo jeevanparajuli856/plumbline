@@ -43,7 +43,7 @@ export function AccessibilityPage() {
           <ul className={cx(s.outcomes, 'col-span-4 md:col-span-7')}>
             {COMMITMENTS.map((c) => (
               <li key={c.name} className={s.outcome}>
-                <h2 className={s.h3}>{c.name}</h2>
+                <h3 className={s.h3}>{c.name}</h3>
                 <p className={s.body}>{c.sentence}</p>
               </li>
             ))}

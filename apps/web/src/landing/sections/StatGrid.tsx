@@ -38,8 +38,12 @@ export function StatGrid({ stats }: StatGridProps) {
         }
         if (!hasValue(stat)) {
           return (
-            <li key={stat.id} className={cx(st.stat, st.statPending)}>
-              <p className={st.statPendingWord}>Not recorded in {stat.path}</p>
+            <li
+              key={stat.id}
+              className={cx(st.stat, st.statPending)}
+              data-source={stat.path ?? undefined}
+            >
+              <p className={st.statPendingWord}>Not recorded yet</p>
               <p className="text-base leading-relaxed">{stat.label}</p>
               <p className={st.statSource}>{stat.source}</p>
             </li>

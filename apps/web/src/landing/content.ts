@@ -4,6 +4,7 @@
  * docs/BUILD_PLAN.md. Fixture numbers never live here; they come from workedExample.ts.
  */
 import { parseTables, tableUnder, type MarkdownTable } from './markdownTables'
+import { countWord } from './numberWords'
 
 /** Used verbatim wherever status is shown (POSITIONING section 1). */
 export const STATUS_LINE = 'Simulation validated. User validation in progress.'
@@ -142,7 +143,7 @@ export const MODES: readonly { name: string; sentence: string; tag: string }[] =
   {
     name: 'Recorded replays',
     sentence:
-      'Step through real recorded sessions, one reading at a time, to learn what a warning sounds like before you need one.',
+      'Step through recorded sessions, one reading at a time, to learn what a warning sounds like before you need one.',
     tag: 'Recorded runs',
   },
   {
@@ -256,6 +257,12 @@ export function monthLabel(isoDate: string | null | undefined): string {
   return year && name ? `${name} ${year}` : 'undated'
 }
 
+/** Rounds (seeds) in a file, from the "- Seeds" line. */
+export function seedCount(file: ResultFile | null): number | null {
+  const m = /^- Seeds: \[([^\]]*)\]/m.exec(file?.markdown ?? '')
+  return m ? m[1]!.split(',').filter((x) => x.trim() !== '').length : null
+}
+
 /** Runs in a file: seeds x faults per seed, from the "- Seeds" line. */
 export function runCount(file: ResultFile | null): number | null {
   const m = /^- Seeds: \[([^\]]*)\]; n per arm per seed: (\d+)/m.exec(file?.markdown ?? '')
@@ -309,7 +316,7 @@ export function buildValidationStats(files: Record<string, string>): ValidationS
       value: cellFor(table, 'truehand', 'Correct %'),
       decimals: 1,
       suffix: '%',
-      label: 'of simulated faults end on the true fault or an honest refusal, mean over seeds.',
+      label: `of simulated faults end on the true fault or an honest refusal, averaged over ${countWord(seedCount(stability) ?? 0)} rounds of simulated runs.`,
       source: sourceLabel(stability),
       path: stability?.path ?? 'docs/results/stability_<date>.md',
       isSimulated: true,

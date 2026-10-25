@@ -6,22 +6,15 @@ import { useSession } from '@/state/session'
 import { buttonClass } from '@/ui/button'
 import s from '../landing.module.css'
 import { Caption } from '../parts'
-import { heroFrame } from '../heroFrame'
-import {
-  HERO_RECORDING_IDS,
-  PHONE_LAG_STEPS,
-  phonePositionAt,
-  useHeroDriver,
-  useHeroLoop,
-} from '../heroLoop'
-import { countWord } from '../numberWords'
+import { heroCaption, heroFrame } from '../heroFrame'
+import { HERO_RECORDING_IDS, phonePositionAt, useHeroDriver, useHeroLoop } from '../heroLoop'
 import { viewFromFrame, viewFromSession, type AppScreenView } from '../phone/appScreen'
 import { IPhone } from '../phone/IPhone'
 import { useFixtures } from '../useFixture'
 import { siteLabel } from '../workedExample'
 
 const LOADING_VIEW: AppScreenView = {
-  mode: 'Recorded run',
+  mode: 'Simulated run',
   step: 'Ready',
   instruction: 'Loading.',
   reading: null,
@@ -42,6 +35,12 @@ function LoopPhone() {
   useHeroDriver(counts, reduced)
   const tick = useHeroLoop((st) => st.state.tick)
   if (load.status !== 'ready' || !counts) return <IPhone view={LOADING_VIEW} frameKey="loading" />
+  if (reduced) {
+    // Reduced motion: no loop; rest on the worked example's answer.
+    const worked = load.fixtures[0]!
+    const done = heroFrame(worked, HERO_RECORDING_IDS[0], worked.steps.length)
+    return <IPhone view={viewFromFrame(done)} frameKey="rest" />
+  }
   const { recording, readings } = phonePositionAt(counts, tick)
   const f = heroFrame(load.fixtures[recording]!, HERO_RECORDING_IDS[recording]!, readings)
   return <IPhone view={viewFromFrame(f)} frameKey={String(tick)} />
@@ -86,6 +85,20 @@ function SessionPhone({ fixture }: { fixture: FixtureT | null }) {
   return <IPhone view={view} frameKey={String(readings.length)} />
 }
 
+/** The app showing its answer: the worked example's final state, still. The hero of The app page. */
+export function AnswerPhone({ fixture }: { fixture: FixtureT | null }) {
+  if (!fixture) return <IPhone view={LOADING_VIEW} frameKey="loading" />
+  const done = heroFrame(fixture, HERO_RECORDING_IDS[0], fixture.steps.length)
+  return (
+    <figure className="m-0 grid justify-items-center gap-3">
+      <IPhone view={viewFromFrame(done)} frameKey="answer" />
+      <figcaption>
+        <Caption className={s.liveCaption}>{heroCaption(done)}</Caption>
+      </figcaption>
+    </figure>
+  )
+}
+
 interface PhonePreviewProps {
   fixture: FixtureT | null
   onStep(): void
@@ -116,7 +129,7 @@ export function PhonePreview({ fixture, onStep }: PhonePreviewProps) {
       <Caption className={s.liveCaption}>
         {isStepped
           ? 'Phone preview: the recorded worked example, one reading at a time, from a simulated hand.'
-          : `Phone preview: recorded runs from a simulated hand, ${countWord(PHONE_LAG_STEPS)} steps behind the phone on the home page. Press the button to step the worked example yourself.`}
+          : 'Phone preview: recorded runs from a simulated hand, playing on a loop. Press the button to stop the loop and step it yourself.'}
       </Caption>
     </div>
   )
