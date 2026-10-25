@@ -4,7 +4,7 @@ Changes outside `apps/web/src/voice/**` that this lane needs. None were made her
 
 ## 1. Playwright must build in test mode for `?fakeVoice=1` (owner: e2e / configs)
 
-`stubs/fakeRecognition.ts` installs `window.__plumblineFakeRecognition` only when `?fakeVoice=1` is present AND
+`stubs/fakeRecognition.ts` installs `window.__truehandFakeRecognition` only when `?fakeVoice=1` is present AND
 `import.meta.env.DEV || import.meta.env.MODE === 'test'`. `playwright.config.ts` serves a production build
 (`pnpm build && pnpm preview`), so today the stub never installs in e2e. Change the webServer command to
 `pnpm exec tsc -b && pnpm exec vite build --mode test && pnpm preview --port 4173 --strictPort`

@@ -1,4 +1,4 @@
-/** Zod mirrors of engine/plumbline_api/schemas.py (API v1) and of the parity fixture JSON. */
+/** Zod mirrors of engine/truehand_api/schemas.py (API v1) and of the parity fixture JSON. */
 import { z } from 'zod'
 
 const finite = z.number().finite()

@@ -18,8 +18,8 @@ found along the way, so a rebuild or a new lane can repeat it. Do not run the cr
 - Node 22 (fnm, `.nvmrc` = 22; vitest 5 and react-router 8 require >= 22.12), pnpm 9.15 via corepack, uv, git. `gh auth status` active account is the repo owner.
 - In every shell: `eval "$(fnm env --shell zsh)" && fnm use 22` before pnpm.
 - `UV_PROJECT=engine` is set in settings; when running uv from inside `engine/` prefix with `env -u UV_PROJECT`.
-- Set `PLUMBLINE_ALLOW_CONFIG_EDIT=1` only when the scaffold must change an existing eslint/prettier/ruff config.
-- Read `docs/ARCHITECTURE.md`, `docs/API_CONTRACT.md`, `docs/POSITIONING.md` and `.claude/rules/00-plumbline.md`.
+- Set `TRUEHAND_ALLOW_CONFIG_EDIT=1` only when the scaffold must change an existing eslint/prettier/ruff config.
+- Read `docs/ARCHITECTURE.md`, `docs/API_CONTRACT.md`, `docs/POSITIONING.md` and `.claude/rules/00-truehand.md`.
 
 ## 1. Workspace root (if not already present)
 `pnpm-workspace.yaml` with `apps/*`, root `package.json` scripts: `dev`, `build`, `test`, `test:e2e`, `typecheck`, `lint`, `format`, `verify`, `api`. Root dev deps: `prettier`, `typescript`, `concurrently`.
@@ -34,7 +34,7 @@ Done: Tailwind v4 via `@tailwindcss/vite`, `@theme inline` mapping tokens in `sr
 Check with ctx7 if a Tailwind v4 / Vite 7 / R3F v9 API differs from memory: `npx ctx7@latest library "Tailwind CSS" "Vite plugin setup v4"`.
 
 ## 3. Engine
-Done by hand (not `uv init --package`, which creates a `src/` layout): flat `engine/plumbline/` and `engine/plumbline_api/` with a hatchling `pyproject.toml` listing both packages, `ruff.toml`, `uv.lock`. Deps: numpy, fastapi, uvicorn[standard], pydantic, pydantic-settings; dev: pytest, pytest-cov, httpx, ruff, pyright. Present: `plumbline/config.py` (named constants, ConfusionSpec, EngineConfig), `plumbline_api/{settings,main}.py` (CORS from `PLUMBLINE_CORS_ORIGINS`, `/v1/health`), `tests/test_health.py`, `tests/test_config.py`. The engine lane adds everything in docs/ARCHITECTURE.md section 4 and 5. When `handsight` arrives it goes to `plumbline/legacy/` unchanged with a parity test.
+Done by hand (not `uv init --package`, which creates a `src/` layout): flat `engine/truehand/` and `engine/truehand_api/` with a hatchling `pyproject.toml` listing both packages, `ruff.toml`, `uv.lock`. Deps: numpy, fastapi, uvicorn[standard], pydantic, pydantic-settings; dev: pytest, pytest-cov, httpx, ruff, pyright. Present: `truehand/config.py` (named constants, ConfusionSpec, EngineConfig), `truehand_api/{settings,main}.py` (CORS from `TRUEHAND_CORS_ORIGINS`, `/v1/health`), `tests/test_health.py`, `tests/test_config.py`. The engine lane adds everything in docs/ARCHITECTURE.md section 4 and 5. When `handsight` arrives it goes to `truehand/legacy/` unchanged with a parity test.
 
 ## 4. Tooling and hooks
 - `.prettierrc` (root), `apps/web/eslint.config.js` (flat: TS + react-hooks + react-refresh + jsx-a11y, no-console error, unused vars allowed with `_` prefix), `engine/ruff.toml` (line-length 100, select E,F,I,UP,B), `render.yaml` at the root.

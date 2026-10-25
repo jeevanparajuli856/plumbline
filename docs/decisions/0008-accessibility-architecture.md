@@ -4,7 +4,7 @@ Status: accepted, 2026-10-25
 
 ## Context
 
-Rule 4 of `00-plumbline.md` says the primary user cannot see the screen. Every 3D state needs a DOM
+Rule 4 of `00-truehand.md` says the primary user cannot see the screen. Every 3D state needs a DOM
 and aria-live mirror and a spoken equivalent. Keyboard and voice must drive the whole demo flow. The
 3D scene is for sighted judges, and the text and voice channel is the product.
 

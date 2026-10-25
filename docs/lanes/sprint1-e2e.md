@@ -31,7 +31,7 @@ Still open: 10 (web-shell contrast, checked in the full run), 11 and 12 (storybo
    uses the 1800 ms default and nothing outside the store can set 2000. A `?pace=2000` parameter
    (or accepting 1800 in the storyboard) would close this.
 8. **RESOLVED.** **`scene-ready` testid.** The storyboard (2.1) waits for `[data-testid="scene-ready"]`, which is
-   not in the contract. The recording script uses `window.__plumblineScene.frames > 0` (contract
+   not in the contract. The recording script uses `window.__truehandScene.frames > 0` (contract
    section 3) instead. Either add the testid or update the storyboard.
 9. **RESOLVED.** **Landing section indices in the storyboard.** Shot 2 says "section 1" for Problem and shot 9 says
    "section 7" for Close, but the contract order puts research at 1 and close at 9. The script
@@ -49,7 +49,7 @@ Still open: 10 (web-shell contrast, checked in the full run), 11 and 12 (storybo
 11. The capture command in the storyboard is
     `pnpm exec playwright test e2e/record/video-v1.ts --project=chromium`, which finds no tests (the
     default projects ignore `e2e/record/`). The working command is
-    `PLUMBLINE_RECORD=1 pnpm exec playwright test --project=record` (see `apps/web/e2e/README.md`).
+    `TRUEHAND_RECORD=1 pnpm exec playwright test --project=record` (see `apps/web/e2e/README.md`).
 12. The storyboard says the script waits for the scene, but each WebM also includes page load before
     the shot; `shots.json` has the trim points and the README has the trim loop. Worth one line in
     section 2.2.

@@ -21,7 +21,7 @@ import {
   parseReadingInput,
   placementItems,
   placementSentence,
-  plumblineVerdict,
+  truehandVerdict,
   splitFirstSentence,
   uncertaintyFraction,
 } from './view'
@@ -146,22 +146,22 @@ describe('view helpers', () => {
     expect(placementSentence(after[0]!)).toBe('Row 1, 10%')
   })
 
-  it('plumblineVerdict names the indistinguishable faults with no single percentage when unresolved', () => {
+  it('truehandVerdict names the indistinguishable faults with no single percentage when unresolved', () => {
     const rows = [
       { id: 'LED_open', label: 'LED is open', p: 0.5 },
       { id: 'LED_reversed', label: 'LED is backwards', p: 0.5 },
     ]
-    expect(plumblineVerdict(rows, true, ['LED is open', 'LED is backwards'])).toEqual({
+    expect(truehandVerdict(rows, true, ['LED is open', 'LED is backwards'])).toEqual({
       kind: 'unresolved',
       text: 'Unresolved: LED is open or LED is backwards',
     })
-    expect(plumblineVerdict(rows, true, null)).toEqual({
+    expect(truehandVerdict(rows, true, null)).toEqual({
       kind: 'top',
       label: 'LED is open',
       p: 0.5,
     })
-    expect(plumblineVerdict(rows, false, null)).toEqual({ kind: 'waiting' })
-    expect(plumblineVerdict([], true, [])).toEqual({ kind: 'waiting' })
+    expect(truehandVerdict(rows, false, null)).toEqual({ kind: 'waiting' })
+    expect(truehandVerdict([], true, [])).toEqual({ kind: 'waiting' })
   })
 
   it('splitFirstSentence separates the command from its follow-up', () => {

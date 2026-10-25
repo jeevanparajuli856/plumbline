@@ -10,7 +10,7 @@ allowed-tools: Bash, Read, Grep, Glob
 The 20-second story judges must see. Numbers must come from this run, not from the brief. Contract: `docs/API_CONTRACT.md`.
 
 ## API replay
-1. Start the API if not running: `uv run --project engine uvicorn plumbline_api.main:app --port 8000 &` and wait for `GET /v1/health` to return 200.
+1. Start the API if not running: `uv run --project engine uvicorn truehand_api.main:app --port 8000 &` and wait for `GET /v1/health` to return 200.
 2. `POST /v1/sessions {"domain": "circuit", "mode": "replay", "fixture": "worked_example"}` -> record `session_id`; confirm `instruction.site == 2` (0-based) with label "row 3".
 3. `POST /v1/sessions/{id}/step {"reading": 3.671}` -> expect `placement.warning.active == true`, `status == "continue"`, `baseline.diagnosis.confidence` at or above 0.99 on a wrong hypothesis (scratch: `R2_short`), and Truehand's top `belief` entry below 0.9 (scratch: `R3_short` 0.631). Record `placement.warning.text`.
 4. `POST /v1/sessions/{id}/step {"reading": 0.338}` -> expect `status == "resolved"`, `diagnosis.hypothesis_id == "R3_10x_low"`, `diagnosis.confidence > 0.95` (scratch: 0.975).

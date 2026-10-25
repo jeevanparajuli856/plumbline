@@ -15,7 +15,7 @@ const { readStdinJson } = require('./lib/hook-input');
     .map((l) => l.trim())
     .find((l) => l.length > 0) || 'Done';
   const body = msg.slice(0, 110).replace(/\\/g, '').replace(/"/g, '“');
-  const lane = process.env.PLUMBLINE_LANE ? ` [${process.env.PLUMBLINE_LANE}]` : '';
+  const lane = process.env.TRUEHAND_LANE ? ` [${process.env.TRUEHAND_LANE}]` : '';
   spawnSync('osascript', ['-e', `display notification "${body}" with title "Truehand${lane}" sound name "Glass"`], {
     stdio: 'ignore',
     timeout: 4000,

@@ -34,16 +34,30 @@ looking. Logo files were supplied by the team (now in `apps/web/public/brand/`).
 
 ## What changed and what did not
 
-Renamed: every user-facing string (site title, meta, PWA manifest, header and footer, about and
-sim copy, the API title), every doc outside `docs/brief/`, the agents, skills and rules prose,
-the session briefing hook.
+Renamed (amended the same day at the user's request: "edit even folder name if there is plumbline"):
+every user-facing string; every doc outside `docs/brief/`; the Python packages
+(`engine/plumbline` is now `engine/truehand`, `engine/plumbline_api` is now `engine/truehand_api`, project name
+`truehand`); the skill folder `truehand-engine` and the rule `00-truehand.md`; the brief files
+(`docs/brief/TRUEHAND_BUILD.md`, `Truehand_Scale_and_Build.md`, `Truehand_Build_Brief.pdf`,
+`Truehand_Idea_and_Winning_Case.pdf`; their contents stay as written); environment variables
+`TRUEHAND_*`; `localStorage` keys `truehand.*` (saved display preferences reset once); the test
+hooks `window.__truehandScene` and `window.__truehandFakeRecognition`; function and type names.
+Parity fixtures and `docs/results/` were regenerated under the new module name; the numbers are
+identical (fixtures checked field by field; results diffed after the re-run).
 
-Kept on purpose (internal identifiers only a developer sees; renaming them costs a cross-lane
-refactor and buys nothing for users): the repository directory, the Python packages `plumbline`
-and `plumbline_api`, `window.__plumblineScene`, `localStorage` keys `plumbline.*`, skill and rule
-file names (`plumbline-engine`, `00-plumbline.md`), CSS class names such as `barPlumbline`, the
-original briefs in `docs/brief/` (read-only), and the external design canvas names "Plumbline UI
-Directions" and "Plumbline UI Mockups". The 3D scene's plumb-line motif is unchanged for now.
+Kept on purpose:
+
+- The live Render service names and URLs (`plumbline-api`, `plumbline-web`,
+  `plumbline-api.onrender.com`). Renaming a service in `render.yaml` makes Render create a new
+  service; renaming happens in the Render dashboard (and the custom domain truehand.tech), then
+  `render.yaml` and `VITE_API_URL` follow.
+- The API also reads the legacy `PLUMBLINE_CORS_ORIGINS` as a fallback until the Render blueprint
+  is re-synced (the new `TRUEHAND_CORS_ORIGINS` wins when both are set).
+- `PlumbLine` components in the scene and the simulator: they draw a physical plumb line, not
+  the brand.
+- The external design canvas names "Plumbline UI Directions" and "Plumbline UI Mockups".
+- The repository root folder is renamed last, after the running UI lanes merge (their worktrees
+  live inside it).
 
 ## Assets
 

@@ -2,10 +2,10 @@ import { defineConfig, devices, type Project } from '@playwright/test'
 
 // Deterministic server: a `--mode test` production build served by `vite preview`. It is the
 // bundle Render publishes plus the dev-and-test-only hooks (the voice stub on `?fakeVoice=1`,
-// `window.__plumblineScene`). The dev server is not used because the service worker (offline
+// `window.__truehandScene`). The dev server is not used because the service worker (offline
 // replay) only exists in a build, and HMR and on-demand transforms add timing noise.
-const PORT = Number(process.env.PLUMBLINE_E2E_PORT ?? 4173)
-const EXTERNAL_BASE_URL = process.env.PLUMBLINE_E2E_BASE_URL
+const PORT = Number(process.env.TRUEHAND_E2E_PORT ?? 4173)
+const EXTERNAL_BASE_URL = process.env.TRUEHAND_E2E_BASE_URL
 const BASE_URL = EXTERNAL_BASE_URL ?? `http://localhost:${PORT}`
 const IS_CI = Boolean(process.env.CI)
 
@@ -82,7 +82,7 @@ export default defineConfig({
       testMatch: WEBKIT_SPECS,
       use: { ...devices['Desktop Safari'], viewport: TEST_VIEWPORT, deviceScaleFactor: 1 },
     },
-    ...(process.env.PLUMBLINE_RECORD === '1' ? [recordProject] : []),
+    ...(process.env.TRUEHAND_RECORD === '1' ? [recordProject] : []),
   ],
   webServer: EXTERNAL_BASE_URL
     ? undefined
@@ -91,7 +91,7 @@ export default defineConfig({
         url: BASE_URL,
         // Parallel worktrees can each run a preview; reusing a server by port could test another
         // lane's code, so reuse is opt-in.
-        reuseExistingServer: process.env.PLUMBLINE_E2E_REUSE === '1',
+        reuseExistingServer: process.env.TRUEHAND_E2E_REUSE === '1',
         timeout: 180_000,
         env: { VITE_PREVIEW_GATE: '0' },
       },

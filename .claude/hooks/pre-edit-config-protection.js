@@ -5,7 +5,7 @@
  * Agents sometimes edit eslint/prettier/ruff config or ignore files to make a
  * check pass instead of fixing the code. Creating a config for the first time
  * is allowed; modifying an existing one is blocked (exit 2) with guidance.
- * Set PLUMBLINE_ALLOW_CONFIG_EDIT=1 to bypass for a deliberate change.
+ * Set TRUEHAND_ALLOW_CONFIG_EDIT=1 to bypass for a deliberate change.
  */
 const fs = require('fs');
 const path = require('path');
@@ -20,7 +20,7 @@ const PROTECTED = new Set([
 ]);
 
 (async () => {
-  if (process.env.PLUMBLINE_ALLOW_CONFIG_EDIT === '1') process.exit(0);
+  if (process.env.TRUEHAND_ALLOW_CONFIG_EDIT === '1') process.exit(0);
   const input = await readStdinJson();
   for (const f of editedFiles(input)) {
     const abs = path.resolve(f);
@@ -28,7 +28,7 @@ const PROTECTED = new Set([
       process.stderr.write(
         `[hook] BLOCKED: editing ${path.basename(abs)} weakens the quality gate. ` +
           'Fix the reported code instead. If the config change is genuinely required, ' +
-          'ask the user and rerun with PLUMBLINE_ALLOW_CONFIG_EDIT=1.\n',
+          'ask the user and rerun with TRUEHAND_ALLOW_CONFIG_EDIT=1.\n',
       );
       process.exit(2);
     }

@@ -31,9 +31,9 @@ The team has Google Cloud enabled with Vertex AI. Chosen provider: Gemini on Ver
    is validated: it may not contain a numeric probability or voltage that is not present in the
    context (a regex check against the context's numbers, with a 1e-3 tolerance), or the server
    replaces the answer with the engine's own phrase and logs the event.
-3. Provider adapter in `engine/plumbline_api/explain/`: `Provider` protocol with `VertexProvider`
+3. Provider adapter in `engine/truehand_api/explain/`: `Provider` protocol with `VertexProvider`
    (Gemini or Claude on Vertex AI, authenticated by the service account on the server) and
-   `AnthropicProvider`. Chosen by `PLUMBLINE_EXPLAIN_PROVIDER` (`off` by default). Credentials stay
+   `AnthropicProvider`. Chosen by `TRUEHAND_EXPLAIN_PROVIDER` (`off` by default). Credentials stay
    on the server; the browser never sees a key.
 4. UI: an "Ask" field in the simulator and a spoken command "explain" in the voice loop. Every
    answer carries the label "Explanation by a language model. Numbers come from the engine." in

@@ -117,7 +117,7 @@ Phrasings for Truehand (use verbatim or near verbatim):
 2. "Results on this page come from simulated faults and a simulated hand. We have not yet measured how real hands miss. That measurement is scheduled with the Louisiana Center for the Blind."
 3. "The confusion model uses three assumed numbers: 0.78, 0.08 and 0.03. They will be replaced by a measured matrix, and every experiment re-run." (from brief section 4)
 4. "Research preview. Not a safety device. Do not use it to work on mains voltage or anything that can hurt you." (scope then exclusion; mains and safety exclusion is our judgment, confirm with the team)
-5. "Simulated, n = [faults] per arm, [k] seeds, command `python -m plumbline.experiments.stability`, run [date]." Fill only from `docs/results/`; until then the row says PENDING.
+5. "Simulated, n = [faults] per arm, [k] seeds, command `python -m truehand.experiments.stability`, run [date]." Fill only from `docs/results/`; until then the row says PENDING.
 6. "Compared with the published method: entropy-based test selection that assumes the probe is where you were told (Gao et al., 2014)." (named baseline next to every comparison)
 7. "Thermometer: SIMULATED. The engine is the same; the instrument model is a textbook heat equation, not a real probe." (source in EVIDENCE: Incropera ch. 5)
 8. "When two faults produce the same voltages at every row, Truehand says it cannot tell them apart and asks for a different measurement. It does not pick one."
@@ -272,7 +272,7 @@ Each is sourced; bracketed values fill only from files named.
 
 ### E4. Moat, wedge, traction, team, roadmap, ask
 - Moat: (a) the formulation (actuator noise with a recoverable hidden state) stated against named prior art; (b) the measured confusion data from blind participants, which no competitor has; (c) the domain-agnostic engine (ADR-0003). Say (b) as "the dataset nobody has" only after the first session produces data; before that say "the dataset we are building".
-- Wedge and ladder: four rungs from `docs/brief/Plumbline_Scale_and_Build.md`; employment context from EVIDENCE section 3 (52.3% employed against 76.3% overall, 2023 ACS via NRTC). Do not use the "70% unemployed" figure (EVIDENCE marks it inaccurate).
+- Wedge and ladder: four rungs from `docs/brief/Truehand_Scale_and_Build.md`; employment context from EVIDENCE section 3 (52.3% employed against 76.3% overall, 2023 ACS via NRTC). Do not use the "70% unemployed" figure (EVIDENCE marks it inaccurate).
 - Traction that is honest at this stage, in this order: simulation results with n, seeds, command, date (once run); named partner organization with written permission; letter of support (EVIDENCE row, PENDING); people who used the simulator, counted from a real log if one exists, otherwise not shown. No waitlist count unless a waitlist exists; we are not building one (rule 5).
 - Team block: two names, roles, university, one line each on what they built; advisor slot shown as "Advisor: to be announced" only if one is being asked, otherwise omitted. No logos of organizations that have not agreed.
 - Roadmap: the six phase chips with month and year (Research, Engine, Simulation, User validation now, Pilot, Product). Dates come from `docs/BUILD_PLAN.md`; a phase without a date shows "date to be set".

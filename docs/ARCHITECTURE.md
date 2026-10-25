@@ -21,9 +21,9 @@ The HTTP contract lives in `docs/API_CONTRACT.md` and is not repeated here. Deci
                                               | JSON over HTTP, /v1/*  (docs/API_CONTRACT.md)
 +---------------------------------------------v------------------------------------------------------+
 | engine/ (Python 3.13, uv, NumPy, FastAPI)                                                          |
-|  plumbline/        config, model, confusion, engine, session, baselines,                           |
+|  truehand/        config, model, confusion, engine, session, baselines,                           |
 |                    domains/{circuit,thermometer}, record_fixtures, experiments/                    |
-|  plumbline_api/    main, settings, schemas, errors, store, routers/{sessions,domains,health}        |
+|  truehand_api/    main, settings, schemas, errors, store, routers/{sessions,domains,health}        |
 |  fixtures/parity/  nine recorded sessions, read by pytest and by vitest through @fixtures          |
 +----------------------------------------------------------------------------------------------------+
 ```
@@ -49,7 +49,7 @@ The engine has three modes. The reveal setting decides when the true landed site
 | live | a person reads a real meter and speaks or types the value | nobody; the server reasons as it would for a blind user | no effect (`landed_site` is never returned) |
 | replay | the fixture | the fixture | `after_step` reveals it; the web replay never touches the network |
 
-Simulate is for development, the 3D sim, and the baseline comparison. Live is the research use. Replay is the worked example and must always work (rule 6 in `.claude/rules/00-plumbline.md`).
+Simulate is for development, the 3D sim, and the baseline comparison. Live is the research use. Replay is the worked example and must always work (rule 6 in `.claude/rules/00-truehand.md`).
 
 ## 3. Data flow for one step
 
@@ -60,7 +60,7 @@ Simulate is for development, the 3D sim, and the baseline comparison. Live is th
 5. The announcer mirrors each event once: warning (assertive), accepted and likely row (polite), diagnosis or refusal (polite). Speech only if the user turned it on.
 6. Status `resolved`: diagnosis card gets focus and the diagnosis is spoken. Status `unresolved`: the refusal sentence names the indistinguishable pair and asks for another reading.
 
-## 4. Domain-agnostic engine (`engine/plumbline/`)
+## 4. Domain-agnostic engine (`engine/truehand/`)
 
 The engine knows nothing about circuits. A domain is a plug-in that implements the `InstrumentModel` protocol (`model.py`):
 
@@ -84,7 +84,7 @@ Core pieces:
 | `record_fixtures.py` | writes the nine fixtures through `Session` only |
 | `experiments/` | `experiment.py`, `stability.py`, `mismatch.py`, `sweep.py`, `mkfigs.py` (section 14) |
 
-Math (from `.claude/rules/00-plumbline.md`): `P(r | f, n) = sum_l P(l | n) N(r; V_f(l), sigma)`; `b'(f) proportional to b(f) P(r | f, n)`; `n* = argmax_n [H(b) - E_r H(b' | r)]`; warn when `P(l != n | r) > 0.5`.
+Math (from `.claude/rules/00-truehand.md`): `P(r | f, n) = sum_l P(l | n) N(r; V_f(l), sigma)`; `b'(f) proportional to b(f) P(r | f, n)`; `n* = argmax_n [H(b) - E_r H(b' | r)]`; warn when `P(l != n | r) > 0.5`.
 
 Constants (`config.py`, values from plan A2):
 
@@ -333,7 +333,7 @@ Contrast values (design agent's computation in B2, not yet reproduced by a scrip
 
 Accents are never the only cue: measured = amber + filled + label; inferred = cyan + outlined; warning = vermilion + left rule + glyph + word.
 
-Theme mechanism: `<html data-theme="dark" | "light" | "hc">`. When absent, the theme follows the OS (`prefers-color-scheme`, `prefers-contrast`, `forced-colors`). An inline pre-script reads `localStorage["plumbline.theme"]` before first paint. `scene/tokens.ts` reads tokens with `getComputedStyle` and a MutationObserver, so the 3D scene follows the theme.
+Theme mechanism: `<html data-theme="dark" | "light" | "hc">`. When absent, the theme follows the OS (`prefers-color-scheme`, `prefers-contrast`, `forced-colors`). An inline pre-script reads `localStorage["truehand.theme"]` before first paint. `scene/tokens.ts` reads tokens with `getComputedStyle` and a MutationObserver, so the 3D scene follows the theme.
 
 Motion: instant 80, fast 180, normal 350, slow 600, crawl 1000 ms; easing `cubic-bezier(.22, 1, .36, 1)`. Radius: hard 2 px, soft 10 px.
 
@@ -352,13 +352,13 @@ Scripts (plan A6). Every run writes `docs/results/<name>_<date>.{md,json}` with 
 
 | Script | Purpose |
 |---|---|
-| `experiments/experiment.py N [--seed] [--domain]` | arms: plumbline, entropy_exact, checklist, random, remeasure_until_agree; metrics: correct, confidently wrong (at least 0.9 on a wrong class), unresolved rate, mean steps, warnings issued and correct |
+| `experiments/experiment.py N [--seed] [--domain]` | arms: truehand, entropy_exact, checklist, random, remeasure_until_agree; metrics: correct, confidently wrong (at least 0.9 on a wrong class), unresolved rate, mean steps, warnings issued and correct |
 | `experiments/stability.py` | seeds 1 to 5, mean and standard deviation |
 | `experiments/mismatch.py` | lopsided slips (0.78 same, 0.14 down, 0.02 up); 3-row jumps (p = 0.03); bridging (p = 0.10, reading = midpoint, stated simplification); poor contact (p = 0.05, reads 0 V) |
 | `experiments/sweep.py` | p_same from 0.60 to 1.00, matched and fixed-model panels |
 | `experiments/mkfigs.py` | SVG figures into `docs/results/figures/` |
 
-Reproduce: `uv run --project engine python -m plumbline.experiments.experiment 400`. Figures: fig1 arm bars; fig2 sweep; fig3 worked-example trajectories; fig4 warning precision and recall; fig5 thermometer profiles (labeled simulated roast); fig6 distinguishability heatmap.
+Reproduce: `uv run --project engine python -m truehand.experiments.experiment 400`. Figures: fig1 arm bars; fig2 sweep; fig3 worked-example trajectories; fig4 warning precision and recall; fig5 thermometer profiles (labeled simulated roast); fig6 distinguishability heatmap.
 
 Numbers rule: the brief's expectations (99.0 percent correct for Truehand, 21 times fewer confident errors) are expectations, not claims. A number appears in the UI only after `experiment.py` or `stability.py` has written it to `docs/results/`.
 
@@ -375,7 +375,7 @@ Two services, defined in `render.yaml` (ADR 0005).
 | Service | Type | Build and run | Notes |
 |---|---|---|---|
 | `plumbline-web` | static site | `corepack enable && pnpm install --frozen-lockfile && pnpm --filter web build`; publish `apps/web/dist`; rewrite `/*` to `/index.html`; Node 20.20.0 | `sw.js` no-cache; assets immutable; `Permissions-Policy: microphone=(self)` |
-| `plumbline-api` | web service, Python | `rootDir: engine`; build `pip install uv && uv sync --frozen --no-dev`; start `uv run --no-sync uvicorn plumbline_api.main:app --host 0.0.0.0 --port $PORT`; `PYTHON_VERSION` 3.13.x | health check `/v1/health`; env `PLUMBLINE_CORS_ORIGINS`, `PLUMBLINE_FIXTURES_DIR` |
+| `plumbline-api` | web service, Python | `rootDir: engine`; build `pip install uv && uv sync --frozen --no-dev`; start `uv run --no-sync uvicorn truehand_api.main:app --host 0.0.0.0 --port $PORT`; `PYTHON_VERSION` 3.13.x | health check `/v1/health`; env `TRUEHAND_CORS_ORIGINS`, `TRUEHAND_FIXTURES_DIR` |
 
 Fallback container: `FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim`. The health path is `/v1/health` (plan reconciliation 4; the B6 draft said `/health`, which is superseded).
 

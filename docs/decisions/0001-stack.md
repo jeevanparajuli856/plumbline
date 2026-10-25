@@ -39,9 +39,9 @@ Engine (`engine/`, Python 3.13 via uv):
 
 - NumPy for the circuit solver and the inference math.
 - FastAPI with Pydantic v2 models at every request boundary, and pydantic-settings for the
-  `PLUMBLINE_` environment prefix.
+  `TRUEHAND_` environment prefix.
 - pytest for the Python suite and httpx with `ASGITransport` for API tests.
-- Flat layout: `engine/plumbline` (the package) and `engine/plumbline_api` (the FastAPI app),
+- Flat layout: `engine/truehand` (the package) and `engine/truehand_api` (the FastAPI app),
   built with a hatch build configuration.
 
 Versions are pinned by lockfiles committed at bootstrap. CI and deploy install with
@@ -86,4 +86,4 @@ What to re-visit:
   React-shaped, and R3F keeps the scene in the same tree as the panels.
 - **Flask or Django for the API.** Rejected: Flask needs hand-rolled validation at each boundary
   (security rule: validate every body), and Django brings database and auth scaffolding that
-  `00-plumbline.md` rule 5 forbids.
+  `00-truehand.md` rule 5 forbids.

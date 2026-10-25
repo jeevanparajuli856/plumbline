@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-const STORAGE_KEY = 'plumbline.reduceMotion'
+const STORAGE_KEY = 'truehand.reduceMotion'
 
 function readStored(): boolean {
   try {

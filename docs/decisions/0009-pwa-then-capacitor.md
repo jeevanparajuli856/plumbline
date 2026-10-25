@@ -10,7 +10,7 @@ demo laptop must work with no network, and the replay path must work with no API
 ADR-0006). A web app that installs to the home screen and caches its assets meets the offline
 need now. It does not give a native app identity or App Store distribution.
 
-Rule 5 of `.claude/rules/00-plumbline.md` says "Do not build ... a mobile app". The plan's Capacitor
+Rule 5 of `.claude/rules/00-truehand.md` says "Do not build ... a mobile app". The plan's Capacitor
 lane is a mobile app wrapper. That is a conflict with a rule the user has written, and this ADR
 does not resolve it by itself. The user must amend rule 5 or drop the Capacitor lane. A native
 rewrite in Swift would be a second codebase, which the scope rule also excludes.

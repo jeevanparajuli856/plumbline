@@ -2,7 +2,7 @@
 
 Changes this lane needs on frozen surfaces, or decisions for the integration step on `main`. Each item says what we did meanwhile.
 
-Status after the review merge (2026-10-25): 2, 5 and 8 are resolved on `main` (LiveRegion without `role="alert"`, the banner is a region, one app-wide Reduce motion switch in UI_CONTRACT, EVIDENCE.md row 17 reworded). 3 is decided in UI_CONTRACT 6.4 (announcer side pending on `main`). 4 stays open: `stepBack` now has an in-flight guard, but intermediate steps are still announced because `silent` is start-only; the lead is adding `replayPrevious` on `main`. New: a "Single-key shortcuts" switch (WCAG 2.1.4) lives in the shortcuts dialog, state in `a11y/shortcutPref.ts` (`localStorage['plumbline.singleKeyShortcuts']`, `'0'` when off); contract name `getByRole('switch', { name: 'Single-key shortcuts' })`.
+Status after the review merge (2026-10-25): 2, 5 and 8 are resolved on `main` (LiveRegion without `role="alert"`, the banner is a region, one app-wide Reduce motion switch in UI_CONTRACT, EVIDENCE.md row 17 reworded). 3 is decided in UI_CONTRACT 6.4 (announcer side pending on `main`). 4 stays open: `stepBack` now has an in-flight guard, but intermediate steps are still announced because `silent` is start-only; the lead is adding `replayPrevious` on `main`. New: a "Single-key shortcuts" switch (WCAG 2.1.4) lives in the shortcuts dialog, state in `a11y/shortcutPref.ts` (`localStorage['truehand.singleKeyShortcuts']`, `'0'` when off); contract name `getByRole('switch', { name: 'Single-key shortcuts' })`.
 
 ## 1. `vite.config.ts`: fonts are 403 in `pnpm dev`
 
@@ -33,7 +33,7 @@ Request (optional): `replayPrevious()` in `state/session.ts`.
 ## 5. One "Reduce motion" switch for the whole app
 
 The landing contract names `getByRole('switch', { name: 'Reduce motion' })`. Design rule F16 puts theme, text-only and reduce-motion first in the tab order after the skip link, so this lane renders them in a site-wide Display bar (`ui/PrefsBar.tsx`) on every page, including `/`. If the landing lane also renders its own Reduce motion switch, `/` will have two and the selector becomes ambiguous.
-State lives in `a11y/motionPref.ts` (`useMotionPref`, persisted to `localStorage['plumbline.reduceMotion']`, mirrored to `<html data-reduce-motion="true">`, which zeroes the motion tokens in `index.css`). `prefersReducedMotion()` in `a11y/useReducedMotion.ts` now returns OS setting OR this switch, so the store's reveal gate and the scene both honor it.
+State lives in `a11y/motionPref.ts` (`useMotionPref`, persisted to `localStorage['truehand.reduceMotion']`, mirrored to `<html data-reduce-motion="true">`, which zeroes the motion tokens in `index.css`). `prefersReducedMotion()` in `a11y/useReducedMotion.ts` now returns OS setting OR this switch, so the store's reveal gate and the scene both honor it.
 Request: landing reads `useMotionPref` / `useReducedMotion()` and does not render a second switch.
 
 ## 6. System theme classes

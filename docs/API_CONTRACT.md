@@ -1,6 +1,6 @@
 # Truehand API contract v1
 
-Status: v1, 2026-10-25. Matches `engine/plumbline_api/` on main at 9a997a5. Owner: this file. When it disagrees with `engine/plumbline_api/schemas.py`, schemas.py wins and this file is fixed in the same PR (see section 12).
+Status: v1, 2026-10-25. Matches `engine/truehand_api/` on main at 9a997a5. Owner: this file. When it disagrees with `engine/truehand_api/schemas.py`, schemas.py wins and this file is fixed in the same PR (see section 12).
 
 Origin: approved plan, Appendix A4 (schemas), A5 (fixture shape), A8 (deploy health check), and reconciliations 1 and 4. The engine lane's divergences from the first draft are recorded in `docs/lanes/sprint1-engine.md` section 1 and are all reflected here.
 
@@ -165,7 +165,7 @@ Validation failures carry `details: {errors: [{loc, msg, type}]}`. Mode-rule fai
 | 422 | `unknown_domain` | domain id not in the registry |
 | 422 | `numerically_degenerate` | the belief became non-finite. The sigma floor (`MIN_SIGMA`) makes this unreachable through the API today |
 | 404 | `session_not_found` | id unknown, expired (TTL), or evicted (LRU) |
-| 404 | `fixture_not_found` | fixture name not found in `PLUMBLINE_FIXTURES_DIR` |
+| 404 | `fixture_not_found` | fixture name not found in `TRUEHAND_FIXTURES_DIR` |
 | 404 | `not_found` | no route at that address |
 | 405 | `method_not_allowed` | route exists, method does not |
 | 409 | `session_terminal` | step on a resolved or unresolved session |
@@ -178,20 +178,20 @@ Any other HTTP status is returned with the code `http_error`; none is defined in
 
 ## 6. CORS and settings
 
-CORS is an allowlist. Only origins in `PLUMBLINE_CORS_ORIGINS` receive `Access-Control-Allow-Origin`. Allowed methods: `GET`, `POST`, `OPTIONS`. Allowed headers: `Content-Type`. Credentials: not allowed. Anything else gets no CORS header.
+CORS is an allowlist. Only origins in `TRUEHAND_CORS_ORIGINS` receive `Access-Control-Allow-Origin`. Allowed methods: `GET`, `POST`, `OPTIONS`. Allowed headers: `Content-Type`. Credentials: not allowed. Anything else gets no CORS header.
 
 CORS headers are sent on every response for an allowed origin, including the 413 `payload_too_large` and the 500 `internal_error` replies. The request guard sits inside the CORS middleware to make that true.
 
-Settings are read by `plumbline_api/settings.py` (pydantic-settings, prefix `PLUMBLINE_`).
+Settings are read by `truehand_api/settings.py` (pydantic-settings, prefix `TRUEHAND_`).
 
 | Env var | Settings field | Value / default | Meaning |
 |---|---|---|---|
-| `PLUMBLINE_CORS_ORIGINS` | `cors_origins` | comma-separated list. Unset: `http://localhost:5173`, `http://127.0.0.1:5173`, `http://localhost:4173`. `render.yaml` sets `https://plumbline-web.onrender.com,http://localhost:5173` | origin allowlist. Entries are trimmed. An empty entry or `*` makes the app refuse to start |
-| `PLUMBLINE_SESSION_MAX` | `session_max` | 500 | LRU capacity of the in-memory store |
-| `PLUMBLINE_SESSION_TTL_S` | `session_ttl_s` | 3600 | idle expiry in seconds |
-| `PLUMBLINE_FIXTURES_DIR` | `fixtures_dir` | `engine/fixtures/parity` | where replay fixtures are read |
+| `TRUEHAND_CORS_ORIGINS` | `cors_origins` | comma-separated list. Unset: `http://localhost:5173`, `http://127.0.0.1:5173`, `http://localhost:4173`. `render.yaml` sets `https://plumbline-web.onrender.com,http://localhost:5173` | origin allowlist. Entries are trimmed. An empty entry or `*` makes the app refuse to start |
+| `TRUEHAND_SESSION_MAX` | `session_max` | 500 | LRU capacity of the in-memory store |
+| `TRUEHAND_SESSION_TTL_S` | `session_ttl_s` | 3600 | idle expiry in seconds |
+| `TRUEHAND_FIXTURES_DIR` | `fixtures_dir` | `engine/fixtures/parity` | where replay fixtures are read |
 
-The request body cap (16 KiB) is a constant in `plumbline_api/guard.py`, not a setting.
+The request body cap (16 KiB) is a constant in `truehand_api/guard.py`, not a setting.
 
 Sessions live in memory only. A restart empties the store. There is no database.
 
@@ -226,7 +226,7 @@ Sessions live in memory only. A restart empties the store. There is no database.
 
 ## 8. Fixture JSON (A5) and parity
 
-Fixtures live in `engine/fixtures/parity/*.json`. The recorder (`plumbline/record_fixtures.py`, flags `--only`, `--out`, `--force`) writes them through `Session` only, and refuses to overwrite an existing file without `--force`.
+Fixtures live in `engine/fixtures/parity/*.json`. The recorder (`truehand/record_fixtures.py`, flags `--only`, `--out`, `--force`) writes them through `Session` only, and refuses to overwrite an existing file without `--force`.
 
 `schema_version` is 2. Every fixture records `generated_by` and `git_sha`. The version 2 fields are additive over the A5 shape: top level `source_mode`, `seed`, `simulated`; `config.quadrature` (20-point Gauss-Hermite nodes and weights), `config.domain_parameters` (the LED calibration for circuit, ADR-0002), `config.truth_confusion` (simulate-sourced fixtures only); `catalog.hypothesis_labels`, `catalog.site_labels`, `catalog.expected_readings`; per step `likely_site`, `unresolved` (always present, `null` unless unresolved), and `misfit`; threshold `out_of_model_sigmas`.
 
@@ -241,7 +241,7 @@ Shape (abbreviated; `worked_example.json` at git_sha `d4731fcec20e27998e4db25897
   "source_mode": "replay",
   "seed": 0,
   "simulated": false,
-  "generated_by": "uv run --project engine python -m plumbline.record_fixtures --force",
+  "generated_by": "uv run --project engine python -m truehand.record_fixtures --force",
   "git_sha": "d4731fcec20e27998e4db258971a04b43da98a73",
   "generated_at": "2026-10-25T17:20:15+00:00",
   "config": {
