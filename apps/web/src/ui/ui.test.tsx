@@ -3,13 +3,14 @@ import { MemoryRouter } from 'react-router'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { Badge } from './Badge'
 import { KeyboardMapDialog } from './KeyboardMapDialog'
-import { PrefsBar } from './PrefsBar'
+import { DisplaySettings } from './DisplaySettings'
 import { nextRadioIndex } from './radioNav'
 import { RadioGroup } from './RadioGroup'
 import { SiteFooter } from './SiteFooter'
 import { SiteHeader } from './SiteHeader'
 import { Switch } from './Switch'
-import { systemThemeClass } from './useSystemTheme'
+import { resolvedTheme, systemThemeClass } from './useSystemTheme'
+import { nextTrapIndex } from './focusTrap'
 import { buttonClass } from './button'
 import { usePrefs } from '@/state/prefs'
 import { useShortcutPref } from '@/a11y/shortcutPref'
@@ -42,6 +43,29 @@ describe('systemThemeClass', () => {
     expect(systemThemeClass(true, true)).toBe('prefers-hc')
     expect(systemThemeClass(true, false)).toBe('prefers-dark')
     expect(systemThemeClass(false, false)).toBeNull()
+  })
+})
+
+describe('resolvedTheme', () => {
+  it('follows the OS only for System, high contrast first', () => {
+    expect(resolvedTheme('system', false, false)).toBe('light')
+    expect(resolvedTheme('system', true, false)).toBe('dark')
+    expect(resolvedTheme('system', true, true)).toBe('hc')
+    expect(resolvedTheme('light', true, true)).toBe('light')
+    expect(resolvedTheme('dark', false, false)).toBe('dark')
+    expect(resolvedTheme('hc', false, false)).toBe('hc')
+  })
+})
+
+describe('nextTrapIndex', () => {
+  it('wraps forward from the last and backward from the first, and enters at the edges', () => {
+    expect(nextTrapIndex(2, 3, false)).toBe(0)
+    expect(nextTrapIndex(0, 3, true)).toBe(2)
+    expect(nextTrapIndex(0, 3, false)).toBeNull()
+    expect(nextTrapIndex(1, 3, true)).toBeNull()
+    expect(nextTrapIndex(-1, 3, false)).toBe(0)
+    expect(nextTrapIndex(-1, 3, true)).toBe(2)
+    expect(nextTrapIndex(0, 0, false)).toBeNull()
   })
 })
 
@@ -181,10 +205,24 @@ describe('Badge and buttons', () => {
     expect(screen.getByTestId('badge')).toHaveTextContent('engine PENDING')
   })
 
-  it('composes button classes per variant', () => {
-    expect(buttonClass('primary')).toContain('bg-text')
+  it('never draws a badge as a pill', () => {
+    render(<Badge kind="SIMULATED" title="model" />)
+    const badge = screen.getByTestId('badge')
+    expect(badge).toHaveAttribute('title', 'model')
+    expect(badge.className).not.toContain('rounded-full')
+  })
+
+  it('composes button classes per variant: amber primary, ink, line, quiet', () => {
+    expect(buttonClass('primary')).toContain('bg-action')
+    expect(buttonClass('primary')).toContain('hover:bg-action-hover')
+    expect(buttonClass('ink')).toContain('bg-ink')
+    expect(buttonClass('line')).toContain('border-border-strong')
+    expect(buttonClass('secondary')).toBe(buttonClass('line'))
     expect(buttonClass('quiet', 'x-extra')).toContain('x-extra')
     expect(buttonClass()).toContain('border-border-strong')
+    expect(buttonClass('primary')).toContain('rounded-button')
+    expect(buttonClass('primary')).not.toContain('translate-y')
+    expect(buttonClass('primary')).toContain('disabled:border-dashed')
   })
 })
 
@@ -219,9 +257,9 @@ describe('KeyboardMapDialog', () => {
   })
 })
 
-describe('PrefsBar', () => {
+describe('DisplaySettings', () => {
   it('sets the theme, text only and reduce motion', () => {
-    render(<PrefsBar />)
+    render(<DisplaySettings />)
     fireEvent.click(screen.getByRole('radio', { name: 'High contrast' }))
     expect(usePrefs.getState().theme).toBe('hc')
     fireEvent.click(screen.getByRole('switch', { name: 'Text only' }))

@@ -9,9 +9,9 @@ import { useRouteFocus } from './a11y/useRouteFocus'
 import { isPresentation } from './lib/env'
 import { SceneHost } from './scene/SceneHost'
 import { applyTheme, usePrefs } from './state/prefs'
-import { PrefsBar } from './ui/PrefsBar'
 import { SiteFooter } from './ui/SiteFooter'
 import { SiteHeader } from './ui/SiteHeader'
+import { useHashScroll } from './ui/useHashScroll'
 import { useSystemTheme } from './ui/useSystemTheme'
 
 export function App() {
@@ -26,6 +26,7 @@ export function App() {
   useEffect(() => startAnnouncer(), [])
   useEffect(() => wireVoice(), [])
   useRouteFocus(location.pathname)
+  useHashScroll(location.hash, location.key)
   useEffect(() => {
     const root = document.documentElement
     if (present) root.dataset.present = 'true'
@@ -36,8 +37,7 @@ export function App() {
     <div className="relative flex min-h-dvh flex-col">
       <SkipLinks />
       {present ? null : (
-        <div className="relative z-10">
-          <PrefsBar />
+        <div className="relative z-20">
           <SiteHeader />
         </div>
       )}

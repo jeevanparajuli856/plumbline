@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useSyncExternalStore } from 'react'
 import type { Theme } from '@/state/prefs'
 
 const DARK = '(prefers-color-scheme: dark)'
@@ -12,6 +12,41 @@ export function systemThemeClass(
   if (prefersHighContrast) return 'prefers-hc'
   if (prefersDark) return 'prefers-dark'
   return null
+}
+
+export type ResolvedTheme = 'light' | 'dark' | 'hc'
+
+/** Pure: the theme actually on screen. System follows the OS, high contrast first. */
+export function resolvedTheme(
+  theme: Theme,
+  prefersDark: boolean,
+  prefersHighContrast: boolean,
+): ResolvedTheme {
+  if (theme !== 'system') return theme
+  if (prefersHighContrast) return 'hc'
+  return prefersDark ? 'dark' : 'light'
+}
+
+function matches(query: string): boolean {
+  return typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia(query).matches
+}
+
+function subscribeToOs(onChange: () => void): () => void {
+  if (typeof window === 'undefined' || !window.matchMedia) return () => {}
+  const queries = [window.matchMedia(DARK), window.matchMedia(HIGH_CONTRAST)]
+  queries.forEach((q) => q.addEventListener('change', onChange))
+  return () => queries.forEach((q) => q.removeEventListener('change', onChange))
+}
+
+/** The theme on screen right now, live with the OS while the choice is System. */
+export function useResolvedTheme(theme: Theme): ResolvedTheme {
+  const os = useSyncExternalStore(
+    subscribeToOs,
+    () => `${matches(DARK)}|${matches(HIGH_CONTRAST)}`,
+    () => 'false|false',
+  )
+  const [dark, hc] = os.split('|')
+  return resolvedTheme(theme, dark === 'true', hc === 'true')
 }
 
 /** With theme "system", mirrors the OS onto <html class="prefers-dark|prefers-hc"> (tokens.css keys off it). */

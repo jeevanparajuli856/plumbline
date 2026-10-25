@@ -1,4 +1,4 @@
-import { act, fireEvent, render, renderHook, screen } from '@testing-library/react'
+import { act, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react'
 import { createMemoryRouter, MemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { App } from '@/App'
@@ -85,6 +85,11 @@ describe('NotFound', () => {
 
 describe('App shell', () => {
   function renderApp(url: string) {
+    const page = (name: string) => () => (
+      <main id="main">
+        <h1>{name}</h1>
+      </main>
+    )
     const router = createMemoryRouter(
       [
         {
@@ -96,26 +101,185 @@ describe('App shell', () => {
               Component: () => (
                 <main id="main">
                   <h1>Home</h1>
+                  <section id="research" aria-labelledby="research-title">
+                    <h2 id="research-title">Research</h2>
+                  </section>
                 </main>
               ),
             },
+            { path: 'evidence', Component: page('Evidence') },
           ],
         },
       ],
       { initialEntries: [url] },
     )
     render(<RouterProvider router={router} />)
+    return router
   }
 
-  it('puts the skip link first, then the display controls, and applies the theme', () => {
+  const themeButton = () => screen.getByRole('button', { name: /^Theme: / })
+
+  afterEach(() => {
+    usePrefs.setState({ theme: 'system', textOnly: false })
+  })
+
+  it('puts the skip link first, then the theme button after the wordmark and nav, and applies the theme', () => {
     usePrefs.setState({ theme: 'dark' })
     renderApp('/')
-    const focusables = document.querySelectorAll('a[href], button')
+    const focusables = [...document.querySelectorAll<HTMLElement>('a[href], button')].filter(
+      (el) => !el.closest('[hidden]'),
+    )
     expect(focusables[0]).toHaveTextContent('Skip to main content')
-    expect(screen.getByRole('radiogroup', { name: 'Theme' })).toBeInTheDocument()
+    const banner = screen.getByRole('banner')
+    const inBanner = focusables.filter((el) => banner.contains(el))
+    expect(inBanner.map((el) => el.textContent?.trim())).toEqual([
+      'Plumbline research preview',
+      'Research',
+      'Technology',
+      'Validation',
+      'Product',
+      expect.stringMatching(/Theme: Dark/),
+      'Open the simulator',
+    ])
     expect(document.documentElement.dataset.theme).toBe('dark')
     expect(screen.getByRole('contentinfo')).toBeInTheDocument()
+  })
+
+  it('has one banner with the wordmark, the four primary links and the simulator link, no university', () => {
+    renderApp('/evidence')
+    const banner = screen.getByRole('banner')
+    expect(within(banner).getByRole('link', { name: /^Plumbline/ })).toHaveAttribute('href', '/')
+    const nav = within(banner).getByRole('navigation', { name: 'Primary' })
+    const links = within(nav).getAllByRole('link')
+    expect(links.map((l) => [l.textContent, l.getAttribute('href')])).toEqual([
+      ['Research', '/#research'],
+      ['Technology', '/#play'],
+      ['Validation', '/evidence'],
+      ['Product', '/#product'],
+    ])
+    expect(within(nav).getByRole('link', { name: 'Validation' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    expect(within(nav).getByRole('link', { name: 'Research' })).not.toHaveAttribute('aria-current')
+    expect(within(banner).getByRole('link', { name: 'Open the simulator' })).toHaveAttribute(
+      'href',
+      '/sim',
+    )
+    expect(banner).not.toHaveTextContent('Louisiana')
+  })
+
+  it.each([
+    ['system', 'System'],
+    ['light', 'Light'],
+    ['dark', 'Dark'],
+    ['hc', 'High contrast'],
+  ] as const)('names the theme button for the %s theme', (theme, label) => {
+    usePrefs.setState({ theme })
+    renderApp('/')
+    const button = themeButton()
+    expect(button).toHaveAccessibleName(
+      expect.stringMatching(new RegExp(`^Theme: ${label}\\. Open display settings`)),
+    )
+    expect(button).toHaveAccessibleName(expect.stringContaining('Display settings'))
+    expect(button).toHaveAttribute('aria-haspopup', 'dialog')
+    expect(button).toHaveAttribute('aria-expanded', 'false')
+    expect(document.getElementById(button.getAttribute('aria-controls')!)).not.toBeNull()
+  })
+
+  it('opens the Display popover with the theme radios and both switches, focused on the checked radio', () => {
+    usePrefs.setState({ theme: 'light' })
+    renderApp('/')
+    expect(screen.queryByRole('dialog', { name: 'Display' })).not.toBeInTheDocument()
+    fireEvent.click(themeButton())
+    const dialog = screen.getByRole('dialog', { name: 'Display' })
+    expect(themeButton()).toHaveAttribute('aria-expanded', 'true')
+    expect(themeButton().getAttribute('aria-controls')).toBe(dialog.id)
+    expect(dialog).not.toHaveAttribute('aria-modal')
+    expect(within(dialog).getByRole('radiogroup', { name: 'Theme' })).toBeInTheDocument()
+    expect(
+      within(dialog)
+        .getAllByRole('radio')
+        .map((r) => r.textContent),
+    ).toEqual(['System', 'Light', 'Dark', 'High contrast'])
+    expect(within(dialog).getByRole('switch', { name: 'Text only' })).toHaveAccessibleDescription(
+      'Hides the 3D view. Everything is in the text.',
+    )
+    expect(within(dialog).getByRole('switch', { name: 'Reduce motion' })).toBeInTheDocument()
+    expect(document.activeElement).toBe(within(dialog).getByRole('radio', { name: 'Light' }))
+  })
+
+  it('closes on Escape and returns focus to the theme button', () => {
+    renderApp('/')
+    fireEvent.click(themeButton())
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' })
+    expect(screen.queryByRole('dialog', { name: 'Display' })).not.toBeInTheDocument()
+    expect(themeButton()).toHaveAttribute('aria-expanded', 'false')
+    expect(document.activeElement).toBe(themeButton())
+  })
+
+  it('closes from the theme button itself and returns focus to it', () => {
+    renderApp('/')
+    fireEvent.click(themeButton())
+    fireEvent.click(themeButton())
+    expect(screen.queryByRole('dialog', { name: 'Display' })).not.toBeInTheDocument()
+    expect(document.activeElement).toBe(themeButton())
+  })
+
+  it('closes on a click outside without moving focus there', () => {
+    renderApp('/')
+    fireEvent.click(themeButton())
+    const heading = screen.getByRole('heading', { name: 'Home', level: 1 })
+    fireEvent.pointerDown(heading)
+    expect(screen.queryByRole('dialog', { name: 'Display' })).not.toBeInTheDocument()
+    expect(document.activeElement).not.toBe(themeButton())
+  })
+
+  it('keeps Tab and Shift+Tab inside the popover', () => {
     usePrefs.setState({ theme: 'system' })
+    renderApp('/')
+    fireEvent.click(themeButton())
+    const dialog = screen.getByRole('dialog', { name: 'Display' })
+    const system = within(dialog).getByRole('radio', { name: 'System' })
+    const reduce = within(dialog).getByRole('switch', { name: 'Reduce motion' })
+    expect(document.activeElement).toBe(system)
+    fireEvent.keyDown(system, { key: 'Tab', shiftKey: true })
+    expect(document.activeElement).toBe(reduce)
+    fireEvent.keyDown(reduce, { key: 'Tab' })
+    expect(document.activeElement).toBe(system)
+  })
+
+  it('keeps arrow keys on the Theme radios and sets html data-theme', () => {
+    usePrefs.setState({ theme: 'light' })
+    renderApp('/')
+    fireEvent.click(themeButton())
+    const dialog = screen.getByRole('dialog', { name: 'Display' })
+    fireEvent.keyDown(within(dialog).getByRole('radio', { name: 'Light' }), { key: 'ArrowRight' })
+    expect(document.documentElement.dataset.theme).toBe('dark')
+    expect(document.activeElement).toBe(within(dialog).getByRole('radio', { name: 'Dark' }))
+    fireEvent.click(within(dialog).getByRole('radio', { name: 'High contrast' }))
+    expect(document.documentElement.dataset.theme).toBe('hc')
+    expect(themeButton()).toHaveAccessibleName(expect.stringMatching(/^Theme: High contrast\./))
+  })
+
+  it('closes the popover on a route change', async () => {
+    const router = renderApp('/')
+    fireEvent.click(themeButton())
+    expect(screen.getByRole('dialog', { name: 'Display' })).toBeInTheDocument()
+    await act(() => router.navigate('/evidence'))
+    expect(screen.queryByRole('dialog', { name: 'Display' })).not.toBeInTheDocument()
+  })
+
+  it('scrolls a primary hash link to its section and focuses the section heading', async () => {
+    const scrollIntoView = vi.fn()
+    Element.prototype.scrollIntoView = scrollIntoView
+    renderApp('/')
+    const nav = screen.getByRole('navigation', { name: 'Primary' })
+    fireEvent.click(within(nav).getByRole('link', { name: 'Research' }))
+    await waitFor(() =>
+      expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Research' })),
+    )
+    expect(scrollIntoView).toHaveBeenCalled()
   })
 
   it('hides header and footer in presentation mode', () => {
