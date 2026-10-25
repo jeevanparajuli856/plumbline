@@ -1,0 +1,393 @@
+import { act, renderHook } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
+import type { AnnounceOptions } from '@/a11y/liveQueue'
+import { DOMAINS } from '@/state/domains'
+import { usePrefs } from '@/state/prefs'
+import { useSession } from '@/state/session'
+import { cancelListen, readVoiceStatus, startVoice, toggleListen, useVoice } from './index'
+import type { ListenAdapter } from './listen'
+import { voicePhrases } from './phrases'
+import { focusReadingInput } from './runtime'
+import type { SpeechPort } from './speak'
+import { createFakeAdapter } from './stubs/fakeRecognition'
+
+interface FakePort extends SpeechPort {
+  spoken: string[]
+  finish(): void
+}
+
+function fakePort(): FakePort {
+  const pending: Array<() => void> = []
+  const port: FakePort = {
+    spoken: [],
+    speak(text, onDone) {
+      port.spoken.push(text)
+      pending.push(onDone)
+    },
+    cancel() {},
+    finish() {
+      pending.shift()?.()
+    },
+  }
+  return port
+}
+
+const flush = async () => {
+  for (let i = 0; i < 5; i += 1) await Promise.resolve()
+}
+
+function instructionText(): string {
+  const s = useSession.getState()
+  const site = s.catalog?.sites[s.instruction?.site ?? -1]
+  if (!site) throw new Error('no instruction')
+  return DOMAINS.circuit.phrases.instruction(site)
+}
+
+/** No thermometer recording exists yet, so an instrument switch is placed in the store directly. */
+function switchToThermometer(): string {
+  const s = useSession.getState()
+  if (!s.catalog) throw new Error('no catalog')
+  const site = { index: 0, label: 'depth 1', spoken: 'depth one' }
+  useSession.setState({
+    domain: 'thermometer',
+    sessionId: 'thermometer-test',
+    readings: [],
+    phase: 'awaiting_reading',
+    replay: null,
+    catalog: { ...s.catalog, domain: 'thermometer', readingUnit: '°C', sites: [site] },
+    instruction: { site: 0, label: 'depth 1', spoken: 'depth one', gainBits: [0] },
+  })
+  return DOMAINS.thermometer.phrases.instruction(site)
+}
+
+function finishRevealIfAny() {
+  const s = useSession.getState()
+  if (s.phase === 'revealing' && s.reveal) s.finishReveal(s.reveal.token)
+}
+
+let adapter: ReturnType<typeof createFakeAdapter>
+let port: FakePort
+let announce: Mock<(text: string, options: AnnounceOptions) => void>
+let focusTyped: Mock<() => void>
+let stop: () => void
+
+function start(overrides: { adapter?: ListenAdapter } = {}) {
+  stop = startVoice({ adapter: overrides.adapter ?? adapter, port, announce, focusTyped })
+}
+
+beforeEach(async () => {
+  usePrefs.setState({ voiceEnabled: false })
+  adapter = createFakeAdapter()
+  port = fakePort()
+  announce = vi.fn<(text: string, options: AnnounceOptions) => void>()
+  focusTyped = vi.fn<() => void>()
+  await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+})
+
+afterEach(() => stop?.())
+
+describe('useVoice', () => {
+  it('reports support, listening and the speech preference', () => {
+    start()
+    const { result } = renderHook(() => useVoice())
+    expect(result.current).toMatchObject({ supported: true, listening: false, speakingEnabled: false })
+    act(() => result.current.toggleListen())
+    expect(result.current.listening).toBe(true)
+    act(() => usePrefs.setState({ voiceEnabled: true }))
+    expect(result.current.speakingEnabled).toBe(true)
+  })
+
+  it('is unsupported before startVoice and after cleanup', () => {
+    const { result } = renderHook(() => useVoice())
+    expect(result.current.supported).toBe(false)
+    start()
+    act(() => stop())
+    expect(result.current.supported).toBe(false)
+    act(() => toggleListen())
+    expect(result.current.listening).toBe(false)
+  })
+})
+
+describe('voice loop', () => {
+  it('submits a spoken reading through the store as a voice reading', async () => {
+    start()
+    toggleListen()
+    adapter.say('three point six seven one volts')
+    await flush()
+    finishRevealIfAny()
+    const reading = useSession.getState().readings[0]
+    expect(reading).toMatchObject({ value: 3.671, source: 'voice' })
+    expect(readVoiceStatus()).toBe('idle')
+  })
+
+  it('confirms disagreeing alternatives, then submits on yes', async () => {
+    start()
+    toggleListen()
+    adapter.say('3.671', ['3.67'])
+    await flush()
+    expect(readVoiceStatus()).toBe('confirming')
+    expect(announce).toHaveBeenCalledWith(voicePhrases.heardConfirm(3.671, DOMAINS.circuit), {
+      priority: 'polite',
+    })
+    adapter.say('yes')
+    await flush()
+    finishRevealIfAny()
+    expect(useSession.getState().readings[0]?.value).toBe(3.671)
+  })
+
+  it.each(['no', "that's not right", "don't send it"])(
+    'does not submit when the confirmation answer is %j',
+    async (answer) => {
+      start()
+      toggleListen()
+      adapter.say('3.671', ['3.67'])
+      await flush()
+      adapter.say(answer)
+      await flush()
+      expect(useSession.getState().readings).toHaveLength(0)
+      expect(readVoiceStatus()).toBe('idle')
+      expect(announce).toHaveBeenLastCalledWith(voicePhrases.notSent, { priority: 'polite' })
+    },
+  )
+
+  it('does not submit when the session is not waiting for a reading', async () => {
+    start()
+    useSession.setState({ phase: 'resolved' })
+    toggleListen()
+    adapter.say('3.671')
+    await flush()
+    expect(useSession.getState().readings).toHaveLength(0)
+    expect(announce).toHaveBeenCalledWith(voicePhrases.notAwaiting, { priority: 'polite' })
+  })
+
+  it('Esc cancels listening and says so', async () => {
+    start()
+    toggleListen()
+    cancelListen()
+    await flush()
+    expect(readVoiceStatus()).toBe('idle')
+    expect(announce).toHaveBeenCalledWith(voicePhrases.stopped, { priority: 'polite' })
+    adapter.say('3.671')
+    await flush()
+    expect(useSession.getState().readings).toHaveLength(0)
+  })
+
+  it('closes the microphone before an engine event is spoken, so speech never feeds the mic', async () => {
+    usePrefs.setState({ voiceEnabled: true })
+    const abort = vi.spyOn(adapter, 'abort')
+    start()
+    toggleListen()
+    await flush()
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+    expect(abort).toHaveBeenCalled()
+    expect(readVoiceStatus()).not.toBe('listening')
+    adapter.say('3.671')
+    await flush()
+    expect(useSession.getState().readings).toHaveLength(0)
+  })
+
+  it('reports a recognition error and returns to idle', async () => {
+    const failing: ListenAdapter = {
+      isSupported: () => true,
+      start: () => Promise.reject(Object.assign(new Error('x'), { code: 'no-speech' })),
+      abort: () => {},
+    }
+    start({ adapter: failing })
+    toggleListen()
+    await flush()
+    expect(announce).toHaveBeenCalledWith(voicePhrases.listenError('no-speech'), { priority: 'polite' })
+    expect(readVoiceStatus()).toBe('idle')
+  })
+
+  it('without recognition, the microphone key points to typed input', () => {
+    start({ adapter: { isSupported: () => false, start: () => Promise.reject(new Error()), abort: () => {} } })
+    toggleListen()
+    expect(announce).toHaveBeenCalledWith(voicePhrases.unsupported, { priority: 'polite' })
+    expect(focusTyped).toHaveBeenCalledOnce()
+  })
+
+  it('routes the repeat and type-instead commands', async () => {
+    start()
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+    toggleListen()
+    adapter.say('repeat')
+    await flush()
+    expect(announce).toHaveBeenCalledWith(instructionText(), { priority: 'polite', force: true })
+    toggleListen()
+    adapter.say('type instead')
+    await flush()
+    expect(focusTyped).toHaveBeenCalledOnce()
+  })
+})
+
+describe('voice loop robustness', () => {
+  it('returns to idle and reports when the store rejects a submission', async () => {
+    const original = useSession.getState().submitReading
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    useSession.setState({ submitReading: vi.fn().mockRejectedValue(new Error('boom')) })
+    try {
+      start()
+      toggleListen()
+      adapter.say('3.671')
+      await flush()
+      expect(readVoiceStatus()).toBe('idle')
+      expect(error).toHaveBeenCalled()
+    } finally {
+      useSession.setState({ submitReading: original })
+      error.mockRestore()
+    }
+  })
+
+  it('a second startVoice replaces the first, so engine events are spoken once', async () => {
+    usePrefs.setState({ voiceEnabled: true })
+    const first = startVoice({ adapter, port, announce, focusTyped })
+    start()
+    window.dispatchEvent(new Event('pointerdown'))
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+    expect(port.spoken.filter((t) => t === instructionText())).toHaveLength(1)
+    first() // the stale cleanup must not tear down the live runtime
+    expect(readVoiceStatus()).not.toBe('off')
+  })
+
+  it('survives a StrictMode start, cleanup, start', async () => {
+    const first = startVoice({ adapter, port, announce, focusTyped })
+    first()
+    start()
+    toggleListen()
+    adapter.say('3.671')
+    await flush()
+    finishRevealIfAny()
+    expect(useSession.getState().readings[0]?.source).toBe('voice')
+  })
+})
+
+describe('repeat after a fresh start', () => {
+  const lastAnnounced = () => announce.mock.calls.at(-1)
+
+  async function sayRepeat() {
+    toggleListen()
+    adapter.say('repeat')
+    await flush()
+  }
+
+  it('speaks the new session instruction after a reset taken while awaiting', async () => {
+    start()
+    await useSession.getState().replayNext()
+    finishRevealIfAny()
+    await useSession.getState().reset()
+    await sayRepeat()
+    expect(lastAnnounced()).toEqual([instructionText(), { priority: 'polite', force: true }])
+  })
+
+  it('never speaks a circuit row after switching to the thermometer', async () => {
+    start()
+    await useSession.getState().replayNext()
+    finishRevealIfAny()
+    const thermometerInstruction = switchToThermometer()
+    await sayRepeat()
+    expect(lastAnnounced()).toEqual([thermometerInstruction, { priority: 'polite', force: true }])
+    expect(lastAnnounced()?.[0]).not.toMatch(/row/)
+  })
+
+  it('does not replay the old diagnosis after a silent replay start', async () => {
+    start()
+    await useSession.getState().replayNext()
+    finishRevealIfAny()
+    await useSession.getState().replayNext()
+    finishRevealIfAny()
+    expect(useSession.getState().phase).toBe('resolved')
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example', silent: true })
+    await sayRepeat()
+    expect(lastAnnounced()).toEqual([instructionText(), { priority: 'polite', force: true }])
+  })
+
+  it('says nothing when there is no current instruction and nothing from this session', async () => {
+    start()
+    useSession.setState({ sessionId: 'other', instruction: null, phase: 'awaiting_reading' })
+    await sayRepeat()
+    expect(announce).not.toHaveBeenCalled()
+  })
+})
+
+describe('voice output', () => {
+  const instruction = () => {
+    const s = useSession.getState()
+    const site = s.catalog?.sites[s.instruction?.site ?? -1]
+    if (!site) throw new Error('no instruction')
+    return DOMAINS.circuit.phrases.instruction(site)
+  }
+
+  it('stays silent and never announces engine events itself when speech is off', async () => {
+    start()
+    window.dispatchEvent(new Event('pointerdown'))
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+    expect(port.spoken).toEqual([''])
+    expect(announce).not.toHaveBeenCalled()
+  })
+
+  it('speaks engine events after the first gesture when speech is on', async () => {
+    usePrefs.setState({ voiceEnabled: true })
+    start()
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+    expect(port.spoken).toEqual([])
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'v' }))
+    expect(port.spoken).toEqual(['', instruction()])
+    expect(announce).not.toHaveBeenCalled()
+  })
+
+  it('waits for speech to finish before opening the microphone', async () => {
+    usePrefs.setState({ voiceEnabled: true })
+    const startSpy = vi.spyOn(adapter, 'start')
+    start()
+    window.dispatchEvent(new Event('pointerdown'))
+    port.finish()
+    toggleListen()
+    await flush()
+    expect(port.spoken.at(-1)).toBe(voicePhrases.listening)
+    expect(startSpy).not.toHaveBeenCalled()
+    port.finish()
+    adapter.say('3.671', ['3.67'])
+    await flush()
+    expect(port.spoken.at(-1)).toBe(voicePhrases.heardConfirm(3.671, DOMAINS.circuit))
+    expect(startSpy).toHaveBeenCalledTimes(1)
+    port.finish()
+    await flush()
+    expect(startSpy).toHaveBeenCalledTimes(2)
+  })
+
+  it('re-speaks the last spoken phrase on the repeat command when speech is on', async () => {
+    usePrefs.setState({ voiceEnabled: true })
+    start()
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+    window.dispatchEvent(new Event('pointerdown'))
+    port.finish()
+    port.finish()
+    toggleListen()
+    await flush()
+    port.finish()
+    adapter.say('repeat')
+    await flush()
+    expect(port.spoken.at(-1)).toBe(instruction())
+  })
+
+  it('stops speaking when speech is turned off', async () => {
+    usePrefs.setState({ voiceEnabled: true })
+    const cancel = vi.spyOn(port, 'cancel')
+    start()
+    window.dispatchEvent(new Event('pointerdown'))
+    usePrefs.setState({ voiceEnabled: false })
+    expect(cancel).toHaveBeenCalled()
+  })
+})
+
+describe('focusReadingInput', () => {
+  it('focuses the reading input by its contract label', () => {
+    document.body.innerHTML = '<label>Meter reading in volts <input id="r" /></label><input aria-label="Other" />'
+    focusReadingInput(document)
+    expect(document.activeElement?.id).toBe('r')
+    document.body.innerHTML = '<input id="t" aria-label="Thermometer reading in degrees Celsius" />'
+    focusReadingInput(document)
+    expect(document.activeElement?.id).toBe('t')
+    document.body.innerHTML = ''
+  })
+})
