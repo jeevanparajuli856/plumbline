@@ -1,0 +1,367 @@
+/* How it works in four cards. Colors follow the semantic rule: measured amber, inferred teal,
+   warning vermilion. Loops are slow and small; motion tokens snap them under reduced motion. */
+
+.head {
+  max-width: 44rem;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin-top: var(--space-12);
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr);
+  counter-reset: step;
+}
+
+@media (min-width: 640px) {
+  .list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  background: var(--surface-1);
+  transition:
+    translate var(--motion-normal) var(--ease-smooth),
+    box-shadow var(--motion-normal) var(--ease-smooth),
+    border-color var(--motion-normal) var(--ease-smooth);
+}
+
+@media (hover: hover) {
+  .card:hover {
+    translate: 0 -4px;
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-instrument);
+  }
+}
+
+.screen {
+  position: relative;
+  height: 176px;
+  border-radius: 14px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background-color: var(--bench);
+  background-image:
+    linear-gradient(var(--surface-2) 1px, transparent 1px),
+    linear-gradient(90deg, var(--surface-2) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: -1px -1px;
+}
+
+.text {
+  padding: var(--space-4) var(--space-3) var(--space-3);
+}
+
+.num {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--text);
+  color: var(--bench);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.title {
+  margin-top: var(--space-3);
+  font-size: 1.1875rem;
+  line-height: 1.3;
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+.sentence {
+  margin-top: var(--space-2);
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--text-2);
+  text-wrap: pretty;
+}
+
+.skeleton {
+  display: inline-block;
+  width: 9em;
+  height: 0.9em;
+  border-radius: 6px;
+  background: var(--surface-2);
+}
+
+/* 1. Speak */
+.speak {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.speakTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+}
+.speakIcon {
+  flex: none;
+}
+.bars {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+}
+.bars i {
+  width: 3px;
+  height: 100%;
+  border-radius: 2px;
+  background: currentColor;
+  transform-origin: center;
+  animation: bar 1100ms var(--ease-smooth) infinite;
+}
+.bars i:nth-child(2) {
+  animation-delay: 140ms;
+}
+.bars i:nth-child(3) {
+  animation-delay: 280ms;
+}
+.bars i:nth-child(4) {
+  animation-delay: 420ms;
+}
+@keyframes bar {
+  0%,
+  100% {
+    scale: 1 0.35;
+  }
+  50% {
+    scale: 1 1;
+  }
+}
+.bubble {
+  align-self: stretch;
+  padding: 12px 14px;
+  border-radius: 4px 16px 16px 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+/* 2. Reading */
+.reading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.mic {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--measured-fill);
+  color: var(--on-measured);
+}
+.mic::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--measured-fill);
+  animation: ring 1800ms var(--ease-smooth) infinite;
+}
+@keyframes ring {
+  from {
+    opacity: 0.8;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 1.7;
+  }
+}
+.readingValue {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--measured);
+}
+.readingHint {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+
+/* 3. Rows */
+.rows {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.holes {
+  display: flex;
+  gap: 10px;
+}
+.holeCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.hole {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--text-muted);
+  background: transparent;
+}
+.holeTold {
+  border-style: dashed;
+  border-color: var(--text);
+}
+.holeTold::after {
+  content: 'told';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  translate: -50% 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--text-2);
+}
+.holeLikely {
+  border-color: var(--warning);
+  background: var(--warning);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--warning) 25%, transparent);
+  animation: found 2400ms var(--ease-smooth) infinite;
+}
+@keyframes found {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--warning) 25%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 7px color-mix(in srgb, var(--warning) 12%, transparent);
+  }
+}
+.holeLabel {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-2);
+}
+.slip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--warning-surface);
+  border: 1px solid color-mix(in srgb, var(--warning) 45%, transparent);
+  color: var(--warning-text);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+.warnDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--warning);
+  flex: none;
+}
+
+/* 4. Result */
+.result {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+}
+.resultRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.check {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--inferred-fill);
+  color: var(--on-inferred);
+}
+.resultLabel {
+  flex: 1;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.resultPct {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--inferred);
+}
+.track {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--inferred-fill);
+  transition: width var(--motion-slow) var(--ease-smooth);
+}
+.resultAlt {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--text-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bars i,
+  .mic::after,
+  .holeLikely {
+    animation: none;
+  }
+}
+:global(html[data-reduce-motion='true']) .bars i,
+:global(html[data-reduce-motion='true']) .mic::after,
+:global(html[data-reduce-motion='true']) .holeLikely {
+  animation: none;
+}

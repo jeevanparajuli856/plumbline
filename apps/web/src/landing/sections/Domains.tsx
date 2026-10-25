@@ -28,9 +28,8 @@ export function Domains() {
                 Same engine, different instrument.
               </h2>
               <p className={cx(s.lead, 'mt-6')}>
-                A kitchen probe thermometer in a simulated roast. Truehand works out both how done
-                the meat is and how deep the tip really went. The roast and the probe are simulated,
-                not real.
+                A probe thermometer in a simulated roast: how done the meat is, and how deep the tip
+                really went.
               </p>
               <Caption className="mt-6">
                 SIMULATED. Scene: a sliced roast with a temperature gradient. The tip depth is

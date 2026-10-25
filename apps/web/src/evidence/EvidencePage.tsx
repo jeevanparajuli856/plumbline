@@ -71,7 +71,7 @@ export function EvidencePage() {
           </div>
           <div className="col-span-4 md:col-span-8">
             <StatGrid stats={VALIDATION_STATS} />
-            <Caption className="mt-6">
+            <Caption visible className="mt-6">
               Each cell names how many simulated runs it rests on and the month they ran. The cell
               without a number waits on sessions with blind participants.
             </Caption>

@@ -1,0 +1,114 @@
+/* Launch screen of the installed app. Fixed timings on purpose: it plays once at launch. */
+
+.launch-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--bench);
+  color: var(--text);
+  transition:
+    opacity 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    scale 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.launch-splash[data-leaving='true'] {
+  opacity: 0;
+  scale: 1.06;
+  pointer-events: none;
+}
+
+.launch-splash-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-inline: 24px;
+}
+
+.launch-splash-stack svg {
+  overflow: visible;
+}
+
+.launch-hole {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: launch-hole 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.launch-found {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: launch-found 520ms cubic-bezier(0.34, 1.56, 0.64, 1) 520ms both;
+}
+
+.launch-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: launch-ring 700ms cubic-bezier(0.22, 1, 0.36, 1) 700ms both;
+}
+
+.launch-word {
+  margin-top: 22px;
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  animation: launch-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) 820ms both;
+}
+
+.launch-tag {
+  margin-top: 10px;
+  font-size: 1rem;
+  color: var(--text-2);
+  animation: launch-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) 960ms both;
+}
+
+@keyframes launch-hole {
+  from {
+    opacity: 0;
+    scale: 0.3;
+  }
+}
+
+@keyframes launch-found {
+  from {
+    opacity: 0;
+    scale: 0;
+  }
+}
+
+@keyframes launch-ring {
+  0% {
+    opacity: 0;
+    scale: 1.9;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes launch-rise {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+/* Reduced motion (OS or the in-page switch): the finished mark, held, then gone. */
+.launch-splash[data-reduced='true'],
+.launch-splash[data-reduced='true'] * {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launch-splash,
+  .launch-splash * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -6,6 +6,7 @@ import { Caption, Eyebrow, Section } from '@/landing/parts'
 import { Domains } from '@/landing/sections/Domains'
 import { Play } from '@/landing/sections/Play'
 import { Refusal } from '@/landing/sections/Refusal'
+import { Steps } from '@/landing/sections/Steps'
 import { useWorkedReplay } from '@/landing/useWorkedReplay'
 
 /** How it works: the experience, not the method. The only page with the 3D scene behind it. */
@@ -23,20 +24,19 @@ export function HowItWorksPage() {
           <div className={cx('col-span-4 md:col-span-6 lg:col-span-5', s.phonePaper)}>
             <Eyebrow>How it works</Eyebrow>
             <h1 id="intro-title" tabIndex={-1} className={cx(s.display, 'mt-8')}>
-              You hold the probe. Truehand checks where it went.
+              Truehand checks where the probe went.
             </h1>
             <p className={cx(s.lead, 'mt-8')}>
-              It tells you which row to touch, listens to each reading, and works out where the
-              probe actually landed. When the readings agree, it names the fault. Below is one
-              recorded run with a simulated hand, step by step.
+              It asks for a row, hears the reading, and works out where the probe really landed.
             </p>
-            <Caption className="mt-10">
+            <Caption>
               Scene: a breadboard circuit on a lab bench, the red probe above it. Everything the
               scene shows is also in the text on this page.
             </Caption>
           </div>
         </div>
       </Section>
+      <Steps id="overview" />
       <Play fixture={fixture} onPlay={() => void play()} onReplay={() => void replay()} />
       <Refusal fixture={fixture} />
       <Domains />

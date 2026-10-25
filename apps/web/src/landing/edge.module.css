@@ -42,23 +42,9 @@
   border-radius: 50%;
   background: var(--brand);
 }
+/* On phones the column would sit on the text and under the tab bar; the tab bar carries place. */
 @media (max-width: 767px) {
   .edgePlumb {
-    right: 0;
-    width: 14px;
-  }
-  .edgeHole {
-    width: 6px;
-    height: 6px;
-  }
-  .edgeBob {
-    width: 14px;
-    height: 14px;
-    margin-left: -7px;
-    top: -4px;
-  }
-  .edgeBob::after {
-    width: 6px;
-    height: 6px;
+    display: none;
   }
 }

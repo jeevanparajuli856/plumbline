@@ -202,29 +202,48 @@ describe('App shell', () => {
       'Evidence',
       'The app',
       'Accessibility',
+      'Docs',
       'Switch to light theme',
       'Demo',
     ])
     expect(document.documentElement.dataset.theme).toBe('dark')
   })
 
-  it('below lg puts the nav after the toggle and Demo, matching the visual rows', () => {
+  it('below lg keeps the wordmark and toggle on top and moves the nav to the phone tab bar', () => {
     const { mm } = fakeMatchMedia({ '(min-width: 64rem)': false })
     vi.stubGlobal('matchMedia', mm)
     renderApp('/')
     expect(visibleFocusables(screen.getByRole('banner'))).toEqual([
       'Truehand',
       'Switch to dark theme',
-      'Demo',
-      'How it works',
-      'Evidence',
-      'The app',
-      'Accessibility',
     ])
-    expect(screen.getAllByRole('navigation', { name: 'Primary' })).toHaveLength(1)
+    const navs = screen.getAllByRole('navigation', { name: 'Primary' })
+    expect(navs).toHaveLength(1)
+    const tabs = navs[0]!
+    expect(screen.getByRole('banner')).not.toContainElement(tabs)
+    expect(
+      within(tabs)
+        .getAllByRole('link')
+        .map((l) => [l.getAttribute('aria-label') ?? l.textContent, l.getAttribute('href')]),
+    ).toEqual([
+      ['Home', '/'],
+      ['How it works', '/how-it-works'],
+      ['Demo', '/sim'],
+      ['Evidence', '/evidence'],
+    ])
+    expect(within(tabs).getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page')
+    expect(within(tabs).getByRole('button', { name: 'More' })).toHaveAttribute(
+      'aria-haspopup',
+      'dialog',
+    )
   })
 
-  it('has the wordmark, four page links with aria-current by route, and Demo; no tag or names', () => {
+  it('at lg and up renders no tab bar', () => {
+    renderApp('/')
+    expect(document.querySelector('.tabbar')).toBeNull()
+  })
+
+  it('has the wordmark, five page links with aria-current by route, and Demo; no tag or names', () => {
     renderApp('/evidence')
     const banner = screen.getByRole('banner')
     expect(within(banner).getByRole('link', { name: 'Truehand' })).toHaveAttribute('href', '/')
@@ -238,6 +257,7 @@ describe('App shell', () => {
       ['Evidence', '/evidence'],
       ['The app', '/app'],
       ['Accessibility', '/accessibility'],
+      ['Docs', '/docs'],
     ])
     expect(within(nav).getByRole('link', { name: 'Evidence' })).toHaveAttribute(
       'aria-current',

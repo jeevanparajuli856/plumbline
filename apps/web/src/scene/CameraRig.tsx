@@ -124,6 +124,14 @@ export function CameraRig({ controls = true }: CameraRigProps) {
     if (isLanding || flying.current) {
       goal.set(...(isLanding ? pose.camera : sim.current.camera))
       goalLook.set(...(isLanding ? pose.target : sim.current.target))
+      // The landing poses park the board in the right half of a wide frame. A portrait
+      // screen clips that half, so step back and look nearer the board.
+      if (isLanding && aspect < 0.8) {
+        goalLook.x = pose.target[0] * 0.2
+        goalLook.y = pose.target[1] - 0.07
+        goal.z *= 1.48
+        goal.y *= 1.04
+      }
       const k = 1 - Math.exp(-CAMERA_LAMBDA * dt)
       camera.position.lerp(goal, k)
       look.lerp(goalLook, k)

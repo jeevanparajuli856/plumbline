@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
+import { MemoryRouter } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 import type { Catalog } from '@/state/types'
 import { BeliefChart } from './BeliefChart'
@@ -40,6 +41,7 @@ describe('BeliefChart', () => {
         hasReadings
         unresolvedLabels={['LED is open', 'LED is installed backwards']}
       />,
+      { wrapper: MemoryRouter },
     )
     const verdict = screen.getByTestId('belief-verdict')
     expect(verdict.textContent).toBe('Unresolved: LED is open or LED is installed backwards')
@@ -47,7 +49,9 @@ describe('BeliefChart', () => {
   })
 
   it('shows the top fault with its percentage otherwise', () => {
-    render(<BeliefChart belief={[0.7, 0.2, 0.1]} catalog={catalog} baseline={null} hasReadings />)
+    render(<BeliefChart belief={[0.7, 0.2, 0.1]} catalog={catalog} baseline={null} hasReadings />, {
+      wrapper: MemoryRouter,
+    })
     const figure = screen.getByRole('figure', { name: 'Belief over faults' })
     expect(within(figure).getAllByText('70.0%').length).toBeGreaterThan(0)
     expect(screen.queryByText(/^Unresolved:/)).not.toBeInTheDocument()

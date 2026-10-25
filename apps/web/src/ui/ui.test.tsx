@@ -286,18 +286,17 @@ describe('DisplaySettings', () => {
 })
 
 describe('SiteHeader and SiteFooter', () => {
-  it('draws the nav underline from the left on hover and focus, and holds it on the current page', () => {
+  it('previews the nav pill on hover and holds it on the current page', () => {
     render(
       <MemoryRouter initialEntries={['/evidence']}>
         <SiteHeader />
       </MemoryRouter>,
     )
     const link = screen.getByRole('link', { name: 'Evidence' })
-    expect(link.className).toContain('after:origin-left')
-    expect(link.className).toContain('after:scale-x-0')
-    expect(link.className).toContain('hover:after:scale-x-100')
-    expect(link.className).toContain('focus-visible:after:scale-x-100')
-    expect(link.className).toContain('aria-[current=page]:after:scale-x-100')
+    expect(link).toHaveAttribute('aria-current', 'page')
+    expect(link.className).toContain('rounded-full')
+    expect(link.className).toContain('hover:bg-surface-2')
+    expect(link.className).toContain('aria-[current=page]:bg-surface-2')
     expect(screen.getByRole('banner')).toHaveClass('site-header')
   })
 

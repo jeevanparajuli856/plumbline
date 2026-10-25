@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { formatPct } from '@/lib/format'
 import type { BaselineState, Catalog } from '@/state/types'
 import { baselineName, beliefRows, truehandVerdict, type BeliefRow, type Verdict } from './view'
@@ -93,8 +94,10 @@ export function BeliefChart({
         </tbody>
       </table>
       <p className="mt-3 text-text-2">
-        Published method: entropy-based test selection that assumes the probe is where you were told
-        (Gao et al., 2014). Same readings, run in shadow.
+        Compared with a published method on the same readings.{' '}
+        <Link to="/docs#comparison" className="font-semibold text-text underline underline-offset-4">
+          About the comparison
+        </Link>
       </p>
     </figure>
   )

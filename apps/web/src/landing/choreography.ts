@@ -162,12 +162,12 @@ const LAYERS_TARGET: Vec3 = [-0.17, 0.03, 0]
 const ROAST_TARGET: Vec3 = [-0.09, 0, 0]
 
 /**
- * Intro target: further left of the board than RIGHT, so the board sits in the right half and
- * never under the five-column intro text at desktop widths.
+ * Intro target: left of the board centre, so the board sits in the right half, clear of the
+ * five-column intro text, without its far end leaving the frame.
  */
-export const INTRO_X = -0.24
-/** Rest pose for the intro: three-quarter view, board right of the text. */
-const REST = look([INTRO_X, 0, 0], [0.05, 0.26, 0.5], 32)
+export const INTRO_X = BOARD_RIGHT_X
+/** Rest pose for the intro: three-quarter view, board right of the text, whole board in frame at 1024 px. */
+const REST = look([INTRO_X, 0, 0], [0.07, 0.37, 0.72], 32)
 
 /**
  * Keyframes in ascending progress. Explode is non-zero only inside the refusal band; roastMix only

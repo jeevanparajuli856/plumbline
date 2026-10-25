@@ -86,15 +86,17 @@ interface IPhoneProps {
   view: AppScreenView
   /** Changes when the recording advances, so the reading digits tick in once. */
   frameKey: string
+  /** A backdrop phone: no float-in or tilt from the motion module. */
+  still?: boolean
 }
 
 /**
  * A believable iPhone running the Truehand app. Device chrome is decorative (aria-hidden); the
  * screen's text is real DOM. The two app buttons inside are pictures of controls, not controls.
  */
-export function IPhone({ view, frameKey }: IPhoneProps) {
+export function IPhone({ view, frameKey, still = false }: IPhoneProps) {
   return (
-    <div data-motion="device" className={p.deviceWrap}>
+    <div data-motion={still ? undefined : 'device'} className={p.deviceWrap}>
       <div className={p.device}>
         <div className={p.screen}>
           <div className={p.statusBar} aria-hidden="true">

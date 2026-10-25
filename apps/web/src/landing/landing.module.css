@@ -64,24 +64,32 @@
   max-width: 52em;
   text-wrap: pretty;
 }
+/* A pill badge: the found hole from the mark, then the label in sentence case. */
 .eyebrow {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--text-caption);
-  line-height: 1.5rem;
-  font-weight: 500;
-  letter-spacing: var(--tracking-caps);
-  text-transform: uppercase;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   color: var(--text-2);
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 7px 16px 7px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-1) 72%, transparent);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
 }
-/* A scale tick before every eyebrow: the instrument's graduation mark. */
 .eyebrow::before {
   content: '';
-  width: 24px;
-  margin-top: 11px;
-  border-top: 2px solid currentColor;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent);
   flex: none;
 }
 .label {
@@ -259,12 +267,53 @@
 
 /* ---------- Mast (hero, 7:5) ---------- */
 .mast {
-  background: var(--bench);
+  background: transparent;
   padding-top: 56px;
   padding-bottom: 72px;
 }
 .mastText {
   align-self: center;
+}
+.mastPhones {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+/* Desktop: the phones sit in front of the circuit and leave the board visible to their right. */
+@media (min-width: 1024px) {
+  .mastPhones {
+    transform: translate(-10%, 6%) scale(0.78);
+    transform-origin: center center;
+  }
+}
+/* Phones lead. The headline follows, instead of sitting under a full-height device. */
+@media (max-width: 767px) {
+  .mast {
+    padding-top: 4px;
+    padding-bottom: 28px;
+  }
+  .mastPhones {
+    order: -1;
+  }
+  .mastText {
+    position: relative;
+    z-index: 1;
+    background: var(--bench);
+    margin-inline: -16px;
+    padding: var(--space-4) 16px 0;
+  }
+  .mast .display {
+    font-size: 2.45rem;
+  }
+  .liveControls {
+    position: relative;
+    z-index: 2;
+    width: fit-content;
+    margin-inline: auto;
+    padding: 6px;
+    border-radius: 999px;
+    background: var(--bench);
+  }
 }
 /* A fixed line-height keeps line boxes identical when a runtime splitter wraps the words in spans. */
 .headline {
@@ -616,14 +665,100 @@
   color: var(--text-2);
 }
 .liveControls {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
-  gap: var(--space-4);
-  width: min(100%, 420px);
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
-.liveCaption {
-  font-size: 0.8125rem;
+/* Three phones in one grid cell: the live one in front, the warning and the answer fanned behind. */
+.phoneStage {
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  width: 100%;
+  isolation: isolate;
+}
+.phoneStage > * {
+  grid-area: 1 / 1;
+}
+.centerPhone {
+  position: relative;
+  z-index: 2;
+}
+.sidePhone {
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.92;
+  animation: side-in var(--motion-crawl) var(--ease-smooth) 200ms both;
+}
+.sideLeft {
+  --side-x: -46%;
+  --side-r: -7deg;
+  transform: translateX(var(--side-x)) translateY(28px) scale(0.8) rotate(var(--side-r));
+}
+.sideRight {
+  --side-x: 46%;
+  --side-r: 7deg;
+  transform: translateX(var(--side-x)) translateY(28px) scale(0.8) rotate(var(--side-r));
+}
+@keyframes side-in {
+  from {
+    opacity: 0;
+    transform: translateX(0) translateY(40px) scale(0.78) rotate(0deg);
+  }
+}
+/* Narrow desktop: the hero column is tight, so the fan closes up and stays off the headline. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .sideLeft,
+  .sideRight {
+    transform: translateX(calc(var(--side-x) * 0.62)) translateY(28px) scale(0.76)
+      rotate(var(--side-r));
+  }
+}
+/* Small screens: the same three-phone fan, scaled so it fits the width and leaves room for the headline. */
+@media (max-width: 767px) {
+  .phoneStage {
+    grid-template-rows: 276px;
+    align-items: start;
+  }
+  .phoneStage > * {
+    min-height: 0;
+    align-self: start;
+  }
+  .centerPhone {
+    transform: scale(0.47);
+    transform-origin: top center;
+  }
+  .sideLeft,
+  .sideRight {
+    transform: translateX(var(--side-x)) translateY(14px) scale(0.4) rotate(var(--side-r));
+    transform-origin: top center;
+  }
+  .sideLeft {
+    --side-x: -26%;
+  }
+  .sideRight {
+    --side-x: 26%;
+  }
+  .liveLoading {
+    width: min(100%, 220px);
+    height: 240px;
+  }
+}
+/* Short phone screens: a smaller fan so the headline and lead stay above the tab bar. */
+@media (max-width: 767px) and (max-height: 780px) {
+  .phoneStage {
+    grid-template-rows: 232px;
+  }
+  .centerPhone {
+    transform: scale(0.39);
+  }
+  .sideLeft,
+  .sideRight {
+    transform: translateX(var(--side-x)) translateY(10px) scale(0.32) rotate(var(--side-r));
+  }
+}
+:global(html[data-theme='hc']) .sidePhone {
+  opacity: 1;
 }
 .productLine {
   font-size: var(--text-md);

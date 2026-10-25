@@ -12,8 +12,12 @@ import { SceneHost } from './scene/SceneHost'
 import { applyTheme, usePrefs } from './state/prefs'
 import { markRouteTransition, routeTransitionClass } from './ui/routeTransition'
 import { SiteFooter } from './ui/SiteFooter'
-import { SiteHeader } from './ui/SiteHeader'
+import { LaunchSplash } from './ui/LaunchSplash'
+import { usePageTitle } from './ui/pageTitle'
+import { ONE_ROW, SiteHeader } from './ui/SiteHeader'
+import { TabBar } from './ui/TabBar'
 import { useHashScroll } from './ui/useHashScroll'
+import { useMediaQuery } from './ui/useMediaQuery'
 import { useSystemTheme } from './ui/useSystemTheme'
 
 export function App() {
@@ -22,6 +26,8 @@ export function App() {
   const location = useLocation()
   const present = isPresentation(location.search)
   const routeClass = routeTransitionClass(useReducedMotion())
+  const isOneRow = useMediaQuery(ONE_ROW, true)
+  const showTabs = !present && !isOneRow
 
   useEffect(() => applyTheme(theme), [theme])
   useSystemTheme(theme)
@@ -29,6 +35,7 @@ export function App() {
   useEffect(() => startAnnouncer(), [])
   useEffect(() => wireVoice(), [])
   useRouteFocus(location.pathname)
+  usePageTitle(location.pathname)
   useHashScroll(location.hash, location.key)
   useEffect(() => {
     const root = document.documentElement
@@ -37,10 +44,12 @@ export function App() {
   }, [present])
 
   return (
-    <div className="relative flex min-h-dvh flex-col">
+    <div
+      className={`relative flex min-h-dvh flex-col ${showTabs ? 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]' : ''}`}
+    >
       <SkipLinks />
       {present ? null : (
-        <div className="relative z-20">
+        <div className="sticky top-0 z-30">
           <SiteHeader />
         </div>
       )}
@@ -63,7 +72,9 @@ export function App() {
           <SiteFooter />
         </div>
       )}
+      {showTabs ? <TabBar /> : null}
       <LiveRegion />
+      <LaunchSplash />
     </div>
   )
 }

@@ -1,0 +1,154 @@
+/* Phone tab bar and the More sheet. Durations are motion tokens, so reduced motion snaps them. */
+
+.tabbar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 40;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: color-mix(in srgb, var(--bench) 82%, transparent);
+  border-top: 1px solid var(--hairline);
+  -webkit-backdrop-filter: saturate(160%) blur(18px);
+  backdrop-filter: saturate(160%) blur(18px);
+  transition: translate var(--motion-normal) var(--ease-smooth);
+}
+
+/* While the on-screen keyboard is up, the bar steps aside so it never covers the field. */
+@media (pointer: coarse) {
+  html:has(input:focus, textarea:focus) .tabbar {
+    translate: 0 110%;
+  }
+}
+
+:root[data-theme='hc'] .tabbar {
+  background: var(--bench);
+}
+
+.tabbar-item {
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--motion-fast) var(--ease-smooth);
+}
+
+.tabbar-icon {
+  display: inline-flex;
+  transition: scale var(--motion-fast) var(--ease-smooth);
+}
+
+.tabbar-item:active .tabbar-icon {
+  scale: 0.86;
+}
+
+/* The current tab's icon pops once when it becomes current. */
+.tabbar-item[aria-current='page'] .tabbar-icon {
+  animation: tab-pop var(--motion-normal) var(--ease-smooth);
+}
+
+.tabbar-item[aria-current='page'] svg {
+  stroke-width: 2.3;
+}
+
+@keyframes tab-pop {
+  40% {
+    scale: 1.14;
+  }
+}
+
+.tabbar-demo {
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: -18px;
+  padding-bottom: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+}
+
+.tabbar-demo-disc {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--action);
+  color: var(--on-action);
+  box-shadow:
+    0 0 0 4px var(--bench),
+    0 10px 24px -8px color-mix(in srgb, var(--action) 70%, transparent);
+  transition:
+    scale var(--motion-fast) var(--ease-smooth),
+    background-color var(--motion-fast) var(--ease-smooth);
+}
+
+.tabbar-demo:hover .tabbar-demo-disc {
+  background: var(--action-hover);
+}
+
+.tabbar-demo:active .tabbar-demo-disc {
+  scale: 0.92;
+}
+
+.tabbar-demo[aria-current='page'] .tabbar-demo-disc {
+  box-shadow:
+    0 0 0 4px var(--bench),
+    0 0 0 6px var(--action);
+}
+
+/* ---------- More sheet ---------- */
+
+.sheet {
+  margin: auto auto 0;
+  width: 100%;
+  max-width: 36rem;
+  max-height: 85dvh;
+  padding: 0 0 calc(var(--space-6) + env(safe-area-inset-bottom));
+  border: 1px solid var(--hairline);
+  border-bottom: 0;
+  border-radius: 24px 24px 0 0;
+  background: var(--surface-1);
+  color: var(--text);
+  translate: 0 100%;
+  transition:
+    translate var(--motion-normal) var(--ease-smooth),
+    overlay var(--motion-normal) allow-discrete,
+    display var(--motion-normal) allow-discrete;
+}
+
+.sheet[open] {
+  translate: 0 0;
+}
+
+@starting-style {
+  .sheet[open] {
+    translate: 0 100%;
+  }
+}
+
+.sheet::backdrop {
+  background: rgb(0 0 0 / 0);
+  transition:
+    background-color var(--motion-normal) var(--ease-smooth),
+    overlay var(--motion-normal) allow-discrete,
+    display var(--motion-normal) allow-discrete;
+}
+
+.sheet[open]::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+@starting-style {
+  .sheet[open]::backdrop {
+    background: rgb(0 0 0 / 0);
+  }
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 5px;
+  margin: 10px auto 6px;
+  border-radius: 999px;
+  background: var(--hairline);
+}

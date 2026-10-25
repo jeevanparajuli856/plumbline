@@ -19,8 +19,7 @@ export function Problem() {
             <figcaption className={cx(s.body, 'mt-3 text-text-2')}>{FORUM_QUOTE.source}</figcaption>
           </figure>
           <p className={cx(s.lead, 'mt-8')}>
-            Talking meters read the number aloud. Nothing tells a blind technician which row the
-            probe actually touched, so a wrong number and a wrong row sound exactly the same.
+            Talking meters read the number aloud. Nothing says which row the probe touched.
           </p>
         </div>
         <div className="col-span-4 md:col-span-5">

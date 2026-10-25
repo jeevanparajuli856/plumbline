@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import type { ReactElement } from 'react'
 import { MemoryRouter } from 'react-router'
 import { EDGE_HOLE_COUNT } from '@/landing/EdgeColumn'
-import { PRODUCT_LINE, STATUS_LINE, VALIDATION_STATS } from '@/landing/content'
+import { HERO_LEAD, PRODUCT_LINE, STATUS_LINE, VALIDATION_STATS } from '@/landing/content'
 import { INITIAL_HERO_STATE, useHeroLoop } from '@/landing/heroLoop'
 import { PLAY_PACE_MS } from '@/landing/useWorkedReplay'
 import { useLanding } from '@/state/landing'
@@ -61,7 +61,7 @@ afterEach(() => {
 })
 
 describe('Home', () => {
-  it('renders the promise, the product line, the two exits and six labelled sections', async () => {
+  it('renders the promise, the lead, the two exits and six labelled sections', async () => {
     const { container } = renderPage(<HomePage />)
     await settle()
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
@@ -75,9 +75,9 @@ describe('Home', () => {
       'href',
       '/how-it-works',
     )
-    expect(main).toHaveTextContent(PRODUCT_LINE)
+    expect(main).toHaveTextContent(HERO_LEAD)
     expect(main).not.toHaveTextContent(STATUS_LINE)
-    expectLabelledSections(container, ['hero', 'problem', 'outcomes', 'proof', 'audience', 'cta'])
+    expectLabelledSections(container, ['hero', 'problem', 'steps', 'proof', 'audience', 'cta'])
     expect(container.querySelector('section#hero img')).toBeNull()
   })
 
@@ -112,9 +112,11 @@ describe('Home', () => {
     )
   })
 
-  it('never mounts the 3D scene', async () => {
-    renderPage(<HomePage />)
+  it('mounts the circuit scene behind the hero, and only while the page is open', async () => {
+    const { unmount } = renderPage(<HomePage />)
     await settle()
+    expect(useLanding.getState().sceneMode).toBe('landing')
+    unmount()
     expect(useLanding.getState().sceneMode).toBe('hidden')
   })
 })
@@ -174,11 +176,11 @@ describe('Home live instrument card', () => {
 })
 
 describe('How it works', () => {
-  it('has four labelled sections, the contract play controls and both step lists', async () => {
+  it('has five labelled sections, the contract play controls and both step lists', async () => {
     const { container } = renderPage(<HowItWorksPage />)
     await settle()
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
-    expectLabelledSections(container, ['intro', 'play', 'refusal', 'domains'])
+    expectLabelledSections(container, ['intro', 'overview', 'play', 'refusal', 'domains'])
     const play = within(container.querySelector<HTMLElement>('section#play')!)
     for (const name of ['Play the worked example', 'Pause', 'Replay']) {
       expect(play.getByRole('button', { name })).toBeInTheDocument()
@@ -192,7 +194,7 @@ describe('How it works', () => {
     ).toHaveTextContent('degrees Celsius')
   })
 
-  it('is the only page that mounts the scene, and only while mounted', async () => {
+  it('mounts the scene while the page is open', async () => {
     const { unmount } = renderPage(<HowItWorksPage />)
     await settle()
     expect(useLanding.getState().sceneMode).toBe('landing')

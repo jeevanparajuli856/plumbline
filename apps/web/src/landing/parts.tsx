@@ -43,16 +43,21 @@ export function Eyebrow({
   return <p className={cx(s.eyebrow, className)}>{children}</p>
 }
 
-/** The static DOM twin of the scene. Never a live region. */
+/**
+ * The static DOM twin of a scene or drawing: read by screen readers, not shown (sighted readers
+ * have the picture; Docs explains it). Never a live region. `visible` prints it as a caption.
+ */
 export function Caption({
   children,
   className,
+  visible = false,
 }: {
   children: ReactNode
   className?: string | undefined
+  visible?: boolean
 }) {
   return (
-    <p data-testid="caption" className={cx(s.caption, className)}>
+    <p data-testid="caption" className={visible ? cx(s.caption, className) : 'sr-only'}>
       {children}
     </p>
   )
