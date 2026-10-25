@@ -58,18 +58,18 @@ describe('useSystemTheme', () => {
 
 describe('useMediaQuery', () => {
   it('re-renders when the query starts or stops matching', () => {
-    const state = { '(min-width: 80rem)': false }
+    const state = { '(min-width: 64rem)': false }
     const { mm, fire } = fakeMatchMedia(state)
     vi.stubGlobal('matchMedia', mm)
-    const { result } = renderHook(() => useMediaQuery('(min-width: 80rem)', true))
+    const { result } = renderHook(() => useMediaQuery('(min-width: 64rem)', true))
     expect(result.current).toBe(false)
-    state['(min-width: 80rem)'] = true
-    act(() => fire('(min-width: 80rem)'))
+    state['(min-width: 64rem)'] = true
+    act(() => fire('(min-width: 64rem)'))
     expect(result.current).toBe(true)
   })
 
   it('returns the fallback without matchMedia', () => {
-    const { result } = renderHook(() => useMediaQuery('(min-width: 80rem)', true))
+    const { result } = renderHook(() => useMediaQuery('(min-width: 64rem)', true))
     expect(result.current).toBe(true)
   })
 })
@@ -144,12 +144,52 @@ describe('App shell', () => {
   const visibleFocusables = (root: ParentNode) =>
     [...root.querySelectorAll<HTMLElement>('a[href], button')].map((el) => el.textContent?.trim())
 
+  const originalAnimate = Object.getOwnPropertyDescriptor(document.documentElement, 'animate')
+
   afterEach(() => {
     usePrefs.setState({ theme: 'system', textOnly: false })
     useMotionPref.getState().setReduceMotion(false)
     // @ts-expect-error jsdom has no View Transitions; tests install a stub and remove it here.
     delete document.startViewTransition
+    if (originalAnimate) Object.defineProperty(document.documentElement, 'animate', originalAnimate)
+    // @ts-expect-error jsdom has no Web Animations; tests install a spy and remove it here.
+    else delete document.documentElement.animate
+    delete document.documentElement.dataset.themeReveal
+    vi.unstubAllGlobals()
   })
+
+  /** A View Transitions stand-in. Callbacks run when the test says so, like the real async start. */
+  function stubTransitions({ ready }: { ready?: Promise<void> } = {}) {
+    const pending: Array<() => void> = []
+    const finish: Array<() => void> = []
+    const startViewTransition = vi.fn((update: () => void) => {
+      let done!: () => void
+      const finished = new Promise<void>((resolve) => (done = resolve))
+      finish.push(done)
+      const callbackDone = new Promise<void>((resolve, reject) =>
+        pending.push(() => {
+          try {
+            update()
+            resolve()
+          } catch (error) {
+            reject(error)
+          }
+        }),
+      )
+      return {
+        updateCallbackDone: callbackDone,
+        ready: ready ?? callbackDone,
+        finished: callbackDone.then(() => finished),
+      }
+    })
+    Object.assign(document, { startViewTransition })
+    return {
+      startViewTransition,
+      runCallbacks: () => act(() => pending.splice(0).forEach((run) => run())),
+      finishAll: () => finish.splice(0).forEach((done) => done()),
+      finishNext: () => finish.shift()?.(),
+    }
+  }
 
   it('puts the skip link first, then wordmark, nav, toggle and Demo, and applies the theme', () => {
     usePrefs.setState({ theme: 'dark' })
@@ -240,20 +280,87 @@ describe('App shell', () => {
   it('reveals the new theme from the button through a view transition', async () => {
     const animate = vi.fn()
     document.documentElement.animate = animate
-    const startViewTransition = vi.fn((apply: () => void) => {
-      apply()
-      return { ready: Promise.resolve() }
-    })
-    Object.assign(document, { startViewTransition })
+    const { startViewTransition, runCallbacks, finishAll } = stubTransitions()
     usePrefs.setState({ theme: 'light' })
     renderApp('/')
     fireEvent.click(toggle())
     expect(startViewTransition).toHaveBeenCalledOnce()
+    // The cross-fade override applies to this reveal only.
+    expect(document.documentElement.dataset.themeReveal).toBe('true')
+    runCallbacks()
     expect(document.documentElement.dataset.theme).toBe('dark')
     await waitFor(() => expect(animate).toHaveBeenCalledOnce())
     const [keyframes, options] = animate.mock.calls[0]!
     expect(keyframes.clipPath[0]).toMatch(/^circle\(0px at /)
     expect(options).toMatchObject({ pseudoElement: '::view-transition-new(root)' })
+    finishAll()
+    await waitFor(() => expect(document.documentElement.dataset.themeReveal).toBeUndefined())
+  })
+
+  it('flips twice when pressed twice before the first transition starts', async () => {
+    document.documentElement.animate = vi.fn()
+    const { startViewTransition, runCallbacks, finishNext } = stubTransitions()
+    usePrefs.setState({ theme: 'light' })
+    renderApp('/')
+    fireEvent.click(toggle())
+    fireEvent.click(toggle())
+    expect(startViewTransition).toHaveBeenCalledTimes(2)
+    runCallbacks()
+    expect(document.documentElement.dataset.theme).toBe('light')
+    expect(usePrefs.getState().theme).toBe('light')
+    // The older transition settling first leaves the newer one's cross-fade override in place.
+    finishNext()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(document.documentElement.dataset.themeReveal).toBe('true')
+    finishNext()
+    await waitFor(() => expect(document.documentElement.dataset.themeReveal).toBeUndefined())
+  })
+
+  it('ignores a skipped transition but reports any other failure', async () => {
+    const reportError = vi.fn()
+    vi.stubGlobal('reportError', reportError)
+    const skipped = Promise.reject(new DOMException('Skipped', 'AbortError'))
+    const { runCallbacks } = stubTransitions({ ready: skipped })
+    usePrefs.setState({ theme: 'light' })
+    renderApp('/')
+    fireEvent.click(toggle())
+    runCallbacks()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(reportError).not.toHaveBeenCalled()
+    expect(document.documentElement.dataset.theme).toBe('dark')
+
+    const broken = new Error('animate failed')
+    document.documentElement.animate = () => {
+      throw broken
+    }
+    const { runCallbacks: runAgain } = stubTransitions()
+    fireEvent.click(toggle())
+    runAgain()
+    await waitFor(() => expect(reportError).toHaveBeenCalledWith(broken))
+  })
+
+  it('reports an update callback that throws instead of losing it', async () => {
+    const reportError = vi.fn()
+    vi.stubGlobal('reportError', reportError)
+    document.documentElement.animate = vi.fn()
+    const { runCallbacks } = stubTransitions()
+    usePrefs.setState({ theme: 'light' })
+    renderApp('/')
+    const failure = new Error('storage is full')
+    const setTheme = usePrefs.getState().setTheme
+    usePrefs.setState({
+      setTheme: () => {
+        throw failure
+      },
+    })
+    try {
+      fireEvent.click(toggle())
+      runCallbacks()
+      await waitFor(() => expect(reportError).toHaveBeenCalledWith(failure))
+      expect(reportError).toHaveBeenCalledOnce()
+    } finally {
+      usePrefs.setState({ setTheme })
+    }
   })
 
   it('skips the reveal under reduced motion and switches at once', () => {

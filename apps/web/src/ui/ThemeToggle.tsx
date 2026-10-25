@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { applyTheme, usePrefs } from '@/state/prefs'
 import { ThemeGlyph } from './ThemeGlyph'
 import { revealTheme, toggleTarget } from './themeReveal'
-import { useResolvedTheme } from './useSystemTheme'
+import { currentResolvedTheme, useResolvedTheme } from './useSystemTheme'
 import './viewTransition.css'
 
 /**
@@ -12,16 +12,19 @@ import './viewTransition.css'
  */
 export function ThemeToggle() {
   const theme = usePrefs((s) => s.theme)
-  const setTheme = usePrefs((s) => s.setTheme)
   const target = toggleTarget(useResolvedTheme(theme))
   const ref = useRef<HTMLButtonElement>(null)
 
   const onClick = () => {
     const button = ref.current
     if (!button) return
+    // Decide inside the callback from current state, so two quick presses flip twice.
     revealTheme(button, () => {
-      applyTheme(target)
-      setTheme(target)
+      const prefs = usePrefs.getState()
+      const next = toggleTarget(currentResolvedTheme(prefs.theme))
+      // Set data-theme here, not in App's effect: the transition snapshots the DOM as the callback returns.
+      applyTheme(next)
+      prefs.setTheme(next)
     })
   }
 
