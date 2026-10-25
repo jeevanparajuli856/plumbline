@@ -265,6 +265,20 @@ describe('scene smoke', () => {
     expect(colourOf(r, 'placement-glow-edge')).toBe(tokenHex(t.inferred))
   })
 
+  it('uploads placement instance buffers only on frames where a strip moved', async () => {
+    const r = await mount()
+    const glow = object(r, 'placement-glow') as THREE.InstancedMesh
+    const versions = () => [glow.instanceMatrix.version, glow.instanceColor?.version ?? -1]
+    await act(async () => useSession.setState({ placement: [0, 0.8, 0.2, 0, 0, 0] }))
+    await act(async () => r.advanceFrames(240, 1 / 30))
+    const settled = versions()
+    await act(async () => r.advanceFrames(60, 1 / 30))
+    expect(versions()).toEqual(settled)
+    await act(async () => useSession.setState({ placement: [0, 0.1, 0.9, 0, 0, 0] }))
+    await act(async () => r.advanceFrames(1, 1 / 30))
+    expect(versions()[0]).toBeGreaterThan(settled[0]!)
+  })
+
   it('holds a tremor lease only for the circuit while awaiting a reading', async () => {
     const r = await mount()
     expect(animationCount()).toBe(1)
