@@ -50,7 +50,7 @@ export function LiveRegion() {
       <div id="live-polite" className="sr-only" aria-live="polite" aria-atomic="true">
         {polite}
       </div>
-      <div id="live-assertive" className="sr-only" role="alert" aria-atomic="true">
+      <div id="live-assertive" className="sr-only" aria-live="assertive" aria-atomic="true">
         {assertive}
       </div>
     </>

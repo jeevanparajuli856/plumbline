@@ -12,7 +12,7 @@ Why: `e2e` writes specs while `web-shell`, `scene`, `landing` and `voice` build 
 | Instruction       | `data-testid="instruction"`; contains the site label ("row 3")                                                                          |
 | Reading input     | `getByLabel('Meter reading in volts')` (circuit) / `getByLabel('Thermometer reading in degrees Celsius')` (thermometer); `T` focuses it |
 | Submit            | `getByRole('button', { name: 'Submit reading' })`; `Enter` in the input submits                                                         |
-| Warning           | `getByRole('alert')` with `data-testid="warning-banner"`; text starts with "Warning." and names the likely row                          |
+| Warning | `getByTestId('warning-banner')`: `role="region"`, accessible name "Placement warning", `tabIndex=-1`, receives focus when a warning arrives. NOT a live region: the announcer's assertive message is the only spoken copy. Visible text starts with "Warning." and names the likely row |
 | Diagnosis         | `data-testid="diagnosis"`, `role="region"`, accessible name "Diagnosis"; receives focus on `resolved`                                   |
 | Refusal           | `data-testid="unresolved"`, `role="region"`, accessible name "Unresolved"; contains "will not guess"                                    |
 | Belief chart      | `role="figure"` name "Belief over faults"; a table twin `getByRole('table', { name: 'Belief over faults' })`                            |
@@ -45,7 +45,7 @@ Keyboard guard: no single-key shortcut fires when focus is in an input, textarea
 | Sections        | `<section aria-labelledby>` with ids `mast, research, problem, play, how, generalize, product, ladder, evidence, close` |
 | Play transcript | `getByRole('list', { name: 'Worked example, step by step' })`, always in the DOM                                        |
 | Captions        | `data-testid="caption"`, mono, not live regions                                                                         |
-| Reduce motion   | `getByRole('switch', { name: 'Reduce motion' })`                                                                        |
+| Reduce motion | ONE app-wide `getByRole('switch', { name: 'Reduce motion' })` in the site Display bar (web-shell, `ui/PrefsBar.tsx`, state in `a11y/motionPref.ts`, mirrored to `<html data-reduce-motion="true">`). Landing does not render its own; it reads `prefersReducedMotion()` / `useReducedMotion()` from `@/a11y/useReducedMotion`, which returns the OS setting OR the switch after integration |
 
 ## 3. Scene (scene)
 
@@ -66,3 +66,17 @@ Keyboard guard: no single-key shortcut fires when focus is in an input, textarea
 ## 5. Engine (engine)
 
 Recorded fixtures must parse with `Fixture` in `apps/web/src/engine/schemas.ts` (the web Zod mirror). In particular: `prior_instruction.gain_bits` and `steps[].engine_choice.gain_bits` are per-site arrays; `catalog.hypothesis_labels` is present; `diagnosis` is `{hypothesis_id, confidence}` or null; `landed_site` is an int or null; `placement_audit` is a list of per-site arrays.
+
+## 6. Decisions added 2026-10-25 (from the e2e lane's contract gaps)
+
+| # | Decision |
+|---|---|
+| 1 | Live regions: `#live-polite` and `#live-assertive` (from `a11y/LiveRegion.tsx`) are contract selectors. |
+| 2 | Superseded 2026-10-25 by the web-shell review (M5): no element on `/sim` carries `role="alert"` for engine events. `#live-assertive` is `aria-live="assertive"` (no role), the banner is a focusable region (section 1 "Warning"). Specs select the banner by test id and the spoken copy via `#live-assertive`. Form validation may still use `role="alert"`. |
+| 3 | Landing play controls inside `section#play`: buttons "Play the 20-second example", "Pause" and "Replay" (exact names). |
+| 4 | Aiming: the placement-strip `listitem` for `aimedSite` carries `aria-current="true"` and the visible word "aimed". At integration the announcer also says "Aiming at row n." politely. |
+| 5 | `/sim?view=text` turns the "Text only" switch on (no `#scene-slot`, no canvas). `view=scene` and `view=both` are the other values; `both` is the default. |
+| 6 | `[` (Previous step) returns the replay to the state after the previous accepted reading (implemented as reset plus replay to `stepIndex - 1`, each reveal finished at once). After a diagnosis, `[` gives one accepted reading and no diagnosis. |
+| 7 | Replay pacing stays at the store default of 1800 ms for `P` and landing Play; the storyboard uses 1800 ms. No `?pace` parameter in Sprint 1. |
+| 8 | Scene readiness for recordings: `window.__plumblineScene.frames > 0` (section 3). There is no `scene-ready` test id. |
+| 9 | Landing sections are addressed by id, never by index. |

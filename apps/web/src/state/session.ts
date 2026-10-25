@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { ApiClient } from '@/engine/api'
-import { chooseClient, EngineError, type EngineClient } from '@/engine/client'
+import { chooseClient, EngineError, type EngineClient, type StartRequest } from '@/engine/client'
 import type { CatalogViewT, SessionViewT, StepViewT } from '@/engine/schemas'
 import { prefersReducedMotion } from '@/a11y/useReducedMotion'
 import { webglSupported } from '@/lib/webgl'
@@ -20,6 +20,8 @@ import type {
 
 export const TOP_K = 3
 const DEFAULT_PACE_MS = 1800
+/** Seed used when the caller does not choose one, so a simulate run is reproducible. */
+export const DEFAULT_SEED = 1
 
 const initialData: SessionData = {
   domain: 'circuit',
@@ -92,6 +94,8 @@ function errorFor(code: SessionError['code'], resumePhase: Phase): SessionError 
 }
 
 let client: EngineClient = new ReplayClient()
+/** The request that created the current session, kept so an evicted API session can be re-created. */
+let lastStartRequest: StartRequest | null = null
 let revealToken = 0
 let autoplayTimer: number | undefined
 
@@ -106,6 +110,10 @@ let sceneMounted = false
 /** The scene calls this on mount and unmount; without a mounted scene nobody animates the reveal. */
 export function setSceneMounted(mounted: boolean): void {
   sceneMounted = mounted
+}
+
+function isEvicted(error: unknown): boolean {
+  return error instanceof EngineError && error.code === 'session_not_found' && client.kind === 'api'
 }
 
 function canAnimateReveal(): boolean {
@@ -213,6 +221,18 @@ export const useSession = create<SessionState>((set, get) => {
     }
   }
 
+  /**
+   * The API keeps sessions in memory with an LRU cap, so another client can evict ours. Live and
+   * simulate are deterministic for the same seed and readings, so re-creating the session and
+   * replaying the accepted readings restores the same belief without bothering the user.
+   */
+  const recreateSession = async (readings: ReadingEntry[], mode: SessionData['mode']) => {
+    if (!lastStartRequest) throw new EngineError('session_lost', 'The session was lost.')
+    const view = await client.start(lastStartRequest)
+    for (const entry of readings) await client.step(view.session_id, mode === 'simulate' ? null : entry.value)
+    return view.session_id
+  }
+
   const fail = (error: unknown, resumePhase: Phase) => {
     const code = error instanceof EngineError ? (error.code as SessionError['code']) : 'api_error'
     const known: SessionError['code'][] = [
@@ -238,13 +258,18 @@ export const useSession = create<SessionState>((set, get) => {
       set({ ...initialData, apiHealth: get().apiHealth, phase: 'starting', mode: opts.mode })
       const domain = opts.domain ?? 'circuit'
       try {
-        const view = await client.start({
+        const mode = choice.kind === 'replay' ? 'replay' : opts.mode
+        const request: StartRequest = {
           domain,
-          mode: choice.kind === 'replay' ? 'replay' : opts.mode,
-          ...(opts.seed !== undefined ? { seed: opts.seed } : {}),
+          mode,
+          seed: opts.seed ?? DEFAULT_SEED,
+          // Live never reveals the landed site; simulate and replay reveal it after each step.
+          reveal: mode === 'live' ? 'never' : 'after_step',
           ...(opts.trueHypothesis ? { true_hypothesis: opts.trueHypothesis } : {}),
           ...(opts.fixture ? { fixture: opts.fixture } : {}),
-        })
+        }
+        lastStartRequest = request
+        const view = await client.start(request)
         applyStart(view, { ...opts, mode: choice.kind === 'replay' ? 'replay' : opts.mode }, choice.kind)
         if (choice.reason === 'api_unavailable') {
           set({ error: errorFor(get().apiHealth === 'waking' ? 'api_waking' : 'api_unreachable', 'awaiting_reading') })
@@ -269,11 +294,19 @@ export const useSession = create<SessionState>((set, get) => {
         return
       }
       set({ phase: 'submitting', error: null })
+      const reading = state.mode === 'simulate' ? null : value
       try {
-        const step = await client.step(state.sessionId, state.mode === 'simulate' ? null : value)
+        const step = await client.step(state.sessionId, reading)
         applyStep(step, source)
       } catch (error) {
-        fail(error, 'awaiting_reading')
+        if (!isEvicted(error)) return fail(error, 'awaiting_reading')
+        try {
+          const sessionId = await recreateSession(state.readings, state.mode)
+          set({ sessionId })
+          applyStep(await client.step(sessionId, reading), source)
+        } catch (retryError) {
+          fail(retryError, 'awaiting_reading')
+        }
       }
     },
 
