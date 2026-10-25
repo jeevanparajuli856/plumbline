@@ -4,6 +4,12 @@ import type { Catalog, DomainSpec, HypothesisId, ReadingEntry, Site } from '@/st
 
 /** Pure view-model helpers for the simulator panels. No React, no store. */
 
+/** Accessible names of the reading input (docs/UI_CONTRACT.md section 1). */
+export const READING_LABELS: Record<DomainSpec['id'], string> = {
+  circuit: 'Meter reading in volts',
+  thermometer: 'Thermometer reading in degrees Celsius',
+}
+
 export const BELIEF_ROWS = 4
 
 export interface BeliefRow {
