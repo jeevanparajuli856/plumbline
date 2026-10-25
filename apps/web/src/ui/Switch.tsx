@@ -30,18 +30,18 @@ export function Switch({
       aria-describedby={description ? descId : undefined}
       aria-keyshortcuts={keyshortcut}
       onClick={() => onChange(!checked)}
-      className="group inline-flex min-h-11 items-center gap-2.5 rounded-hard px-1.5 text-text hover:bg-surface-2"
+      className="group inline-flex min-h-11 items-center gap-2.5 rounded-button px-2 text-text transition-colors duration-[var(--motion-fast)] hover:bg-surface-2"
     >
       <span id={labelId} className="font-medium">
         {label}
       </span>
       <span
         aria-hidden="true"
-        className="relative inline-block h-6 w-11 shrink-0 rounded-full border-2 border-border-strong bg-surface-1 transition-colors duration-[var(--motion-fast)] group-aria-checked:border-text group-aria-checked:bg-text"
+        className="relative inline-block h-6 w-11 shrink-0 rounded-hard border-[1.5px] border-border-strong bg-surface-1 transition-colors duration-[var(--motion-fast)] group-aria-checked:bg-text"
       >
-        <span className="absolute left-0.5 top-0.5 size-4 rounded-full bg-border-strong transition-transform duration-[var(--motion-fast)] ease-[var(--ease-smooth)] group-aria-checked:translate-x-5 group-aria-checked:bg-bench" />
+        <span className="absolute left-[3px] top-[3px] size-[15px] rounded-[1px] bg-border-strong transition-transform duration-[var(--motion-fast)] ease-[var(--ease-smooth)] group-aria-checked:translate-x-5 group-aria-checked:bg-bench" />
       </span>
-      <span aria-hidden="true" className="w-7 font-mono text-sm text-text-2">
+      <span aria-hidden="true" className="w-7 font-mono text-caption text-text-2 tnum">
         {checked ? 'On' : 'Off'}
       </span>
       {keyHint ? (

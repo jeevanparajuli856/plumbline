@@ -93,7 +93,7 @@ export function ReadingForm({
           className={buttonClass('primary', 'min-h-14 px-6 text-md')}
         >
           Submit reading
-          <kbd aria-hidden="true" className="font-mono text-sm opacity-80">
+          <kbd aria-hidden="true" className="font-mono text-sm">
             Enter
           </kbd>
         </button>

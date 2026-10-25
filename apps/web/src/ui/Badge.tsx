@@ -1,9 +1,10 @@
 export type BadgeKind = 'SIMULATED' | 'PROVISIONAL' | 'PENDING' | 'IN PROGRESS' | 'DONE'
 
+// Dashed means "not real yet" (simulated, pending); solid means the condition is a fact.
 const LOOK: Record<BadgeKind, string> = {
-  SIMULATED: 'border-inferred text-inferred border-dashed',
+  SIMULATED: 'border-dashed border-inferred text-inferred',
   PROVISIONAL: 'border-measured text-measured',
-  PENDING: 'border-border-strong text-text-2 border-dashed',
+  PENDING: 'border-dashed border-border-strong text-text-2',
   'IN PROGRESS': 'border-inferred text-inferred',
   DONE: 'border-text bg-text text-bench',
 }
@@ -21,7 +22,7 @@ export function Badge({ kind, qualifier, title }: BadgeProps) {
     <span
       data-testid="badge"
       title={title}
-      className={`inline-flex items-baseline gap-1.5 whitespace-nowrap rounded-hard border-2 px-2 py-0.5 font-mono text-sm font-semibold uppercase tracking-[var(--tracking-caps)] ${LOOK[kind]}`}
+      className={`inline-flex items-baseline gap-1.5 whitespace-nowrap rounded-hard border-[1.5px] px-2 py-0.5 font-mono text-caption font-semibold uppercase tracking-[var(--tracking-caps)] ${LOOK[kind]}`}
     >
       {qualifier ? (
         <span className="font-normal normal-case tracking-normal">{qualifier} </span>
