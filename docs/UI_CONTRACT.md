@@ -66,3 +66,17 @@ Keyboard guard: no single-key shortcut fires when focus is in an input, textarea
 ## 5. Engine (engine)
 
 Recorded fixtures must parse with `Fixture` in `apps/web/src/engine/schemas.ts` (the web Zod mirror). In particular: `prior_instruction.gain_bits` and `steps[].engine_choice.gain_bits` are per-site arrays; `catalog.hypothesis_labels` is present; `diagnosis` is `{hypothesis_id, confidence}` or null; `landed_site` is an int or null; `placement_audit` is a list of per-site arrays.
+
+## 6. Decisions added 2026-10-25 (from the e2e lane's contract gaps)
+
+| # | Decision |
+|---|---|
+| 1 | Live regions: `#live-polite` and `#live-assertive` (from `a11y/LiveRegion.tsx`) are contract selectors. |
+| 2 | The warning banner is selected by `data-testid="warning-banner"`, never by `getByRole('alert')` alone (the assertive live region may also carry an alert role until the a11y audit settles it). |
+| 3 | Landing play controls inside `section#play`: buttons "Play the 20-second example", "Pause" and "Replay" (exact names). |
+| 4 | Aiming: the placement-strip `listitem` for `aimedSite` carries `aria-current="true"` and the visible word "aimed". At integration the announcer also says "Aiming at row n." politely. |
+| 5 | `/sim?view=text` turns the "Text only" switch on (no `#scene-slot`, no canvas). `view=scene` and `view=both` are the other values; `both` is the default. |
+| 6 | `[` (Previous step) returns the replay to the state after the previous accepted reading (implemented as reset plus replay to `stepIndex - 1`, each reveal finished at once). After a diagnosis, `[` gives one accepted reading and no diagnosis. |
+| 7 | Replay pacing stays at the store default of 1800 ms for `P` and landing Play; the storyboard uses 1800 ms. No `?pace` parameter in Sprint 1. |
+| 8 | Scene readiness for recordings: `window.__plumblineScene.frames > 0` (section 3). There is no `scene-ready` test id. |
+| 9 | Landing sections are addressed by id, never by index. |
