@@ -1,20 +1,19 @@
 import { renderHook } from '@testing-library/react'
-import { useScrollProgress, SNAP_IDLE_MS } from './useScrollProgress'
-
-function snapTimersArmed(spy: { mock: { calls: unknown[][] } }): number {
-  return spy.mock.calls.filter((call) => call[1] === SNAP_IDLE_MS).length
-}
+import { useScrollProgress } from './useScrollProgress'
 
 describe('useScrollProgress', () => {
   let root: HTMLElement
   let setTimeoutSpy: ReturnType<typeof vi.spyOn>
   let rafSpy: ReturnType<typeof vi.spyOn>
+  let scrollToSpy: ReturnType<typeof vi.fn>
 
   beforeEach(() => {
     root = document.createElement('main')
     document.body.appendChild(root)
     setTimeoutSpy = vi.spyOn(window, 'setTimeout')
     rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 1)
+    scrollToSpy = vi.fn()
+    window.scrollTo = scrollToSpy as unknown as typeof window.scrollTo
     renderHook(() => useScrollProgress({ current: root }, false))
     setTimeoutSpy.mockClear()
     rafSpy.mockClear()
@@ -26,32 +25,19 @@ describe('useScrollProgress', () => {
     root.remove()
   })
 
-  it('arms the snap after a plain scroll', () => {
+  it('recomputes progress on scroll and on resize', () => {
     window.dispatchEvent(new Event('scroll'))
-    expect(snapTimersArmed(setTimeoutSpy)).toBe(1)
-  })
-
-  it('recomputes progress on resize without arming a snap', () => {
+    expect(rafSpy).toHaveBeenCalledTimes(1)
     window.dispatchEvent(new Event('resize'))
     expect(rafSpy).toHaveBeenCalled()
-    expect(snapTimersArmed(setTimeoutSpy)).toBe(0)
   })
 
-  it('does not arm a snap on pointerup when nothing scrolled while the pointer was down', () => {
-    window.dispatchEvent(new Event('pointerdown'))
-    window.dispatchEvent(new Event('pointerup'))
-    expect(snapTimersArmed(setTimeoutSpy)).toBe(0)
-  })
-
-  it('arms a snap on pointerup when a scroll happened while the pointer was down', () => {
+  it('never moves the page by itself, however the reader scrolls or stops', () => {
     window.dispatchEvent(new Event('pointerdown'))
     window.dispatchEvent(new Event('scroll'))
-    expect(snapTimersArmed(setTimeoutSpy)).toBe(0)
     window.dispatchEvent(new Event('pointerup'))
-    expect(snapTimersArmed(setTimeoutSpy)).toBe(1)
-    setTimeoutSpy.mockClear()
-    window.dispatchEvent(new Event('pointerdown'))
-    window.dispatchEvent(new Event('pointerup'))
-    expect(snapTimersArmed(setTimeoutSpy)).toBe(0)
+    window.dispatchEvent(new Event('scroll'))
+    expect(setTimeoutSpy).not.toHaveBeenCalled()
+    expect(scrollToSpy).not.toHaveBeenCalled()
   })
 })

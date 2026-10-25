@@ -1,9 +1,8 @@
-import { STICKY_STATES, progressOf } from './choreography'
+import { progressOf } from './choreography'
 import {
   computeProgress,
   currentIndex,
   flowFraction,
-  snapTarget,
   trackFraction,
   type SectionBox,
 } from './scrollMath'
@@ -99,23 +98,3 @@ describe('computeProgress', () => {
   })
 })
 
-describe('snapTarget', () => {
-  const track = (scrollIntoTrack: number) => ({ top: -scrollIntoTrack, height: 3 * VH })
-
-  it('snaps a resting track to the nearest named state', () => {
-    const scrollY = 5000
-    const r = snapTarget(scrollY, track(0.6 * 2 * VH), VH, STICKY_STATES.play)
-    expect(r?.state).toBe('landed')
-    expect(r?.scrollY).toBe(Math.round(scrollY - 0.6 * 2 * VH + (2 / 3) * 2 * VH))
-  })
-
-  it('leaves the reader alone at the ends of the track', () => {
-    expect(snapTarget(0, track(0), VH, STICKY_STATES.play)).toBeNull()
-    expect(snapTarget(0, track(2 * VH), VH, STICKY_STATES.play)).toBeNull()
-  })
-
-  it('does nothing inside the deadband or for short tracks', () => {
-    expect(snapTarget(0, track((1 / 3) * 2 * VH + 1), VH, STICKY_STATES.play)).toBeNull()
-    expect(snapTarget(0, { top: -10, height: VH }, VH, STICKY_STATES.play)).toBeNull()
-  })
-})

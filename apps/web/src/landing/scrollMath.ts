@@ -3,7 +3,7 @@
  * the one progress scalar and the snap target. No DOM access here, so all of it is unit-tested.
  */
 import type { LandingSection } from '@/state/landing'
-import { BAND, SECTION_ORDER, nearestState, type NamedState } from './choreography'
+import { BAND, SECTION_ORDER } from './choreography'
 
 export interface SectionBox {
   id: LandingSection
@@ -16,8 +16,6 @@ export interface SectionBox {
 
 export type SectionKind = 'first' | 'last' | 'flow'
 
-/** Distance in px under which a resting sticky scene is left alone instead of snapped. */
-export const SNAP_DEADBAND_PX = 4
 
 function clamp01(x: number): number {
   if (!Number.isFinite(x)) return 0
@@ -73,22 +71,3 @@ export function computeProgress(boxes: readonly SectionBox[], vh: number): Progr
   return { progress: Math.min(1, (order + f) * BAND), section: box.id, f }
 }
 
-/**
- * Where to scroll so a resting sticky track sits on its nearest named state.
- * Returns null at the track's ends (the reader is entering or leaving) or inside the deadband.
- */
-export function snapTarget(
-  scrollY: number,
-  track: { top: number; height: number },
-  vh: number,
-  states: readonly NamedState[],
-): { scrollY: number; state: string } | null {
-  const travel = track.height - vh
-  if (travel <= 0) return null
-  const f = -track.top / travel
-  if (f <= 0 || f >= 1) return null
-  const state = nearestState(states, f)
-  const target = scrollY + track.top + state.at * travel
-  if (Math.abs(target - scrollY) < SNAP_DEADBAND_PX) return null
-  return { scrollY: Math.round(target), state: state.name }
-}
