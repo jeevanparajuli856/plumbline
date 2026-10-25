@@ -6,10 +6,12 @@ from collections.abc import Callable
 from functools import cache
 
 from plumbline.domains.circuit import CircuitModel
+from plumbline.domains.thermometer import ThermometerModel
 from plumbline.model import InstrumentModel
 
 DOMAIN_FACTORIES: dict[str, Callable[[], InstrumentModel]] = {
     "circuit": CircuitModel,
+    "thermometer": ThermometerModel,
 }
 
 
