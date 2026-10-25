@@ -29,6 +29,15 @@ schemas.py is the source of truth (contract section 12). The divergences:
 - `BaselineView.diagnosis` is present when the published method's top class holds at least 0.95 of the mass. Otherwise it is `null`.
 - `SessionView.true_hypothesis` and `StepView.landed_site` are always present as keys and are `null` when hidden (invariants 6 and 7).
 - `SessionView.config` is `{sigma, confusion (K x K matrix), thresholds {resolve, placement_warning, min_gain_bits, class_tolerance, max_steps}}`.
+- Security-review additions:
+  - 413 `payload_too_large`: request bodies are capped at 16 KiB (`MAX_BODY_BYTES` in `plumbline_api/guard.py`), checked by Content-Length and by counting chunked bytes. `details.max_bytes` gives the cap.
+  - 422 `numerically_degenerate`: the belief became non-finite. The `sigma` floor makes this unreachable through the API today.
+  - `sigma` is bounded to [1e-6 (`MIN_SIGMA`), 100].
+  - Session ids in paths must be lowercase UUID4; anything else is a 422 `validation_error`, not a 404.
+  - A body that is not valid UTF-8 JSON is a 422 `validation_error`, not a 400.
+  - Client text echoed in messages is cut at 64 characters.
+  - 500 and 413 replies carry CORS headers for allowed origins.
+  - `PLUMBLINE_CORS_ORIGINS` is a comma list; `*` and empty entries refuse to start.
 - Extra error codes: 404 `not_found` and 405 `method_not_allowed` for unknown routes and methods, so every error uses the envelope. Validation `details` is `{errors: [{loc, msg, type}]}`.
 - Fixture shape additions, all additive: `steps[].likely_site`, `steps[].unresolved` (always present, `null` unless unresolved), `source_mode`, `seed`, `simulated`, `config.domain_parameters` (LED calibration, ADR-0002), `config.truth_confusion` (simulate-sourced fixtures), `catalog.expected_readings`. The thresholds keys are `resolve, placement_warning, min_gain_bits, class_tolerance, max_steps`; the contract's illustration uses `class_tolerance_v`.
 - Section 10 can now quote the fixture. The values match the scratch values to three decimals. See the lane report.
