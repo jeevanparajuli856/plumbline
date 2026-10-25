@@ -34,6 +34,13 @@
   --color-ink-measured: var(--ink-measured);
   --color-ink-inferred: var(--ink-inferred);
   --color-ink-warning: var(--ink-warning);
+  --color-feature: var(--feature);
+  --color-on-feature: var(--on-feature);
+  --color-on-feature-muted: var(--on-feature-muted);
+  --color-feature-divider: var(--feature-divider);
+  --color-feature-measured: var(--feature-measured);
+  --color-feature-inferred: var(--feature-inferred);
+  --color-feature-warning: var(--feature-warning);
   --font-display: var(--font-display);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);

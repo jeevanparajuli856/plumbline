@@ -97,6 +97,7 @@ Reference board: "B2" in the design canvas "Plumbline UI Directions". Implementa
 
 ### 4.1 Palette and type
 
+- Emphasis bands (the technology and call-to-action sections) use the `feature` tokens: a warm light band in light theme and ink in dark theme. No dark sections in light theme (user, 2026-10-25).
 - Light default. Page #F3EDE3, cards #FBF8F2 with a 1px #DCD2C2 border, bands #EBE2D3, ink sections #1E1A16 with #F3EDE3 text. Text #1E1A16, muted #5E554B. Measured amber: text #9A4A0C, fill #F2A93B; primary action #B95A0F. Inferred (told site, plumb line) #0B6478. Warning #B02C17 on #FBEEE8, used only for placement warnings, always with the left rule, the glyph and the word. Dark and high-contrast themes derive from the same tokens.
 - Type: Fraunces (display, variable, optical sizes) for headlines and big numbers; Atkinson Hyperlegible Next for everything else (designed by the Braille Institute for low vision, which is part of the story); JetBrains Mono for readings, probabilities, captions and status tags. Display 84, h2 48 to 52, lead 21, body 17 to 18, captions 13 to 15. Nothing below 13px, nothing below 4.5:1.
 - Shape: sharp sections and tables, 12px cards, 8px buttons, 24px phone frame. Shadows only on the hero instrument card and the phone.
@@ -105,7 +106,11 @@ Reference board: "B2" in the design canvas "Plumbline UI Directions". Implementa
 
 Asymmetric by rule (applies per page since ADR-0014): 7:5 hero with the live instrument card, 2:3 research with a pinned left column and an offset numbered quote list, full-bleed ink technology section 5:7, 3:2 product with an offset three-row list and the phone card, 2:3 validation with a ruled four-cell stat grid, 7:5 CTA band. A thin column of identical holes pinned at the right page edge follows scroll, its ringed dot sliding to the reader's place (the mark, read vertically). One header: wordmark, four links (How it works, Evidence, The app, Accessibility), one theme toggle that flips light and dark with a circular reveal from the button (View Transitions API; instant under reduced motion), one ink "Try Truehand" button. High contrast, System, Text only and Reduce motion live on /accessibility and in the web app toolbar.
 
-### 4.2.1 Photography (added 2026-10-25 at the user's request)
+### 4.2.1 Imagery (revised 2026-10-25: no stock photography)
+
+No stock photos anywhere. Imagery is our own: custom SVG illustrations in the palette (the braille-cell and breadboard grid, a hand and probe in line art, the app on the phone) and still renders of our own 3D breadboard scene. The five Unsplash photos are removed.
+
+#### Superseded: stock photography
 
 Five free Unsplash photos (hands on a braille display, a multimeter with probes, a wired breadboard, braille dots in numbered rows, an empty breadboard), manifest `apps/web/src/landing/photos.ts`, credits `docs/IMAGE_CREDITS.md`. They add texture to research, problem, technology and product; they never appear in the hero, never stand in for our users, study, partner or hardware, and each carries a visible "Stock photo" credit. Shape: sharp edges or 12px when inside a card, no filters, no gradient overlays, no duotone glow; warm grading only through the page around them.
 
