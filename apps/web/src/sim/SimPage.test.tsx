@@ -283,13 +283,13 @@ describe('SimPage', () => {
     press(']')
     await screen.findByTestId('warning-banner')
     useSession.setState({ phase: 'submitting' })
-    const resetSpy = vi.spyOn(useSession.getState(), 'reset')
+    const rewindSpy = vi.spyOn(useSession.getState(), 'replayPrevious')
     press('[')
-    expect(resetSpy).not.toHaveBeenCalled()
+    expect(rewindSpy).not.toHaveBeenCalled()
     useSession.setState({ phase: 'awaiting_reading' })
     press('[')
-    await waitFor(() => expect(resetSpy).toHaveBeenCalledOnce())
-    resetSpy.mockRestore()
+    await waitFor(() => expect(rewindSpy).toHaveBeenCalledOnce())
+    rewindSpy.mockRestore()
   })
 
   it('omits the scene slot in the text-only view', async () => {

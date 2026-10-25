@@ -182,6 +182,8 @@ export interface SessionActions {
   submitReading(value: number, source: ReadingSource): Promise<void>
   finishReveal(token: number): void
   replayNext(): Promise<void>
+  /** Back to the state after the previous recorded step, silently, then one announcement. */
+  replayPrevious(): Promise<void>
   replayPlay(paceMs?: number): void
   replayPause(): void
   retry(): Promise<void>

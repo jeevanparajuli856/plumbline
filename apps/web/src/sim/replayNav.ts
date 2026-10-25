@@ -26,25 +26,15 @@ export function useRewinding(): boolean {
 }
 
 /**
- * Previous step for a recording. The store only plays forward, so this resets and replays
- * `stepIndex - 1` steps, finishing each reveal immediately (no travel animation on rewind).
- * A second call while one is running is ignored. Intermediate steps are not silenced: the store's
- * `silent` flag can only be set at start (a store-side replayPrevious is planned on main).
+ * Previous step for a recording, through the store's silent replayPrevious (the announcer says
+ * where it landed, once). A second call while one is running is ignored.
  */
 export async function stepBack(store: Store): Promise<boolean> {
   const replay = store.getState().replay
   if (rewinding || !replay || replay.stepIndex === 0) return false
   setRewinding(true)
   try {
-    const target = replay.stepIndex - 1
-    store.getState().replayPause()
-    await store.getState().reset()
-    for (let i = 0; i < target; i += 1) {
-      await store.getState().replayNext()
-      const reveal = store.getState().reveal
-      if (reveal) store.getState().finishReveal(reveal.token)
-      if (store.getState().phase !== 'awaiting_reading') break
-    }
+    await store.getState().replayPrevious()
     return true
   } finally {
     setRewinding(false)

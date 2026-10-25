@@ -15,9 +15,13 @@ export function startAnnouncer(): () => void {
   let lastSessionId = initial.sessionId
   let lastDomain = initial.domain
   let lastAimed = initial.aimedSite
+  let lastSilent = initial.replay?.silent ?? false
   return useSession.subscribe((state) => {
     const spec = DOMAINS[state.domain]
     const catalog = state.catalog
+    const silent = state.replay?.silent ?? false
+    const silenceLifted = lastSilent && !silent
+    lastSilent = silent
     // A fresh start (new session, new instrument, or a reset that drops the readings) may keep the
     // same phase, so it is detected here and its first instruction is announced explicitly.
     const isFreshStart =
@@ -31,7 +35,6 @@ export function startAnnouncer(): () => void {
       lastReadingCount = state.readings.length
       lastPhase = state.phase
       const site = state.instruction && catalog ? catalog.sites[state.instruction.site] : undefined
-      const silent = state.replay?.silent ?? false
       if (site && !silent && state.phase === 'awaiting_reading')
         announce(spec.phrases.instruction(site))
       return
@@ -39,10 +42,17 @@ export function startAnnouncer(): () => void {
     if (state.readings.length > lastReadingCount && catalog) {
       lastReadingCount = state.readings.length
       const last = state.readings[state.readings.length - 1]
-      if (last) announce(spec.phrases.accepted(last.value))
+      if (last && !silent) announce(spec.phrases.accepted(last.value))
     }
     const aimChanged = state.aimedSite !== lastAimed
     lastAimed = state.aimedSite
+    if (silenceLifted) {
+      // A silent rewind or replay just finished: say once where it landed.
+      lastPhase = state.phase
+      const phrase = currentPhrase(state)
+      if (phrase) announce(phrase, { priority: state.warning ? 'assertive' : 'polite' })
+      return
+    }
     if (state.phase === lastPhase) {
       // Only a user aims without a phase change; a step moves the aim together with the phase.
       const aimed = state.aimedSite !== null && catalog ? catalog.sites[state.aimedSite] : undefined
@@ -53,7 +63,6 @@ export function startAnnouncer(): () => void {
     const previous = lastPhase
     lastPhase = state.phase
     if (!catalog) return
-    const silent = state.replay?.silent ?? false
     if (silent) return
     switch (state.phase) {
       case 'awaiting_reading': {

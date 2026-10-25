@@ -96,3 +96,38 @@ describe('announcer aim and repeat', () => {
     expect(currentPhrase(s)).toBe(s.error?.sentence)
   })
 })
+
+describe('replayPrevious', () => {
+  let stop: () => void
+  beforeEach(async () => {
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+    stop = startAnnouncer()
+  })
+  afterEach(() => stop())
+
+  it('rewinds one recorded step silently and then says where it landed, once', async () => {
+    await useSession.getState().replayNext()
+    await finishRevealIfAny()
+    await useSession.getState().replayNext()
+    await finishRevealIfAny()
+    expect(useSession.getState().phase).toBe('resolved')
+    announced.length = 0
+    await useSession.getState().replayPrevious()
+    const s = useSession.getState()
+    expect(s.replay?.stepIndex).toBe(1)
+    expect(s.readings).toHaveLength(1)
+    expect(s.readings[0]?.landedSite).toBe(1)
+    expect(s.phase).toBe('awaiting_reading')
+    expect(s.warning).not.toBeNull()
+    expect(s.replay?.silent).toBe(false)
+    expect(announced).toHaveLength(1)
+    expect(announced[0]?.text).toMatch(/^Warning\..*Touch the red probe to row 3/)
+  })
+
+  it('does nothing on the first step', async () => {
+    announced.length = 0
+    await useSession.getState().replayPrevious()
+    expect(useSession.getState().replay?.stepIndex).toBe(0)
+    expect(announced).toHaveLength(0)
+  })
+})
