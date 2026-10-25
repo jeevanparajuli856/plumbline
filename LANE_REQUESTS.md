@@ -44,4 +44,5 @@ schemas.py is the source of truth (contract section 12). The divergences:
 
 ## 5. Repo hygiene
 
-- `.coverage` (the root coverage database) is tracked in git, from the commit shown by `git log -- .coverage`. Every coverage run dirties it. Untrack it and add `.coverage` and `.coverage.*` to `.gitignore`. This lane restored it each time and never committed it.
+- The root `.coverage` (the coverage database) is tracked on main (commit 4e25913), and every coverage run from the repo root dirties it. Untrack it and add `.coverage` and `.coverage.*` to the root `.gitignore` at integration. This lane restored the root file each time and did not commit it.
+- This lane did accidentally commit `engine/.coverage`, in 56a3aa6 and 1c3d21c. It is now untracked (`git rm --cached`) and ignored by a new `engine/.gitignore`.
