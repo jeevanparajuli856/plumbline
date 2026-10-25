@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { ContactPage } from './ContactPage'
-import { LIMITS, mailtoFor, sendContact, validate } from './contactForm'
+import { LIMITS, mailtoFor, rateLimitSentence, sendContact, validate } from './contactForm'
 
 vi.mock('@/lib/webgl', () => ({ webglSupported: () => false }))
 // GSAP motion has its own tests (landing/motion); pages render without it here.
@@ -89,27 +89,43 @@ describe('sendContact', () => {
     const [url, init] = fetchFn.mock.calls[0]!
     expect(url).toBe('https://api.example/v1/contact')
     expect(init.method).toBe('POST')
+    // API_CONTRACT 13.1: lowercase reason, empty optional fields as "", the honeypot as "".
     expect(JSON.parse(init.body)).toEqual({
       name: 'Ada Lovelace',
       email: 'ada@example.org',
-      reason: 'Pilot',
+      organization: '',
+      phone: '',
+      reason: 'pilot',
       message: VALID.message,
       website: '',
     })
   })
 
-  it('maps 422, 429, 503 and a network error', async () => {
-    const detail = { detail: [{ loc: ['body', 'email'] }, { loc: ['body', 'message'] }] }
-    expect(await sendContact(input.value, '', respond(422, detail))).toEqual({
+  it('maps every response in API_CONTRACT 13.2 and a network error', async () => {
+    const errors = (locs: string[]) => ({
+      error: {
+        code: 'validation_error',
+        details: { errors: locs.map((l) => ({ loc: ['body', l] })) },
+      },
+    })
+    expect(await sendContact(input.value, '', respond(422, errors(['email', 'message'])))).toEqual({
       kind: 'invalid',
       fields: ['email', 'message'],
     })
-    expect(await sendContact(input.value, '', respond(429))).toEqual({ kind: 'rate_limited' })
+    expect(await sendContact(input.value, '', respond(413))).toEqual({ kind: 'too_large' })
+    const limited = { error: { code: 'rate_limited', details: { retry_after_s: 125 } } }
+    expect(await sendContact(input.value, '', respond(429, limited))).toEqual({
+      kind: 'rate_limited',
+      retryAfterS: 125,
+    })
     const mailto = mailtoFor(input.value)
-    expect(
-      await sendContact(input.value, '', respond(503, { code: 'contact_unavailable' })),
-    ).toEqual({
+    const unavailable = { error: { code: 'contact_unavailable', details: {} } }
+    expect(await sendContact(input.value, '', respond(503, unavailable))).toEqual({
       kind: 'unavailable',
+      mailto,
+    })
+    expect(await sendContact(input.value, '', respond(502))).toEqual({
+      kind: 'send_failed',
       mailto,
     })
     const offline = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'))
@@ -117,6 +133,22 @@ describe('sendContact', () => {
     expect(mailto).toBe(
       `mailto:support@truehand.tech?subject=${encodeURIComponent('Pilot: Ada Lovelace')}&body=${encodeURIComponent(VALID.message)}`,
     )
+  })
+
+  it('turns retry_after_s into whole minutes, or a few minutes when absent', () => {
+    expect(rateLimitSentence(125)).toBe(
+      'Too many messages from here. Please try again in 3 minutes.',
+    )
+    expect(rateLimitSentence(30)).toBe('Too many messages from here. Please try again in 1 minute.')
+    expect(rateLimitSentence(null)).toBe(
+      'Too many messages from here. Please try again in a few minutes.',
+    )
+  })
+
+  it('refuses multi-line names and phone letters the API would refuse', () => {
+    expect(validate({ ...VALID, name: 'Ada\nLovelace' }).ok).toBe(false)
+    expect(validate({ ...VALID, phone: 'call me' }).ok).toBe(false)
+    expect(validate({ ...VALID, phone: '+1 (318) 555-0100' }).ok).toBe(true)
   })
 })
 
@@ -170,7 +202,7 @@ describe('ContactPage', () => {
   })
 
   it('says to try later on 429', async () => {
-    vi.stubGlobal('fetch', respond(429))
+    vi.stubGlobal('fetch', respond(429, { error: { code: 'rate_limited', details: {} } }))
     const form = renderForm()
     fill(form)
     fireEvent.click(within(form).getByRole('button', { name: 'Send message' }))
@@ -180,12 +212,36 @@ describe('ContactPage', () => {
   })
 
   it('names the fields the server rejected on 422', async () => {
-    vi.stubGlobal('fetch', respond(422, { detail: [{ loc: ['body', 'phone'] }] }))
+    vi.stubGlobal(
+      'fetch',
+      respond(422, {
+        error: { code: 'validation_error', details: { errors: [{ loc: ['body', 'phone'] }] } },
+      }),
+    )
     const form = renderForm()
     fill(form)
     fireEvent.click(within(form).getByRole('button', { name: 'Send message' }))
     expect(await within(form).findByRole('alert')).toHaveTextContent(
       'Please check: Phone (optional).',
+    )
+  })
+
+  it('asks for a shorter message on 413 and offers retry or email on 502', async () => {
+    vi.stubGlobal('fetch', respond(413))
+    let form = renderForm()
+    fill(form)
+    fireEvent.click(within(form).getByRole('button', { name: 'Send message' }))
+    expect(await within(form).findByRole('alert')).toHaveTextContent('too long to send')
+    document.body.innerHTML = ''
+    vi.stubGlobal('fetch', respond(502))
+    form = renderForm()
+    fill(form)
+    fireEvent.click(within(form).getByRole('button', { name: 'Send message' }))
+    const alert = await within(form).findByRole('alert')
+    expect(alert).toHaveTextContent('did not go through')
+    expect(within(alert).getByRole('link', { name: 'send it by email instead' })).toHaveAttribute(
+      'href',
+      expect.stringMatching(/^mailto:support@truehand\.tech\?/),
     )
   })
 

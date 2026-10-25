@@ -48,6 +48,13 @@ describe('landing copy is backed by the docs', () => {
     expect('DIFFERENCE' in content).toBe(false)
   })
 
+  it('dates the field session from POSITIONING and says it in one line', () => {
+    expect(positioningMd).toContain('November 11, 2026')
+    expect(flat(positioningMd)).toContain(content.FIELD_SESSION)
+    expect(content.SIMULATION_SCOPE).toContain('November 11, 2026')
+    expect(content.SIMULATION_SCOPE).not.toMatch(/being scheduled/)
+  })
+
   it('names only the partner with permission on file in the simulation scope (rule F21)', () => {
     // Permission to name the Louisiana Center for the Blind is on file (2026-10-25); no address.
     expect(content.SIMULATION_SCOPE).toContain('Louisiana Center for the Blind')
@@ -69,7 +76,7 @@ describe('validation stats are read from docs/results', () => {
     expect(content.VALIDATION_STATS).toHaveLength(4)
     const pending = content.VALIDATION_STATS.filter((st) => !st.isSimulated)
     expect(pending.map((st) => st.id)).toEqual(['real-hands'])
-    expect(pending[0]!.label).toContain('No participant results yet.')
+    expect(pending[0]!.label).toContain('field session')
     for (const st of content.VALIDATION_STATS.filter((x) => x.isSimulated)) {
       expect(st.value).not.toBeNull()
     }

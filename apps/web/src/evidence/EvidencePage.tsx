@@ -1,4 +1,5 @@
 import {
+  FIELD_SESSION,
   KILL_RESULT,
   SAFETY_SCOPE,
   SIMULATION_SCOPE,
@@ -67,8 +68,9 @@ export function EvidencePage() {
               What the simulation shows
             </h2>
             <p className={cx(s.body, 'mt-6 text-text-2')}>
-              Each number comes from our own recorded runs on simulated faults with a simulated
-              hand. Preliminary. Not peer reviewed.
+              Same faults, same readings: Truehand against a conventional assistant that trusts
+              every instruction. Each number comes from our own recorded runs, labeled simulated.
+              Preliminary. Not peer reviewed.
             </p>
           </div>
           <div className="col-span-4 md:col-span-8">
@@ -91,6 +93,7 @@ export function EvidencePage() {
           </div>
           <div className="col-span-4 grid gap-6 md:col-span-7 md:col-start-6">
             <p className={s.lead}>{SIMULATION_SCOPE}</p>
+            <p className={s.fieldSession}>{FIELD_SESSION}</p>
             <p className={s.body}>The result that would change our minds: {KILL_RESULT}</p>
             <p className={cx(s.body, 'text-text-2')}>{SAFETY_SCOPE}</p>
           </div>

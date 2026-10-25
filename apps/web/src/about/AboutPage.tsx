@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import evidenceMd from '@docs/EVIDENCE.md?raw'
 import { InlineText } from '@/evidence/InlineText'
 import { parseEvidence, parseInline } from '@/evidence/markdown'
-import { CONTACT_EMAIL, SAFETY_SCOPE, STATUS_LINE } from '@/landing/content'
+import { CONTACT_EMAIL, SAFETY_SCOPE } from '@/landing/content'
 import { cx } from '@/landing/cx'
 import s from '@/landing/landing.module.css'
 import { MarketingPage } from '@/landing/MarketingPage'
@@ -54,7 +54,7 @@ export function AboutPage() {
             </h1>
             <p className={cx(s.lead, 'mt-6')}>
               Truehand tells a blind technician where to probe, warns when the probe landed
-              somewhere else, and names the fault only when the readings agree. {STATUS_LINE}
+              somewhere else, and names the fault only when the readings agree.
             </p>
           </div>
           <div className="col-span-4 border-l-2 border-text pl-6 md:col-span-4 md:col-start-9">
@@ -78,8 +78,7 @@ export function AboutPage() {
         <p className={s.body}>
           For blindness organizations and instructors who teach electronics. A pilot is a short
           session where students use Truehand and, with permission, help us measure how real hands
-          miss a breadboard row. Our first sessions are being scheduled with the Louisiana Center
-          for the Blind.
+          miss a breadboard row.
         </p>
         <p className={s.body}>
           <a className={s.link} href={contactHref('Truehand pilot')}>

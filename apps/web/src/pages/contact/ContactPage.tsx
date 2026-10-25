@@ -11,6 +11,7 @@ import {
   FIELD_LABELS,
   LIMITS,
   REASONS,
+  rateLimitSentence,
   sendContact,
   validate,
   type FieldErrors,
@@ -58,8 +59,19 @@ function Field({ name, error, children }: FieldProps) {
 
 function Result({ outcome }: { outcome: Exclude<Outcome, null> }) {
   if (outcome.kind === 'sent') return <>Thanks. We will reply from {CONTACT_EMAIL}.</>
-  if (outcome.kind === 'rate_limited')
-    return <>Too many messages from here. Please try again in a few minutes.</>
+  if (outcome.kind === 'rate_limited') return <>{rateLimitSentence(outcome.retryAfterS)}</>
+  if (outcome.kind === 'too_large')
+    return <>That message is too long to send. Please shorten it and try again.</>
+  if (outcome.kind === 'send_failed')
+    return (
+      <>
+        The message did not go through. Press Send message to try again, or{' '}
+        <a href={outcome.mailto} className={s.link}>
+          send it by email instead
+        </a>
+        .
+      </>
+    )
   if (outcome.kind === 'unavailable')
     return (
       <>

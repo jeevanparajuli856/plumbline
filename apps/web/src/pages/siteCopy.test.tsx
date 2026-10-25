@@ -3,6 +3,7 @@ import type { ReactElement } from 'react'
 import { MemoryRouter } from 'react-router'
 import { AboutPage } from '@/about/AboutPage'
 import { EvidencePage } from '@/evidence/EvidencePage'
+import { STATUS_LINE } from '@/landing/content'
 import { PHOTOS } from '@/landing/photos'
 import { FOUNDER_NAMES, METHOD_WORDS, TROPES } from '@/test/copyGuards'
 import { AccessibilityPage } from './AccessibilityPage'
@@ -24,6 +25,9 @@ const PAGES: ReadonlyArray<readonly [string, () => ReactElement]> = [
   ['/contact', () => <ContactPage />],
   ['/about', () => <AboutPage />],
 ]
+
+/** Pages that sell the product and carry no validation talk. */
+const PRODUCT_PAGES = ['/', '/how-it-works', '/app', '/accessibility']
 
 async function renderedText(
   page: () => ReactElement,
@@ -62,6 +66,18 @@ describe.each(PAGES)('the rendered copy of %s', (path, page) => {
   it('names founders and the university only on /about', async () => {
     const { text } = await renderedText(page)
     expect(FOUNDER_NAMES.test(text)).toBe(path === '/about')
+  })
+
+  it('keeps validation talk and the field session date on /evidence only', async () => {
+    const { text } = await renderedText(page)
+    const isEvidence = path === '/evidence'
+    expect(text.includes(STATUS_LINE)).toBe(isEvidence)
+    expect(text.includes('November 11, 2026')).toBe(isEvidence)
+    // Product first (POSITIONING section 1): no validation talk on these pages. /about keeps the
+    // citation qualifiers its sources need ("arXiv preprint, not peer reviewed").
+    if (PRODUCT_PAGES.includes(path)) {
+      expect(text).not.toMatch(/in progress|preliminary|peer reviewed|change our minds/i)
+    }
   })
 
   it('shows no roadmap and no Nexus mention', async () => {

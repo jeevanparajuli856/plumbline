@@ -1,6 +1,6 @@
 import { needsFullUi } from './helpers/full'
 import { expect, test } from './helpers/test'
-import { LANDING_SECTION_IDS, LandingPage } from './pages/LandingPage'
+import { HOME_SECTION_IDS, HOW_IT_WORKS_SECTION_IDS, LandingPage } from './pages/LandingPage'
 
 // DESIGN_REFERENCES F6, F8, F9: the example never starts on scroll, Play runs it, reduced motion
 // (OS setting or the in-page switch) snaps every moment to its final state.
@@ -14,16 +14,17 @@ test.beforeEach(async ({ page }) => {
 })
 
 // Runs on the Sprint 0 shell.
-test('the mast carries the promise and links to the web app', async () => {
+test('home carries the promise, the live instrument and the call to action', async () => {
   await expect(landing.heading).toHaveText('Measurement you can trust without looking.')
-  await expect(landing.openSimulator).toHaveAttribute('href', '/sim')
+  await expect(landing.tryTruehand).toHaveAttribute('href', '/sim')
+  await expect(landing.liveInstrument).toBeVisible()
 })
 
 test.describe('landing sections', () => {
   needsFullUi('landing (sections, Play, transcript)')
 
   test('every section is labelled and has a static, non-live caption', async ({ page }) => {
-    for (const id of LANDING_SECTION_IDS) {
+    for (const id of HOME_SECTION_IDS) {
       const section = landing.section(id)
       await expect(section).toBeAttached()
       const labelledBy = await section.getAttribute('aria-labelledby')
@@ -35,9 +36,12 @@ test.describe('landing sections', () => {
       await expect(caption).not.toHaveAttribute('aria-live', /.+/)
       await expect(caption).not.toHaveAttribute('role', /alert|status|log/)
     }
+    await landing.gotoHowItWorks()
+    for (const id of HOW_IT_WORKS_SECTION_IDS) await expect(landing.section(id)).toBeAttached()
   })
 
   test('the step-by-step transcript is in the DOM before anything plays', async () => {
+    await landing.gotoHowItWorks()
     await expect(landing.transcript).toBeAttached()
     expect(await landing.transcript.getByRole('listitem').count()).toBeGreaterThan(0)
   })
@@ -45,6 +49,7 @@ test.describe('landing sections', () => {
   // The transcript always holds the whole story, so "playing" is read from the controls (F9;
   // UI_CONTRACT section 6, decision 3: exact names "Pause" and "Replay"), not from text.
   test('scrolling never starts the example', async ({ page }) => {
+    await landing.gotoHowItWorks()
     await landing.scrollThrough()
     await landing.play.scrollIntoViewIfNeeded()
     await page.waitForTimeout(SNAP_MS)
@@ -59,6 +64,7 @@ test.describe('landing sections', () => {
   })
 
   test('Play runs the example to its end', async () => {
+    await landing.gotoHowItWorks()
     await landing.play.click()
     const play = landing.section('play')
     await expect(play.getByRole('button', { name: 'Pause', exact: true })).toBeVisible()
@@ -77,6 +83,7 @@ test.describe('landing sections', () => {
       await landing.preferReducedMotion()
       await expect(page.locator('html')).toHaveAttribute('data-reduce-motion', 'true')
     }
+    await landing.gotoHowItWorks()
     await landing.play.click()
     await expect(
       landing.section('play').getByRole('button', { name: 'Replay', exact: true }),

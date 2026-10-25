@@ -20,7 +20,7 @@ const COMMITMENTS: readonly { name: string; sentence: string }[] = [
   },
   {
     name: 'Nothing only in pictures',
-    sentence: 'The 3D view is for people who can see it. Everything it shows is also in words.',
+    sentence: 'Everything the pictures and the 3D view show is also in words.',
   },
 ]
 

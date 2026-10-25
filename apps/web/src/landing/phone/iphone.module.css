@@ -1,0 +1,327 @@
+/* The iPhone preview. Device in ink in every theme; the screen uses the surface tokens, so it goes
+   dark with the dark theme. Shadow only here and on nothing else in the page body. */
+.device {
+  --device-w: 300px;
+  --device-h: 620px;
+  --bezel: 7px;
+  --outer-radius: 48px;
+  position: relative;
+  width: var(--device-w);
+  height: var(--device-h);
+  max-width: 100%;
+  padding: var(--bezel);
+  border-radius: var(--outer-radius);
+  background: var(--ink);
+  /* Two-tone edge: a lighter outer ring and an inner rim, then the soft instrument shadow. */
+  box-shadow:
+    0 0 0 1px var(--ink-divider),
+    inset 0 0 0 1px var(--ink-divider),
+    var(--shadow-instrument);
+}
+@media (max-width: 400px) {
+  .device {
+    --device-w: 280px;
+    --device-h: 580px;
+  }
+}
+.screen {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: calc(var(--outer-radius) - var(--bezel));
+  background: var(--bench);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 16px 10px;
+  font-family: var(--font-sans);
+}
+
+/* ---------- Status bar and Dynamic Island ---------- */
+.statusBar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 44px;
+  padding: 0 10px;
+  flex: none;
+}
+.clock {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+.island {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 92px;
+  height: 26px;
+  margin-left: -46px;
+  border-radius: 13px;
+  background: var(--ink);
+}
+.statusIcons {
+  width: 62px;
+  height: 12px;
+  color: var(--text);
+}
+
+/* ---------- Navigation header ---------- */
+.navBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: none;
+}
+.largeTitle {
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px dashed var(--inferred);
+  color: var(--inferred);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.step {
+  margin-top: -8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-2);
+  flex: none;
+}
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--surface-1);
+  border-radius: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--hairline);
+  flex: none;
+}
+.cardAnswer {
+  border-left: 4px solid var(--inferred);
+}
+.cardRefusal {
+  border-left: 4px solid var(--text);
+}
+.cardLabel {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+.instruction {
+  margin-top: 4px;
+  font-size: 21px;
+  line-height: 1.25;
+  font-weight: 700;
+  text-wrap: balance;
+}
+.refusalText {
+  margin-top: 4px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.cardMeta {
+  margin-top: 4px;
+  font-size: 15px;
+  color: var(--text-2);
+}
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Reading ---------- */
+.readingBlock {
+  flex: none;
+}
+.reading {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 40px;
+  line-height: 1.05;
+  font-weight: 600;
+  color: var(--measured);
+}
+.readingEmpty {
+  font-size: 15px;
+  line-height: 42px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+.unit {
+  margin-left: 6px;
+  font-size: 20px;
+  color: var(--text-2);
+}
+.digit {
+  display: inline-block;
+  animation: digit-in var(--motion-fast) var(--ease-smooth) both;
+  animation-delay: calc(var(--i, 0) * var(--motion-instant));
+}
+@keyframes digit-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Warning: vermilion left rule, glyph, the word; strikes in once ---------- */
+.warning {
+  position: relative;
+  flex: none;
+  padding: 10px 12px 10px 16px;
+  border-radius: 12px;
+  background: var(--warning-surface);
+  font-size: 15px;
+  line-height: 1.4;
+  overflow: hidden;
+  animation: strike-in var(--motion-warning-strike) var(--ease-sharp) both;
+}
+.warning::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: var(--warning);
+}
+.warningWord {
+  color: var(--warning-text);
+  font-weight: 700;
+}
+.glyph {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-right: 4px;
+  vertical-align: -0.12em;
+  color: var(--warning-text);
+}
+@keyframes strike-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Belief: compact top three with thin bars; takes the remaining height ---------- */
+.belief {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+.beliefList {
+  list-style: none;
+  padding: 0;
+  margin-top: 6px;
+  display: grid;
+  gap: 8px;
+}
+.beliefList > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 8px;
+  font-size: 14px;
+  line-height: 1.3;
+}
+.beliefLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.beliefTrack {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 4px;
+  margin-top: 4px;
+  border-radius: 2px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.beliefFill {
+  position: absolute;
+  inset: 0;
+  background: var(--inferred);
+  transform-origin: left;
+  transition: transform var(--motion-belief-bars) var(--ease-smooth);
+}
+
+/* ---------- App controls (pictures of controls) and the home indicator ---------- */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  flex: none;
+}
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 46px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 700;
+}
+.actionPrimary {
+  background: var(--action);
+  color: var(--on-action);
+}
+.actionGlyph {
+  width: 16px;
+  height: 16px;
+}
+.homeIndicator {
+  display: block;
+  width: 120px;
+  height: 5px;
+  margin: 2px auto 0;
+  border-radius: 3px;
+  background: var(--text);
+  opacity: 0.85;
+  flex: none;
+}
+
+/* The smaller device on phones: tighter rhythm, two belief rows, so no row is ever cut. */
+@media (max-width: 400px) {
+  .screen {
+    gap: 8px;
+    padding: 0 14px 8px;
+  }
+  .instruction {
+    font-size: 18px;
+  }
+  .reading {
+    font-size: 32px;
+  }
+  .card {
+    padding: 10px 12px;
+  }
+  .beliefList > li:nth-child(n + 3) {
+    display: none;
+  }
+}

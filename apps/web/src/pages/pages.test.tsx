@@ -61,7 +61,7 @@ afterEach(() => {
 })
 
 describe('Home', () => {
-  it('renders the promise, both lines, the two exits and six labelled sections', async () => {
+  it('renders the promise, the product line, the two exits and six labelled sections', async () => {
     const { container } = renderPage(<HomePage />)
     await settle()
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
@@ -74,7 +74,7 @@ describe('Home', () => {
       '/how-it-works',
     )
     expect(main).toHaveTextContent(PRODUCT_LINE)
-    expect(main).toHaveTextContent(STATUS_LINE)
+    expect(main).not.toHaveTextContent(STATUS_LINE)
     expectLabelledSections(container, ['hero', 'problem', 'outcomes', 'proof', 'audience', 'cta'])
     expect(container.querySelector('section#hero img')).toBeNull()
   })
@@ -132,9 +132,11 @@ describe('Home live instrument card', () => {
         /^Recording worked example, simulated hand, /,
       ),
     )
-    expect(card()).toHaveTextContent('Live instrument, recorded simulated runs')
-    expect(card()).toHaveTextContent('Landed row filled: where the simulated hand touched.')
+    expect(card()).toHaveTextContent('Simulated run')
+    expect(card()).toHaveTextContent('Truehand')
     expect(within(card()).getAllByRole('button')).toHaveLength(1)
+    // The two app buttons drawn on the screen are pictures, never controls.
+    expect(within(card()).queryByRole('button', { name: /Say reading|Type reading/ })).toBeNull()
     expect(start).not.toHaveBeenCalled()
     start.mockRestore()
   })
@@ -256,8 +258,8 @@ describe('The app', () => {
     act(() =>
       useHeroLoop.setState((st) => ({ state: { ...st.state, tick: 3, isButtonPaused: true } })),
     )
-    await waitFor(() => expect(phone).toHaveTextContent('Last reading 3.671 V'))
-    expect(phone).toHaveTextContent('Replay, recorded')
+    await waitFor(() => expect(phone).toHaveTextContent('3.671 V'))
+    expect(phone).toHaveTextContent('Simulated run')
     expect(phone).toHaveTextContent('Warning.')
     const replayNext = vi.spyOn(useSession.getState(), 'replayNext')
     fireEvent.click(screen.getByRole('button', { name: 'Next recorded reading' }))

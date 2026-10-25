@@ -79,10 +79,39 @@ export const KILL_RESULT =
 
 /** Scope of every result on the page. Names no partner (rule F21) until permission is on file. */
 export const SIMULATION_SCOPE =
-  'Results on this page come from simulated faults and a simulated hand. We have not yet measured how real hands miss. That measurement is being scheduled with the Louisiana Center for the Blind.'
+  'Results on this page come from simulated faults and a simulated hand. We measure real hands next, in a field session at the Louisiana Center for the Blind on November 11, 2026.'
+
+/** The one line about the field session (POSITIONING section 3). Evidence only. */
+export const FIELD_SESSION =
+  'Next: a field session with blind participants at the Louisiana Center for the Blind, November 11, 2026.'
 
 export const SAFETY_SCOPE =
   'Not a safety device. Do not use it to work on mains voltage or anything that can hurt you.'
+
+/** Home hero: one confident sentence on what the app does. */
+export const HERO_LEAD =
+  'Truehand tells you where to probe, hears your reading, catches a slipped probe, and names the fault. When two faults look the same, it says so instead of guessing.'
+
+/** Where Truehand is used (Home, audience). Roles, never organization names. */
+export const USE_CASES: readonly { name: string; sentence: string; buyer: string }[] = [
+  {
+    name: 'Classrooms and training programs',
+    sentence:
+      'Blind and low-vision students build and debug real circuits on their own, from the first breadboard on.',
+    buyer: 'Bought by schools, programs and the agencies that fund their tools',
+  },
+  {
+    name: 'Technicians at work',
+    sentence:
+      'Measure, find the fault and move on, without waiting for someone to look at the probe.',
+    buyer: 'Bought by employers as a job accommodation',
+  },
+  {
+    name: 'Makers at home',
+    sentence: 'Fix the project on your own bench with the talking meter you already own.',
+    buyer: 'Try it in your browser today',
+  },
+]
 
 /** What changes for the user (Home, outcomes). Says what Truehand does, never how. */
 export const OUTCOMES: readonly { name: string; sentence: string }[] = [
@@ -315,9 +344,8 @@ export function buildValidationStats(files: Record<string, string>): ValidationS
       value: null,
       decimals: 0,
       suffix: '',
-      label:
-        'How real blind hands miss, measured with blind participants. No participant results yet.',
-      source: 'Scheduled with the Louisiana Center for the Blind.',
+      label: 'How real blind hands miss, measured with blind participants in the field session.',
+      source: 'Field session, November 11, 2026.',
       path: null,
       isSimulated: false,
     },

@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 import { buttonClass } from '@/ui/button'
-import { OUTCOMES, PROMISE, STATUS_LINE, VALIDATION_STATS } from '../content'
+import { OUTCOMES, PROMISE, VALIDATION_STATS } from '../content'
 import s from '../landing.module.css'
 import { Caption, Eyebrow, Section } from '../parts'
 import { cx } from '../cx'
@@ -15,9 +15,9 @@ export function Outcomes() {
     <Section id="outcomes" className={cx(s.section, s.sectionTight, s.sheet)}>
       <div className={cx(s.frame, s.grid, 'gap-y-10')}>
         <div className="col-span-4 md:col-span-4">
-          <Eyebrow>What changes</Eyebrow>
+          <Eyebrow>What it does</Eyebrow>
           <h2 id="outcomes-title" className={cx(s.h2, 'mt-6')}>
-            You stop checking. It checks for you.
+            You hold the probe. Truehand does the checking.
           </h2>
         </div>
         <ol className={cx(s.outcomes, 'col-span-4 md:col-span-8')}>
@@ -33,20 +33,20 @@ export function Outcomes() {
   )
 }
 
-/** Two validation numbers, labeled simulated, with the way to the full evidence. */
+/** A confident results strip: two numbers, each with its small simulated label, and the way to the evidence. */
 export function Proof() {
   const stats = VALIDATION_STATS.filter((st) => PROOF_STAT_IDS.includes(st.id))
   return (
     <Section id="proof" className={cx(s.section, s.sectionTight, s.band)}>
       <div className={cx(s.frame, s.grid, 'items-end gap-y-10')}>
         <div className="col-span-4 md:col-span-5">
-          <Eyebrow>Proof so far</Eyebrow>
+          <Eyebrow>Results</Eyebrow>
           <h2 id="proof-title" className={cx(s.h2, 'mt-6')}>
-            {STATUS_LINE}
+            It catches the slip a conventional assistant misses.
           </h2>
           <p className={cx(s.body, 'mt-6 text-text-2')}>
-            These results come from simulated faults and a simulated hand. Sessions with blind
-            participants come next.
+            Same faults, same readings, two assistants. Truehand ends on the right answer, or says
+            it cannot tell, far more often.
           </p>
           <Link to="/evidence" className={cx(buttonClass('secondary'), 'mt-8')}>
             See the evidence

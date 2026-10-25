@@ -25,9 +25,8 @@ export function AppPage() {
             </h1>
             <p className={cx(s.h3, 'mt-8 font-normal')}>{PRODUCT_LINE}</p>
             <p className={cx(s.lead, 'mt-6')}>
-              Truehand runs beside the talking meter you already own. It speaks every instruction,
-              takes each reading by voice or keyboard, and works with the screen reader on your
-              phone or computer.
+              Truehand works with the talking meter you already own. It tells you where to probe,
+              takes each reading by voice or keyboard, catches a slipped probe and names the fault.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Link to="/sim" className={buttonClass('primary')}>
@@ -69,12 +68,11 @@ export function AppPage() {
           <div className="col-span-4 md:col-span-6">
             <Eyebrow>On the phone</Eyebrow>
             <h2 id="phone-title" className={cx(s.h2, 'mt-6')}>
-              The words are the product.
+              Hear where to probe. Say the reading.
             </h2>
             <p className={cx(s.lead, 'mt-6')}>
-              Every state is a sentence first: the instruction, the reading it heard, the warning,
-              the answer. The phone&apos;s own screen reader speaks it; nothing depends on seeing
-              the screen.
+              Get warned when the probe slips, and an answer only when Truehand is sure. One app on
+              iPhone and on the web, with every step spoken by the screen reader you already use.
             </p>
           </div>
           <div className="col-span-4 md:col-span-5 md:col-start-8">
