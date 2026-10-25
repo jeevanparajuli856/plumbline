@@ -12,7 +12,7 @@ services:
       - key: PYTHON_VERSION
         value: 3.13.7
       - key: PLUMBLINE_CORS_ORIGINS
-        value: https://plumbline-web.onrender.com,http://localhost:5173
+        value: https://plumbline-web-lxxc.onrender.com,http://localhost:5173
   - type: web
     name: plumbline-web
     runtime: static
@@ -20,7 +20,9 @@ services:
     staticPublishPath: apps/web/dist
     envVars:
       - key: NODE_VERSION
-        value: 22.23.4
+        value: '22'
+      - key: COREPACK_ENABLE_DOWNLOAD_PROMPT
+        value: '0'
       - key: VITE_API_URL
         value: https://plumbline-api.onrender.com
     routes:
