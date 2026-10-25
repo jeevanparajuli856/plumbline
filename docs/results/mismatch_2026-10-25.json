@@ -1,8 +1,8 @@
 {
  "name": "mismatch",
  "command": "uv run --project engine python -m plumbline.experiments.mismatch",
- "git_sha": "9e98ddfc532023551e65940e05e51d1c3e68f84d",
- "generated_at": "2026-10-25T17:13:15+00:00",
+ "git_sha": "d4731fcec20e27998e4db258971a04b43da98a73",
+ "generated_at": "2026-10-25T17:21:26+00:00",
  "simulated": true,
  "label": "Preliminary. Not peer reviewed.",
  "note": "All results are simulated: a simulated hand on our own circuit model, not people.",

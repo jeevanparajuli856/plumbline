@@ -3,8 +3,8 @@
 **Simulated. Preliminary. Not peer reviewed.** All results are simulated: a simulated hand on our own circuit model, not people.
 
 - Command: `uv run --project engine python -m plumbline.experiments.stability`
-- Git SHA: `9e98ddfc532023551e65940e05e51d1c3e68f84d`
-- Generated: 2026-10-25T17:12:30+00:00
+- Git SHA: `d4731fcec20e27998e4db258971a04b43da98a73`
+- Generated: 2026-10-25T17:20:57+00:00
 - Seeds: [1, 2, 3, 4, 5]; n per arm per seed: 300
 
 The simulated hand here uses the same confusion model the engine assumes (P(lands on told site) 0.78, P(one site away) 0.08 each side, P(two sites away) 0.03 each side, clipped at the edges): this is the matched-model case. The stress tests are `mismatch_<date>.md` (hands that break the assumption) and `sweep_<date>.md` (the true landing rate varied, with the engine's model matched or held fixed).

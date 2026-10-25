@@ -7,8 +7,8 @@
  "seed": 2,
  "simulated": false,
  "generated_by": "uv run --project engine python -m plumbline.record_fixtures --force",
- "git_sha": "9e98ddfc532023551e65940e05e51d1c3e68f84d",
- "generated_at": "2026-10-25T17:11:49+00:00",
+ "git_sha": "d4731fcec20e27998e4db258971a04b43da98a73",
+ "generated_at": "2026-10-25T17:20:15+00:00",
  "config": {
   "sigma": 0.02,
   "confusion": [
