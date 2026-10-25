@@ -203,6 +203,30 @@ describe('route focus', () => {
     expect(focusHeading()).toBe(false)
   })
 
+  it('moves focus to the h1 without scrolling the page', () => {
+    document.body.innerHTML = '<main><h1>Title</h1></main>'
+    const h1 = document.querySelector('h1')!
+    const focus = vi.spyOn(h1, 'focus')
+    focusHeading()
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true })
+    document.body.innerHTML = ''
+  })
+
+  it('starts a new route at the top of the page, then focuses its h1', async () => {
+    document.body.innerHTML = '<main><h1>Title</h1></main>'
+    const scrollTo = vi.fn()
+    window.scrollTo = scrollTo as unknown as typeof window.scrollTo
+    const { rerender } = renderHook(({ path }) => useRouteFocus(path), {
+      initialProps: { path: '/' },
+    })
+    expect(scrollTo).not.toHaveBeenCalled()
+    rerender({ path: '/how-it-works' })
+    await new Promise((r) => requestAnimationFrame(r))
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' })
+    expect(document.activeElement?.tagName).toBe('H1')
+    document.body.innerHTML = ''
+  })
+
   it('skips the first render and focuses after a pathname change', async () => {
     document.body.innerHTML = '<button>first</button><main><h1>Title</h1></main>'
     const button = document.querySelector('button')!
