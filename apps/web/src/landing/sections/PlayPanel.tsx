@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react'
 import { formatPct } from '@/lib/format'
 import s from '../landing.module.css'
+import pp from '../playPanel.module.css'
 import { cx } from '../cx'
 import { WarningGlyph } from '../parts'
 import type { PlayFrame, RankedHypothesis } from '../workedExample'
@@ -30,16 +31,16 @@ function scale(p: number): CSSProperties {
 export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: PlayPanelProps) {
   const ratio = frame.maxEntropyBits > 0 ? frame.entropyBits / frame.maxEntropyBits : 0
   return (
-    <div className={cx(s.panel, 'grid gap-5')}>
-      <ol className={s.rows} aria-label="Breadboard rows in the worked example">
+    <div className={cx(pp.panel, 'grid gap-5')}>
+      <ol className={pp.rows} aria-label="Breadboard rows in the worked example">
         {siteLabels.map((label, i) => {
           const isTold = i === frame.told
           const isLanded = i === frame.landed
           const tags = [isTold && 'told', isLanded && 'landed'].filter(Boolean).join(', ')
           return (
-            <li key={label} className={cx(s.row, isTold && s.rowTold, isLanded && s.rowLanded)}>
+            <li key={label} className={cx(pp.row, isTold && pp.rowTold, isLanded && pp.rowLanded)}>
               <span>{label}</span>
-              {tags && <span className={s.rowTag}>{tags}</span>}
+              {tags && <span className={pp.rowTag}>{tags}</span>}
             </li>
           )
         })}
@@ -48,7 +49,7 @@ export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: P
       <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-end">
         <div>
           <p className="text-base text-text-2">Meter reading</p>
-          <p className={cx(s.reading, !frame.reading && s.readingEmpty)}>
+          <p className={cx(pp.reading, !frame.reading && pp.readingEmpty)}>
             {frame.reading ?? (isTravelling ? 'Probe travelling' : 'No reading yet')}
           </p>
         </div>
@@ -59,8 +60,8 @@ export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: P
               {frame.entropyBits.toFixed(2)} of {frame.maxEntropyBits.toFixed(2)} bits
             </span>
           </div>
-          <div className={cx(s.entropy, 'mt-2')} aria-hidden="true">
-            <div className={s.entropyFill} style={scale(ratio)} />
+          <div className={cx(pp.entropy, 'mt-2')} aria-hidden="true">
+            <div className={pp.entropyFill} style={scale(ratio)} />
           </div>
         </div>
       </div>

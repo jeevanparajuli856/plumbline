@@ -6,6 +6,7 @@ import { useSession } from '@/state/session'
 import { buttonClass } from '@/ui/button'
 import { PRODUCT_LINE, PRODUCTS } from '../content'
 import s from '../landing.module.css'
+import pr from '../product.module.css'
 import { Caption, Eyebrow, Section, WarningGlyph } from '../parts'
 import { cx } from '../cx'
 import { heroFrame } from '../heroFrame'
@@ -31,12 +32,12 @@ interface PhoneView {
 
 function PhoneScreen({ view }: { view: PhoneView }) {
   return (
-    <div className={s.phone} role="group" aria-label="Phone preview of the text channel">
-      <div className={s.phoneBar}>
+    <div className={pr.phone} role="group" aria-label="Phone preview of the text channel">
+      <div className={pr.phoneBar}>
         <span>Truehand</span>
         <span>{view.status}</span>
       </div>
-      <p className={s.phoneInstruction}>{view.headline}</p>
+      <p className={pr.phoneInstruction}>{view.headline}</p>
       {view.confidence !== null && (
         <p className="text-lg">
           Confidence <span className={s.mono}>{formatPct(view.confidence)}</span>
@@ -86,7 +87,7 @@ function HeroPhone() {
   return (
     <PhoneScreen
       view={{
-        status: isDone ? 'Replay, finished' : 'Replay, listening',
+        status: isDone ? 'Replay, finished' : 'Replay, recorded',
         headline:
           f.isResolved && f.diagnosis
             ? `${f.diagnosis.label}.`
@@ -165,12 +166,12 @@ export function Product({ fixture, onStep }: ProductProps) {
             reading, and hears the warning. The 3D view on this page is for people who can see it;
             everything it shows is also in words.
           </p>
-          <ul data-motion="rows" className={cx(s.productRows, 'mt-12')} aria-label="Products">
+          <ul data-motion="rows" className={cx(pr.productRows, 'mt-12')} aria-label="Products">
             {PRODUCTS.map((p, i) => (
-              <li key={p.name} className={s.productRow}>
-                <p className={s.productName}>{p.name}</p>
+              <li key={p.name} className={pr.productRow}>
+                <p className={pr.productName}>{p.name}</p>
                 <p className="text-base leading-relaxed text-text-2">{p.sentence}</p>
-                <p className={cx(s.productStatus, i === 0 && s.productStatusNow)}>{p.status}</p>
+                <p className={cx(pr.productStatus, i === 0 && pr.productStatusNow)}>{p.status}</p>
               </li>
             ))}
           </ul>

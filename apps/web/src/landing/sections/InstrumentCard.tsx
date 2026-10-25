@@ -2,9 +2,17 @@ import { useMemo, type CSSProperties, type FocusEvent } from 'react'
 import { formatPct } from '@/lib/format'
 import { buttonClass } from '@/ui/button'
 import s from '../landing.module.css'
+import ic from '../instrument.module.css'
 import { cx } from '../cx'
 import { heroCaption, heroFrame, type HeroFrame } from '../heroFrame'
-import { HERO_RECORDING_IDS, isRunning, positionAt, useHeroDriver, useHeroLoop } from '../heroLoop'
+import {
+  HERO_RECORDING_IDS,
+  buttonLabel,
+  isRunning,
+  positionAt,
+  useHeroDriver,
+  useHeroLoop,
+} from '../heroLoop'
 import { Caption, WarningGlyph } from '../parts'
 import { useFixtures } from '../useFixture'
 
@@ -42,18 +50,18 @@ export function InstrumentCard({ reduced }: InstrumentCardProps) {
     <div
       role="group"
       aria-label="Live instrument"
-      className={s.instrument}
+      className={ic.instrument}
       data-running={running ? 'true' : 'false'}
       onPointerEnter={() => dispatch({ type: 'pointer', inside: true })}
       onPointerLeave={() => dispatch({ type: 'pointer', inside: false })}
       onFocus={() => dispatch({ type: 'focus', inside: true })}
       onBlur={onBlur}
     >
-      <div className={s.instHead}>
-        <p className={s.instTitle}>
-          Live instrument, recorded runs
+      <div className={ic.instHead}>
+        <p className={ic.instTitle}>
+          Live instrument, recorded simulated runs
           <br />
-          <span className={s.instRecording}>
+          <span className={ic.instRecording}>
             {frame
               ? `${frame.recordingName}, reading ${frame.readingsShown} of ${frame.stepCount}`
               : 'Loading'}
@@ -61,11 +69,11 @@ export function InstrumentCard({ reduced }: InstrumentCardProps) {
         </p>
         <button
           type="button"
-          className={buttonClass('secondary', s.instButton)}
+          className={buttonClass('secondary', ic.instButton)}
           aria-disabled={!fixtures || undefined}
           onClick={() => fixtures && dispatch({ type: 'toggle' })}
         >
-          {running ? 'Pause' : 'Play'}
+          {buttonLabel(state)}
         </button>
       </div>
       {frame ? (
@@ -86,57 +94,69 @@ function InstrumentView({ frame, tick }: { frame: HeroFrame; tick: number }) {
   const stripStyle = { '--sites': frame.siteLabels.length, '--probe': probeAt } as CSSProperties
   return (
     <>
-      <div className={s.strip} style={stripStyle}>
-        <span className={s.probe} aria-hidden="true" />
-        <ol className={s.stripRows} aria-label="Breadboard rows in this recording">
+      <div className={ic.strip} style={stripStyle}>
+        <span className={ic.probe} aria-hidden="true" />
+        <ol className={ic.stripRows} aria-label="Breadboard rows in this recording">
           {frame.siteLabels.map((label, i) => {
             const isTold = i === frame.told
             const isLanded = i === frame.landed
-            const tags = [isTold && 'told', isLanded && 'landed'].filter(Boolean).join(', ')
+            const tags = [isTold && 'told', isLanded && 'landed'].filter(Boolean)
             return (
               <li
                 key={label}
-                className={cx(s.stripRow, isTold && s.stripRowTold, isLanded && s.stripRowLanded)}
+                className={cx(
+                  ic.stripRow,
+                  isTold && ic.stripRowTold,
+                  isLanded && ic.stripRowLanded,
+                )}
               >
                 <span>{label.replace(/^row /, '')}</span>
-                {tags && <span className={s.stripTag}>{tags}</span>}
+                {tags.map((tag) => (
+                  <span key={String(tag)} className={ic.stripTag}>
+                    {tag}
+                  </span>
+                ))}
               </li>
             )
           })}
         </ol>
+        {/* The hand is simulated in every recording; the legend says so under every strip state. */}
+        <p className={ic.stripLegend}>
+          Told row outlined. Landed row filled: where the simulated hand touched.
+        </p>
       </div>
 
-      <div className={s.instReadout}>
+      <div className={ic.instReadout}>
         <div>
           <p className={s.label}>Meter reading</p>
           {frame.readingDigits ? (
-            <p className={s.instReading}>
+            <p className={ic.instReading}>
               <span className="sr-only">{frame.reading}</span>
               <span aria-hidden="true">
                 {frame.readingDigits.split('').map((ch, i) => (
                   <span
                     key={`${tick}-${i}`}
-                    className={s.digit}
+                    className={ic.digit}
                     style={{ '--i': i } as CSSProperties}
                   >
                     {ch}
                   </span>
                 ))}
-                <span className={s.instUnit}>{frame.unit}</span>
+                <span className={ic.instUnit}>{frame.unit}</span>
               </span>
             </p>
           ) : (
-            <p className={cx(s.instReading, s.instReadingEmpty)}>No reading yet</p>
+            <p className={cx(ic.instReading, ic.instReadingEmpty)}>No reading yet</p>
           )}
         </div>
-        <p className={s.instMeta}>
+        <p className={ic.instMeta}>
           {frame.entropyBits.toFixed(2)} of {frame.maxEntropyBits.toFixed(2)} bits
           <br />
           uncertainty
         </p>
       </div>
 
-      <div className={s.instSlot}>
+      <div className={ic.instSlot}>
         <Verdict key={tick} frame={frame} />
       </div>
 

@@ -4,9 +4,11 @@ import { useLanding } from '@/state/landing'
 import { useSession } from '@/state/session'
 import { stickyStateAt } from '../choreography'
 import s from '../landing.module.css'
+import rc from '../race.module.css'
 import { Badge } from '@/ui/Badge'
 import { Caption, Eyebrow, PhotoFigure, Section } from '../parts'
 import { PHOTOS } from '../photos'
+import { countWord } from '../numberWords'
 import { BRAND_IDEA, FOUND_LINE } from '../content'
 import { cx } from '../cx'
 import {
@@ -157,7 +159,7 @@ function Race({ fixture }: { fixture: FixtureT }) {
       stages: stages.published,
       top: last ? labelOf(fixture, last.baseline.top) : '',
       isTrue: last?.baseline.top === fixture.true_hypothesis,
-      fill: s.racePublished,
+      fill: rc.racePublished,
     },
     {
       key: 'ours',
@@ -165,42 +167,42 @@ function Race({ fixture }: { fixture: FixtureT }) {
       stages: stages.ours,
       top: last ? (rank(fixture, last.belief, 1)[0]?.label ?? '') : '',
       isTrue: last ? rank(fixture, last.belief, 1)[0]?.id === fixture.true_hypothesis : false,
-      fill: s.raceOurs,
+      fill: rc.raceOurs,
     },
   ]
   return (
-    <div className={cx(s.race, 'mt-8')}>
-      <p className={s.label}>After both readings, top fault</p>
+    <div className={cx(rc.race, 'mt-8')}>
+      <p className={s.label}>After {countWord(fixture.steps.length)} readings, top fault</p>
       {rows.map((r) => {
         const final = r.stages.at(-1) ?? 0
         return (
           <div key={r.key}>
-            <div className={s.raceLabel}>
+            <div className={rc.raceLabel}>
               <span>
                 <strong>{r.name}</strong>: {r.top}
               </span>
               {/* One label per stage, stacked; the static page shows the last, the scrub swaps them. */}
-              <span className={cx(s.mono, s.stageLabels)}>
+              <span className={cx(s.mono, rc.stageLabels)}>
                 {r.stages.map((p, i) => (
                   <span
                     key={i}
                     data-motion-stage-label={String(i)}
-                    className={i === r.stages.length - 1 ? undefined : s.stageHidden}
+                    className={i === r.stages.length - 1 ? undefined : rc.stageHidden}
                   >
                     {formatPct(p)}
                   </span>
                 ))}
               </span>
             </div>
-            <div className={s.raceTrack} aria-hidden="true">
+            <div className={rc.raceTrack} aria-hidden="true">
               <div
-                className={cx(s.raceFill, r.fill)}
+                className={cx(rc.raceFill, r.fill)}
                 data-motion-bar={r.key}
                 data-motion-stages={r.stages.map((p) => p.toFixed(4)).join(',')}
                 style={{ transform: `scaleX(${Math.max(0, Math.min(1, final))})` }}
               />
             </div>
-            <p className={cx(s.raceVerdict, 'mt-1')}>{r.isTrue ? 'true fault' : 'wrong fault'}</p>
+            <p className={cx(rc.raceVerdict, 'mt-1')}>{r.isTrue ? 'true fault' : 'wrong fault'}</p>
           </div>
         )
       })}

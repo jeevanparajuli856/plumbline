@@ -94,11 +94,14 @@ describe('landing copy is backed by the docs', () => {
 describe('validation stats are read from docs/results', () => {
   const byId = Object.fromEntries(content.VALIDATION_STATS.map((st) => [st.id, st]))
 
-  it('has four cells, exactly one of them waiting on user validation with no number', () => {
+  it('has four cells, exactly one of them waiting on user validation, and every simulated cell has its number', () => {
     expect(content.VALIDATION_STATS).toHaveLength(4)
-    const pending = content.VALIDATION_STATS.filter((st) => st.value === null)
+    const pending = content.VALIDATION_STATS.filter((st) => !st.isSimulated)
     expect(pending.map((st) => st.id)).toEqual(['real-hands'])
     expect(pending[0]!.label).toContain('No participant results yet.')
+    for (const st of content.VALIDATION_STATS.filter((x) => x.isSimulated)) {
+      expect(st.value).not.toBeNull()
+    }
   })
 
   it('takes the stability numbers from the truehand and published-method rows of the newest run', () => {
@@ -119,10 +122,39 @@ describe('validation stats are read from docs/results', () => {
     )
   })
 
-  it('takes the bridging stress test from the bridging section of the newest mismatch run', () => {
-    const section = mismatchMd.split('## bridging')[1]!.split('## ')[0]!
-    const row = section.split('\n').find((l) => l.startsWith('| truehand |'))!
-    expect(row.split('|')[3]!.trim()).toBe(byId.bridging!.value!.toFixed(1))
+  it('takes the stress cell from the lowest-scoring scenario of the newest mismatch run', () => {
+    const scores = mismatchMd
+      .split('\n## ')
+      .slice(1)
+      .map((sec) => {
+        const row = sec.split('\n').find((l) => l.startsWith('| truehand |'))!
+        return { name: sec.split('\n')[0]!.trim(), correct: Number(row.split('|')[3]!.trim()) }
+      })
+    const worst = scores.reduce((a, b) => (a.correct <= b.correct ? a : b))
+    expect(byId.stress!.value).toBe(worst.correct)
+    expect(byId.stress!.source).toContain(`${worst.name.replace(/_/g, ' ')} scenario`)
+    expect(byId.stress!.label).toContain('the lowest score in that run')
+  })
+
+  it('leaves the value empty, never invented, when the run file is missing', () => {
+    const stats = content.buildValidationStats({})
+    for (const st of stats.filter((x) => x.isSimulated)) {
+      expect(st.value).toBeNull()
+      expect(st.source).toBe('Run file missing.')
+      expect(st.path).toMatch(/^docs\/results\//)
+    }
+  })
+
+  it('leaves the value empty and drops the stray percent when a row is missing', () => {
+    const noRows = stabilityMd
+      .split('\n')
+      .filter((l) => !l.startsWith('| truehand |') && !l.startsWith('| entropy_exact |'))
+      .join('\n')
+    const stats = content.buildValidationStats({ '/x/results/stability_2026-10-25.md': noRows })
+    const wrong = stats.find((st) => st.id === 'confidently-wrong')!
+    expect(wrong.value).toBeNull()
+    expect(wrong.label).not.toMatch(/\s%|undefined|null/)
+    expect(wrong.label).toContain('not recorded')
   })
 
   it('names the file, the run date and the seeds and faults on every simulated cell', () => {
@@ -133,7 +165,7 @@ describe('validation stats are read from docs/results', () => {
       expect(st.source).toMatch(/\d+ seeds? x \d+ faults\. Simulated\.$/)
     }
     expect(byId.correct!.source).toContain('5 seeds x 300 faults')
-    expect(byId.bridging!.source).toContain('1 seed x 300 faults')
+    expect(byId.stress!.source).toContain('1 seed x 300 faults')
   })
 
   it('picks the newest dated file and parses leading numbers', () => {

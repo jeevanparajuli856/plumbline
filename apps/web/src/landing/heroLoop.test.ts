@@ -8,6 +8,7 @@ import {
   HERO_READING_MS,
   HERO_RECORDING_IDS,
   INITIAL_HERO_STATE,
+  buttonLabel,
   PHONE_LAG_STEPS,
   dwellMs,
   finalTickOf,
@@ -120,15 +121,27 @@ describe('heroReducer: pause and resume', () => {
     expect(isRunning(st)).toBe(false)
   })
 
-  it('lets Play run the loop even while focus sits on the button, until the next enter', () => {
-    let st = heroReducer(loaded(), { type: 'focus', inside: true })
-    st = heroReducer(st, { type: 'toggle' })
-    expect(isRunning(st)).toBe(true)
-    st = heroReducer(st, { type: 'toggle' })
-    expect(isRunning(st)).toBe(false)
-    st = heroReducer(st, { type: 'toggle' })
+  it('names the button from the button alone: hover and focus hold without renaming', () => {
+    let st = loaded()
+    expect(buttonLabel(st)).toBe('Pause')
     st = heroReducer(st, { type: 'pointer', inside: true })
+    st = heroReducer(st, { type: 'focus', inside: true })
     expect(isRunning(st)).toBe(false)
+    expect(buttonLabel(st)).toBe('Pause')
+    st = heroReducer(st, { type: 'toggle' })
+    expect(buttonLabel(st)).toBe('Play')
+    st = heroReducer(st, { type: 'pointer', inside: false })
+    st = heroReducer(st, { type: 'focus', inside: false })
+    expect(isRunning(st)).toBe(false)
+    st = heroReducer(st, { type: 'toggle' })
+    expect(buttonLabel(st)).toBe('Pause')
+    expect(isRunning(st)).toBe(true)
+  })
+
+  it('clears a stale hover or focus hold when the loop loads again', () => {
+    const held = { ...loaded(), isPointerInside: true, isFocusInside: true }
+    const st = heroReducer(held, { type: 'load', total: 10, reduced: false, restTick: 2 })
+    expect(isRunning(st)).toBe(true)
   })
 
   it('loads paused on the worked example final state under reduced motion', () => {
@@ -180,6 +193,16 @@ describe('useHeroDriver', () => {
     expect(useHeroLoop.getState().state.tick).toBe(3)
   })
 
+  it('releases any hover or focus hold when it unmounts', () => {
+    const { timer } = fakeTimer()
+    const { unmount } = renderHook(() => useHeroDriver(COUNTS, false, timer))
+    act(() => useHeroLoop.getState().dispatch({ type: 'pointer', inside: true }))
+    act(() => useHeroLoop.getState().dispatch({ type: 'focus', inside: true }))
+    unmount()
+    const st = useHeroLoop.getState().state
+    expect(st.isPointerInside || st.isFocusInside).toBe(false)
+  })
+
   it('arms no timer while paused and none under reduced motion', () => {
     const a = fakeTimer()
     renderHook(() => useHeroDriver(COUNTS, false, a.timer))
@@ -219,7 +242,7 @@ describe('heroFrame', () => {
     expect(f.readingDigits).toBe(worked.steps[0]!.reading.toFixed(3))
     expect(f.warning).not.toBeNull()
     expect(heroCaption(f)).toBe(
-      `Recording worked example, reading 1 of 2: told ${f.toldLabel}, landed ${f.landedLabel}, read ${f.reading}. Warning: the probe is probably not on the told row.`,
+      `Recording worked example, simulated hand, reading 1 of 2: told ${f.toldLabel}, landed ${f.landedLabel}, read ${f.reading}. Warning: the probe is probably not on the told row.`,
     )
   })
 

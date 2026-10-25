@@ -89,8 +89,6 @@ export interface HeroState {
   isButtonPaused: boolean
   isPointerInside: boolean
   isFocusInside: boolean
-  /** Pressing Play while hovering or focused overrides the hold until the next enter. */
-  isHoldReleased: boolean
 }
 
 export type HeroEvent =
@@ -106,11 +104,10 @@ export const INITIAL_HERO_STATE: HeroState = {
   isButtonPaused: false,
   isPointerInside: false,
   isFocusInside: false,
-  isHoldReleased: false,
 }
 
 function isHeld(state: HeroState): boolean {
-  return (state.isPointerInside || state.isFocusInside) && !state.isHoldReleased
+  return state.isPointerInside || state.isFocusInside
 }
 
 /** The loop advances only when loaded, not paused by the button and not held by hover or focus. */
@@ -118,10 +115,16 @@ export function isRunning(state: HeroState): boolean {
   return state.total > 0 && !state.isButtonPaused && !isHeld(state)
 }
 
+/** The button's name follows the button alone (UI_CONTRACT 5.2, amended): hover and focus never change it. */
+export function buttonLabel(state: HeroState): 'Pause' | 'Play' {
+  return state.isButtonPaused ? 'Play' : 'Pause'
+}
+
 /**
- * Pause semantics (UI_CONTRACT 5.2): the button reads "Pause" while running and "Play" otherwise.
- * Hover or focus inside the card holds the loop; leaving resumes it unless the button paused it.
- * Under reduced motion the loop loads paused on the worked example's final state.
+ * Pause semantics (UI_CONTRACT 5.2): one press always does what the button says. Hover or focus
+ * inside the card only holds the loop; leaving releases the hold unless the button paused it.
+ * Loading clears any hold left from an earlier visit. Under reduced motion the loop loads paused
+ * on the worked example's final state.
  */
 export function heroReducer(state: HeroState, event: HeroEvent): HeroState {
   switch (event.type) {
@@ -131,25 +134,17 @@ export function heroReducer(state: HeroState, event: HeroEvent): HeroState {
         total: event.total,
         tick: event.reduced ? event.restTick : wrap(state.tick, event.total),
         isButtonPaused: event.reduced,
+        isPointerInside: false,
+        isFocusInside: false,
       }
     case 'advance':
       return isRunning(state) ? { ...state, tick: wrap(state.tick + 1, state.total) } : state
     case 'toggle':
-      return isRunning(state)
-        ? { ...state, isButtonPaused: true }
-        : { ...state, isButtonPaused: false, isHoldReleased: true }
+      return { ...state, isButtonPaused: !state.isButtonPaused }
     case 'pointer':
-      return {
-        ...state,
-        isPointerInside: event.inside,
-        isHoldReleased: event.inside ? false : state.isHoldReleased,
-      }
+      return { ...state, isPointerInside: event.inside }
     case 'focus':
-      return {
-        ...state,
-        isFocusInside: event.inside,
-        isHoldReleased: event.inside ? false : state.isHoldReleased,
-      }
+      return { ...state, isFocusInside: event.inside }
   }
 }
 
@@ -199,6 +194,15 @@ export function useHeroDriver(
     // `key` stands for the step counts; the array identity may change on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, reduced, dispatch])
+
+  // Leaving the page must never leave the loop held by a hover or focus that no longer exists.
+  useEffect(
+    () => () => {
+      dispatch({ type: 'pointer', inside: false })
+      dispatch({ type: 'focus', inside: false })
+    },
+    [dispatch],
+  )
 
   useEffect(() => {
     if (!stepCounts || !running) return

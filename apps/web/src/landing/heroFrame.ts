@@ -49,17 +49,17 @@ export function heroFrame(fx: FixtureT, id: string, readings: number): HeroFrame
 
 /** The card's text twin (UI_CONTRACT 5.2): recording, step, told row and reading in one sentence. */
 export function heroCaption(f: HeroFrame): string {
-  const head = `Recording ${f.recordingName}`
+  const head = `Recording ${f.recordingName}, simulated hand`
   if (f.readingsShown === 0 || f.reading === null) {
     return `${head}, before any reading: told ${f.toldLabel}, nothing measured yet.`
   }
   const where = f.landedLabel && f.landedLabel !== f.toldLabel ? `, landed ${f.landedLabel}` : ''
-  const outcome = f.warning
-    ? ' Warning: the probe is probably not on the told row.'
-    : f.unresolvedText
-      ? ' Unresolved: the physics cannot tell the remaining faults apart.'
-      : f.diagnosis && f.isResolved
-        ? ` Resolved: ${f.diagnosis.label}.`
-        : ''
+  const outcome = [
+    f.warning && ' Warning: the probe is probably not on the told row.',
+    f.unresolvedText && ' Unresolved: the physics cannot tell the remaining faults apart.',
+    f.diagnosis && f.isResolved && ` Resolved: ${f.diagnosis.label}.`,
+  ]
+    .filter(Boolean)
+    .join('')
   return `${head}, reading ${f.readingsShown} of ${f.stepCount}: told ${f.toldLabel}${where}, read ${f.reading}.${outcome}`
 }

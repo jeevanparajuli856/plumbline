@@ -1,0 +1,46 @@
+/* The ruled four-cell validation stat grid. Colors, radii, shadows and durations come from tokens.css; reduced motion zeroes the duration tokens on the landing root. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--text);
+  border-left: 1px solid var(--hairline);
+}
+@media (max-width: 639px) {
+  .stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.stat {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border-right: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  background: var(--surface-1);
+}
+.statNumber {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 2.2rem + 2.4vw, 4.5rem);
+  line-height: 1;
+  font-weight: 560;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.02em;
+}
+.statPending {
+  background: var(--bench);
+}
+.statPendingWord {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 1.6rem + 1.2vw, 2.75rem);
+  line-height: 1.05;
+  font-weight: 500;
+  color: var(--text-2);
+}
+.statSource {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--text-2);
+  overflow-wrap: anywhere;
+}

@@ -10,15 +10,14 @@ import {
   UNIVERSITY,
   VALIDATION_STATS,
   type PhaseState,
-  type ValidationStat,
 } from '../content'
 import s from '../landing.module.css'
 import { tableUnder, withoutBriefExpectations } from '../markdownTables'
 import { Caption, Eyebrow, Inline, ScrollRegion, Section, StatusBadge } from '../parts'
-import { Badge } from '@/ui/Badge'
 import { cx } from '../cx'
 import { countWord } from '../numberWords'
 import { fixtureConfig } from '../workedExample'
+import { StatGrid } from './StatGrid'
 
 const READINESS = tableUnder(evidenceMd, '1. Readiness')
 
@@ -61,7 +60,7 @@ export function Evidence({ fixture }: { fixture: FixtureT | null }) {
         </header>
 
         <div className="col-span-4 md:col-span-12 lg:col-span-7">
-          <StatGrid />
+          <StatGrid stats={VALIDATION_STATS} />
         </div>
 
         <div className="col-span-4 md:col-span-12">
@@ -142,49 +141,5 @@ export function Evidence({ fixture }: { fixture: FixtureT | null }) {
         </div>
       </div>
     </Section>
-  )
-}
-
-function statText(st: ValidationStat): string {
-  return `${st.value!.toFixed(st.decimals)}${st.suffix}`
-}
-
-/**
- * Four ruled cells. Numbers come from docs/results through content.ts; the visible number is the
- * motion hook (counts up once) and an sr-only twin carries the same text. The pending cell never moves.
- */
-function StatGrid() {
-  return (
-    <ul className={s.stats} aria-label="Validation results">
-      {VALIDATION_STATS.map((st) =>
-        st.value === null ? (
-          <li key={st.id} className={cx(s.stat, s.statPending)}>
-            <div>
-              <Badge kind="PENDING" />
-            </div>
-            <p className={s.statPendingWord}>Real hands</p>
-            <p className="text-base leading-relaxed">{st.label}</p>
-            <p className={s.statSource}>{st.source}</p>
-          </li>
-        ) : (
-          <li key={st.id} className={s.stat}>
-            <p className={s.statNumber}>
-              <span
-                aria-hidden="true"
-                data-motion="stat"
-                data-motion-value={st.value}
-                data-motion-decimals={st.decimals}
-                data-motion-suffix={st.suffix || undefined}
-              >
-                {statText(st)}
-              </span>
-              <span className="sr-only">{statText(st)}</span>
-            </p>
-            <p className="text-base leading-relaxed">{st.label}</p>
-            <p className={s.statSource}>{st.source}</p>
-          </li>
-        ),
-      )}
-    </ul>
   )
 }

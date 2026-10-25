@@ -249,7 +249,9 @@ describe('LandingPage', () => {
     const mast = within(container.querySelector<HTMLElement>('section#mast')!)
     const card = mast.getByRole('group', { name: 'Live instrument' })
     await waitFor(() =>
-      expect(within(card).getByTestId('caption')).toHaveTextContent(/^Recording worked example, /),
+      expect(within(card).getByTestId('caption')).toHaveTextContent(
+        /^Recording worked example, simulated hand, /,
+      ),
     )
     expect(within(card).getAllByRole('button')).toHaveLength(1)
     expect(within(card).getByRole('button', { name: 'Pause' })).toBeInTheDocument()
@@ -258,17 +260,35 @@ describe('LandingPage', () => {
     start.mockRestore()
   })
 
-  it('pauses the card on its button, and reads Play until pressed again', async () => {
+  it('holds the card on hover and focus without renaming the button; one click pauses for good', async () => {
     const { container } = renderLanding()
     const card = within(container.querySelector<HTMLElement>('section#mast')!).getByRole('group', {
       name: 'Live instrument',
     })
     const button = await within(card).findByRole('button', { name: 'Pause' })
+    await waitFor(() => expect(card).toHaveAttribute('data-running', 'true'))
+    fireEvent.pointerEnter(card)
+    expect(card).toHaveAttribute('data-running', 'false')
+    expect(button).toHaveAccessibleName('Pause')
+    act(() => button.focus())
+    expect(button).toHaveAccessibleName('Pause')
     fireEvent.click(button)
     expect(button).toHaveAccessibleName('Play')
-    fireEvent.pointerEnter(card)
     fireEvent.pointerLeave(card)
+    act(() => button.blur())
     expect(button).toHaveAccessibleName('Play')
+    expect(card).toHaveAttribute('data-running', 'false')
+  })
+
+  it('labels the hand as simulated on the card', async () => {
+    const { container } = renderLanding()
+    const card = within(container.querySelector<HTMLElement>('section#mast')!).getByRole('group', {
+      name: 'Live instrument',
+    })
+    expect(card).toHaveTextContent('Live instrument, recorded simulated runs')
+    await waitFor(() =>
+      expect(card).toHaveTextContent('Landed row filled: where the simulated hand touched.'),
+    )
   })
 
   it('shows the worked example final state with Play under reduced motion', async () => {
@@ -285,7 +305,7 @@ describe('LandingPage', () => {
     })
     await waitFor(() =>
       expect(within(card).getByTestId('caption')).toHaveTextContent(
-        `Recording worked example, reading ${fx.steps.length} of ${fx.steps.length}`,
+        `Recording worked example, simulated hand, reading ${fx.steps.length} of ${fx.steps.length}`,
       ),
     )
     expect(within(card).getByRole('button', { name: 'Play' })).toBeInTheDocument()

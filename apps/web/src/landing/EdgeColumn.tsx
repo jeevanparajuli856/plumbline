@@ -1,4 +1,4 @@
-import s from './landing.module.css'
+import e from './edge.module.css'
 
 /** Holes in the edge column, top to bottom. */
 export const EDGE_HOLE_COUNT = 24
@@ -11,13 +11,13 @@ export const EDGE_HOLE_COUNT = 24
  */
 export function EdgeColumn() {
   return (
-    <div className={s.edgePlumb} aria-hidden="true" data-motion="plumb">
-      <span className={s.edgeString} data-motion-string>
+    <div className={e.edgePlumb} aria-hidden="true" data-motion="plumb">
+      <span className={e.edgeString} data-motion-string>
         {Array.from({ length: EDGE_HOLE_COUNT }, (_, i) => (
-          <span key={i} className={s.edgeHole} />
+          <span key={i} className={e.edgeHole} />
         ))}
       </span>
-      <span className={s.edgeBob} data-motion-bob />
+      <span className={e.edgeBob} data-motion-bob />
     </div>
   )
 }

@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import evidenceMd from '@docs/EVIDENCE.md?raw'
 import ladderMd from '@docs/brief/Truehand_Scale_and_Build.md?raw'
 import s from '../landing.module.css'
+import l from '../ladder.module.css'
 import { stripEditorNotes, tableUnder, withRolesForNames } from '../markdownTables'
 import { Caption, Eyebrow, Inline, Section } from '../parts'
 import { cx } from '../cx'
@@ -31,19 +32,19 @@ export function Ladder() {
           )}
         </header>
         {LADDER && (
-          <ol className={cx(s.stairs, 'col-span-4 md:col-span-12')} aria-label="Scale ladder">
+          <ol className={cx(l.stairs, 'col-span-4 md:col-span-12')} aria-label="Scale ladder">
             {LADDER.rows.map((row, i) => {
               const [stage = '', ...facts] = row
               return (
                 <li
                   key={stage}
-                  className={cx(s.stair, i === 0 && s.stairNow)}
+                  className={cx(l.stair, i === 0 && l.stairNow)}
                   style={{ '--rung': i } as CSSProperties}
                 >
-                  <h3 className={s.stairTitle}>
+                  <h3 className={l.stairTitle}>
                     <Inline text={withRolesForNames(stripEditorNotes(stage))} />
                   </h3>
-                  <dl className={s.stairFacts}>
+                  <dl className={l.stairFacts}>
                     {facts.map((cell, j) => (
                       <div key={LADDER.headers[j + 1] ?? j}>
                         <dt className={s.label}>{LADDER.headers[j + 1]}</dt>

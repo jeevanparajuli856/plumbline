@@ -3,7 +3,7 @@
  * by content.test.ts, so the landing cannot drift from docs/EVIDENCE.md, docs/POSITIONING.md and
  * docs/BUILD_PLAN.md. Fixture numbers never live here; they come from workedExample.ts.
  */
-import { tableUnder, type MarkdownTable } from './markdownTables'
+import { parseTables, tableUnder, type MarkdownTable } from './markdownTables'
 
 /** Used verbatim wherever status is shown (POSITIONING section 1). */
 export const STATUS_LINE = 'Simulation validated. User validation in progress.'
@@ -212,19 +212,17 @@ export function cellFor(
 
 export interface ValidationStat {
   id: string
-  /** null for the cell that waits on user validation. */
+  /** null when the run file or its row is missing; the cell then says so and never animates. */
   value: number | null
   decimals: number
   suffix: string
   label: string
   source: string
+  /** The run file the value should come from, for the "Not recorded in" fallback. */
+  path: string | null
+  /** false only for the cell that waits on user validation. */
   isSimulated: boolean
 }
-
-const STABILITY = latestResult(RESULT_FILES, 'stability')
-const MISMATCH = latestResult(RESULT_FILES, 'mismatch')
-const STABILITY_TABLE = STABILITY ? tableUnder(STABILITY.markdown, 'Stability') : null
-const BRIDGING_TABLE = MISMATCH ? tableUnder(MISMATCH.markdown, 'bridging') : null
 
 /** "5 seeds x 300 faults" from the run file's "- Seeds: [...]; n per arm per seed: N" line. */
 export function runScope(file: ResultFile | null): string | null {
@@ -240,44 +238,85 @@ function sourceOf(file: ResultFile | null, scenario = ''): string {
   return `${file.path}, run ${file.generated ?? 'undated'}, ${scope}. Simulated.`
 }
 
+/** Plain names for the mismatch scenarios; unknown ones show their name from the file. */
+const SCENARIO_PHRASE: Record<string, string> = {
+  lopsided: 'slips skewed to one side',
+  three_row_jumps: 'occasional three-row jumps',
+  bridging: 'a probe that sometimes bridges two rows',
+  poor_contact: 'a probe that sometimes makes no contact',
+}
+
+export interface StressResult {
+  scenario: string
+  correct: number
+}
+
+/** The mismatch scenario where Truehand is correct least often, read from every section of the file. */
+export function worstScenario(markdown: string): StressResult | null {
+  return parseTables(markdown)
+    .map((t) => ({ scenario: t.heading, correct: cellFor(t, 'truehand', 'Correct %') }))
+    .filter((r): r is StressResult => r.correct !== null && r.scenario !== '')
+    .reduce<StressResult | null>(
+      (worst, r) => (worst && worst.correct <= r.correct ? worst : r),
+      null,
+    )
+}
+
 /** The four validation cells: three simulated results from our own runs and one that waits on people. */
-export const VALIDATION_STATS: readonly ValidationStat[] = [
-  {
-    id: 'correct',
-    value: cellFor(STABILITY_TABLE, 'truehand', 'Correct %'),
-    decimals: 1,
-    suffix: '%',
-    label: 'of simulated faults end on the true fault or an honest refusal, mean over seeds.',
-    source: sourceOf(STABILITY),
-    isSimulated: true,
-  },
-  {
-    id: 'confidently-wrong',
-    value: cellFor(STABILITY_TABLE, 'truehand', 'Confidently wrong %'),
-    decimals: 1,
-    suffix: '%',
-    label: `confidently wrong, against ${cellFor(STABILITY_TABLE, 'entropy_exact', 'Confidently wrong %') ?? 'an unrecorded'}% for the published method on the same faults.`,
-    source: sourceOf(STABILITY),
-    isSimulated: true,
-  },
-  {
-    id: 'bridging',
-    value: cellFor(BRIDGING_TABLE, 'truehand', 'Correct %'),
-    decimals: 1,
-    suffix: '%',
-    label:
-      'correct in our hardest stress test, a probe that sometimes bridges two rows. This is where it fails most.',
-    source: sourceOf(MISMATCH, 'bridging scenario'),
-    isSimulated: true,
-  },
-  {
-    id: 'real-hands',
-    value: null,
-    decimals: 0,
-    suffix: '',
-    label:
-      'How real blind hands miss: the measured placement matrix that replaces the assumed one. No participant results yet.',
-    source: 'docs/EVIDENCE.md, readiness row "Measured confusion matrix". Date to be booked.',
-    isSimulated: false,
-  },
-]
+export function buildValidationStats(files: Record<string, string>): ValidationStat[] {
+  const stability = latestResult(files, 'stability')
+  const mismatch = latestResult(files, 'mismatch')
+  const table = stability ? tableUnder(stability.markdown, 'Stability') : null
+  const worst = mismatch ? worstScenario(mismatch.markdown) : null
+  const publishedWrong = cellFor(table, 'entropy_exact', 'Confidently wrong %')
+  return [
+    {
+      id: 'correct',
+      value: cellFor(table, 'truehand', 'Correct %'),
+      decimals: 1,
+      suffix: '%',
+      label: 'of simulated faults end on the true fault or an honest refusal, mean over seeds.',
+      source: sourceOf(stability),
+      path: stability?.path ?? 'docs/results/stability_<date>.md',
+      isSimulated: true,
+    },
+    {
+      id: 'confidently-wrong',
+      value: cellFor(table, 'truehand', 'Confidently wrong %'),
+      decimals: 1,
+      suffix: '%',
+      label:
+        publishedWrong === null
+          ? 'confidently wrong. The published method on the same faults is not recorded in that run.'
+          : `confidently wrong, against ${publishedWrong}% for the published method on the same faults.`,
+      source: sourceOf(stability),
+      path: stability?.path ?? 'docs/results/stability_<date>.md',
+      isSimulated: true,
+    },
+    {
+      id: 'stress',
+      value: worst?.correct ?? null,
+      decimals: 1,
+      suffix: '%',
+      label: worst
+        ? `correct in the hardest of our stress tests, ${SCENARIO_PHRASE[worst.scenario] ?? worst.scenario.replace(/_/g, ' ')}: the lowest score in that run.`
+        : 'correct in the hardest of our stress tests.',
+      source: sourceOf(mismatch, worst ? `${worst.scenario.replace(/_/g, ' ')} scenario` : ''),
+      path: mismatch?.path ?? 'docs/results/mismatch_<date>.md',
+      isSimulated: true,
+    },
+    {
+      id: 'real-hands',
+      value: null,
+      decimals: 0,
+      suffix: '',
+      label:
+        'How real blind hands miss: the measured placement matrix that replaces the assumed one. No participant results yet.',
+      source: 'docs/EVIDENCE.md, readiness row "Measured confusion matrix". Date to be booked.',
+      path: null,
+      isSimulated: false,
+    },
+  ]
+}
+
+export const VALIDATION_STATS: readonly ValidationStat[] = buildValidationStats(RESULT_FILES)
