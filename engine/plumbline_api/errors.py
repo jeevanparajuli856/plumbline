@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Awaitable, Callable
 from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from plumbline.session import SessionError
@@ -21,7 +22,11 @@ SESSION_ERROR_STATUS = {
     "session_terminal": 409,
     "fixture_mismatch": 409,
 }
-HTTP_STATUS_CODES = {404: "not_found", 405: "method_not_allowed"}
+HTTP_STATUS_ERRORS = {
+    404: ("not_found", "There is nothing at this address."),
+    405: ("method_not_allowed", "This address does not accept that method."),
+}
+INTERNAL_ERROR_MESSAGE = "Something went wrong on the server."
 
 
 class ApiError(Exception):
@@ -67,13 +72,24 @@ async def _validation_error(_: Request, exc: Exception) -> JSONResponse:
 
 async def _http_error(_: Request, exc: Exception) -> JSONResponse:
     assert isinstance(exc, StarletteHTTPException)
-    code = HTTP_STATUS_CODES.get(exc.status_code, "http_error")
-    return envelope(exc.status_code, code, str(exc.detail))
+    code, message = HTTP_STATUS_ERRORS.get(exc.status_code, ("http_error", "The request failed."))
+    return envelope(exc.status_code, code, message)
 
 
 async def internal_error(_: Request, exc: Exception) -> JSONResponse:
     logger.exception("unhandled error", exc_info=exc)
-    return envelope(500, "internal_error", "Something went wrong on the server.")
+    return envelope(500, "internal_error", INTERNAL_ERROR_MESSAGE)
+
+
+async def catch_unhandled(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
+    """HTTP middleware registered inside CORSMiddleware, so a 500 still gets CORS headers.
+    (The ``Exception`` handler alone runs in ServerErrorMiddleware, outside CORS.)"""
+    try:
+        return await call_next(request)
+    except Exception as exc:  # noqa: BLE001 - last-resort boundary, logged in internal_error
+        return await internal_error(request, exc)
 
 
 def register_error_handlers(app: FastAPI) -> None:

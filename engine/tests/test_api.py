@@ -354,3 +354,23 @@ async def test_out_of_model_live_reading_returns_a_misfit_and_the_same_instructi
     assert step["status"] == "continue"
     assert step["next_instruction"]["site"] == 2
     assert step["belief"] == session["belief"]
+
+
+async def test_a_500_still_carries_cors_headers_for_an_allowed_origin(
+    client: httpx.AsyncClient,
+) -> None:
+    def broken_store() -> SessionStore:
+        raise RuntimeError("store exploded")
+
+    app.dependency_overrides[get_store] = broken_store
+    response = await client.get("/v1/sessions/anything", headers={"Origin": ALLOWED_ORIGIN})
+    error = assert_error(response, 500, "internal_error")
+    assert "exploded" not in error["message"]
+    assert response.headers.get("access-control-allow-origin") == ALLOWED_ORIGIN
+
+
+async def test_unknown_routes_and_methods_get_human_sentences(client: httpx.AsyncClient) -> None:
+    missing = assert_error(await client.get("/v1/nope"), 404, "not_found")
+    assert missing["message"].endswith(".") and missing["message"] != "Not Found"
+    wrong = assert_error(await client.delete("/v1/health"), 405, "method_not_allowed")
+    assert wrong["message"].endswith(".") and wrong["message"] != "Method Not Allowed"
