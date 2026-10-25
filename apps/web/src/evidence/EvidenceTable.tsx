@@ -1,6 +1,7 @@
 import { Badge } from '@/ui/Badge'
 import { InlineText } from './InlineText'
 import { overallStatus, type EvidenceRow } from './markdown'
+import { ScrollRegion } from '@/ui/ScrollRegion'
 
 interface EvidenceTableProps {
   rows: readonly EvidenceRow[]
@@ -16,7 +17,7 @@ const RULE = {
 /** The readiness table, row for row from docs/EVIDENCE.md. Nothing is collapsed; unfinished rows are marked by rule and badge. */
 export function EvidenceTable({ rows }: EvidenceTableProps) {
   return (
-    <div className="overflow-x-auto">
+    <ScrollRegion label="Readiness table">
       <table aria-label="Readiness" className="w-full min-w-[44rem] border-collapse text-left">
         <thead>
           <tr className="text-text-2">
@@ -72,6 +73,6 @@ export function EvidenceTable({ rows }: EvidenceTableProps) {
           })}
         </tbody>
       </table>
-    </div>
+    </ScrollRegion>
   )
 }

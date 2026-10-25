@@ -30,15 +30,16 @@ export function PlacementStrip({ items, siteNoun, onAim }: PlacementStripProps) 
         {items.map((item) => (
           <li key={item.site} className="min-w-0" aria-current={item.isAimed ? 'true' : undefined}>
             <span className="sr-only">{placementSentence(item)}</span>
+            {/* The button's visible text (the row label) is part of its name (WCAG 2.5.3). */}
             <button
               type="button"
-              aria-label={`Aim at ${item.label}`}
               onClick={() => onAim(item.site)}
               aria-keyshortcuts={item.site < DIGIT_SITES ? String(item.site + 1) : undefined}
-              className="group block w-full rounded-hard text-center"
+              className="block min-h-11 w-full rounded-hard text-center font-mono text-sm text-text-2 hover:text-text"
             >
-              <PlacementCell item={item} />
+              <span className="sr-only">Aim at</span> {item.label}
             </button>
+            <PlacementCell item={item} />
           </li>
         ))}
       </ul>
@@ -62,7 +63,6 @@ function PlacementCell({ item }: { item: PlacementItem }) {
       : 'border-hairline bg-surface-1 group-hover:border-border-strong'
   return (
     <span aria-hidden="true" className="grid gap-1">
-      <span className="font-mono text-sm text-text-2">{item.label}</span>
       <span
         className={`relative grid min-h-14 place-items-center rounded-hard border-2 font-mono tnum text-md font-semibold ${box} ${item.isLanded ? 'outline-2 outline-offset-2 outline-text' : ''}`}
       >

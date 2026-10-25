@@ -31,7 +31,14 @@ export function ReadingLog({ rows, open, onToggle }: ReadingLogProps) {
           </kbd>
         </button>
       </div>
-      <div id="reading-log-table" hidden={!open} className="overflow-x-auto">
+      <div
+        id="reading-log-table"
+        hidden={!open}
+        role="region"
+        aria-label="Reading log table"
+        tabIndex={0}
+        className="overflow-x-auto rounded-hard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+      >
         <table aria-label="Reading log" className="w-full min-w-[36rem] border-collapse text-left">
           <thead>
             <tr className="text-text-2">
@@ -48,7 +55,7 @@ export function ReadingLog({ rows, open, onToggle }: ReadingLogProps) {
           </thead>
           <tbody>
             {rows.length === 0 ? (
-              <tr>
+              <tr data-testid="log-empty">
                 <td colSpan={5} className="py-4 text-text-2">
                   No readings yet. Each accepted reading appears here with the row it most likely
                   came from.

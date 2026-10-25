@@ -3,6 +3,7 @@ import { InlineText } from './InlineText'
 import { EvidenceTable } from './EvidenceTable'
 import { parseEvidence, type Evidence } from './markdown'
 import { experimentCommands, statusCounts } from './summary'
+import { ScrollRegion } from '@/ui/ScrollRegion'
 
 const evidence: Evidence = parseEvidence(evidenceMd)
 
@@ -77,7 +78,7 @@ export function EvidencePage() {
         <h2 id="stats-heading" className="text-lg font-semibold">
           Employment and prevalence
         </h2>
-        <div className="mt-4 overflow-x-auto">
+        <ScrollRegion label="Employment and prevalence table" className="mt-4">
           <table
             aria-label="Employment and prevalence"
             className="w-full min-w-[40rem] border-collapse text-left"
@@ -105,7 +106,7 @@ export function EvidencePage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollRegion>
       </section>
     </main>
   )
