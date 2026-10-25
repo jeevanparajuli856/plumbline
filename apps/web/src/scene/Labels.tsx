@@ -1,4 +1,5 @@
 import { Html } from '@react-three/drei'
+import { useThree } from '@react-three/fiber'
 import { useLanding } from '@/state/landing'
 import { useSession } from '@/state/session'
 import type { Instrument } from './instrument'
@@ -144,9 +145,18 @@ interface LabelsProps {
   instrument: Instrument
 }
 
-/** Row, part and depth labels in the sim; on the landing only the SIMULATED badge and warnings. */
+/**
+ * Row, part and depth labels in the sim; on the landing only the SIMULATED badge and warnings.
+ * Mounted only once R3F has connected its event target. drei's Html appends to
+ * `events.connected || canvas.parentNode`, and R3F connects after its children's first layout
+ * effects, so labels mounted earlier re-mount on a new target. That re-mount reuses each label's
+ * container while the old root's unmount is still deferred, and the stale root later removes a
+ * node the new root owns: a removeChild NotFoundError on the next route change.
+ */
 export function Labels({ instrument }: LabelsProps) {
   const detail = useLanding((s) => s.sceneMode === 'sim')
+  const connected = useThree((s) => s.events.connected)
+  if (!connected) return null
   return (
     <>
       <CircuitLabels hidden={instrument !== 'circuit'} detail={detail} />
