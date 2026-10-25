@@ -1,0 +1,19 @@
+{
+  "name": "plumbline",
+  "private": true,
+  "version": "0.1.0",
+  "description": "An assistant for blind hands that cannot tell you something it has not measured.",
+  "packageManager": "pnpm@9.15.0",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "api": "uv run --project engine uvicorn plumbline_api.main:app --reload --port 8000",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test -- --run",
+    "test:e2e": "pnpm --filter web test:e2e",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write .",
+    "verify": "pnpm typecheck && pnpm lint && pnpm test && uv run --project engine pytest -q"
+  }
+}

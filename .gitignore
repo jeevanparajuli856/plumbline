@@ -1,0 +1,44 @@
+# dependencies
+node_modules/
+.pnpm-store/
+engine/.venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+
+# builds and caches
+apps/web/dist/
+dist/
+build/
+coverage/
+.vite/
+*.tsbuildinfo
+.cache/
+
+# tests and recordings
+playwright-report/
+test-results/
+recordings/*.webm
+recordings/*.mp4
+
+# env and secrets
+.env
+.env.*
+!.env.example
+apps/web/.env.local
+
+# claude code
+.claude/settings.local.json
+.claude/worktrees/
+.lane
+
+# os / editors
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+ECC-Claude/
