@@ -115,6 +115,23 @@ describe('LandingMotion', () => {
     expect(liveTweens().length).toBeGreaterThan(0)
   })
 
+  it('sets_the_motion_up_again_when_a_page_transition_ends', async () => {
+    // A route change runs inside a view transition; React tears the new page's layout effects
+    // down mid-transition (seen in Chrome), so the motion must rebuild once the transition ends.
+    document.documentElement.dataset.routeTransition = 'true'
+    render(<Fixture />)
+    await act(async () => {
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
+      gsap.globalTimeline.clear()
+    })
+    expect(ScrollTrigger.getAll()).toHaveLength(0)
+    await act(async () => {
+      delete document.documentElement.dataset.routeTransition
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+    expect(ScrollTrigger.getAll().length).toBeGreaterThan(0)
+  })
+
   it('keeps_the_headline_accessible_name_equal_to_the_original_text', () => {
     const { getByRole, container } = render(<Fixture />)
     expect(container.querySelector('[data-motion="headline"] span')).not.toBeNull()

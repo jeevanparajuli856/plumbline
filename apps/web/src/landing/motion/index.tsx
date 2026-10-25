@@ -2,6 +2,7 @@ import type { RefObject } from 'react'
 import { gsap, useGSAP } from './scroll'
 import { MOTION_ALLOWED } from './constants'
 import { useHtmlReduceMotion } from './useHtmlReduceMotion'
+import { useRouteSettled } from './useRouteSettled'
 import { headline, quotes } from './effects/text'
 import { bars } from './effects/bars'
 import { devices } from './effects/device'
@@ -28,6 +29,7 @@ function runAll(cleanups: readonly Cleanup[]): Cleanup {
  */
 export default function LandingMotion({ rootRef }: LandingMotionProps) {
   const isReduced = useHtmlReduceMotion()
+  const settled = useRouteSettled()
 
   useGSAP(
     () => {
@@ -50,7 +52,7 @@ export default function LandingMotion({ rootRef }: LandingMotionProps) {
       )
       return () => mm.revert()
     },
-    { scope: rootRef, dependencies: [isReduced], revertOnUpdate: true },
+    { scope: rootRef, dependencies: [isReduced, settled], revertOnUpdate: true },
   )
 
   return null
