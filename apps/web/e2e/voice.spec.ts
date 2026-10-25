@@ -3,7 +3,9 @@ import { expect, test } from './helpers/test'
 import { SimPage } from './pages/SimPage'
 
 // Voice is driven by the recognition stub the voice lane installs on `?fakeVoice=1`
-// (UI_CONTRACT section 4). Speech synthesis is replaced with a counter so nothing plays aloud.
+// (UI_CONTRACT section 4). The stub exists only in dev and `--mode test` builds; the webServer in
+// playwright.config.ts builds in test mode. Speech synthesis is replaced with a counter so
+// nothing plays aloud.
 
 const STUB_TIMEOUT_MS = 10_000
 
@@ -15,6 +17,10 @@ declare global {
 }
 
 test.describe('voice loop', () => {
+  test.skip(
+    Boolean(process.env.PLUMBLINE_E2E_BASE_URL),
+    'a deployed production build has no fake recognition stub',
+  )
   needsFullUi('voice (fake recognition stub) and the integration step (Listen button, M key)')
 
   let sim: SimPage
@@ -67,6 +73,16 @@ test.describe('voice loop', () => {
     await sim.waitForStep(1)
     await expect(sim.logCell(1, 'reading')).toContainText('3.671')
     await expect(sim.warning).toContainText('row 2')
+  })
+
+  test('a phrase said before the mic opens is held until the next listen', async ({ page }) => {
+    await page.evaluate(() => window.__plumblineFakeRecognition!.say('three point six seven one'))
+    await expect(sim.logRows()).toHaveCount(0)
+    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
+    await page.keyboard.press('m')
+    await expect(sim.listen).toHaveAttribute('aria-pressed', 'true')
+    await sim.waitForStep(1)
+    await expect(sim.logCell(1, 'reading')).toContainText('3.671')
   })
 
   test('a transcript is data: markup is never rendered or evaluated', async ({ page }) => {
