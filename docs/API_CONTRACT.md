@@ -190,7 +190,7 @@ Settings are read by `truehand_api/settings.py` (pydantic-settings, prefix `TRUE
 
 | Env var | Settings field | Value / default | Meaning |
 |---|---|---|---|
-| `TRUEHAND_CORS_ORIGINS` | `cors_origins` | comma-separated list. Unset: `http://localhost:5173`, `http://127.0.0.1:5173`, `http://localhost:4173`. `render.yaml` sets `https://plumbline-web.onrender.com,http://localhost:5173` | origin allowlist. Entries are trimmed. An empty entry or `*` makes the app refuse to start |
+| `TRUEHAND_CORS_ORIGINS` | `cors_origins` | comma-separated list. Unset: `http://localhost:5173`, `http://127.0.0.1:5173`, `http://localhost:4173`. `render.yaml` sets `https://truehand.tech,https://www.truehand.tech,https://plumbline-web-lxxc.onrender.com` (local dev uses the defaults) | origin allowlist. Entries are trimmed. An empty entry or `*` makes the app refuse to start |
 | `TRUEHAND_SESSION_MAX` | `session_max` | 500 | LRU capacity of the in-memory store |
 | `TRUEHAND_SESSION_TTL_S` | `session_ttl_s` | 3600 | idle expiry in seconds |
 | `TRUEHAND_FIXTURES_DIR` | `fixtures_dir` | `engine/fixtures/parity` | where replay fixtures are read |
@@ -199,7 +199,7 @@ Settings are read by `truehand_api/settings.py` (pydantic-settings, prefix `TRUE
 | `TRUEHAND_CONTACT_FROM` | `contact_from` | `Truehand <contact@truehand.tech>` | sender; the domain must be verified in Resend |
 | `TRUEHAND_CONTACT_MAX_PER_WINDOW` | `contact_max_per_window` | 3 | contact sends per client per window |
 | `TRUEHAND_CONTACT_WINDOW_S` | `contact_window_s` | 600 | per-client window in seconds |
-| `TRUEHAND_CONTACT_GLOBAL_PER_HOUR` | `contact_global_per_hour` | 50 | contact sends per hour across all clients |
+| `TRUEHAND_CONTACT_GLOBAL_PER_HOUR` | `contact_global_per_hour` | 20 | contact sends per hour across all clients |
 
 The request body cap (16 KiB) is a constant in `truehand_api/guard.py`, not a setting.
 
@@ -401,7 +401,7 @@ Success: 202 `{"status": "sent"}`. A filled honeypot gets the same 202 and nothi
 |---|---|---|---|
 | 422 | `validation_error` | any rule in 13.1; `details.errors[].loc` names the field, for example `["body", "email"]` | mark that field |
 | 413 | `payload_too_large` | body over 16 KiB (RequestGuard, before the route) | ask for a shorter message |
-| 429 | `rate_limited` | over 3 sends per client per 600 s, or 50 sends per hour overall. `details.retry_after_s` (integer seconds) equals the `Retry-After` header, which CORS exposes | say when to try again |
+| 429 | `rate_limited` | over 3 sends per client per 600 s, or 20 sends per hour overall. `details.retry_after_s` (integer seconds) equals the `Retry-After` header, which CORS exposes | say when to try again |
 | 503 | `contact_unavailable` | no Resend key on the server | offer the prefilled `mailto:support@truehand.tech` |
 | 502 | `contact_send_failed` | Resend answered non-2xx, timed out (10 s) or could not be reached | offer retry and the `mailto:` |
 
@@ -410,9 +410,18 @@ Each error `message` is one human sentence; 503 and 502 name the support address
 ### 13.3 Behaviour
 
 1. Order: validation (422), honeypot (202, sends nothing, does not count against any limit), key check (503), rate limit (429), one send (202 or 502). A failed send still counts against the limit.
-2. Client identity for the limit: the first `X-Forwarded-For` hop when present (Render proxies every request), else the socket peer. The limiter is in memory, bounded (at most 10 000 clients tracked, least recently admitted evicted first) and empty after a restart. Refused requests do not extend the wait.
-3. The email: `POST https://api.resend.com/emails` with `Authorization: Bearer <key>` and JSON `{from: contact_from, to: [contact_to], reply_to: email, subject, text}`. Subject `[<Reason>] <name>`, plus ` (<organization>)` when given; `<Reason>` is `Pilot`, `Partnership`, `Support` or `Press`. The text labels every field (`Name:`, `Email:`, `Organization:`, `Phone:`, `Reason:`, `Message:`), writing `not given` for absent optional fields.
+2. Client identity for the limit, in order of trust: the `CF-Connecting-IP` header (Render's edge is Cloudflare, which overwrites any client-sent value); else the last `X-Forwarded-For` hop (the one the proxy appends; earlier hops are client-chosen); else the socket peer (local dev). The limiter is in memory, bounded (at most 10 000 clients tracked, least recently admitted evicted first) and empty after a restart. Refused requests do not extend the wait.
+3. The email: `POST https://api.resend.com/emails` with `Authorization: Bearer <key>` and JSON `{from: contact_from, to: [contact_to], reply_to: email, subject, text}`. Subject `[<Reason>] <name>`, plus ` (<organization>)` when given; `<Reason>` is `Pilot`, `Partnership`, `Support` or `Press`. The text labels every field (`Name:`, `Email:`, `Organization:`, `Phone:`, `Reason:`, `Message:`), writing `not given` for absent optional fields, and ends with "Reply to answer the sender (address not verified)."
 4. Nothing is stored. Logs carry the Resend status or the exception class only, never the key or the message.
+
+Verify after deploy (once per environment, since note 2 depends on Render's edge): send a honeypot request with spoofed proxy headers. It emails nobody and spends no limit. Then check that Render's HTTP request log for it shows your real address, not the spoofed ones. Next send four real messages from one machine, each with a different spoofed first `X-Forwarded-For` hop; the fourth must answer 429. If it does not, the edge is not setting `CF-Connecting-IP` and `client_ip` needs revisiting.
+
+```bash
+curl -s -X POST https://plumbline-api.onrender.com/v1/contact -H 'Content-Type: application/json' \
+  -H 'CF-Connecting-IP: 198.51.100.1' -H 'X-Forwarded-For: 198.51.100.2' \
+  -d '{"name":"Deploy check","email":"you@example.org","reason":"support","message":"Honeypot deploy check.","website":"x"}'
+# 202 {"status":"sent"}; nothing is sent
+```
 
 ### 13.4 Example
 

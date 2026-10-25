@@ -22,6 +22,11 @@ EMAIL_PATTERN = (
 PHONE_PATTERN = r"^[0-9 +\-().]*$"
 # Cc: control characters (CR, LF, NUL, ESC...). Zl, Zp: Unicode line and paragraph separators.
 HEADER_UNSAFE_CATEGORIES = frozenset({"Cc", "Zl", "Zp"})
+# Cf characters that reorder text (ALM, LRM, RLM, LRE..RLO, LRI..PDI): a subject could read
+# backwards. Other Cf characters such as ZWJ and ZWNJ are needed to spell some names.
+BIDI_CONTROLS = frozenset(
+    "\u061c\u200e\u200f\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069"
+)
 MESSAGE_ALLOWED_CONTROLS = frozenset({"\n", "\t"})
 
 Reason = Literal["pilot", "partnership", "support", "press"]
@@ -37,6 +42,8 @@ def _single_line(value: str) -> str:
     """Fields that reach an email header or subject must not carry line breaks (injection)."""
     if any(unicodedata.category(char) in HEADER_UNSAFE_CATEGORIES for char in value):
         raise ValueError("must be a single line without control characters")
+    if any(char in BIDI_CONTROLS for char in value):
+        raise ValueError("must not contain text direction controls")
     return value
 
 

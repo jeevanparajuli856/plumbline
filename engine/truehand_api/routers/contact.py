@@ -26,6 +26,7 @@ SEND_FAILED_MESSAGE = (
 )
 RATE_LIMITED_MESSAGE = "Too many messages in a short time; please try again in a few minutes."
 UNKNOWN_CLIENT = "unknown"
+EDGE_CLIENT_IP_HEADER = "cf-connecting-ip"
 
 _limiter = ContactLimiter(
     per_client=settings.contact_max_per_window,
@@ -45,11 +46,20 @@ def get_resend_transport() -> httpx.AsyncBaseTransport | None:
 
 
 def client_ip(request: Request) -> str:
-    """Render proxies every request, so the first X-Forwarded-For hop is the visitor."""
-    forwarded = request.headers.get("x-forwarded-for", "")
-    first_hop = forwarded.split(",", 1)[0].strip()
-    if first_hop:
-        return first_hop
+    """The visitor's address for the rate limit, in order of trust.
+
+    1. ``CF-Connecting-IP``: Render's edge is Cloudflare, which overwrites any value the client
+       sent, so the header cannot be spoofed through the deployed origin.
+    2. The last ``X-Forwarded-For`` hop: the one the proxy appended. Earlier hops are whatever
+       the client chose to send.
+    3. The socket peer (local dev, tests).
+    """
+    edge = request.headers.get(EDGE_CLIENT_IP_HEADER, "").strip()
+    if edge:
+        return edge
+    last_hop = request.headers.get("x-forwarded-for", "").rsplit(",", 1)[-1].strip()
+    if last_hop:
+        return last_hop
     return request.client.host if request.client else UNKNOWN_CLIENT
 
 

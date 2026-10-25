@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     contact_from: str = DEFAULT_CONTACT_FROM
     contact_max_per_window: int = Field(default=3, ge=1)
     contact_window_s: int = Field(default=600, ge=1)
-    contact_global_per_hour: int = Field(default=50, ge=1)
+    contact_global_per_hour: int = Field(default=20, ge=1)
 
     @field_validator("resend_api_key", mode="before")
     @classmethod

@@ -122,6 +122,7 @@ async def test_valid_request_sends_one_email_with_subject_reply_to_and_labeled_b
         "Message:\nWe would like to pilot Truehand in our lab.\nTwo classes, spring term.",
     ):
         assert line in text
+    assert "Reply to answer the sender (address not verified)." in text
 
 
 async def test_subject_omits_organization_when_absent_and_body_says_not_given(
@@ -211,6 +212,24 @@ async def test_header_injection_through_line_breaks_is_rejected(
     assert resend.requests == []
 
 
+@pytest.mark.parametrize("field", ["name", "organization"])
+@pytest.mark.parametrize("control", ["\u202e", "\u2066"])
+async def test_bidi_controls_are_rejected_in_fields_that_reach_the_subject(
+    client: httpx.AsyncClient, resend: FakeResend, field: str, control: str
+) -> None:
+    value = f"Ada {control}evol"
+    assert_error(await post(client, **{field: value}), 422, "validation_error")
+    assert resend.requests == []
+
+
+async def test_zero_width_joiners_stay_allowed_in_names(
+    client: httpx.AsyncClient, resend: FakeResend
+) -> None:
+    response = await post(client, name="Ada\u200dLove\u200clace")
+    assert response.status_code == 202, response.text
+    assert len(resend.requests) == 1
+
+
 async def test_filled_honeypot_answers_202_and_sends_nothing(
     client: httpx.AsyncClient, resend: FakeResend, limiter: ContactLimiter
 ) -> None:
@@ -255,6 +274,12 @@ async def test_key_is_read_from_the_truehand_environment_variable(
     assert API_KEY not in repr(Settings())
 
 
+def test_contact_limits_default_to_3_per_10_minutes_and_20_per_hour() -> None:
+    defaults = Settings()
+    assert (defaults.contact_max_per_window, defaults.contact_window_s) == (3, 600)
+    assert defaults.contact_global_per_hour == 20
+
+
 @pytest.mark.parametrize("status", [400, 401, 403, 422, 429, 500, 503])
 async def test_resend_rejection_answers_502_contact_send_failed(
     client: httpx.AsyncClient, resend: FakeResend, status: int
@@ -290,14 +315,34 @@ async def test_fourth_request_from_one_ip_answers_429_with_retry_after(
     assert len(resend.requests) == 4
 
 
-async def test_client_ip_is_the_first_forwarded_hop(client: httpx.AsyncClient) -> None:
-    for _ in range(3):
-        assert (await post(client, ip="192.0.2.9, 10.0.0.1")).status_code == 202
-    assert_error(await post(client, ip="192.0.2.9, 10.0.0.2"), 429, "rate_limited")
-    assert (await post(client, ip="192.0.2.10, 10.0.0.1")).status_code == 202
+async def send_from(client: httpx.AsyncClient, **headers: str) -> httpx.Response:
+    names = {"cf": "CF-Connecting-IP", "xff": "X-Forwarded-For"}
+    return await client.post(
+        "/v1/contact", json=VALID, headers={names[key]: value for key, value in headers.items()}
+    )
 
 
-async def test_without_forwarded_header_the_socket_peer_is_the_client(
+async def test_cf_connecting_ip_wins_over_a_spoofed_forwarded_header(
+    client: httpx.AsyncClient,
+) -> None:
+    for spoof in ("192.0.2.1", "192.0.2.2", "192.0.2.3"):
+        response = await send_from(client, cf="203.0.113.50", xff=f"{spoof}, 10.0.0.1")
+        assert response.status_code == 202
+    response = await send_from(client, cf="203.0.113.50", xff="192.0.2.4, 10.0.0.1")
+    assert_error(response, 429, "rate_limited")
+    assert (await send_from(client, cf="203.0.113.51", xff="192.0.2.4")).status_code == 202
+
+
+async def test_last_forwarded_hop_is_the_client_without_cf_connecting_ip(
+    client: httpx.AsyncClient,
+) -> None:
+    for spoof in ("192.0.2.1", "192.0.2.2", "192.0.2.3"):
+        assert (await send_from(client, xff=f"{spoof}, 198.51.100.9")).status_code == 202
+    assert_error(await send_from(client, xff="192.0.2.4, 198.51.100.9"), 429, "rate_limited")
+    assert (await send_from(client, xff="192.0.2.1, 198.51.100.10")).status_code == 202
+
+
+async def test_socket_peer_is_the_client_without_proxy_headers(
     client: httpx.AsyncClient,
 ) -> None:
     for _ in range(3):

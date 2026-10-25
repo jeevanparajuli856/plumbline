@@ -48,7 +48,8 @@ def compose(body: ContactRequest, sender: str, to: str) -> OutgoingEmail:
             "Message:",
             body.message,
             "",
-            "Sent through the contact form on truehand.tech. Reply to answer the sender.",
+            "Sent through the contact form on truehand.tech. "
+            "Reply to answer the sender (address not verified).",
         ]
     )
     return OutgoingEmail(sender=sender, to=to, reply_to=body.email, subject=subject, text=text)
