@@ -7,7 +7,7 @@ export interface FakeRecognitionHandle {
 
 declare global {
   interface Window {
-    __plumblineFakeRecognition?: FakeRecognitionHandle
+    __truehandFakeRecognition?: FakeRecognitionHandle
   }
 }
 
@@ -46,6 +46,6 @@ export function createFakeAdapter(): ListenAdapter & FakeRecognitionHandle {
 
 export function installFakeRecognition(win: Window = window): ListenAdapter {
   const fake = createFakeAdapter()
-  win.__plumblineFakeRecognition = { say: (transcript, alternatives) => fake.say(transcript, alternatives) }
+  win.__truehandFakeRecognition = { say: (transcript, alternatives) => fake.say(transcript, alternatives) }
   return fake
 }

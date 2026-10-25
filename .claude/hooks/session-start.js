@@ -32,11 +32,11 @@ const daysToFinals = Math.ceil((finals - Date.now()) / 86400000);
 const state = [
   `web app: ${exists('apps/web/package.json') ? 'bootstrapped' : 'NOT bootstrapped (run /bootstrap)'}`,
   `engine:  ${exists('engine/pyproject.toml') ? 'present' : 'NOT present (drop handsight code into engine/, see docs/ARCHITECTURE.md)'}`,
-  `api:     ${exists('engine/plumbline_api') || exists('engine/api') ? 'present' : 'not yet'}`,
+  `api:     ${exists('engine/truehand_api') || exists('engine/api') ? 'present' : 'not yet'}`,
 ];
 
 const lines = [
-  '## Plumbline session briefing',
+  '## Truehand session briefing',
   `branch: ${branch}${lane ? `  | lane: ${lane}` : ''}  | worktrees: ${worktrees || 1}  | uncommitted files: ${dirty}`,
   `days to Nexus finals (Dec 14 2026): ${daysToFinals}`,
   ...state,

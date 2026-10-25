@@ -102,10 +102,10 @@ export type Verdict =
   | { kind: 'top'; label: string; p: number }
 
 /**
- * Plumbline's one-line answer beside the published method. When the engine refused, it names the
+ * Truehand's one-line answer beside the published method. When the engine refused, it names the
  * indistinguishable faults and gives no single percentage (rule 3: never force one answer).
  */
-export function plumblineVerdict(
+export function truehandVerdict(
   rows: readonly BeliefRow[],
   hasReadings: boolean,
   unresolvedLabels: readonly string[] | null,

@@ -65,7 +65,7 @@ export async function revealAnimates(page: Page): Promise<boolean> {
       matchMedia('(prefers-reduced-motion: reduce)').matches ||
       document.documentElement.dataset.reduceMotion === 'true'
     const frames =
-      (window as { __plumblineScene?: { frames: number } }).__plumblineScene?.frames ?? 0
+      (window as { __truehandScene?: { frames: number } }).__truehandScene?.frames ?? 0
     return !reduced && frames > 0
   })
 }

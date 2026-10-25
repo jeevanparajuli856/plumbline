@@ -4,7 +4,7 @@ Status: accepted, 2026-10-25
 
 ## Context
 
-Plumbline has two halves that must agree on one set of numbers. The browser experience is the
+Truehand has two halves that must agree on one set of numbers. The browser experience is the
 blind user's main channel (text, keyboard, voice) and also carries a 3D scene for sighted judges.
 The inference engine is a circuit solver plus a Bayesian update over faults. The brief (section 6)
 names the Python modules that exist in the original work: `circuit.py`, `engine.py`,
@@ -39,9 +39,9 @@ Engine (`engine/`, Python 3.13 via uv):
 
 - NumPy for the circuit solver and the inference math.
 - FastAPI with Pydantic v2 models at every request boundary, and pydantic-settings for the
-  `PLUMBLINE_` environment prefix.
+  `TRUEHAND_` environment prefix.
 - pytest for the Python suite and httpx with `ASGITransport` for API tests.
-- Flat layout: `engine/plumbline` (the package) and `engine/plumbline_api` (the FastAPI app),
+- Flat layout: `engine/truehand` (the package) and `engine/truehand_api` (the FastAPI app),
   built with a hatch build configuration.
 
 Versions are pinned by lockfiles committed at bootstrap. CI and deploy install with
@@ -86,4 +86,4 @@ What to re-visit:
   React-shaped, and R3F keeps the scene in the same tree as the panels.
 - **Flask or Django for the API.** Rejected: Flask needs hand-rolled validation at each boundary
   (security rule: validate every body), and Django brings database and auth scaffolding that
-  `00-plumbline.md` rule 5 forbids.
+  `00-truehand.md` rule 5 forbids.

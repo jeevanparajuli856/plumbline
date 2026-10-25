@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from plumbline.record_fixtures import main
+from truehand.record_fixtures import main
 
 
 def test_records_only_the_named_fixture(tmp_path: Path) -> None:

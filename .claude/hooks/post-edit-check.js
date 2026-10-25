@@ -23,7 +23,7 @@ function typecheck(file) {
   const pkgRoot = findUp(tsRoot, 'node_modules') || tsRoot;
   const tsc = path.join(pkgRoot, 'node_modules', '.bin', 'tsc');
   if (!fs.existsSync(tsc)) return [];
-  const cacheDir = path.join(pkgRoot, 'node_modules', '.cache', 'plumbline-hooks');
+  const cacheDir = path.join(pkgRoot, 'node_modules', '.cache', 'truehand-hooks');
   fs.mkdirSync(cacheDir, { recursive: true });
   const buildInfo = path.join(cacheDir, path.basename(tsRoot) + '.tsbuildinfo');
   try {

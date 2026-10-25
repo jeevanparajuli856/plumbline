@@ -19,17 +19,17 @@ exact physics that can be checked against a circuit solver.
 
 Put the inference in a domain-agnostic core and the physics in plug-in instrument models.
 
-The `InstrumentModel` Protocol lives in `engine/plumbline/model.py`. It declares: `domain`,
+The `InstrumentModel` Protocol lives in `engine/truehand/model.py`. It declares: `domain`,
 `display_name`, `simulated`, `hypotheses`, `sites`, `reading` (a `ReadingSpec` with unit, minimum,
 maximum, decimals), `default_sigma`, `default_class_tolerance`, `expected_readings()` (an F by K
 array of predicted readings per hypothesis and site), `expected_reading()`, `hypothesis_index()`,
 `instruction_phrase()`, `warning_phrase()`, `diagnosis_phrase()`, and `unresolved_phrase()`.
 
-The core `Engine(model, config)` in `engine/plumbline/engine.py` does the domain-independent work:
+The core `Engine(model, config)` in `engine/truehand/engine.py` does the domain-independent work:
 log-space belief update, placement posterior, retrospective `placement_audit`, expected information
 gain by 20-point Gauss-Hermite quadrature (so the TypeScript port needs no RNG parity), union-find
 distinguishability classes, and the resolution rule. The named thresholds live in
-`engine/plumbline/config.py`: `RESOLVE_THRESHOLD` 0.95, `PLACEMENT_WARNING_THRESHOLD` 0.5,
+`engine/truehand/config.py`: `RESOLVE_THRESHOLD` 0.95, `PLACEMENT_WARNING_THRESHOLD` 0.5,
 `MIN_USEFUL_GAIN_BITS` 1e-3, `MAX_STEPS` 12, `CLASS_TOLERANCE_VOLTS` 1e-3, `SIGMA_VOLTS` 0.02.
 
 Domain 1, circuit (`domains/circuit.py`): exact, `simulated` false. Physics is modified nodal

@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from plumbline.config import ConfusionSpec
-from plumbline.confusion import banded_confusion, validate_confusion
+from truehand.config import ConfusionSpec
+from truehand.confusion import banded_confusion, validate_confusion
 
 SITES = 6
 

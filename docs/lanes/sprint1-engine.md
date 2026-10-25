@@ -2,7 +2,7 @@
 
 Changes outside `engine/` and `docs/results/` that this lane needs. They were not made here, because that is outside this lane's write surface.
 
-## 1. `docs/API_CONTRACT.md`: bring it in line with `engine/plumbline_api/schemas.py`
+## 1. `docs/API_CONTRACT.md`: bring it in line with `engine/truehand_api/schemas.py`
 
 schemas.py is the source of truth (contract section 12). The divergences:
 
@@ -30,14 +30,14 @@ schemas.py is the source of truth (contract section 12). The divergences:
 - `SessionView.true_hypothesis` and `StepView.landed_site` are always present as keys and are `null` when hidden (invariants 6 and 7).
 - `SessionView.config` is `{sigma, confusion (K x K matrix), thresholds {resolve, placement_warning, min_gain_bits, class_tolerance, max_steps}}`.
 - Security-review additions:
-  - 413 `payload_too_large`: request bodies are capped at 16 KiB (`MAX_BODY_BYTES` in `plumbline_api/guard.py`), checked by Content-Length and by counting chunked bytes. `details.max_bytes` gives the cap.
+  - 413 `payload_too_large`: request bodies are capped at 16 KiB (`MAX_BODY_BYTES` in `truehand_api/guard.py`), checked by Content-Length and by counting chunked bytes. `details.max_bytes` gives the cap.
   - 422 `numerically_degenerate`: the belief became non-finite. The `sigma` floor makes this unreachable through the API today.
   - `sigma` is bounded to [1e-6 (`MIN_SIGMA`), 100].
   - Session ids in paths must be lowercase UUID4; anything else is a 422 `validation_error`, not a 404.
   - A body that is not valid UTF-8 JSON is a 422 `validation_error`, not a 400.
   - Client text echoed in messages is cut at 64 characters.
   - 500 and 413 replies carry CORS headers for allowed origins.
-  - `PLUMBLINE_CORS_ORIGINS` is a comma list; `*` and empty entries refuse to start.
+  - `TRUEHAND_CORS_ORIGINS` is a comma list; `*` and empty entries refuse to start.
 - Extra error codes: 404 `not_found` and 405 `method_not_allowed` for unknown routes and methods, so every error uses the envelope. Validation `details` is `{errors: [{loc, msg, type}]}`.
 - Fixture shape additions, all additive: `steps[].likely_site`, `steps[].unresolved` (always present, `null` unless unresolved), `source_mode`, `seed`, `simulated`, `config.domain_parameters` (LED calibration, ADR-0002), `config.truth_confusion` (simulate-sourced fixtures), `catalog.expected_readings`. The thresholds keys are `resolve, placement_warning, min_gain_bits, class_tolerance, max_steps`; the contract's illustration uses `class_tolerance_v`.
 - Section 10 can now quote the fixture. The values match the scratch values to three decimals. See the lane report.
@@ -50,7 +50,7 @@ schemas.py is the source of truth (contract section 12). The divergences:
 ## 3. Docs with scratch numbers the engine now replaces (doc-updater)
 
 - `docs/ARCHITECTURE.md` section 5.2 and ADR-0003: the thermometer demo's P(off site) is **0.059** in the engine (fixture `thermometer_demo.json`), not the scratch 0.009. `medium_well` 0.947 and the separations 2.96 to 4.98 C match. No warning fires in either case.
-- `.claude/rules/00-plumbline.md` and the brief text still say 31 classes. The engine computes 32, with the only multi-member class {LED_open, LED_reversed}.
+- `.claude/rules/00-truehand.md` and the brief text still say 31 classes. The engine computes 32, with the only multi-member class {LED_open, LED_reversed}.
 - `docs/EVIDENCE.md` and `docs/PITCH.md` can cite `docs/results/stability_2026-10-25.md` and `experiment_2026-10-25.md`, labeled simulated and preliminary, in place of the brief's expectations.
 
 ## 4. Web fixtures

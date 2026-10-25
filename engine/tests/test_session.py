@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-from plumbline.domains.circuit import CircuitModel
-from plumbline.engine import Engine
-from plumbline.session import (
+from truehand.domains.circuit import CircuitModel
+from truehand.engine import Engine
+from truehand.session import (
     FixtureMismatch,
     ReadingNotAllowed,
     ReadingOutOfRange,
@@ -187,7 +187,7 @@ def test_led_reversed_ends_unresolved_between_the_indistinguishable_pair(engine:
 
 
 def test_max_steps_lists_the_top_classes_instead_of_forcing_one() -> None:
-    from plumbline.config import EngineConfig
+    from truehand.config import EngineConfig
 
     capped = Engine(CircuitModel(), EngineConfig(max_steps=1))
     session = Session(capped, mode="live", seed=0)
@@ -227,7 +227,7 @@ def test_worked_example_steps_have_no_misfit(engine: Engine) -> None:
 
 
 def test_repeated_misfits_still_stop_at_max_steps() -> None:
-    from plumbline.config import EngineConfig
+    from truehand.config import EngineConfig
 
     capped = Engine(CircuitModel(), EngineConfig(max_steps=2))
     session = Session(capped, mode="live", seed=0)

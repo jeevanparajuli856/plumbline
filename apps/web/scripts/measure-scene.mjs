@@ -1,8 +1,8 @@
 import { chromium } from '@playwright/test'
-const BASE = process.env.PLUMBLINE_PERF_BASE_URL ?? 'http://localhost:4393'
+const BASE = process.env.TRUEHAND_PERF_BASE_URL ?? 'http://localhost:4393'
 const browser = await chromium.launch()
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 })
-const scene = () => page.evaluate(() => window.__plumblineScene ?? null)
+const scene = () => page.evaluate(() => window.__truehandScene ?? null)
 async function framesOver(ms) {
   const a = (await scene())?.frames ?? 0
   await page.waitForTimeout(ms)
@@ -17,7 +17,7 @@ const gpu = await page.goto(BASE + '/sim?demo=worked-example') && await page.eva
   return ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : 'unknown'
 })
 out.gpu = gpu
-await page.waitForFunction(() => (window.__plumblineScene?.frames ?? 0) > 0, null, { timeout: 20000 })
+await page.waitForFunction(() => (window.__truehandScene?.frames ?? 0) > 0, null, { timeout: 20000 })
 await settle()
 out.circuitAwaiting = { drawCalls: (await scene()).drawCalls, framesIn2s: await framesOver(2000) }
 await page.getByRole('button', { name: 'Next recorded reading' }).click()
@@ -29,11 +29,11 @@ await page.getByTestId('diagnosis').waitFor()
 await settle()
 out.circuitResolved = { drawCalls: (await scene()).drawCalls, framesIn2s: await framesOver(2000) }
 await page.goto(BASE + '/sim?domain=thermometer&mode=replay&fixture=thermometer_demo')
-await page.waitForFunction(() => (window.__plumblineScene?.frames ?? 0) > 0, null, { timeout: 20000 })
+await page.waitForFunction(() => (window.__truehandScene?.frames ?? 0) > 0, null, { timeout: 20000 })
 await settle()
 out.roastAwaiting = { drawCalls: (await scene()).drawCalls, framesIn2s: await framesOver(2000) }
 await page.goto(BASE + '/')
-await page.waitForFunction(() => (window.__plumblineScene?.frames ?? 0) > 0, null, { timeout: 20000 })
+await page.waitForFunction(() => (window.__truehandScene?.frames ?? 0) > 0, null, { timeout: 20000 })
 await settle()
 out.landingIdle = { drawCalls: (await scene()).drawCalls, framesIn2s: await framesOver(2000) }
 console.log(JSON.stringify(out, null, 2))

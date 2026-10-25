@@ -1,10 +1,10 @@
 import pytest
 
-from plumbline.domains import get_model
-from plumbline.engine import Engine
-from plumbline.session import Session
-from plumbline_api.errors import ApiError
-from plumbline_api.store import SessionStore
+from truehand.domains import get_model
+from truehand.engine import Engine
+from truehand.session import Session
+from truehand_api.errors import ApiError
+from truehand_api.store import SessionStore
 
 
 class FakeClock:

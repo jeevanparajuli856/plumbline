@@ -14,16 +14,16 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt',
       injectRegister: 'auto',
-      includeAssets: ['favicon.svg', 'icons/*.png', 'transcripts/*.json'],
+      includeAssets: ['favicon.svg', 'icons/*.png', 'brand/*.svg', 'transcripts/*.json'],
       manifest: {
-        name: 'Plumbline',
-        short_name: 'Plumbline',
+        name: 'Truehand',
+        short_name: 'Truehand',
         description: 'An assistant for blind hands that cannot tell you something it has not measured.',
         start_url: '/sim?mode=replay',
         scope: '/',
         display: 'standalone',
-        theme_color: '#0B0D10',
-        background_color: '#0B0D10',
+        theme_color: '#F3EDE3',
+        background_color: '#F3EDE3',
         lang: 'en',
         dir: 'ltr',
         icons: [

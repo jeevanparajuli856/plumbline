@@ -20,7 +20,7 @@ the brief cites them. They were not re-verified in this session.
 
 ## Decision
 
-Baselines are in the engine. `engine/plumbline/baselines.py` defines a `Baseline` Protocol with
+Baselines are in the engine. `engine/truehand/baselines.py` defines a `Baseline` Protocol with
 `start`, `observe`, and `choose`. The four baselines are:
 
 - `EntropyExact`: entropy-based selection with the exact probe position (no confusion model). This
@@ -32,17 +32,17 @@ Baselines are in the engine. `engine/plumbline/baselines.py` defines a `Baseline
 
 In a session, a baseline runs in shadow mode. It sees the same readings and reports its own belief
 and diagnosis (`BaselineView` with `shadow` true). In experiments, each arm has its own instructions
-on the same truths and the same random stream (`experiment.py`: plumbline, entropy_exact, checklist,
+on the same truths and the same random stream (`experiment.py`: truehand, entropy_exact, checklist,
 random, remeasure_until_agree).
 
-The brief's expectation, not our run, for the headline comparison: Plumbline correct 99.0 plus or
+The brief's expectation, not our run, for the headline comparison: Truehand correct 99.0 plus or
 minus 0.4%, wrong at over 90% confidence 1.0 plus or minus 0.4%. Entropy exact 78.7 and 21.2 (plus or
 minus 1.8 each). Checklist 69.8 and 28.5. Random 70.2 and 28.3. The brief also reports 178 warnings of
 which 176 were correct, and a 21x reduction. Those figures come from 1500 simulated faults per arm over
 five seeds, and they are re-run inside `engine/` before any slide uses them as ours.
 
 Scratch reconstruction on 2026-10-25, to be re-run inside `engine/`: in the worked example, the
-published method (`R2_short`) reaches 100% after the first reading, and Plumbline's top candidate
+published method (`R2_short`) reaches 100% after the first reading, and Truehand's top candidate
 (`R3_short`) reaches 63.1% and fires the placement warning (P(off) 1.0).
 
 The LLM comparison is a static, dated, recorded transcript. It lives in `public/transcripts/`

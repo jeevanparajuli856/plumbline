@@ -1,6 +1,6 @@
 import { formatPct } from '@/lib/format'
 import type { BaselineState, Catalog } from '@/state/types'
-import { baselineName, beliefRows, plumblineVerdict, type BeliefRow, type Verdict } from './view'
+import { baselineName, beliefRows, truehandVerdict, type BeliefRow, type Verdict } from './view'
 
 interface BeliefChartProps {
   belief: readonly number[]
@@ -14,7 +14,7 @@ interface BeliefChartProps {
 const NAME = 'Belief over faults'
 
 /**
- * Plumbline's belief (cyan, outlined) beside the published method (neutral, dashed) on the same
+ * Truehand's belief (cyan, outlined) beside the published method (neutral, dashed) on the same
  * readings. The chart is a real table, so the table twin is the chart itself.
  */
 export function BeliefChart({
@@ -41,9 +41,9 @@ export function BeliefChart({
 
       <div className="mt-4 grid gap-px overflow-hidden rounded-hard border-2 border-border-strong bg-border-strong sm:grid-cols-2">
         <VerdictCell
-          title="Plumbline"
+          title="Truehand"
           note="Infers where the probe landed"
-          verdict={plumblineVerdict(rows, hasReadings, unresolvedLabels)}
+          verdict={truehandVerdict(rows, hasReadings, unresolvedLabels)}
           testId="belief-verdict"
           look="inferred"
         />
@@ -67,7 +67,7 @@ export function BeliefChart({
           </tr>
         </thead>
         <tbody>
-          <GroupHeader title="Plumbline" />
+          <GroupHeader title="Truehand" />
           {rows.map((row) => (
             <BarRow key={row.id} row={row} look="inferred" />
           ))}
@@ -111,7 +111,7 @@ function VerdictCell({
   note: string
   verdict: Verdict
   look: 'inferred' | 'baseline'
-  /** UI_CONTRACT 6.14: the Plumbline verdict line is data-testid="belief-verdict". */
+  /** UI_CONTRACT 6.14: the Truehand verdict line is data-testid="belief-verdict". */
   testId?: string
 }) {
   return (

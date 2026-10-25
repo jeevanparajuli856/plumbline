@@ -8,7 +8,7 @@ import { confusionBand, type ConfusionBand } from './confusionBand'
 const evidence = parseEvidence(evidenceMd)
 
 /** Purpose-split contact (DESIGN_REFERENCES E4): one address, a subject per purpose. */
-const CONTACT_EMAIL = 'hello@tryplumbline.tech'
+const CONTACT_EMAIL = 'support@truehand.tech'
 const CONTACT_PLACE = 'Monroe, Louisiana'
 
 function contactHref(subject: string): string {
@@ -61,7 +61,7 @@ export function AboutPage() {
             Trustworthy measurement for hands that cannot see the tool.
           </h1>
           <p className="mt-5 max-w-[60ch] text-md text-text-2">
-            Plumbline infers the circuit fault and where the probe actually landed from each
+            Truehand infers the circuit fault and where the probe actually landed from each
             reading. When a number came from the wrong row, it says so. When the physics cannot tell
             two faults apart, it refuses to guess. Web simulator open now. iOS app next.
           </p>
@@ -109,7 +109,7 @@ export function AboutPage() {
             . They will be replaced by a measured matrix, and every experiment re-run.
           </p>
           <p>
-            When two faults produce the same voltages at every row, Plumbline says it cannot tell
+            When two faults produce the same voltages at every row, Truehand says it cannot tell
             them apart and asks for a different measurement. It does not pick one.
           </p>
           <p>
@@ -138,7 +138,7 @@ export function AboutPage() {
             hand actually misses a breadboard row. That measurement replaces our assumed numbers.
           </p>
           <p>
-            <a className="underline underline-offset-4" href={contactHref('Plumbline pilot')}>
+            <a className="underline underline-offset-4" href={contactHref('Truehand pilot')}>
               Email us about the pilot
             </a>{' '}
             at <span className="font-mono">{CONTACT_EMAIL}</span>. {CONTACT_PLACE}.
@@ -161,7 +161,7 @@ export function AboutPage() {
             land.
           </p>
           <p>
-            <a className="underline underline-offset-4" href={contactHref('Plumbline partnership')}>
+            <a className="underline underline-offset-4" href={contactHref('Truehand partnership')}>
               Email us about a partnership
             </a>{' '}
             at <span className="font-mono">{CONTACT_EMAIL}</span>. {CONTACT_PLACE}.

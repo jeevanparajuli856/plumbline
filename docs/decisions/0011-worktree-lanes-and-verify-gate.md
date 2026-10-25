@@ -53,7 +53,7 @@ Negative:
   added to `pnpm verify`.
 - Shared files become a bottleneck. Changes to `state/types.ts` wait for integration.
 - Overlap discipline depends on the agents. A lane that edits outside its surface needs to say so,
-  as `00-plumbline.md` requires, and the review must catch it.
+  as `00-truehand.md` requires, and the review must catch it.
 
 What to re-visit:
 
