@@ -17,16 +17,16 @@ Origin: approved plan, Appendix A4 (schemas), A5 (fixture shape), A8 (deploy hea
 
 ## 2. Endpoints
 
-| Method | Path | Request body | Success response | Notes |
-|---|---|---|---|---|
-| GET | `/v1/health` | none | `{status: "ok", version}` | Render `healthCheckPath`. `version` is the package version (`0.1.0` at this commit) |
-| GET | `/v1/domains` | none | `{domains: [{id, display_name, simulated}]}` | ids: `circuit`, `thermometer` |
-| GET | `/v1/domains/{domain}/catalog` | none; optional query `include_expected_readings=true` | `CatalogView` | unknown domain: 422 `unknown_domain`. `expected_readings` is `null` unless the flag is set |
-| POST | `/v1/sessions` | `CreateSession` | `SessionView`, status 201 | creates an in-memory session |
-| GET | `/v1/sessions/{id}` | none | `SessionView` | unknown, expired, or evicted: 404 `session_not_found`; malformed id: 422 |
-| POST | `/v1/sessions/{id}/step` | `StepRequest` (body may be `{}` or absent) | `StepView` | behaviour per mode, section 4 |
-| POST | `/v1/sessions/{id}/reset` | none | `SessionView` | same config and truth, step count back to 0 |
-| POST | `/v1/contact` | `ContactRequest` | `{status: "sent"}`, status 202 | emails support through Resend; nothing stored. Section 13 |
+| Method | Path                           | Request body                                          | Success response                             | Notes                                                                                      |
+| ------ | ------------------------------ | ----------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| GET    | `/v1/health`                   | none                                                  | `{status: "ok", version}`                    | Render `healthCheckPath`. `version` is the package version (`0.1.0` at this commit)        |
+| GET    | `/v1/domains`                  | none                                                  | `{domains: [{id, display_name, simulated}]}` | ids: `circuit`, `thermometer`                                                              |
+| GET    | `/v1/domains/{domain}/catalog` | none; optional query `include_expected_readings=true` | `CatalogView`                                | unknown domain: 422 `unknown_domain`. `expected_readings` is `null` unless the flag is set |
+| POST   | `/v1/sessions`                 | `CreateSession`                                       | `SessionView`, status 201                    | creates an in-memory session                                                               |
+| GET    | `/v1/sessions/{id}`            | none                                                  | `SessionView`                                | unknown, expired, or evicted: 404 `session_not_found`; malformed id: 422                   |
+| POST   | `/v1/sessions/{id}/step`       | `StepRequest` (body may be `{}` or absent)            | `StepView`                                   | behaviour per mode, section 4                                                              |
+| POST   | `/v1/sessions/{id}/reset`      | none                                                  | `SessionView`                                | same config and truth, step count back to 0                                                |
+| POST   | `/v1/contact`                  | `ContactRequest`                                      | `{status: "sent"}`, status 202               | emails support through Resend; nothing stored. Section 13                                  |
 
 Only these eight routes exist in v1, plus the two documentation routes in section 1. The v0 names are superseded and must not come back (section 12).
 
@@ -36,110 +36,111 @@ Field tables. "Required" follows the plan's A4 notation: a field without `?` is 
 
 ### 3.1 CreateSession (request)
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
-| `domain` | string | yes | at most 64 characters; a value not in the registry is 422 `unknown_domain` (`details.field` = `domain`) |
-| `mode` | enum | yes | `simulate`, `live`, `replay` |
-| `seed` | int | yes | strict int, 0 to 2^32 - 1; drives the seeded hand in simulate |
-| `reveal` | enum | yes | `after_step` or `never` |
-| `true_hypothesis` | string | no | simulate only; in other modes 422 `validation_error` with `details.field` = `true_hypothesis`. Must be a catalog id, else 422 `unknown_hypothesis`. If absent in simulate, the server draws it from the prior with `seed` |
-| `fixture` | string | no | regex `^[a-z0-9_]{1,40}$`; required in replay and rejected in other modes (422 `validation_error`, `details.field` = `fixture`). Missing file: 404 `fixture_not_found` |
-| `sigma` | float | no | finite, in [1e-6 (`MIN_SIGMA`), 100]; default is the domain default. Rejected in replay (`details.field` = `sigma`) because replay uses the fixture's own config |
-| `confusion` | object | no | `{p_same, p_pm1, p_pm2}`, each Prob, with `p_same + 2 p_pm1 + 2 p_pm2 = 1` within 1e-6 (symmetric band, `confusion.py`). Rejected in replay |
+| Field             | Type   | Required | Constraints                                                                                                                                                                                                               |
+| ----------------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `domain`          | string | yes      | at most 64 characters; a value not in the registry is 422 `unknown_domain` (`details.field` = `domain`)                                                                                                                   |
+| `mode`            | enum   | yes      | `simulate`, `live`, `replay`                                                                                                                                                                                              |
+| `seed`            | int    | yes      | strict int, 0 to 2^32 - 1; drives the seeded hand in simulate                                                                                                                                                             |
+| `reveal`          | enum   | yes      | `after_step` or `never`                                                                                                                                                                                                   |
+| `true_hypothesis` | string | no       | simulate only; in other modes 422 `validation_error` with `details.field` = `true_hypothesis`. Must be a catalog id, else 422 `unknown_hypothesis`. If absent in simulate, the server draws it from the prior with `seed` |
+| `fixture`         | string | no       | regex `^[a-z0-9_]{1,40}$`; required in replay and rejected in other modes (422 `validation_error`, `details.field` = `fixture`). Missing file: 404 `fixture_not_found`                                                    |
+| `sigma`           | float  | no       | finite, in [1e-6 (`MIN_SIGMA`), 100]; default is the domain default. Rejected in replay (`details.field` = `sigma`) because replay uses the fixture's own config                                                          |
+| `confusion`       | object | no       | `{p_same, p_pm1, p_pm2}`, each Prob, with `p_same + 2 p_pm1 + 2 p_pm2 = 1` within 1e-6 (symmetric band, `confusion.py`). Rejected in replay                                                                               |
 
 Mode rules, all 422 `validation_error`: replay without `fixture`; `fixture`, `true_hypothesis`, `sigma` or `confusion` in a mode that does not accept them. A replay fixture from another domain is 409 `fixture_mismatch` (`details.field` = `domain`).
 
 ### 3.2 StepRequest (request)
 
-| Field | Type | Required | Constraints |
-|---|---|---|---|
+| Field     | Type  | Required                    | Constraints                                                                             |
+| --------- | ----- | --------------------------- | --------------------------------------------------------------------------------------- |
 | `reading` | float | depends on mode (section 4) | Finite; checked against the domain `ReadingSpec` range, else 422 `reading_out_of_range` |
 
 The request body may be `{}`, empty, or absent. Any other key is a 422 `validation_error`.
 
 ### 3.3 CatalogView (response)
 
-| Field | Type | Notes |
-|---|---|---|
-| `domain` | string | |
-| `simulated` | bool | true for the thermometer; the UI must badge it SIMULATED |
-| `reading_unit` | string | `V` for circuit, `C` for thermometer (degrees Celsius; set in the domain module) |
-| `sigma` | float | Finite, > 0 |
-| `hypotheses` | list, max 64 | each `{id, label, spoken, description}` |
-| `sites` | list, max 16 | each `{index, label, spoken}` |
-| `classes` | list of lists of ids, max 64 | distinguishability classes at the domain's class tolerance; a class with more than one member is indistinguishable |
-| `expected_readings` | `null`, or F x K floats | returned only with `include_expected_readings=true` |
+| Field               | Type                         | Notes                                                                                                              |
+| ------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `domain`            | string                       |                                                                                                                    |
+| `simulated`         | bool                         | true for the thermometer; the UI must badge it SIMULATED                                                           |
+| `reading_unit`      | string                       | `V` for circuit, `C` for thermometer (degrees Celsius; set in the domain module)                                   |
+| `sigma`             | float                        | Finite, > 0                                                                                                        |
+| `hypotheses`        | list, max 64                 | each `{id, label, spoken, description}`                                                                            |
+| `sites`             | list, max 16                 | each `{index, label, spoken}`                                                                                      |
+| `classes`           | list of lists of ids, max 64 | distinguishability classes at the domain's class tolerance; a class with more than one member is indistinguishable |
+| `expected_readings` | `null`, or F x K floats      | returned only with `include_expected_readings=true`                                                                |
 
 ### 3.4 SessionView (response)
 
-| Field | Type | Notes |
-|---|---|---|
-| `session_id` | string | |
-| `domain`, `mode` | string | |
-| `simulated` | bool | |
-| `reveal` | enum | echoes the request |
-| `status` | enum | `continue`, `resolved`, `unresolved` |
-| `config` | ConfigView | `{sigma, confusion (K x K), thresholds}` |
-| `catalog` | CatalogView | |
-| `instruction` | InstructionView or `null` | `null` when the session is terminal |
-| `belief` | float list | length = hypotheses, Finite, sums to 1 |
-| `entropy_bits` | float | Finite, >= 0 |
-| `steps` | list of StepView, max 32 | |
-| `true_hypothesis` | string or `null` | invariant 7 |
+| Field             | Type                      | Notes                                    |
+| ----------------- | ------------------------- | ---------------------------------------- |
+| `session_id`      | string                    |                                          |
+| `domain`, `mode`  | string                    |                                          |
+| `simulated`       | bool                      |                                          |
+| `reveal`          | enum                      | echoes the request                       |
+| `status`          | enum                      | `continue`, `resolved`, `unresolved`     |
+| `config`          | ConfigView                | `{sigma, confusion (K x K), thresholds}` |
+| `catalog`         | CatalogView               |                                          |
+| `instruction`     | InstructionView or `null` | `null` when the session is terminal      |
+| `belief`          | float list                | length = hypotheses, Finite, sums to 1   |
+| `entropy_bits`    | float                     | Finite, >= 0                             |
+| `steps`           | list of StepView, max 32  |                                          |
+| `true_hypothesis` | string or `null`          | invariant 7                              |
 
 `ConfigView.thresholds` is `{resolve, placement_warning, min_gain_bits, class_tolerance, max_steps, out_of_model_sigmas}`. The defaults are 0.95, 0.5, 1e-3, 1e-3 (domain default), 12 and 5.0.
 
 ### 3.5 InstructionView
 
-| Field | Type | Notes |
-|---|---|---|
-| `site` | int | 0-based index |
-| `label`, `spoken` | string | |
-| `gain_bits` | float list | Finite; one expected information gain per site, in site order |
+| Field             | Type       | Notes                                                         |
+| ----------------- | ---------- | ------------------------------------------------------------- |
+| `site`            | int        | 0-based index                                                 |
+| `label`, `spoken` | string     |                                                               |
+| `gain_bits`       | float list | Finite; one expected information gain per site, in site order |
 
 ### 3.6 StepView (response)
 
-| Field | Type | Notes |
-|---|---|---|
-| `step_index` | int | 0-based position of this step in the session |
-| `instruction` | InstructionView | the site the user was told to probe for this step |
-| `reading` | float | Finite; the value used for this step (echoed in live) |
-| `unit` | string | |
-| `landed_site` | int or `null` | invariant 6 |
-| `placement` | PlacementView | |
-| `placement_audit` | list of AuditView, max 32 | retrospective placement: one entry per step up to and including the current step, each re-asked under the current belief |
-| `belief` | float list | |
-| `entropy_bits` | float | |
-| `status` | enum | `continue`, `resolved`, `unresolved` |
-| `diagnosis` | DiagnosisView or `null` | present when `status` is `resolved` |
-| `unresolved` | UnresolvedView or `null` | present when `status` is `unresolved` |
-| `next_instruction` | InstructionView or `null` | `null` when terminal |
-| `baseline` | BaselineView | shadow arm, same readings |
-| `misfit` | MisfitView | additive in v1, always present (section 7, invariant 11) |
+| Field              | Type                      | Notes                                                                                                                    |
+| ------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `step_index`       | int                       | 0-based position of this step in the session                                                                             |
+| `instruction`      | InstructionView           | the site the user was told to probe for this step                                                                        |
+| `reading`          | float                     | Finite; the value used for this step (echoed in live)                                                                    |
+| `unit`             | string                    |                                                                                                                          |
+| `landed_site`      | int or `null`             | invariant 6                                                                                                              |
+| `placement`        | PlacementView             |                                                                                                                          |
+| `placement_audit`  | list of AuditView, max 32 | retrospective placement: one entry per step up to and including the current step, each re-asked under the current belief |
+| `belief`           | float list                |                                                                                                                          |
+| `entropy_bits`     | float                     |                                                                                                                          |
+| `status`           | enum                      | `continue`, `resolved`, `unresolved`                                                                                     |
+| `diagnosis`        | DiagnosisView or `null`   | present when `status` is `resolved`                                                                                      |
+| `unresolved`       | UnresolvedView or `null`  | present when `status` is `unresolved`                                                                                    |
+| `next_instruction` | InstructionView or `null` | `null` when terminal                                                                                                     |
+| `baseline`         | BaselineView              | shadow arm, same readings                                                                                                |
+| `misfit`           | MisfitView                | additive in v1, always present (section 7, invariant 11)                                                                 |
 
 ### 3.7 Nested views
 
-| View | Fields |
-|---|---|
-| `PlacementView` | `probs` (length = sites, sums to 1), `warning` (WarningView) |
-| `WarningView` | `active` (bool), `p_off_site` (Prob), `likely_site` (int), `text` (string). Always present. `active` is true when P(l != told \| r) > 0.5. `text` is `""` when inactive |
-| `AuditView` | `step_index`, `probs` (length = sites) |
-| `DiagnosisView` | `hypothesis_id`, `label`, `confidence` (Prob), `spoken` |
+| View             | Fields                                                                                                                                                                                                                                                                                                            |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PlacementView`  | `probs` (length = sites, sums to 1), `warning` (WarningView)                                                                                                                                                                                                                                                      |
+| `WarningView`    | `active` (bool), `p_off_site` (Prob), `likely_site` (int), `text` (string). Always present. `active` is true when P(l != told \| r) > 0.5. `text` is `""` when inactive                                                                                                                                           |
+| `AuditView`      | `step_index`, `probs` (length = sites)                                                                                                                                                                                                                                                                            |
+| `DiagnosisView`  | `hypothesis_id`, `label`, `confidence` (Prob), `spoken`                                                                                                                                                                                                                                                           |
 | `UnresolvedView` | `classes` (list of lists of ids), `reason` enum `indistinguishable` / `no_informative_site` / `max_steps`, `text`. For `indistinguishable` the list holds the one refused class. For the other two it holds the top classes in mass order until 0.95 of the mass is covered, at most 5 (`UNRESOLVED_MAX_CLASSES`) |
-| `BaselineView` | `method` (`entropy_exact`), `shadow` (true), `belief`, `diagnosis` (DiagnosisView or `null`). The diagnosis is present when the published method's top class holds at least 0.95 of the mass |
-| `MisfitView` | `active` (bool), `sigmas` (float, >= 0: distance to the nearest predicted reading, in sigma), `text` (string; `""` when inactive) |
+| `BaselineView`   | `method` (`entropy_exact`), `shadow` (true), `belief`, `diagnosis` (DiagnosisView or `null`). The diagnosis is present when the published method's top class holds at least 0.95 of the mass                                                                                                                      |
+| `MisfitView`     | `active` (bool), `sigmas` (float, >= 0: distance to the nearest predicted reading, in sigma), `text` (string; `""` when inactive)                                                                                                                                                                                 |
 
 `p_off_site` is defined as 1 - P(l = told | r), taken from the placement posterior.
 
 ## 4. The three modes of `POST /v1/sessions/{id}/step`
 
-| Mode | Reading in request | Reading in response | `landed_site` in response | Truth known to server | Told site |
-|---|---|---|---|---|---|
-| simulate | must be absent. Present: 422 `reading_not_allowed` | computed as solver voltage plus sigma noise from the seeded hand | only when `reveal = after_step` and at least one step has run | yes, from `true_hypothesis` | the server's instruction |
-| live | required. Missing: 422 `reading_required` | echoed from the request | never | no | the server's instruction, spoken by the app |
-| replay | optional. If present it must match the fixture step within 1e-3 V (`REPLAY_READING_TOLERANCE`, same as the web ReplayClient rule), else 409 `fixture_mismatch` (`details.field` = `reading`) | from the fixture | only when `reveal = after_step` and at least one step has run | fixture truth | the server's instruction; a disagreement with the fixture's `told_site` is 409 `fixture_mismatch` |
+| Mode     | Reading in request                                                                                                                                                                           | Reading in response                                              | `landed_site` in response                                     | Truth known to server       | Told site                                                                                         |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------- |
+| simulate | must be absent. Present: 422 `reading_not_allowed`                                                                                                                                           | computed as solver voltage plus sigma noise from the seeded hand | only when `reveal = after_step` and at least one step has run | yes, from `true_hypothesis` | the server's instruction                                                                          |
+| live     | required. Missing: 422 `reading_required`                                                                                                                                                    | echoed from the request                                          | never                                                         | no                          | the server's instruction, spoken by the app                                                       |
+| replay   | optional. If present it must match the fixture step within 1e-3 V (`REPLAY_READING_TOLERANCE`, same as the web ReplayClient rule), else 409 `fixture_mismatch` (`details.field` = `reading`) | from the fixture                                                 | only when `reveal = after_step` and at least one step has run | fixture truth               | the server's instruction; a disagreement with the fixture's `told_site` is 409 `fixture_mismatch` |
 
 Common rules for all modes:
+
 - A step on a session whose status is `resolved` or `unresolved` returns 409 `session_terminal`.
 - Replay never invents a step. A step past the end of the fixture returns 409 `fixture_mismatch` (`details.step_index`).
 - A reading outside the domain range returns 422 `reading_out_of_range` in every mode that accepts a reading.
@@ -149,34 +150,40 @@ Common rules for all modes:
 Envelope for every error response:
 
 ```json
-{"error": {"code": "reading_out_of_range", "message": "One human sentence.", "details": {"field": "reading"}}}
+{
+  "error": {
+    "code": "reading_out_of_range",
+    "message": "One human sentence.",
+    "details": { "field": "reading" }
+  }
+}
 ```
 
 `message` is one sentence for a developer or the UI. `details` names the field or id. Client text echoed in a message or in `details` is cut to 64 characters followed by `...`. Stack traces never leave the server; the server log carries the detail.
 
 Validation failures carry `details: {errors: [{loc, msg, type}]}`. Mode-rule failures raised by the route carry `details: {field}`.
 
-| HTTP | Code | When |
-|---|---|---|
-| 422 | `validation_error` | Pydantic failure: missing or extra field, wrong type, non-finite number, malformed session id, fixture name pattern, confusion sum, mode-rule violation, or a body that is not valid UTF-8 JSON (the body-could-not-be-read message is also 422, not 400) |
-| 422 | `reading_required` | live step without `reading` |
-| 422 | `reading_not_allowed` | simulate step with `reading` |
-| 422 | `reading_out_of_range` | reading outside the domain `ReadingSpec` range |
-| 422 | `unknown_hypothesis` | `true_hypothesis` not in the catalog |
-| 422 | `unknown_domain` | domain id not in the registry |
-| 422 | `numerically_degenerate` | the belief became non-finite. The sigma floor (`MIN_SIGMA`) makes this unreachable through the API today |
-| 404 | `session_not_found` | id unknown, expired (TTL), or evicted (LRU) |
-| 404 | `fixture_not_found` | fixture name not found in `TRUEHAND_FIXTURES_DIR` |
-| 404 | `not_found` | no route at that address |
-| 405 | `method_not_allowed` | route exists, method does not |
-| 409 | `session_terminal` | step on a resolved or unresolved session |
-| 409 | `fixture_mismatch` | replay told site, reading, domain, or step count disagrees with the fixture |
-| 429 | `rate_limited` | contact form over its per-client or global limit; `details.retry_after_s` and the `Retry-After` header give the wait in seconds (section 13) |
-| 503 | `contact_unavailable` | contact form without `TRUEHAND_RESEND_API_KEY` |
-| 502 | `contact_send_failed` | Resend refused the contact email or could not be reached |
-| 413 | `payload_too_large` | request body over 16 KiB (`MAX_BODY_BYTES` = 16384; `details.max_bytes` gives the cap). Checked by Content-Length and by counting chunked bytes |
-| 500 | `fixture_corrupt` | fixture fails to parse or validate on load |
-| 500 | `internal_error` | any other unhandled failure. Message: "Something went wrong on the server." |
+| HTTP | Code                     | When                                                                                                                                                                                                                                                      |
+| ---- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 422  | `validation_error`       | Pydantic failure: missing or extra field, wrong type, non-finite number, malformed session id, fixture name pattern, confusion sum, mode-rule violation, or a body that is not valid UTF-8 JSON (the body-could-not-be-read message is also 422, not 400) |
+| 422  | `reading_required`       | live step without `reading`                                                                                                                                                                                                                               |
+| 422  | `reading_not_allowed`    | simulate step with `reading`                                                                                                                                                                                                                              |
+| 422  | `reading_out_of_range`   | reading outside the domain `ReadingSpec` range                                                                                                                                                                                                            |
+| 422  | `unknown_hypothesis`     | `true_hypothesis` not in the catalog                                                                                                                                                                                                                      |
+| 422  | `unknown_domain`         | domain id not in the registry                                                                                                                                                                                                                             |
+| 422  | `numerically_degenerate` | the belief became non-finite. The sigma floor (`MIN_SIGMA`) makes this unreachable through the API today                                                                                                                                                  |
+| 404  | `session_not_found`      | id unknown, expired (TTL), or evicted (LRU)                                                                                                                                                                                                               |
+| 404  | `fixture_not_found`      | fixture name not found in `TRUEHAND_FIXTURES_DIR`                                                                                                                                                                                                         |
+| 404  | `not_found`              | no route at that address                                                                                                                                                                                                                                  |
+| 405  | `method_not_allowed`     | route exists, method does not                                                                                                                                                                                                                             |
+| 409  | `session_terminal`       | step on a resolved or unresolved session                                                                                                                                                                                                                  |
+| 409  | `fixture_mismatch`       | replay told site, reading, domain, or step count disagrees with the fixture                                                                                                                                                                               |
+| 429  | `rate_limited`           | contact form over its per-client or global limit; `details.retry_after_s` and the `Retry-After` header give the wait in seconds (section 13)                                                                                                              |
+| 503  | `contact_unavailable`    | contact form without `TRUEHAND_RESEND_API_KEY`                                                                                                                                                                                                            |
+| 502  | `contact_send_failed`    | Resend refused the contact email or could not be reached                                                                                                                                                                                                  |
+| 413  | `payload_too_large`      | request body over 16 KiB (`MAX_BODY_BYTES` = 16384; `details.max_bytes` gives the cap). Checked by Content-Length and by counting chunked bytes                                                                                                           |
+| 500  | `fixture_corrupt`        | fixture fails to parse or validate on load                                                                                                                                                                                                                |
+| 500  | `internal_error`         | any other unhandled failure. Message: "Something went wrong on the server."                                                                                                                                                                               |
 
 Any other HTTP status is returned with the code `http_error`; none is defined in v1.
 
@@ -188,18 +195,18 @@ CORS headers are sent on every response for an allowed origin, including the 413
 
 Settings are read by `truehand_api/settings.py` (pydantic-settings, prefix `TRUEHAND_`).
 
-| Env var | Settings field | Value / default | Meaning |
-|---|---|---|---|
-| `TRUEHAND_CORS_ORIGINS` | `cors_origins` | comma-separated list. Unset: `http://localhost:5173`, `http://127.0.0.1:5173`, `http://localhost:4173`. `render.yaml` sets `https://truehand.tech,https://www.truehand.tech,https://plumbline-web-lxxc.onrender.com` (local dev uses the defaults) | origin allowlist. Entries are trimmed. An empty entry or `*` makes the app refuse to start |
-| `TRUEHAND_SESSION_MAX` | `session_max` | 500 | LRU capacity of the in-memory store |
-| `TRUEHAND_SESSION_TTL_S` | `session_ttl_s` | 3600 | idle expiry in seconds |
-| `TRUEHAND_FIXTURES_DIR` | `fixtures_dir` | `engine/fixtures/parity` | where replay fixtures are read |
-| `TRUEHAND_RESEND_API_KEY` | `resend_api_key` | unset (`SecretStr`; blank counts as unset). Render: `sync: false`, set in the dashboard | Resend key for `POST /v1/contact`. Unset: 503 `contact_unavailable`. Never logged or echoed |
-| `TRUEHAND_CONTACT_TO` | `contact_to` | `support@truehand.tech` | where contact emails go |
-| `TRUEHAND_CONTACT_FROM` | `contact_from` | `Truehand <contact@truehand.tech>` | sender; the domain must be verified in Resend |
-| `TRUEHAND_CONTACT_MAX_PER_WINDOW` | `contact_max_per_window` | 3 | contact sends per client per window |
-| `TRUEHAND_CONTACT_WINDOW_S` | `contact_window_s` | 600 | per-client window in seconds |
-| `TRUEHAND_CONTACT_GLOBAL_PER_HOUR` | `contact_global_per_hour` | 20 | contact sends per hour across all clients |
+| Env var                            | Settings field            | Value / default                                                                                                                                                                                                                                    | Meaning                                                                                     |
+| ---------------------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `TRUEHAND_CORS_ORIGINS`            | `cors_origins`            | comma-separated list. Unset: `http://localhost:5173`, `http://127.0.0.1:5173`, `http://localhost:4173`. `render.yaml` sets `https://truehand.tech,https://www.truehand.tech,https://plumbline-web-lxxc.onrender.com` (local dev uses the defaults) | origin allowlist. Entries are trimmed. An empty entry or `*` makes the app refuse to start  |
+| `TRUEHAND_SESSION_MAX`             | `session_max`             | 500                                                                                                                                                                                                                                                | LRU capacity of the in-memory store                                                         |
+| `TRUEHAND_SESSION_TTL_S`           | `session_ttl_s`           | 3600                                                                                                                                                                                                                                               | idle expiry in seconds                                                                      |
+| `TRUEHAND_FIXTURES_DIR`            | `fixtures_dir`            | `engine/fixtures/parity`                                                                                                                                                                                                                           | where replay fixtures are read                                                              |
+| `TRUEHAND_RESEND_API_KEY`          | `resend_api_key`          | unset (`SecretStr`; blank counts as unset). Render: `sync: false`, set in the dashboard                                                                                                                                                            | Resend key for `POST /v1/contact`. Unset: 503 `contact_unavailable`. Never logged or echoed |
+| `TRUEHAND_CONTACT_TO`              | `contact_to`              | `support@truehand.tech`                                                                                                                                                                                                                            | where contact emails go                                                                     |
+| `TRUEHAND_CONTACT_FROM`            | `contact_from`            | `Truehand <contact@truehand.tech>`                                                                                                                                                                                                                 | sender; the domain must be verified in Resend                                               |
+| `TRUEHAND_CONTACT_MAX_PER_WINDOW`  | `contact_max_per_window`  | 3                                                                                                                                                                                                                                                  | contact sends per client per window                                                         |
+| `TRUEHAND_CONTACT_WINDOW_S`        | `contact_window_s`        | 600                                                                                                                                                                                                                                                | per-client window in seconds                                                                |
+| `TRUEHAND_CONTACT_GLOBAL_PER_HOUR` | `contact_global_per_hour` | 20                                                                                                                                                                                                                                                 | contact sends per hour across all clients                                                   |
 
 The request body cap (16 KiB) is a constant in `truehand_api/guard.py`, not a setting.
 
@@ -217,13 +224,13 @@ Sessions live in memory only. A restart empties the store. There is no database.
 8. The placement warning is active exactly when P(l != told | r) > 0.5 (`PLACEMENT_WARNING_THRESHOLD`), and never on a misfit step (invariant 11).
 9. Status is decided by the resolution rule below, evaluated after each update, in this order:
 
-| Order | Condition (named constant) | Status |
-|---|---|---|
-| 1 | top class mass >= 0.95 (`RESOLVE_THRESHOLD`) and the class has one member | `resolved` |
-| 2 | top class mass >= 0.95 and the class has more than one member | `unresolved`, reason `indistinguishable` |
-| 3 | max expected gain < 1e-3 bits (`MIN_USEFUL_GAIN_BITS`) | `unresolved`, reason `no_informative_site` |
-| 4 | steps >= 12 (`MAX_STEPS`) | `unresolved`, reason `max_steps` |
-| 5 | otherwise | `continue` |
+| Order | Condition (named constant)                                                | Status                                     |
+| ----- | ------------------------------------------------------------------------- | ------------------------------------------ |
+| 1     | top class mass >= 0.95 (`RESOLVE_THRESHOLD`) and the class has one member | `resolved`                                 |
+| 2     | top class mass >= 0.95 and the class has more than one member             | `unresolved`, reason `indistinguishable`   |
+| 3     | max expected gain < 1e-3 bits (`MIN_USEFUL_GAIN_BITS`)                    | `unresolved`, reason `no_informative_site` |
+| 4     | steps >= 12 (`MAX_STEPS`)                                                 | `unresolved`, reason `max_steps`           |
+| 5     | otherwise                                                                 | `continue`                                 |
 
 10. Determinism: the same seed and the same readings give the same response. A replay gives the same response every time from the same fixture.
 11. Misfit (additive in v1, `OUT_OF_MODEL_SIGMAS` = 5.0). The distance of a reading from the nearest predicted reading `V_f(l)` over the sites the user could reach (`P(l | told) > 0`) is measured in sigma. When that distance is more than 5.0, the step is out of model:
@@ -257,22 +264,46 @@ Shape (abbreviated; `worked_example.json` at git_sha `d4731fcec20e27998e4db25897
   "config": {
     "sigma": 0.02,
     "confusion": [["6 x 6 floats"]],
-    "thresholds": {"resolve": 0.95, "placement_warning": 0.5, "min_gain_bits": 0.001, "class_tolerance": 0.001, "max_steps": 12, "out_of_model_sigmas": 5.0},
-    "quadrature": {"x": ["20 floats"], "w": ["20 floats"]},
+    "thresholds": {
+      "resolve": 0.95,
+      "placement_warning": 0.5,
+      "min_gain_bits": 0.001,
+      "class_tolerance": 0.001,
+      "max_steps": 12,
+      "out_of_model_sigmas": 5.0
+    },
+    "quadrature": { "x": ["20 floats"], "w": ["20 floats"] },
     "domain_parameters": {}
   },
-  "catalog": {"hypothesis_ids": [], "hypothesis_labels": [], "site_labels": [], "expected_readings": [[]], "classes": [[]]},
+  "catalog": {
+    "hypothesis_ids": [],
+    "hypothesis_labels": [],
+    "site_labels": [],
+    "expected_readings": [[]],
+    "classes": [[]]
+  },
   "true_hypothesis": "R3_10x_low",
-  "prior_instruction": {"site": 2, "gain_bits": [0.585, 3.278, 3.511, 3.033, 2.692, 3.401]},
+  "prior_instruction": { "site": 2, "gain_bits": [0.585, 3.278, 3.511, 3.033, 2.692, 3.401] },
   "steps": [
     {
-      "index": 0, "told_site": 2, "landed_site": 1, "reading": 3.671,
-      "belief": [], "entropy_bits": 1.0995, "placement": [], "p_off_site": 0.99999972,
-      "likely_site": 1, "warning": true, "placement_audit": [], "status": "continue",
-      "engine_choice": {"site": 5, "gain_bits": []}, "next_told_site": 2,
-      "baseline": {"method": "entropy_exact", "belief": [], "top": "R2_short", "confidence": 1.0},
-      "diagnosis": null, "unresolved": null,
-      "misfit": {"active": false, "sigmas": 0.72, "text": ""}
+      "index": 0,
+      "told_site": 2,
+      "landed_site": 1,
+      "reading": 3.671,
+      "belief": [],
+      "entropy_bits": 1.0995,
+      "placement": [],
+      "p_off_site": 0.99999972,
+      "likely_site": 1,
+      "warning": true,
+      "placement_audit": [],
+      "status": "continue",
+      "engine_choice": { "site": 5, "gain_bits": [] },
+      "next_told_site": 2,
+      "baseline": { "method": "entropy_exact", "belief": [], "top": "R2_short", "confidence": 1.0 },
+      "diagnosis": null,
+      "unresolved": null,
+      "misfit": { "active": false, "sigmas": 0.72, "text": "" }
     }
   ]
 }
@@ -284,22 +315,22 @@ Keys in `config.thresholds` are the same names the API returns in `ThresholdsVie
 
 Fixtures in v1:
 
-| Name | Domain | Source | Content |
-|---|---|---|---|
-| `worked_example` | circuit | replay | true `R3_10x_low`, told row 3, lands row 2, 3.671 V then 0.338 V (the demo) |
-| `seed_1` .. `seed_5` | circuit | simulate | seeded simulate runs for parity and stability |
-| `slip_heavy` | circuit | simulate | run with frequent slips, for the warning path |
-| `unresolved_pair` | circuit | simulate | true `LED_reversed`, indistinguishable from `LED_open` |
-| `thermometer_demo` | thermometer | replay | true `medium`, told 5.5 cm, lands 3.5 cm, reads 65.65 C; SIMULATED |
+| Name                 | Domain      | Source   | Content                                                                     |
+| -------------------- | ----------- | -------- | --------------------------------------------------------------------------- |
+| `worked_example`     | circuit     | replay   | true `R3_10x_low`, told row 3, lands row 2, 3.671 V then 0.338 V (the demo) |
+| `seed_1` .. `seed_5` | circuit     | simulate | seeded simulate runs for parity and stability                               |
+| `slip_heavy`         | circuit     | simulate | run with frequent slips, for the warning path                               |
+| `unresolved_pair`    | circuit     | simulate | true `LED_reversed`, indistinguishable from `LED_open`                      |
+| `thermometer_demo`   | thermometer | replay   | true `medium`, told 5.5 cm, lands 3.5 cm, reads 65.65 C; SIMULATED          |
 
 Parity tolerances (checked by pytest recompute; the web parity test is planned in the web lane and is not on main at 9a997a5):
 
-| Quantity | Tolerance |
-|---|---|
-| belief, placement, placement audit, expected gain, entropy_bits | absolute 1e-6 |
-| `engine_choice.site`, `status`, `warning` | exact match |
-| circuit reference voltages | 1e-3 V (`test_circuit.py`) |
-| replay reading against the web step reading | 1e-3 V (ReplayClient rule) |
+| Quantity                                                        | Tolerance                  |
+| --------------------------------------------------------------- | -------------------------- |
+| belief, placement, placement audit, expected gain, entropy_bits | absolute 1e-6              |
+| `engine_choice.site`, `status`, `warning`                       | exact match                |
+| circuit reference voltages                                      | 1e-3 V (`test_circuit.py`) |
+| replay reading against the web step reading                     | 1e-3 V (ReplayClient rule) |
 
 ## 9. Tests that pin this contract
 
@@ -347,21 +378,21 @@ Checks: step 1 shows the warning active and the published method certain on `R2_
 
 `schemas.ts` is a Zod mirror of these schemas. Every response is parsed with Zod at the boundary. A parse failure becomes `api_error` with a human sentence, and the detail goes to the console in dev only.
 
-| API field | Store field (`state/types.ts`) | Rule |
-|---|---|---|
-| `placement.warning` (WarningView) | `warning: Warning \| null` | `active: false` maps to `null`. Within Warning: `toldSite` comes from `instruction.site` of the same step, `likely_site` to `likelySite`, `p_off_site` to `pOffSite`, `text` to `text` |
-| `misfit` (MisfitView) | store field to be decided by the web lane | `active: true` means the reading did not match the circuit; the UI shows `text` and keeps the same instruction |
-| `entropy_bits` | `entropyBits` | same value |
-| `placement.probs` | `placement` | same order, index = 0-based site |
-| `placement_audit[]` | `ReadingEntry` retrospective note | proposed addition. Not in the frozen store draft (B4), so it must be decided before `types.ts` freezes |
-| `landed_site` | `reveal.landedSite` | written only inside `finishReveal(token)`, never earlier |
-| `next_instruction` | `instruction` | `{site, label, spoken}` |
-| `status` | `reveal.next` | `continue` to `awaiting_reading`, `resolved` to `resolved`, `unresolved` to `unresolved` |
-| `diagnosis` | `diagnosis` | `{hypothesisId, label, confidence, spoken}` |
-| `unresolved` | `unresolved` | `{classes, reason, text}`. `classes` is a list of lists of ids; the store type (`string[] \| null` in the draft) must be aligned by the web lane, for example by flattening the first class |
-| `baseline` | `baseline` | `{belief, diagnosis}`; shadow arm, UI label "published method" |
-| `belief` | `belief` | same order as `catalog.hypotheses` |
-| `reading` (replay) | `ReadingEntry.value` | ReplayClient rejects a difference above 1e-3 with `not_next_in_replay` |
+| API field                         | Store field (`state/types.ts`)            | Rule                                                                                                                                                                                        |
+| --------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `placement.warning` (WarningView) | `warning: Warning \| null`                | `active: false` maps to `null`. Within Warning: `toldSite` comes from `instruction.site` of the same step, `likely_site` to `likelySite`, `p_off_site` to `pOffSite`, `text` to `text`      |
+| `misfit` (MisfitView)             | store field to be decided by the web lane | `active: true` means the reading did not match the circuit; the UI shows `text` and keeps the same instruction                                                                              |
+| `entropy_bits`                    | `entropyBits`                             | same value                                                                                                                                                                                  |
+| `placement.probs`                 | `placement`                               | same order, index = 0-based site                                                                                                                                                            |
+| `placement_audit[]`               | `ReadingEntry` retrospective note         | proposed addition. Not in the frozen store draft (B4), so it must be decided before `types.ts` freezes                                                                                      |
+| `landed_site`                     | `reveal.landedSite`                       | written only inside `finishReveal(token)`, never earlier                                                                                                                                    |
+| `next_instruction`                | `instruction`                             | `{site, label, spoken}`                                                                                                                                                                     |
+| `status`                          | `reveal.next`                             | `continue` to `awaiting_reading`, `resolved` to `resolved`, `unresolved` to `unresolved`                                                                                                    |
+| `diagnosis`                       | `diagnosis`                               | `{hypothesisId, label, confidence, spoken}`                                                                                                                                                 |
+| `unresolved`                      | `unresolved`                              | `{classes, reason, text}`. `classes` is a list of lists of ids; the store type (`string[] \| null` in the draft) must be aligned by the web lane, for example by flattening the first class |
+| `baseline`                        | `baseline`                                | `{belief, diagnosis}`; shadow arm, UI label "published method"                                                                                                                              |
+| `belief`                          | `belief`                                  | same order as `catalog.hypotheses`                                                                                                                                                          |
+| `reading` (replay)                | `ReadingEntry.value`                      | ReplayClient rejects a difference above 1e-3 with `not_next_in_replay`                                                                                                                      |
 
 Site identity: the store uses the engine's 0-based index. Labels come from `catalog.sites[i].label` (rule: 1-based in UI, 0-based in arrays).
 
@@ -383,27 +414,27 @@ Added 2026-10-25 for the `/contact` page (ADR-0014 decision 6). Additive under s
 
 `extra="forbid"`. Every string is trimmed before its length is checked.
 
-| Field | Type | Rule |
-|---|---|---|
-| `name` | string | 1..100 chars, a single line (no control characters, no U+2028/U+2029) |
-| `email` | string | at most 254 chars, `local@host.tld` (dot-atom local part up to 64 chars, ASCII host with at least one dot), a single line. Becomes the email's `reply_to` |
-| `organization?` | string or null | at most 120 chars, a single line. `""` counts as absent |
-| `phone?` | string or null | at most 40 chars of digits, space, `+ - ( ) .`. `""` counts as absent |
-| `reason` | `"pilot"`, `"partnership"`, `"support"`, `"press"` | |
-| `message` | string | 10..4000 chars after trimming. `\r\n` becomes `\n`; newline and tab are allowed, any other control character is refused |
-| `website?` | string or null | honeypot, at most 200 chars. Hide it from people (off-screen, `tabindex="-1"`, `autocomplete="off"`, `aria-hidden="true"`) and send `""` |
+| Field           | Type                                               | Rule                                                                                                                                                      |
+| --------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`          | string                                             | 1..100 chars, a single line (no control characters, no U+2028/U+2029)                                                                                     |
+| `email`         | string                                             | at most 254 chars, `local@host.tld` (dot-atom local part up to 64 chars, ASCII host with at least one dot), a single line. Becomes the email's `reply_to` |
+| `organization?` | string or null                                     | at most 120 chars, a single line. `""` counts as absent                                                                                                   |
+| `phone?`        | string or null                                     | at most 40 chars of digits, space, `+ - ( ) .`. `""` counts as absent                                                                                     |
+| `reason`        | `"pilot"`, `"partnership"`, `"support"`, `"press"` |                                                                                                                                                           |
+| `message`       | string                                             | 10..4000 chars after trimming. `\r\n` becomes `\n`; newline and tab are allowed, any other control character is refused                                   |
+| `website?`      | string or null                                     | honeypot, at most 200 chars. Hide it from people (off-screen, `tabindex="-1"`, `autocomplete="off"`, `aria-hidden="true"`) and send `""`                  |
 
 ### 13.2 Response
 
 Success: 202 `{"status": "sent"}`. A filled honeypot gets the same 202 and nothing is sent, so a bot cannot tell.
 
-| HTTP | Code | When | The page should |
-|---|---|---|---|
-| 422 | `validation_error` | any rule in 13.1; `details.errors[].loc` names the field, for example `["body", "email"]` | mark that field |
-| 413 | `payload_too_large` | body over 16 KiB (RequestGuard, before the route) | ask for a shorter message |
-| 429 | `rate_limited` | over 3 sends per client per 600 s, or 20 sends per hour overall. `details.retry_after_s` (integer seconds) equals the `Retry-After` header, which CORS exposes | say when to try again |
-| 503 | `contact_unavailable` | no Resend key on the server | offer the prefilled `mailto:support@truehand.tech` |
-| 502 | `contact_send_failed` | Resend answered non-2xx, timed out (10 s) or could not be reached | offer retry and the `mailto:` |
+| HTTP | Code                  | When                                                                                                                                                           | The page should                                    |
+| ---- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| 422  | `validation_error`    | any rule in 13.1; `details.errors[].loc` names the field, for example `["body", "email"]`                                                                      | mark that field                                    |
+| 413  | `payload_too_large`   | body over 16 KiB (RequestGuard, before the route)                                                                                                              | ask for a shorter message                          |
+| 429  | `rate_limited`        | over 3 sends per client per 600 s, or 20 sends per hour overall. `details.retry_after_s` (integer seconds) equals the `Retry-After` header, which CORS exposes | say when to try again                              |
+| 503  | `contact_unavailable` | no Resend key on the server                                                                                                                                    | offer the prefilled `mailto:support@truehand.tech` |
+| 502  | `contact_send_failed` | Resend answered non-2xx, timed out (10 s) or could not be reached                                                                                              | offer retry and the `mailto:`                      |
 
 Each error `message` is one human sentence; 503 and 502 name the support address.
 
@@ -432,3 +463,5 @@ curl -s -X POST localhost:8000/v1/contact -H 'Content-Type: application/json' -d
 # key set:   202 {"status":"sent"}
 # key unset: 503 {"error":{"code":"contact_unavailable","message":"The contact form is not available right now; please write to support@truehand.tech instead.","details":{}}}
 ```
+
+**Deploy check result (2026-10-25, live on Render):** a request that sets `CF-Connecting-IP` itself is refused with 403 at Render's Cloudflare edge before it reaches the API. With only a faked `X-Forwarded-For` (four different values), sends 1 to 3 returned 202 and send 4 returned 429 `rate_limited` (`retry_after_s` 598), so the limiter keys on the real client address.
