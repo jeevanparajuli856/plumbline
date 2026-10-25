@@ -1,0 +1,938 @@
+{
+ "name": "sweep",
+ "command": "uv run --project engine python -m plumbline.experiments.sweep",
+ "git_sha": "d4731fcec20e27998e4db258971a04b43da98a73",
+ "generated_at": "2026-10-25T17:21:50+00:00",
+ "simulated": true,
+ "label": "Preliminary. Not peer reviewed.",
+ "note": "All results are simulated: a simulated hand on our own circuit model, not people.",
+ "domain": "circuit",
+ "seeds": [
+  1
+ ],
+ "n": 200,
+ "panels": {
+  "matched": [
+   {
+    "p_same": 0.6,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 199,
+      "correct_pct": 99.5,
+      "resolved_correct": 188,
+      "resolved_correct_pct": 94.0,
+      "confidently_wrong": 1,
+      "confidently_wrong_pct": 0.5,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 2.44,
+      "warnings_issued": 152,
+      "warnings_correct": 149,
+      "slips": 166,
+      "slips_warned": 149,
+      "warning_precision": 0.9802631578947368,
+      "slip_recall": 0.8975903614457831,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 101,
+      "correct_pct": 50.5,
+      "resolved_correct": 98,
+      "resolved_correct_pct": 49.0,
+      "confidently_wrong": 99,
+      "confidently_wrong_pct": 49.5,
+      "unresolved": 4,
+      "unresolved_pct": 2.0,
+      "unresolved_reasons": {
+       "indistinguishable": 4
+      },
+      "mean_steps": 1.585,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 119,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 0.65,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 198,
+      "correct_pct": 99.0,
+      "resolved_correct": 187,
+      "resolved_correct_pct": 93.5,
+      "confidently_wrong": 2,
+      "confidently_wrong_pct": 1.0,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 2.305,
+      "warnings_issued": 117,
+      "warnings_correct": 117,
+      "slips": 133,
+      "slips_warned": 117,
+      "warning_precision": 1.0,
+      "slip_recall": 0.8796992481203008,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 114,
+      "correct_pct": 57.0,
+      "resolved_correct": 110,
+      "resolved_correct_pct": 55.0,
+      "confidently_wrong": 86,
+      "confidently_wrong_pct": 43.0,
+      "unresolved": 5,
+      "unresolved_pct": 2.5,
+      "unresolved_reasons": {
+       "indistinguishable": 5
+      },
+      "mean_steps": 1.625,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 103,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 0.7,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 198,
+      "correct_pct": 99.0,
+      "resolved_correct": 187,
+      "resolved_correct_pct": 93.5,
+      "confidently_wrong": 2,
+      "confidently_wrong_pct": 1.0,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 2.235,
+      "warnings_issued": 98,
+      "warnings_correct": 98,
+      "slips": 113,
+      "slips_warned": 98,
+      "warning_precision": 1.0,
+      "slip_recall": 0.8672566371681416,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 126,
+      "correct_pct": 63.0,
+      "resolved_correct": 122,
+      "resolved_correct_pct": 61.0,
+      "confidently_wrong": 74,
+      "confidently_wrong_pct": 37.0,
+      "unresolved": 5,
+      "unresolved_pct": 2.5,
+      "unresolved_reasons": {
+       "indistinguishable": 5
+      },
+      "mean_steps": 1.64,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 87,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 0.75,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 198,
+      "correct_pct": 99.0,
+      "resolved_correct": 187,
+      "resolved_correct_pct": 93.5,
+      "confidently_wrong": 2,
+      "confidently_wrong_pct": 1.0,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 2.2,
+      "warnings_issued": 80,
+      "warnings_correct": 80,
+      "slips": 92,
+      "slips_warned": 80,
+      "warning_precision": 1.0,
+      "slip_recall": 0.8695652173913043,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 137,
+      "correct_pct": 68.5,
+      "resolved_correct": 133,
+      "resolved_correct_pct": 66.5,
+      "confidently_wrong": 63,
+      "confidently_wrong_pct": 31.5,
+      "unresolved": 4,
+      "unresolved_pct": 2.0,
+      "unresolved_reasons": {
+       "indistinguishable": 4
+      },
+      "mean_steps": 1.68,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 75,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 0.8,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 198,
+      "correct_pct": 99.0,
+      "resolved_correct": 187,
+      "resolved_correct_pct": 93.5,
+      "confidently_wrong": 2,
+      "confidently_wrong_pct": 1.0,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 2.12,
+      "warnings_issued": 61,
+      "warnings_correct": 61,
+      "slips": 70,
+      "slips_warned": 61,
+      "warning_precision": 1.0,
+      "slip_recall": 0.8714285714285714,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 149,
+      "correct_pct": 74.5,
+      "resolved_correct": 145,
+      "resolved_correct_pct": 72.5,
+      "confidently_wrong": 51,
+      "confidently_wrong_pct": 25.5,
+      "unresolved": 4,
+      "unresolved_pct": 2.0,
+      "unresolved_reasons": {
+       "indistinguishable": 4
+      },
+      "mean_steps": 1.705,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 60,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 0.85,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 199,
+      "correct_pct": 99.5,
+      "resolved_correct": 188,
+      "resolved_correct_pct": 94.0,
+      "confidently_wrong": 1,
+      "confidently_wrong_pct": 0.5,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 2.09,
+      "warnings_issued": 49,
+      "warnings_correct": 49,
+      "slips": 54,
+      "slips_warned": 49,
+      "warning_precision": 1.0,
+      "slip_recall": 0.9074074074074074,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 154,
+      "correct_pct": 77.0,
+      "resolved_correct": 150,
+      "resolved_correct_pct": 75.0,
+      "confidently_wrong": 46,
+      "confidently_wrong_pct": 23.0,
+      "unresolved": 4,
+      "unresolved_pct": 2.0,
+      "unresolved_reasons": {
+       "indistinguishable": 4
+      },
+      "mean_steps": 1.73,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 50,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 0.9,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 200,
+      "correct_pct": 100.0,
+      "resolved_correct": 189,
+      "resolved_correct_pct": 94.5,
+      "confidently_wrong": 0,
+      "confidently_wrong_pct": 0.0,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 1.975,
+      "warnings_issued": 32,
+      "warnings_correct": 32,
+      "slips": 33,
+      "slips_warned": 32,
+      "warning_precision": 1.0,
+      "slip_recall": 0.9696969696969697,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 169,
+      "correct_pct": 84.5,
+      "resolved_correct": 164,
+      "resolved_correct_pct": 82.0,
+      "confidently_wrong": 31,
+      "confidently_wrong_pct": 15.5,
+      "unresolved": 5,
+      "unresolved_pct": 2.5,
+      "unresolved_reasons": {
+       "indistinguishable": 5
+      },
+      "mean_steps": 1.74,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 32,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 0.95,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 198,
+      "correct_pct": 99.0,
+      "resolved_correct": 187,
+      "resolved_correct_pct": 93.5,
+      "confidently_wrong": 2,
+      "confidently_wrong_pct": 1.0,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 1.89,
+      "warnings_issued": 12,
+      "warnings_correct": 12,
+      "slips": 14,
+      "slips_warned": 12,
+      "warning_precision": 1.0,
+      "slip_recall": 0.8571428571428571,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 187,
+      "correct_pct": 93.5,
+      "resolved_correct": 179,
+      "resolved_correct_pct": 89.5,
+      "confidently_wrong": 13,
+      "confidently_wrong_pct": 6.5,
+      "unresolved": 8,
+      "unresolved_pct": 4.0,
+      "unresolved_reasons": {
+       "indistinguishable": 8
+      },
+      "mean_steps": 1.815,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 14,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 1.0,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 200,
+      "correct_pct": 100.0,
+      "resolved_correct": 189,
+      "resolved_correct_pct": 94.5,
+      "confidently_wrong": 0,
+      "confidently_wrong_pct": 0.0,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 1.87,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 0,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": null,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 200,
+      "correct_pct": 100.0,
+      "resolved_correct": 189,
+      "resolved_correct_pct": 94.5,
+      "confidently_wrong": 0,
+      "confidently_wrong_pct": 0.0,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 1.87,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 0,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": null,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   }
+  ],
+  "fixed": [
+   {
+    "p_same": 0.6,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 197,
+      "correct_pct": 98.5,
+      "resolved_correct": 186,
+      "resolved_correct_pct": 93.0,
+      "confidently_wrong": 3,
+      "confidently_wrong_pct": 1.5,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 2.375,
+      "warnings_issued": 140,
+      "warnings_correct": 140,
+      "slips": 162,
+      "slips_warned": 140,
+      "warning_precision": 1.0,
+      "slip_recall": 0.8641975308641975,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 101,
+      "correct_pct": 50.5,
+      "resolved_correct": 98,
+      "resolved_correct_pct": 49.0,
+      "confidently_wrong": 99,
+      "confidently_wrong_pct": 49.5,
+      "unresolved": 4,
+      "unresolved_pct": 2.0,
+      "unresolved_reasons": {
+       "indistinguishable": 4
+      },
+      "mean_steps": 1.585,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 119,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 0.65,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 198,
+      "correct_pct": 99.0,
+      "resolved_correct": 187,
+      "resolved_correct_pct": 93.5,
+      "confidently_wrong": 2,
+      "confidently_wrong_pct": 1.0,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 2.275,
+      "warnings_issued": 114,
+      "warnings_correct": 114,
+      "slips": 132,
+      "slips_warned": 114,
+      "warning_precision": 1.0,
+      "slip_recall": 0.8636363636363636,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 114,
+      "correct_pct": 57.0,
+      "resolved_correct": 110,
+      "resolved_correct_pct": 55.0,
+      "confidently_wrong": 86,
+      "confidently_wrong_pct": 43.0,
+      "unresolved": 5,
+      "unresolved_pct": 2.5,
+      "unresolved_reasons": {
+       "indistinguishable": 5
+      },
+      "mean_steps": 1.625,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 103,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 0.7,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 198,
+      "correct_pct": 99.0,
+      "resolved_correct": 187,
+      "resolved_correct_pct": 93.5,
+      "confidently_wrong": 2,
+      "confidently_wrong_pct": 1.0,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 2.215,
+      "warnings_issued": 98,
+      "warnings_correct": 98,
+      "slips": 114,
+      "slips_warned": 98,
+      "warning_precision": 1.0,
+      "slip_recall": 0.8596491228070176,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 126,
+      "correct_pct": 63.0,
+      "resolved_correct": 122,
+      "resolved_correct_pct": 61.0,
+      "confidently_wrong": 74,
+      "confidently_wrong_pct": 37.0,
+      "unresolved": 5,
+      "unresolved_pct": 2.5,
+      "unresolved_reasons": {
+       "indistinguishable": 5
+      },
+      "mean_steps": 1.64,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 87,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 0.75,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 198,
+      "correct_pct": 99.0,
+      "resolved_correct": 187,
+      "resolved_correct_pct": 93.5,
+      "confidently_wrong": 2,
+      "confidently_wrong_pct": 1.0,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 2.185,
+      "warnings_issued": 80,
+      "warnings_correct": 80,
+      "slips": 92,
+      "slips_warned": 80,
+      "warning_precision": 1.0,
+      "slip_recall": 0.8695652173913043,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 137,
+      "correct_pct": 68.5,
+      "resolved_correct": 133,
+      "resolved_correct_pct": 66.5,
+      "confidently_wrong": 63,
+      "confidently_wrong_pct": 31.5,
+      "unresolved": 4,
+      "unresolved_pct": 2.0,
+      "unresolved_reasons": {
+       "indistinguishable": 4
+      },
+      "mean_steps": 1.68,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 75,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 0.8,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 198,
+      "correct_pct": 99.0,
+      "resolved_correct": 187,
+      "resolved_correct_pct": 93.5,
+      "confidently_wrong": 2,
+      "confidently_wrong_pct": 1.0,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 2.125,
+      "warnings_issued": 60,
+      "warnings_correct": 60,
+      "slips": 69,
+      "slips_warned": 60,
+      "warning_precision": 1.0,
+      "slip_recall": 0.8695652173913043,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 149,
+      "correct_pct": 74.5,
+      "resolved_correct": 145,
+      "resolved_correct_pct": 72.5,
+      "confidently_wrong": 51,
+      "confidently_wrong_pct": 25.5,
+      "unresolved": 4,
+      "unresolved_pct": 2.0,
+      "unresolved_reasons": {
+       "indistinguishable": 4
+      },
+      "mean_steps": 1.705,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 60,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 0.85,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 199,
+      "correct_pct": 99.5,
+      "resolved_correct": 188,
+      "resolved_correct_pct": 94.0,
+      "confidently_wrong": 1,
+      "confidently_wrong_pct": 0.5,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 2.105,
+      "warnings_issued": 50,
+      "warnings_correct": 50,
+      "slips": 54,
+      "slips_warned": 50,
+      "warning_precision": 1.0,
+      "slip_recall": 0.9259259259259259,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 154,
+      "correct_pct": 77.0,
+      "resolved_correct": 150,
+      "resolved_correct_pct": 75.0,
+      "confidently_wrong": 46,
+      "confidently_wrong_pct": 23.0,
+      "unresolved": 4,
+      "unresolved_pct": 2.0,
+      "unresolved_reasons": {
+       "indistinguishable": 4
+      },
+      "mean_steps": 1.73,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 50,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 0.9,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 200,
+      "correct_pct": 100.0,
+      "resolved_correct": 189,
+      "resolved_correct_pct": 94.5,
+      "confidently_wrong": 0,
+      "confidently_wrong_pct": 0.0,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 2.065,
+      "warnings_issued": 34,
+      "warnings_correct": 34,
+      "slips": 35,
+      "slips_warned": 34,
+      "warning_precision": 1.0,
+      "slip_recall": 0.9714285714285714,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 169,
+      "correct_pct": 84.5,
+      "resolved_correct": 164,
+      "resolved_correct_pct": 82.0,
+      "confidently_wrong": 31,
+      "confidently_wrong_pct": 15.5,
+      "unresolved": 5,
+      "unresolved_pct": 2.5,
+      "unresolved_reasons": {
+       "indistinguishable": 5
+      },
+      "mean_steps": 1.74,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 32,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 0.95,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 199,
+      "correct_pct": 99.5,
+      "resolved_correct": 188,
+      "resolved_correct_pct": 94.0,
+      "confidently_wrong": 1,
+      "confidently_wrong_pct": 0.5,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 2.035,
+      "warnings_issued": 13,
+      "warnings_correct": 13,
+      "slips": 15,
+      "slips_warned": 13,
+      "warning_precision": 1.0,
+      "slip_recall": 0.8666666666666667,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 187,
+      "correct_pct": 93.5,
+      "resolved_correct": 179,
+      "resolved_correct_pct": 89.5,
+      "confidently_wrong": 13,
+      "confidently_wrong_pct": 6.5,
+      "unresolved": 8,
+      "unresolved_pct": 4.0,
+      "unresolved_reasons": {
+       "indistinguishable": 8
+      },
+      "mean_steps": 1.815,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 14,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": 0.0,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   },
+   {
+    "p_same": 1.0,
+    "arms": {
+     "plumbline": {
+      "n": 200,
+      "correct": 200,
+      "correct_pct": 100.0,
+      "resolved_correct": 189,
+      "resolved_correct_pct": 94.5,
+      "confidently_wrong": 0,
+      "confidently_wrong_pct": 0.0,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 2.01,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 0,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": null,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     },
+     "entropy_exact": {
+      "n": 200,
+      "correct": 200,
+      "correct_pct": 100.0,
+      "resolved_correct": 189,
+      "resolved_correct_pct": 94.5,
+      "confidently_wrong": 0,
+      "confidently_wrong_pct": 0.0,
+      "unresolved": 11,
+      "unresolved_pct": 5.5,
+      "unresolved_reasons": {
+       "indistinguishable": 11
+      },
+      "mean_steps": 1.87,
+      "warnings_issued": 0,
+      "warnings_correct": 0,
+      "slips": 0,
+      "slips_warned": 0,
+      "warning_precision": null,
+      "slip_recall": null,
+      "misfit_readings": 0,
+      "trials_with_misfit": 0
+     }
+    }
+   }
+  ]
+ }
+}

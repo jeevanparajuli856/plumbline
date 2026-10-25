@@ -44,3 +44,7 @@ ECC-Claude/
 
 # vite-plugin-pwa dev output
 apps/web/dev-dist/
+
+# coverage databases
+.coverage
+.coverage.*

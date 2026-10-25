@@ -20,6 +20,12 @@ MIN_USEFUL_GAIN_BITS = 1e-3
 CLASS_TOLERANCE_VOLTS = 1e-3
 MAX_STEPS = 12
 GH_QUADRATURE_POINTS = 20
+GAIN_TIE_TOLERANCE_BITS = 1e-12
+GAIN_PRUNE_WEIGHT = 1e-12
+REPLAY_READING_TOLERANCE = 1e-3
+UNRESOLVED_MAX_CLASSES = 5
+OUT_OF_MODEL_SIGMAS = 5.0
+MIN_SIGMA = 1e-6
 
 
 @dataclass(frozen=True)
@@ -50,3 +56,4 @@ class EngineConfig:
     class_tolerance: float | None = None
     quadrature_points: int = GH_QUADRATURE_POINTS
     max_steps: int = MAX_STEPS
+    out_of_model_sigmas: float = OUT_OF_MODEL_SIGMAS

@@ -1,0 +1,196 @@
+{
+ "name": "experiment",
+ "command": "uv run --project engine python -m plumbline.experiments.experiment 400",
+ "git_sha": "d4731fcec20e27998e4db258971a04b43da98a73",
+ "generated_at": "2026-10-25T17:20:15+00:00",
+ "simulated": true,
+ "label": "Preliminary. Not peer reviewed.",
+ "note": "All results are simulated: a simulated hand on our own circuit model, not people.",
+ "domain": "circuit",
+ "seeds": [
+  1
+ ],
+ "n": 400,
+ "truths": "uniform over the catalog, drawn from the seed",
+ "hand": "engine confusion model (P(lands on told site) 0.78, P(one site away) 0.08 each side, P(two sites away) 0.03 each side, clipped at the edges), sigma noise, meter rounding",
+ "config": {
+  "sigma": 0.02,
+  "confusion": [
+   [
+    0.8764044943820225,
+    0.0898876404494382,
+    0.033707865168539325,
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.08247422680412371,
+    0.8041237113402062,
+    0.08247422680412371,
+    0.030927835051546393,
+    0.0,
+    0.0
+   ],
+   [
+    0.03,
+    0.08,
+    0.78,
+    0.08,
+    0.03,
+    0.0
+   ],
+   [
+    0.0,
+    0.03,
+    0.08,
+    0.78,
+    0.08,
+    0.03
+   ],
+   [
+    0.0,
+    0.0,
+    0.030927835051546393,
+    0.08247422680412371,
+    0.8041237113402062,
+    0.08247422680412371
+   ],
+   [
+    0.0,
+    0.0,
+    0.0,
+    0.033707865168539325,
+    0.0898876404494382,
+    0.8764044943820225
+   ]
+  ],
+  "thresholds": {
+   "resolve": 0.95,
+   "placement_warning": 0.5,
+   "min_gain_bits": 0.001,
+   "class_tolerance": 0.001,
+   "max_steps": 12,
+   "out_of_model_sigmas": 5.0
+  }
+ },
+ "arms": {
+  "plumbline": {
+   "n": 400,
+   "correct": 397,
+   "correct_pct": 99.25,
+   "resolved_correct": 372,
+   "resolved_correct_pct": 93.0,
+   "confidently_wrong": 3,
+   "confidently_wrong_pct": 0.75,
+   "unresolved": 25,
+   "unresolved_pct": 6.25,
+   "unresolved_reasons": {
+    "indistinguishable": 25
+   },
+   "mean_steps": 2.1825,
+   "warnings_issued": 168,
+   "warnings_correct": 166,
+   "slips": 183,
+   "slips_warned": 166,
+   "warning_precision": 0.9880952380952381,
+   "slip_recall": 0.907103825136612,
+   "misfit_readings": 0,
+   "trials_with_misfit": 0
+  },
+  "entropy_exact": {
+   "n": 400,
+   "correct": 273,
+   "correct_pct": 68.25,
+   "resolved_correct": 262,
+   "resolved_correct_pct": 65.5,
+   "confidently_wrong": 127,
+   "confidently_wrong_pct": 31.75,
+   "unresolved": 12,
+   "unresolved_pct": 3.0,
+   "unresolved_reasons": {
+    "indistinguishable": 12
+   },
+   "mean_steps": 1.655,
+   "warnings_issued": 0,
+   "warnings_correct": 0,
+   "slips": 143,
+   "slips_warned": 0,
+   "warning_precision": null,
+   "slip_recall": 0.0,
+   "misfit_readings": 0,
+   "trials_with_misfit": 0
+  },
+  "checklist": {
+   "n": 400,
+   "correct": 236,
+   "correct_pct": 59.0,
+   "resolved_correct": 220,
+   "resolved_correct_pct": 55.0,
+   "confidently_wrong": 164,
+   "confidently_wrong_pct": 41.0,
+   "unresolved": 18,
+   "unresolved_pct": 4.5,
+   "unresolved_reasons": {
+    "indistinguishable": 18
+   },
+   "mean_steps": 2.92,
+   "warnings_issued": 0,
+   "warnings_correct": 0,
+   "slips": 201,
+   "slips_warned": 0,
+   "warning_precision": null,
+   "slip_recall": 0.0,
+   "misfit_readings": 0,
+   "trials_with_misfit": 0
+  },
+  "random": {
+   "n": 400,
+   "correct": 232,
+   "correct_pct": 58.0,
+   "resolved_correct": 221,
+   "resolved_correct_pct": 55.25,
+   "confidently_wrong": 158,
+   "confidently_wrong_pct": 39.5,
+   "unresolved": 21,
+   "unresolved_pct": 5.25,
+   "unresolved_reasons": {
+    "indistinguishable": 11,
+    "max_steps": 10
+   },
+   "mean_steps": 2.8075,
+   "warnings_issued": 0,
+   "warnings_correct": 0,
+   "slips": 207,
+   "slips_warned": 0,
+   "warning_precision": null,
+   "slip_recall": 0.0,
+   "misfit_readings": 0,
+   "trials_with_misfit": 0
+  },
+  "remeasure_until_agree": {
+   "n": 400,
+   "correct": 371,
+   "correct_pct": 92.75,
+   "resolved_correct": 351,
+   "resolved_correct_pct": 87.75,
+   "confidently_wrong": 15,
+   "confidently_wrong_pct": 3.75,
+   "unresolved": 34,
+   "unresolved_pct": 8.5,
+   "unresolved_reasons": {
+    "indistinguishable": 20,
+    "max_steps": 14
+   },
+   "mean_steps": 5.3275,
+   "warnings_issued": 0,
+   "warnings_correct": 0,
+   "slips": 422,
+   "slips_warned": 0,
+   "warning_precision": null,
+   "slip_recall": 0.0,
+   "misfit_readings": 0,
+   "trials_with_misfit": 0
+  }
+ }
+}
