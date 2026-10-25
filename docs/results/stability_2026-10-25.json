@@ -1,8 +1,8 @@
 {
  "name": "stability",
- "command": "uv run --project engine python -m plumbline.experiments.stability",
- "git_sha": "d4731fcec20e27998e4db258971a04b43da98a73",
- "generated_at": "2026-10-25T17:20:57+00:00",
+ "command": "uv run --project engine python -m truehand.experiments.stability",
+ "git_sha": "840267f60182798f57d0613dd67c78b298e737a0",
+ "generated_at": "2026-10-25T19:54:53+00:00",
  "simulated": true,
  "label": "Preliminary. Not peer reviewed.",
  "note": "All results are simulated: a simulated hand on our own circuit model, not people.",
@@ -77,7 +77,7 @@
   }
  },
  "arms": {
-  "plumbline": {
+  "truehand": {
    "correct_pct": {
     "mean": 99.46666666666667,
     "std": 0.38005847503304746,
@@ -430,7 +430,7 @@
  },
  "per_seed": {
   "1": {
-   "plumbline": {
+   "truehand": {
     "n": 300,
     "correct": 297,
     "correct_pct": 99.0,
@@ -549,7 +549,7 @@
    }
   },
   "2": {
-   "plumbline": {
+   "truehand": {
     "n": 300,
     "correct": 300,
     "correct_pct": 100.0,
@@ -668,7 +668,7 @@
    }
   },
   "3": {
-   "plumbline": {
+   "truehand": {
     "n": 300,
     "correct": 298,
     "correct_pct": 99.33333333333333,
@@ -787,7 +787,7 @@
    }
   },
   "4": {
-   "plumbline": {
+   "truehand": {
     "n": 300,
     "correct": 298,
     "correct_pct": 99.33333333333333,
@@ -906,7 +906,7 @@
    }
   },
   "5": {
-   "plumbline": {
+   "truehand": {
     "n": 300,
     "correct": 299,
     "correct_pct": 99.66666666666667,
