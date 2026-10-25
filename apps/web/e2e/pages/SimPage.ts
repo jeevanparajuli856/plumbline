@@ -28,8 +28,9 @@ export class SimPage {
   readonly instrumentGroup: Locator
   readonly speech: Locator
   readonly listen: Locator
-  readonly textOnly: Locator
-  readonly themeGroup: Locator
+  readonly reduceMotion: Locator
+  /** Theme and Text only live on /accessibility; the toolbar links there in one step. */
+  readonly displaySettings: Locator
   readonly shortcuts: Locator
   readonly singleKeyShortcuts: Locator
   readonly apiStatus: Locator
@@ -63,8 +64,8 @@ export class SimPage {
     this.instrumentGroup = page.getByRole('radiogroup', { name: 'Instrument' })
     this.speech = page.getByRole('switch', { name: 'Speech' })
     this.listen = page.getByRole('button', { name: /Listen/ })
-    this.textOnly = page.getByRole('switch', { name: 'Text only' })
-    this.themeGroup = page.getByRole('radiogroup', { name: 'Theme' })
+    this.reduceMotion = page.getByRole('switch', { name: 'Reduce motion' })
+    this.displaySettings = page.getByRole('link', { name: 'Display settings' })
     this.shortcuts = page.getByRole('dialog', { name: 'Keyboard shortcuts' })
     this.singleKeyShortcuts = page.getByRole('switch', { name: 'Single-key shortcuts' })
     this.apiStatus = page.getByTestId('api-status')
