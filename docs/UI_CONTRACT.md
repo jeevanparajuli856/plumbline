@@ -84,3 +84,4 @@ Recorded fixtures must parse with `Fixture` in `apps/web/src/engine/schemas.ts` 
 | 10 | Refused replay reading: when a typed reading is not the next recorded one, the store sets error `not_next_in_replay`; `/sim` shows its sentence (from `state/session.ts`) and adds no log row. Specs wait for the sentence, then assert no new row. |
 | 11 | Voice (section 4): a phrase said before the mic opens is held for the next listen; transcripts are data and are never rendered as markup. |
 | 12 | Full e2e run: after the Sprint 1 integration, `PLUMBLINE_E2E_FULL` gating becomes opt-out (all specs run by default). |
+| 13 | Aim buttons: each placement-strip item contains a button named "Aim at <site label>" (e.g. "Aim at row 4"; thermometer "Aim at 3.5 cm"), which calls `aimProbe`. Single-key shortcuts switch: `getByRole('switch', { name: 'Single-key shortcuts' })`, on by default, in the site Display bar or the shortcuts dialog. |
