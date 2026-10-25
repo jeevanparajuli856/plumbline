@@ -220,6 +220,30 @@ describe('SimPage', () => {
     await waitFor(() => expect(router.state.location.search).toContain('mode=live'))
   })
 
+  it('does not start a live session while arrowing past Live meter', async () => {
+    const router = renderSim()
+    await ready()
+    const seen: string[] = []
+    const unsubscribe = router.subscribe((state) => seen.push(state.location.search))
+    const startSpy = vi.spyOn(useSession.getState(), 'start')
+    fireEvent.keyDown(screen.getByRole('radio', { name: 'Replay' }), { key: 'ArrowLeft' })
+    fireEvent.keyDown(screen.getByRole('radio', { name: 'Live meter' }), { key: 'ArrowLeft' })
+    expect(seen).toEqual([])
+    fireEvent.click(screen.getByRole('radio', { name: 'Simulate' }))
+    await waitFor(() => expect(router.state.location.search).toContain('mode=simulate'))
+    expect(seen.some((q) => q.includes('mode=live'))).toBe(false)
+    expect(startSpy.mock.calls.some(([opts]) => opts.mode === 'live')).toBe(false)
+    unsubscribe()
+    startSpy.mockRestore()
+  })
+
+  it('turns Text only on for ?view=text', async () => {
+    renderSim('/sim?demo=worked-example&view=text')
+    await ready()
+    await waitFor(() => expect(usePrefs.getState().textOnly).toBe(true))
+    expect(document.getElementById('scene-slot')).toBeNull()
+  })
+
   it('omits the scene slot in the text-only view', async () => {
     usePrefs.setState({ textOnly: true })
     renderSim()

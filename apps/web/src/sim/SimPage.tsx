@@ -81,6 +81,12 @@ export function SimPage() {
     [],
   )
 
+  const setTextOnly = usePrefs((st) => st.setTextOnly)
+  // UI_CONTRACT 6.5: ?view=text turns the Text only switch on.
+  useEffect(() => {
+    if (textView) setTextOnly(true)
+  }, [textView, setTextOnly])
+
   useEffect(() => {
     setSceneMode('sim')
     return () => setSceneMode('hidden')
@@ -105,7 +111,8 @@ export function SimPage() {
   )
 
   const choose = useCallback(
-    (change: { mode?: Mode; domain?: DomainId }) => setParams(withChoice(params, change)),
+    (change: { mode?: Mode; domain?: DomainId }) =>
+      setParams(withChoice(params, change), { replace: true }),
     [params, setParams],
   )
 

@@ -73,6 +73,60 @@ describe('RadioGroup', () => {
   })
 })
 
+describe('RadioGroup with explicit commit', () => {
+  const options = [
+    { value: 'simulate', label: 'Simulate' },
+    { value: 'live', label: 'Live meter' },
+    { value: 'replay', label: 'Replay' },
+  ] as const
+
+  it('moves a pending choice on arrows and commits only on click', () => {
+    const onChange = vi.fn()
+    render(
+      <RadioGroup
+        label="Mode"
+        value="replay"
+        options={options}
+        onChange={onChange}
+        commit="explicit"
+      />,
+    )
+    const replay = screen.getByRole('radio', { name: 'Replay' })
+    fireEvent.keyDown(replay, { key: 'ArrowLeft' })
+    const live = screen.getByRole('radio', { name: 'Live meter' })
+    expect(live).toHaveAttribute('aria-checked', 'true')
+    fireEvent.keyDown(live, { key: 'ArrowLeft' })
+    expect(onChange).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('radio', { name: 'Simulate' }))
+    expect(onChange).toHaveBeenCalledExactlyOnceWith('simulate')
+    expect(screen.getByRole('radiogroup', { name: 'Mode' })).toHaveAccessibleDescription(
+      'Arrow keys move, Enter or Space chooses.',
+    )
+  })
+
+  it('commits the pending choice when focus leaves the group, and not when it stays inside', () => {
+    const onChange = vi.fn()
+    render(
+      <>
+        <RadioGroup
+          label="Mode"
+          value="replay"
+          options={options}
+          onChange={onChange}
+          commit="explicit"
+        />
+        <button type="button">outside</button>
+      </>,
+    )
+    const group = screen.getByRole('radiogroup', { name: 'Mode' })
+    fireEvent.keyDown(screen.getByRole('radio', { name: 'Replay' }), { key: 'ArrowLeft' })
+    fireEvent.blur(group, { relatedTarget: screen.getByRole('radio', { name: 'Simulate' }) })
+    expect(onChange).not.toHaveBeenCalled()
+    fireEvent.blur(group, { relatedTarget: screen.getByRole('button', { name: 'outside' }) })
+    expect(onChange).toHaveBeenCalledExactlyOnceWith('live')
+  })
+})
+
 describe('Switch', () => {
   it('names itself by its label only and toggles', () => {
     const onChange = vi.fn()

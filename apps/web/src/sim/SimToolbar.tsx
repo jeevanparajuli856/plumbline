@@ -48,8 +48,15 @@ export function SimToolbar(props: SimToolbarProps) {
             value={domain}
             options={INSTRUMENTS}
             onChange={props.onDomain}
+            commit="explicit"
           />
-          <RadioGroup label="Mode" value={mode} options={MODES} onChange={props.onMode} />
+          <RadioGroup
+            label="Mode"
+            value={mode}
+            options={MODES}
+            onChange={props.onMode}
+            commit="explicit"
+          />
           <Switch
             label="Speech"
             checked={speech}
