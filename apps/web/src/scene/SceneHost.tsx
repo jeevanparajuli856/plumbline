@@ -11,14 +11,8 @@ import { useSceneSlot } from './useSceneSlot'
 const SceneRoot = lazy(() => import('./SceneRoot'))
 
 function SceneFrame() {
-  const label = useSession((s) =>
-    sceneLabel({
-      domain: s.domain,
-      sites: s.catalog?.sites ?? [],
-      aimedSite: s.aimedSite,
-      readings: s.readings,
-    }),
-  )
+  // A string selector: re-renders only when the sentence changes.
+  const label = useSession(sceneLabel)
   return (
     <div role="img" aria-label={label} data-testid="scene" className="h-full w-full">
       <Suspense fallback={null}>
