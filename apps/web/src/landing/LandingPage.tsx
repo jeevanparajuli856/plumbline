@@ -4,7 +4,7 @@ import { useLanding } from '@/state/landing'
 import { useSession } from '@/state/session'
 import s from './landing.module.css'
 import { cx } from './cx'
-import { EdgePlumb } from './EdgePlumb'
+import { EdgeColumn } from './EdgeColumn'
 import { Close } from './sections/Close'
 import { Evidence } from './sections/Evidence'
 import { Generalize } from './sections/Generalize'
@@ -96,7 +96,7 @@ export function LandingPage() {
       <Ladder />
       <Evidence fixture={fixture} />
       <Close />
-      <EdgePlumb />
+      <EdgeColumn />
       {load.status === 'missing' && (
         <p role="status" className={cx(s.frame, s.body, 'pb-16')}>
           {load.sentence}

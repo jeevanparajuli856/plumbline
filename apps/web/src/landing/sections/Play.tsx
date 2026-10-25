@@ -77,8 +77,9 @@ export function Play({ fixture, onPlay, onReplay }: PlayProps) {
 
   return (
     <Section id="play" motion="bars" className={s.ink}>
-      <div data-sticky-track className={cx(s.track, s.trackPlay)}>
-        <div data-sticky-pin className={s.pin}>
+      {/* No CSS sticky track: the motion module pins this block and its spacer gives the scroll length. */}
+      <div className={s.playStage}>
+        <div className="w-full">
           <div className={cx(s.frame, s.grid, 'w-full gap-y-10 py-20 md:py-16')}>
             <div className="col-span-4 md:col-span-12 lg:col-span-5">
               <div className="flex flex-wrap items-center justify-between gap-3">

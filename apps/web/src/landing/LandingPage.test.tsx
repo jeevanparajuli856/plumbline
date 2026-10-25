@@ -11,7 +11,7 @@ import { countWord } from './numberWords'
 import { LandingPage, PLAY_PACE_MS } from './LandingPage'
 import { INITIAL_HERO_STATE, useHeroLoop } from './heroLoop'
 import { PHOTOS } from './photos'
-import { EDGE_HOLE_COUNT } from './EdgePlumb'
+import { EDGE_HOLE_COUNT } from './EdgeColumn'
 import { VALIDATION_STATS } from './content'
 
 vi.mock('@/lib/webgl', () => ({ webglSupported: () => false }))

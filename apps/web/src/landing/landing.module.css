@@ -194,9 +194,6 @@
   position: relative;
 }
 @media (min-width: 768px) and (min-height: 720px) {
-  .trackPlay {
-    height: 240vh;
-  }
   .trackHow {
     height: 250vh;
   }
@@ -737,6 +734,16 @@
 }
 
 /* ---------- Technology (ink, 5:7): the two-method race ---------- */
+.playStage {
+  position: relative;
+}
+@media (min-width: 1024px) {
+  .playStage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+  }
+}
 .race {
   display: grid;
   gap: var(--space-4);

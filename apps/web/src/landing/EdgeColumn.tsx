@@ -9,7 +9,7 @@ export const EDGE_HOLE_COUNT = 24
  * hole; the motion module slides it with scroll. Hook names stay "plumb" from the earlier motif.
  * Decorative: its text twin is the caption in the mast.
  */
-export function EdgePlumb() {
+export function EdgeColumn() {
   return (
     <div className={s.edgePlumb} aria-hidden="true" data-motion="plumb">
       <span className={s.edgeString} data-motion-string>
