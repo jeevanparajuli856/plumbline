@@ -10,7 +10,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from plumbline.session import SessionError
+from plumbline.errors import SessionError
 
 logger = logging.getLogger("plumbline_api")
 
@@ -20,6 +20,7 @@ SESSION_ERROR_STATUS = {
     "reading_out_of_range": 422,
     "session_terminal": 409,
     "fixture_mismatch": 409,
+    "numerically_degenerate": 422,
 }
 HTTP_STATUS_ERRORS = {
     404: ("not_found", "There is nothing at this address."),

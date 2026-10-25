@@ -228,8 +228,20 @@ def test_custom_sigma_and_class_tolerance_override_the_model(model: CircuitModel
 def test_normalising_a_non_finite_log_belief_raises_instead_of_asserting() -> None:
     from plumbline.engine import NonFiniteBelief, _normalise_log
 
-    with pytest.raises(NonFiniteBelief):
+    with pytest.raises(NonFiniteBelief) as error:
         _normalise_log(np.array([np.nan, 0.0]))
+    assert error.value.code == "numerically_degenerate"
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_a_vanishing_sigma_is_reported_as_numerically_degenerate(model: CircuitModel) -> None:
+    from plumbline.errors import SessionError
+    from plumbline.session import Session
+
+    tiny = Engine(model, EngineConfig(sigma=1e-300))
+    with pytest.raises(SessionError) as error:
+        Session(tiny, mode="live", seed=0).step(1.7)
+    assert error.value.code == "numerically_degenerate"
 
 
 def test_out_of_model_threshold_is_a_named_constant() -> None:

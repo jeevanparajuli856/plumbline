@@ -6,6 +6,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from plumbline.config import MIN_SIGMA
+
 MAX_HYPOTHESES = 64
 MAX_SITES = 16
 MAX_STEPS_LISTED = 32
@@ -48,7 +50,7 @@ class CreateSession(RequestModel):
     reveal: Reveal
     true_hypothesis: str | None = Field(default=None, max_length=ID_MAX_LENGTH)
     fixture: str | None = Field(default=None, pattern=FIXTURE_NAME_PATTERN)
-    sigma: Annotated[float, Field(gt=0.0, le=MAX_SIGMA, allow_inf_nan=False)] | None = None
+    sigma: Annotated[float, Field(ge=MIN_SIGMA, le=MAX_SIGMA, allow_inf_nan=False)] | None = None
     confusion: ConfusionBody | None = None
 
 

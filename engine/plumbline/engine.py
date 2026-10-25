@@ -15,13 +15,17 @@ import numpy as np
 
 from plumbline.config import GAIN_PRUNE_WEIGHT, GAIN_TIE_TOLERANCE_BITS, EngineConfig
 from plumbline.confusion import banded_confusion
+from plumbline.errors import SessionError
 from plumbline.model import FloatArray, InstrumentModel
 
 SQRT_2PI = float(np.sqrt(2.0 * np.pi))
 
 
-class NonFiniteBelief(ArithmeticError):
-    """Raised instead of returning a belief that contains nan or inf."""
+class NonFiniteBelief(SessionError):
+    """Raised instead of returning a belief that contains nan or inf (for example when sigma
+    is so small that every likelihood underflows). The API maps it to 422."""
+
+    code = "numerically_degenerate"
 
 
 class Instruction(NamedTuple):

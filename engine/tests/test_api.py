@@ -417,3 +417,25 @@ async def test_small_chunked_body_still_reaches_the_route(client: httpx.AsyncCli
         "/v1/sessions", content=chunks(), headers={"Content-Type": "application/json"}
     )
     assert response.status_code == 201, response.text
+
+
+@pytest.mark.parametrize("sigma", [1e-300, 5e-324, 1e-7])
+async def test_sigma_below_the_floor_is_a_validation_error(
+    client: httpx.AsyncClient, sigma: float
+) -> None:
+    body = {"domain": "circuit", "mode": "live", "seed": 0, "reveal": "never", "sigma": sigma}
+    assert_error(await client.post("/v1/sessions", json=body), 422, "validation_error")
+
+
+async def test_numerically_degenerate_sessions_map_to_422() -> None:
+    from starlette.requests import Request
+
+    from plumbline.engine import NonFiniteBelief
+    from plumbline_api.errors import SESSION_ERROR_STATUS
+
+    assert SESSION_ERROR_STATUS[NonFiniteBelief.code] == 422
+    handler = app.exception_handlers[NonFiniteBelief.__mro__[1]]
+    response = await handler(
+        Request({"type": "http", "method": "POST", "path": "/"}), NonFiniteBelief("x")
+    )
+    assert response.status_code == 422

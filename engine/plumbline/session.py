@@ -16,22 +16,13 @@ from plumbline import views
 from plumbline.baselines import Baseline, BaselineState, EntropyExact
 from plumbline.config import REPLAY_READING_TOLERANCE, UNRESOLVED_MAX_CLASSES
 from plumbline.engine import Engine, Instruction, PlacementWarning, Resolution
+from plumbline.errors import SessionError
 from plumbline.model import FloatArray
 
 Mode = Literal["simulate", "live", "replay"]
 Reveal = Literal["after_step", "never"]
 TRUTH_STREAM = 0
 HAND_STREAM = 1
-
-
-class SessionError(Exception):
-    """Base for refusals the API maps to its error envelope. ``code`` is the API code."""
-
-    code = "session_error"
-
-    def __init__(self, message: str, **details: object) -> None:
-        super().__init__(message)
-        self.details = details
 
 
 class ReadingRequired(SessionError):
