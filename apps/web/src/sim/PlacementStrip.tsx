@@ -29,13 +29,14 @@ export function PlacementStrip({ items, siteNoun, onAim }: PlacementStripProps) 
       >
         {items.map((item) => (
           <li key={item.site} className="min-w-0" aria-current={item.isAimed ? 'true' : undefined}>
+            <span className="sr-only">{placementSentence(item)}</span>
             <button
               type="button"
+              aria-label={`Aim at ${item.label}`}
               onClick={() => onAim(item.site)}
               aria-keyshortcuts={item.site < DIGIT_SITES ? String(item.site + 1) : undefined}
               className="group block w-full rounded-hard text-center"
             >
-              <span className="sr-only">{`${placementSentence(item)}. Aim here.`}</span>
               <PlacementCell item={item} />
             </button>
           </li>

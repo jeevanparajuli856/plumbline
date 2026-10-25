@@ -7,6 +7,9 @@ import { useShortcutPref } from '@/a11y/shortcutPref'
 import { usePrefs } from '@/state/prefs'
 import { useSession } from '@/state/session'
 import { SimPage } from './SimPage'
+import { requestViewReset } from './viewControlShim'
+
+vi.mock('./viewControlShim', () => ({ requestViewReset: vi.fn() }))
 
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
@@ -69,7 +72,12 @@ describe('SimPage', () => {
     expect(screen.getByRole('switch', { name: 'Speech' })).toHaveAttribute('aria-checked', 'false')
     expect(screen.getByTestId('api-status')).toHaveTextContent('waking up')
     expect(screen.getAllByTestId('badge').map((b) => b.textContent)).toContain('PROVISIONAL')
-    expect(document.getElementById('scene-slot')).toBeEmptyDOMElement()
+    const slot = document.getElementById('scene-slot')
+    expect(slot).toBeEmptyDOMElement()
+    expect(slot?.className).toMatch(/aspect-\[16\/10\]/)
+    expect(slot?.className).toContain('min-h-60')
+    fireEvent.click(screen.getByRole('button', { name: 'Reset view' }))
+    expect(requestViewReset).toHaveBeenCalledOnce()
   })
 
   it('runs the worked example by keyboard: warning, diagnosis, back a step, reset', async () => {
@@ -143,7 +151,7 @@ describe('SimPage', () => {
     expect(useSession.getState().aimedSite).toBe(1)
     const strip = screen.getByRole('list', { name: 'Where the probe landed' })
     expect(within(strip).getAllByRole('listitem')[1]).toHaveAttribute('aria-current', 'true')
-    fireEvent.click(within(within(strip).getAllByRole('listitem')[4]!).getByRole('button'))
+    fireEvent.click(within(strip).getByRole('button', { name: 'Aim at row 5' }))
     expect(useSession.getState().aimedSite).toBe(4)
 
     press('?')
