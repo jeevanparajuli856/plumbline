@@ -67,7 +67,7 @@ const TABLE: Row[] = [
   ['confirming', { type: 'CANCEL' }, 'idle', ['stopListening', 'announce']],
   ['confirming', { type: 'TOGGLE_LISTEN' }, 'idle', ['stopListening', 'announce']],
   ['confirming', { type: 'LISTEN_ERROR', code: 'no-speech' }, 'idle', ['announce']],
-  ['confirming', { type: 'SAY', text: 'Row 3.', priority: 'polite' }, 'idle', ['stopListening', 'speak']],
+  ['confirming', { type: 'SAY', text: 'Row 3.', priority: 'polite' }, 'idle', ['stopListening', 'speak', 'announce']],
   ['confirming', { type: 'STOP' }, 'off', ['stopListening', 'cancelSpeech']],
 
   ['submitting', { type: 'SUBMIT_DONE' }, 'idle', []],
@@ -201,6 +201,16 @@ describe('voiceMachine confirmation answers', () => {
       expect(next.effects).toEqual([{ type: 'announce', text: voicePhrases.notSent, priority: 'polite' }])
     },
   )
+
+  it('says the candidate was not sent when an engine event interrupts confirmation', () => {
+    const next = voiceReducer(at('confirming'), { type: 'SAY', text: 'Warning.', priority: 'assertive' })
+    expect(next.state.candidate).toBeNull()
+    expect(next.effects).toEqual([
+      { type: 'stopListening' },
+      { type: 'speak', text: 'Warning.', priority: 'assertive' },
+      { type: 'announce', text: voicePhrases.notSent, priority: 'polite' },
+    ])
+  })
 
   it('never sends the old candidate when the answer also carries a number', () => {
     const next = voiceReducer(at('confirming'), result('3.617 right'))

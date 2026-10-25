@@ -115,6 +115,9 @@ export function voiceReducer(state: VoiceState, event: VoiceEvent): Transition {
     case 'SAY': {
       const speak: VoiceEffect = { type: 'speak', text: event.text, priority: event.priority }
       // Engine speech (and the screen reader's copy) must not be heard by an open microphone.
+      if (state.status === 'confirming') {
+        return rest(state, [{ type: 'stopListening' }, speak, announce(voicePhrases.notSent)])
+      }
       if (LISTENING.includes(state.status)) return rest(state, [{ type: 'stopListening' }, speak])
       return { state, effects: [speak] }
     }
