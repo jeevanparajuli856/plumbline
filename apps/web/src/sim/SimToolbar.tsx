@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { ApiHealth, DomainId, Mode } from '@/state/types'
 import { Badge } from '@/ui/Badge'
+import { DisplaySettings } from '@/ui/DisplaySettings'
 import { KEYCAP } from '@/ui/button'
 import { RadioGroup, type RadioOption } from '@/ui/RadioGroup'
 import { SmallScreenDisclosure } from '@/ui/SmallScreenDisclosure'
@@ -33,14 +34,17 @@ interface SimToolbarProps {
   listen?: ReactNode
 }
 
-/** Instrument settings strip. Read left to right: what you measure, how, how it talks, engine status. */
+/**
+ * Web app settings strip. Read left to right: what you measure, how, how it talks, how it looks,
+ * engine status.
+ */
 export function SimToolbar(props: SimToolbarProps) {
   const { domain, mode, simulated, speech, health } = props
   return (
-    <section aria-label="Simulator settings" className="border-b border-hairline bg-surface-1">
+    <section aria-label="Web app settings" className="border-b border-hairline bg-surface-1">
       <div className="mx-auto grid max-w-[90rem] gap-y-3 px-4 py-3 sm:px-8 lg:px-16">
         <SmallScreenDisclosure
-          label="Simulator settings"
+          label="Web app settings"
           className="flex-wrap items-center gap-x-6 gap-y-3"
         >
           <RadioGroup
@@ -66,6 +70,7 @@ export function SimToolbar(props: SimToolbarProps) {
             description="Spoken output. Off by default; screen-reader text is always on."
           />
           {props.listen}
+          <DisplaySettings layout="inline" />
           <button
             type="button"
             onClick={props.onShortcuts}
