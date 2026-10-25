@@ -32,7 +32,11 @@ class FakeRecognition {
 }
 
 const recognitionWindow = (key: 'SpeechRecognition' | 'webkitSpeechRecognition') =>
-  ({ [key]: FakeRecognition }) as unknown as Window
+  ({
+    [key]: FakeRecognition,
+    setTimeout: vi.fn((fn: () => void, ms: number) => globalThis.setTimeout(fn, ms)),
+    clearTimeout: vi.fn((id: number) => globalThis.clearTimeout(id)),
+  }) as unknown as Window
 
 function latest(): FakeRecognition {
   const instance = FakeRecognition.instances[FakeRecognition.instances.length - 1]
@@ -93,12 +97,15 @@ describe('web recognition adapter', () => {
 
   it('gives up after the timeout with no speech and aborts recognition', async () => {
     vi.useFakeTimers()
-    const adapter = createWebAdapter(recognitionWindow('SpeechRecognition'))
+    const win = recognitionWindow('SpeechRecognition')
+    const adapter = createWebAdapter(win)
     const pending = adapter.start({ ...DEFAULT_LISTEN_OPTIONS, timeoutMs: 1000 })
     const settled = pending.catch((error: unknown) => error)
     vi.advanceTimersByTime(1000)
     expect(await settled).toMatchObject({ code: 'no-speech' })
     expect(latest().abort).toHaveBeenCalled()
+    expect(win.setTimeout).toHaveBeenCalledWith(expect.any(Function), 1000)
+    expect(win.clearTimeout).toHaveBeenCalled()
   })
 
   it('abort rejects the pending listen as aborted', async () => {
@@ -125,6 +132,15 @@ describe('fake recognition for Playwright', () => {
     const pending = fake.start(DEFAULT_LISTEN_OPTIONS)
     fake.say('three point six seven one', ['3.671'])
     await expect(pending).resolves.toEqual({ alternatives: ['three point six seven one', '3.671'] })
+  })
+
+  it('a second start rejects the first pending listen as aborted', async () => {
+    const fake = createFakeAdapter()
+    const first = fake.start(DEFAULT_LISTEN_OPTIONS)
+    const second = fake.start(DEFAULT_LISTEN_OPTIONS)
+    await expect(first).rejects.toMatchObject({ code: 'aborted' })
+    fake.say('nine')
+    await expect(second).resolves.toEqual({ alternatives: ['nine'] })
   })
 
   it('holds a transcript said before listening for the next listen', async () => {

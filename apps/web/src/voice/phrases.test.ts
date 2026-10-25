@@ -55,6 +55,34 @@ describe('createEventPhraser', () => {
   })
 })
 
+describe('createEventPhraser reading count', () => {
+  it('does not re-speak a reading that existed before the phraser started', async () => {
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+    await useSession.getState().replayNext()
+    finishRevealIfAny()
+    const phrase = createEventPhraser(useSession.getState())
+    const spoken: Utterance[] = []
+    cleanups.push(useSession.subscribe((state) => spoken.push(...phrase(state))))
+    useSession.getState().aimProbe(0)
+    expect(spoken).toEqual([])
+  })
+
+  it('speaks the first accepted reading after a session restart', async () => {
+    const phrase = createEventPhraser(useSession.getState())
+    const spoken: Utterance[] = []
+    cleanups.push(useSession.subscribe((state) => spoken.push(...phrase(state))))
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+    await useSession.getState().replayNext()
+    finishRevealIfAny()
+    await useSession.getState().replayNext()
+    finishRevealIfAny()
+    spoken.length = 0
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+    await useSession.getState().replayNext()
+    expect(spoken).toContainEqual({ text: DOMAINS.circuit.phrases.accepted(3.671), priority: 'polite' })
+  })
+})
+
 describe('voicePhrases', () => {
   const spec = DOMAINS.thermometer
 

@@ -41,3 +41,11 @@ The "Listening." cue is speech-only, so it plays only when speech output is on a
 opens. A screen-reader user with speech off presses `M` and hears nothing unless focus is on the
 `aria-pressed` button. Announcing the cue to the live region would let the screen reader talk into the open
 mic. Proposal: a short earcon (Web Audio tone) on mic open/close, decided with the a11y auditor.
+
+## 6. Announcer reading-count fix (owner: a11y, at integration; review L1)
+`a11y/announcer.ts` seeds `lastReadingCount = 0` and never lowers it. So (a) an announcer started mid-session
+re-announces the last existing reading on the next store change, and (b) after a restart, the readings that
+refill the log are not announced until the count passes the old total. `voice/phrases.ts` now seeds the count from
+`initial.readings.length` and lowers it when the log shrinks, tested in
+`phrases.test.ts > createEventPhraser reading count`. Apply the same two lines to the announcer (or adopt
+request 3) so the announcer/voice parity test also covers restarts.

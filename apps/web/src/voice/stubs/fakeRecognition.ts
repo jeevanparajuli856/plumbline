@@ -23,6 +23,7 @@ export function createFakeAdapter(): ListenAdapter & FakeRecognitionHandle {
         held = null
         return Promise.resolve(result)
       }
+      pending?.reject(new ListenError('aborted'))
       return new Promise<ListenResult>((resolve, reject) => {
         pending = { resolve, reject }
       })

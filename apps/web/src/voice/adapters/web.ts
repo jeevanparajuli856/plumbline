@@ -59,12 +59,12 @@ export function createWebAdapter(win: Window = window): ListenAdapter {
         const finish = (outcome: () => void) => {
           if (settled) return
           settled = true
-          window.clearTimeout(timer)
+          win.clearTimeout(timer)
           if (active?.recognition === recognition) active = null
           outcome()
         }
         const fail = (error: ListenError) => finish(() => reject(error))
-        const timer = window.setTimeout(() => {
+        const timer = win.setTimeout(() => {
           fail(new ListenError('no-speech'))
           recognition.abort()
         }, options.timeoutMs)

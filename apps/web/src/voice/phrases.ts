@@ -70,12 +70,14 @@ export const voicePhrases = {
 /** Returns a stateful mapper: feed it every store state, it returns what to say for that change. */
 export function createEventPhraser(initial: SessionData): (state: SessionData) => Utterance[] {
   let lastPhase: Phase = initial.phase
-  let lastReadingCount = 0
+  let lastReadingCount = initial.readings.length
   return (state) => {
     const out: Utterance[] = []
     const say = (text: string, priority: SpeechPriority = 'polite') => out.push({ text, priority })
     const spec = DOMAINS[state.domain]
     const catalog = state.catalog
+    // A restart empties the log; count from there so its first reading is spoken.
+    if (state.readings.length < lastReadingCount) lastReadingCount = state.readings.length
     if (state.readings.length > lastReadingCount && catalog) {
       lastReadingCount = state.readings.length
       const last = state.readings[state.readings.length - 1]
