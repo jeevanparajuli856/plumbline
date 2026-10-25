@@ -191,8 +191,9 @@ function onResult(state: VoiceState, alternatives: string[], spec: VoiceSpec): T
   if (command === 'stop') return rest(state, [announce(voicePhrases.stopped)])
   if (command === 'repeat') return rest(state, [{ type: 'repeat' }])
   if (state.status === 'confirming' && state.candidate !== null) {
-    const hasNumber = alternatives.some((a) => 'value' in parseReading(a, spec))
-    const answer = hasNumber ? null : confirmAnswer(top)
+    // Only the top alternative decides; a lower guess must not override a clear yes or no.
+    const topIsNumber = 'value' in parseReading(top, spec)
+    const answer = topIsNumber ? null : confirmAnswer(top)
     if (answer === 'yes') return submit(state, state.candidate)
     if (answer === 'no') return rest(state, [announce(voicePhrases.notSent)])
   }

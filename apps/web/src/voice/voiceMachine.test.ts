@@ -222,6 +222,16 @@ describe('voiceMachine confirmation answers', () => {
     expect(submits(voiceReducer(at('confirming'), result('3.617', 'yes')))).toEqual([{ type: 'submit', value: 3.617 }])
   })
 
+  it('decides from the top alternative: top yes with a lower number sends the candidate', () => {
+    expect(submits(voiceReducer(at('confirming'), result('yes', 'two')))).toEqual([{ type: 'submit', value: 3.671 }])
+  })
+
+  it('decides from the top alternative: top no with a lower number does not send', () => {
+    const next = voiceReducer(at('confirming'), result('no', '3.6'))
+    expect(submits(next)).toEqual([])
+    expect(next.effects).toEqual([{ type: 'announce', text: voicePhrases.notSent, priority: 'polite' }])
+  })
+
   it('does not take an answer with unknown words as yes', () => {
     expect(submits(voiceReducer(at('confirming'), result('yes but row two')))).toEqual([])
   })
