@@ -36,6 +36,13 @@ const flush = async () => {
   for (let i = 0; i < 5; i += 1) await Promise.resolve()
 }
 
+function instructionText(): string {
+  const s = useSession.getState()
+  const site = s.catalog?.sites[s.instruction?.site ?? -1]
+  if (!site) throw new Error('no instruction')
+  return DOMAINS.circuit.phrases.instruction(site)
+}
+
 function finishRevealIfAny() {
   const s = useSession.getState()
   if (s.phase === 'revealing' && s.reveal) s.finishReveal(s.reveal.token)
@@ -45,11 +52,10 @@ let adapter: ReturnType<typeof createFakeAdapter>
 let port: FakePort
 let announce: Mock<(text: string, options: AnnounceOptions) => void>
 let focusTyped: Mock<() => void>
-let repeat: Mock<() => void>
 let stop: () => void
 
 function start(overrides: { adapter?: ListenAdapter } = {}) {
-  stop = startVoice({ adapter: overrides.adapter ?? adapter, port, announce, focusTyped, repeat })
+  stop = startVoice({ adapter: overrides.adapter ?? adapter, port, announce, focusTyped })
 }
 
 beforeEach(async () => {
@@ -58,7 +64,6 @@ beforeEach(async () => {
   port = fakePort()
   announce = vi.fn<(text: string, options: AnnounceOptions) => void>()
   focusTyped = vi.fn<() => void>()
-  repeat = vi.fn<() => void>()
   await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
 })
 
@@ -171,14 +176,56 @@ describe('voice loop', () => {
 
   it('routes the repeat and type-instead commands', async () => {
     start()
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
     toggleListen()
     adapter.say('repeat')
     await flush()
-    expect(repeat).toHaveBeenCalledOnce()
+    expect(announce).toHaveBeenCalledWith(instructionText(), { priority: 'polite', force: true })
     toggleListen()
     adapter.say('type instead')
     await flush()
     expect(focusTyped).toHaveBeenCalledOnce()
+  })
+})
+
+describe('voice loop robustness', () => {
+  it('returns to idle and reports when the store rejects a submission', async () => {
+    const original = useSession.getState().submitReading
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    useSession.setState({ submitReading: vi.fn().mockRejectedValue(new Error('boom')) })
+    try {
+      start()
+      toggleListen()
+      adapter.say('3.671')
+      await flush()
+      expect(readVoiceStatus()).toBe('idle')
+      expect(error).toHaveBeenCalled()
+    } finally {
+      useSession.setState({ submitReading: original })
+      error.mockRestore()
+    }
+  })
+
+  it('a second startVoice replaces the first, so engine events are spoken once', async () => {
+    usePrefs.setState({ voiceEnabled: true })
+    const first = startVoice({ adapter, port, announce, focusTyped })
+    start()
+    window.dispatchEvent(new Event('pointerdown'))
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+    expect(port.spoken.filter((t) => t === instructionText())).toHaveLength(1)
+    first() // the stale cleanup must not tear down the live runtime
+    expect(readVoiceStatus()).not.toBe('off')
+  })
+
+  it('survives a StrictMode start, cleanup, start', async () => {
+    const first = startVoice({ adapter, port, announce, focusTyped })
+    first()
+    start()
+    toggleListen()
+    adapter.say('3.671')
+    await flush()
+    finishRevealIfAny()
+    expect(useSession.getState().readings[0]?.source).toBe('voice')
   })
 })
 
@@ -240,7 +287,6 @@ describe('voice output', () => {
     port.finish()
     adapter.say('repeat')
     await flush()
-    expect(repeat).toHaveBeenCalledOnce()
     expect(port.spoken.at(-1)).toBe(instruction())
   })
 

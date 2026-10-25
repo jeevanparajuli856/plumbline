@@ -1,4 +1,4 @@
-import { announce, repeatLast } from '@/a11y/liveQueue'
+import { announce } from '@/a11y/liveQueue'
 import { usePrefs } from '@/state/prefs'
 import { pickListenAdapter } from './listen'
 import { dispatchVoice, focusReadingInput, startVoiceRuntime, useVoiceStore, type VoiceDeps } from './runtime'
@@ -25,7 +25,6 @@ export function startVoice(overrides: Partial<VoiceDeps> = {}): () => void {
     port: overrides.port ?? webSpeechPort() ?? silentPort,
     announce: overrides.announce ?? announce,
     focusTyped: overrides.focusTyped ?? (() => focusReadingInput()),
-    repeat: overrides.repeat ?? repeatLast,
     ...(overrides.listenOptions ? { listenOptions: overrides.listenOptions } : {}),
     ...(overrides.win ? { win: overrides.win } : {}),
   })

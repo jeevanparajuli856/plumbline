@@ -22,7 +22,6 @@ export interface VoiceDeps {
   /** Live-region sink for the loop's own prompts (never engine events; the announcer owns those). */
   announce: (text: string, options: AnnounceOptions) => void
   focusTyped: () => void
-  repeat: () => void
   listenOptions?: ListenOptions
   win?: Window
 }
@@ -57,6 +56,7 @@ function errorCode(error: unknown): ListenErrorCode {
 const LISTENING_STATUSES: readonly VoiceState['status'][] = ['listening', 'parsing', 'confirming']
 
 let dispatchActive: ((event: VoiceEvent) => void) | null = null
+let stopActive: (() => void) | null = null
 
 /** Sends an event to the running loop; a no-op before startVoiceRuntime or after cleanup. */
 export function dispatchVoice(event: VoiceEvent): void {
@@ -64,7 +64,7 @@ export function dispatchVoice(event: VoiceEvent): void {
 }
 
 export function startVoiceRuntime(deps: VoiceDeps): () => void {
-  if (dispatchActive) dispatchVoice({ type: 'STOP' })
+  stopActive?.()
   const { adapter, port, win = window } = deps
   const speaker = createSpeaker({ port })
   const listenOptions = deps.listenOptions ?? DEFAULT_LISTEN_OPTIONS
@@ -100,8 +100,11 @@ export function startVoiceRuntime(deps: VoiceDeps): () => void {
       dispatch({ type: 'SUBMIT_REJECTED' })
       return
     }
-    await session.submitReading(value, 'voice')
-    dispatch({ type: 'SUBMIT_DONE' })
+    try {
+      await session.submitReading(value, 'voice')
+    } finally {
+      dispatch({ type: 'SUBMIT_DONE' })
+    }
   }
 
   const run = (effect: VoiceEffect) => {
@@ -119,13 +122,16 @@ export function startVoiceRuntime(deps: VoiceDeps): () => void {
         listenToken += 1
         return adapter.abort()
       case 'submit':
-        return void submit(effect.value)
+        return void submit(effect.value).catch((error: unknown) => console.error('voice submit failed', error))
       case 'focusTyped':
         return deps.focusTyped()
-      case 'repeat':
-        deps.repeat()
-        if (lastEngineUtterance) speaker.say(lastEngineUtterance.text, lastEngineUtterance.priority)
-        return
+      case 'repeat': {
+        // One source for both channels: the live region and speech repeat the same engine phrase.
+        const last = lastEngineUtterance
+        if (!last) return
+        deps.announce(last.text, { priority: last.priority, force: true })
+        return speaker.say(last.text, last.priority)
+      }
     }
   }
 
@@ -142,12 +148,19 @@ export function startVoiceRuntime(deps: VoiceDeps): () => void {
   useVoiceStore.setState({ supported: adapter.isSupported() })
   dispatch({ type: 'START', supported: adapter.isSupported() })
 
-  return () => {
+  let stopped = false
+  const stop = () => {
+    if (stopped) return
+    stopped = true
     dispatch({ type: 'STOP' })
     cleanups.forEach((fn) => fn())
-    if (dispatchActive === dispatch) dispatchActive = null
+    if (stopActive !== stop) return
+    stopActive = null
+    dispatchActive = null
     useVoiceStore.setState({ voice: initialVoiceState, supported: false })
   }
+  stopActive = stop
+  return stop
 }
 
 function subscribeEngineEvents(onUtterance: (u: Utterance) => void): () => void {
