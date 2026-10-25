@@ -6,6 +6,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from plumbline import __version__
+from plumbline_api.errors import register_error_handlers
+from plumbline_api.routers import domains, health, sessions
 from plumbline_api.settings import settings
 
 app = FastAPI(
@@ -21,8 +23,7 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type"],
 )
-
-
-@app.get("/v1/health")
-def health() -> dict[str, str]:
-    return {"status": "ok", "version": __version__}
+register_error_handlers(app)
+app.include_router(health.router)
+app.include_router(domains.router)
+app.include_router(sessions.router)

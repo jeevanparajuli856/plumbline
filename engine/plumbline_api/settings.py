@@ -31,3 +31,8 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def get_settings() -> Settings:
+    """FastAPI dependency; tests override it to point at a temporary fixtures directory."""
+    return settings
