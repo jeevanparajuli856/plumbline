@@ -283,5 +283,12 @@ describe('SiteHeader and SiteFooter', () => {
     expect(screen.getByRole('link', { name: 'Validation' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('contentinfo')).toHaveTextContent('University of Louisiana Monroe')
     expect(screen.getByRole('banner')).not.toHaveTextContent('Louisiana')
+    expect(screen.getByRole('link', { name: /^Truehand/ })).toHaveAttribute('href', '/')
+    expect(screen.getByRole('contentinfo')).toHaveTextContent('Truehand.')
+    expect(screen.getByRole('link', { name: 'support@truehand.tech' })).toHaveAttribute(
+      'href',
+      'mailto:support@truehand.tech',
+    )
+    expect(document.body).not.toHaveTextContent('Plumbline')
   })
 })

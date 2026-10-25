@@ -1,5 +1,6 @@
 import { Link, NavLink, useLocation } from 'react-router'
 import { buttonClass } from './button'
+import { BrandMark } from './BrandMark'
 import { DisplayMenu } from './DisplayMenu'
 
 /** Landing sections are hash links; only Validation is its own page and can be current. */
@@ -26,9 +27,9 @@ export function SiteHeader() {
           to="/"
           className="mr-auto inline-flex h-[var(--header-height)] shrink-0 items-center gap-2.5 rounded-hard"
         >
-          <PlumbGlyph />
+          <BrandMark />
           <span className="font-display text-lg font-semibold leading-none tracking-tight">
-            Plumbline
+            Truehand
           </span>{' '}
           <span className="max-sm:sr-only border-l border-hairline pl-2.5 font-mono text-caption leading-none text-text-muted">
             research preview
@@ -64,19 +65,5 @@ export function SiteHeader() {
         </Link>
       </div>
     </header>
-  )
-}
-
-function PlumbGlyph() {
-  return (
-    <svg aria-hidden="true" width="16" height="26" viewBox="0 0 18 28" className="shrink-0">
-      <line x1="9" y1="0" x2="9" y2="17" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="M9 17 L15 21 L9 28 L3 21 Z"
-        fill="var(--measured-fill)"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-    </svg>
   )
 }

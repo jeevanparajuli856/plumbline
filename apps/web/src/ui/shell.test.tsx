@@ -133,7 +133,7 @@ describe('App shell', () => {
     const banner = screen.getByRole('banner')
     const inBanner = focusables.filter((el) => banner.contains(el))
     expect(inBanner.map((el) => el.textContent?.trim())).toEqual([
-      'Plumbline research preview',
+      'Truehand research preview',
       'Research',
       'Technology',
       'Validation',
@@ -148,7 +148,7 @@ describe('App shell', () => {
   it('has one banner with the wordmark, the four primary links and the simulator link, no university', () => {
     renderApp('/evidence')
     const banner = screen.getByRole('banner')
-    expect(within(banner).getByRole('link', { name: /^Plumbline/ })).toHaveAttribute('href', '/')
+    expect(within(banner).getByRole('link', { name: /^Truehand/ })).toHaveAttribute('href', '/')
     const nav = within(banner).getByRole('navigation', { name: 'Primary' })
     const links = within(nav).getAllByRole('link')
     expect(links.map((l) => [l.textContent, l.getAttribute('href')])).toEqual([

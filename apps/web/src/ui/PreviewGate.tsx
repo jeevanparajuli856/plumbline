@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { PREVIEW_CODE, PREVIEW_GATE_ENABLED } from '@/lib/env'
 
-const STORAGE_KEY = 'plumbline.preview'
+const STORAGE_KEY = 'truehand.preview'
 
 function unlocked(): boolean {
   try {
