@@ -8,6 +8,8 @@ export class SimPage {
   readonly celsiusInput: Locator
   readonly submit: Locator
   readonly warning: Locator
+  /** The same banner by role and name; it is a focusable region, not a live region or alert. */
+  readonly warningRegion: Locator
   readonly diagnosis: Locator
   readonly unresolved: Locator
   readonly beliefFigure: Locator
@@ -26,11 +28,12 @@ export class SimPage {
   readonly textOnly: Locator
   readonly themeGroup: Locator
   readonly shortcuts: Locator
+  readonly singleKeyShortcuts: Locator
   readonly apiStatus: Locator
   readonly badges: Locator
   readonly skipLink: Locator
   readonly scene: Locator
-  /** Assertive live region from `src/a11y/LiveRegion.tsx` (not in UI_CONTRACT; see e2e/README.md). */
+  /** Live regions from `src/a11y/LiveRegion.tsx` (UI_CONTRACT section 6, decision 1). */
   readonly liveAssertive: Locator
   readonly livePolite: Locator
 
@@ -41,6 +44,7 @@ export class SimPage {
     this.celsiusInput = page.getByLabel('Thermometer reading in degrees Celsius')
     this.submit = page.getByRole('button', { name: 'Submit reading' })
     this.warning = page.getByTestId('warning-banner')
+    this.warningRegion = page.getByRole('region', { name: 'Placement warning' })
     this.diagnosis = page.getByTestId('diagnosis')
     this.unresolved = page.getByTestId('unresolved')
     this.beliefFigure = page.getByRole('figure', { name: 'Belief over faults' })
@@ -59,6 +63,7 @@ export class SimPage {
     this.textOnly = page.getByRole('switch', { name: 'Text only' })
     this.themeGroup = page.getByRole('radiogroup', { name: 'Theme' })
     this.shortcuts = page.getByRole('dialog', { name: 'Keyboard shortcuts' })
+    this.singleKeyShortcuts = page.getByRole('switch', { name: 'Single-key shortcuts' })
     this.apiStatus = page.getByTestId('api-status')
     this.badges = page.getByTestId('badge')
     this.skipLink = page.getByRole('link', { name: 'Skip to main content' })
@@ -84,6 +89,21 @@ export class SimPage {
       .nth(step - 1)
       .getByRole('cell')
       .nth(index)
+  }
+
+  /**
+   * The placement-strip item for the aimed row (decision 4): it, or the aim button inside it,
+   * carries `aria-current="true"`, and it shows the word "aimed".
+   */
+  aimedItem(): Locator {
+    const items = this.placementStrip.getByRole('listitem')
+    const current = this.page.locator('[aria-current="true"]')
+    return items.and(current).or(items.filter({ has: current }))
+  }
+
+  /** Aim button inside a placement-strip item, matched by its site label ("row 4"). */
+  aimButton(siteLabel: string): Locator {
+    return this.placementStrip.getByRole('button', { name: new RegExp(`\\b${siteLabel}\\b`) })
   }
 
   badge(text: 'PROVISIONAL' | 'SIMULATED' | 'PENDING'): Locator {

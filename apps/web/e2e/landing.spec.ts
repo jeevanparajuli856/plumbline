@@ -42,23 +42,23 @@ test.describe('landing sections', () => {
     expect(await landing.transcript.getByRole('listitem').count()).toBeGreaterThan(0)
   })
 
-  // The transcript always holds the whole story, so "playing" is read from the controls (F9:
-  // Play, Pause, Replay), not from text. Pause and Replay names are not yet in UI_CONTRACT.
+  // The transcript always holds the whole story, so "playing" is read from the controls (F9;
+  // UI_CONTRACT section 6, decision 3: exact names "Pause" and "Replay"), not from text.
   test('scrolling never starts the example', async ({ page }) => {
     await landing.scrollThrough()
     await landing.play.scrollIntoViewIfNeeded()
     await page.waitForTimeout(SNAP_MS)
     await expect(landing.play).toBeVisible()
     await expect(
-      landing.section('play').getByRole('button', { name: /^(Pause|Replay)/ }),
+      landing.section('play').getByRole('button', { name: /^(Pause|Replay)$/ }),
     ).toHaveCount(0)
   })
 
   test('Play runs the example to its end', async () => {
     await landing.play.click()
     const play = landing.section('play')
-    await expect(play.getByRole('button', { name: /^Pause/ })).toBeVisible()
-    await expect(play.getByRole('button', { name: /^Replay/ })).toBeVisible({
+    await expect(play.getByRole('button', { name: 'Pause', exact: true })).toBeVisible()
+    await expect(play.getByRole('button', { name: 'Replay', exact: true })).toBeVisible({
       timeout: PLAY_RUN_MS,
     })
   })
@@ -70,7 +70,9 @@ test.describe('landing sections', () => {
     if (!osReduced) await landing.reduceMotion.click()
     await expect(landing.reduceMotion).toHaveAttribute('aria-checked', 'true')
     await landing.play.click()
-    await expect(landing.section('play').getByRole('button', { name: /^Replay/ })).toBeVisible({
+    await expect(
+      landing.section('play').getByRole('button', { name: 'Replay', exact: true }),
+    ).toBeVisible({
       timeout: SNAP_MS,
     })
   })

@@ -3,6 +3,13 @@
 Things the e2e lane needs that are outside its write surface (`apps/web/e2e/**`,
 `apps/web/playwright.config.ts`). Each names the owner it is for.
 
+## Status 2026-10-25
+
+Settled on `main` (UI_CONTRACT section 6, decisions 1 to 9, and commit 5d566dc for the ignore
+rule): items 1 to 9 and 13 below. Item 2 was then superseded by c9b7f53 (no `role="alert"` for
+engine events; the banner is the focusable region "Placement warning"); the specs follow it.
+Still open: 10 (web-shell contrast, checked in the full run), 11 and 12 (storyboard text), and 14.
+
 ## For the integration step on `main` (docs/UI_CONTRACT.md)
 
 1. **Live regions have no contract selector.** The slip-warning spec reads `#live-assertive` and
@@ -53,3 +60,9 @@ Things the e2e lane needs that are outside its write surface (`apps/web/e2e/**`,
     `apps/web/recordings/video-v1/`. The script drops a `.gitignore` with `*` there at run time, but
     the root rule should be `**/recordings/` (or `apps/web/recordings/`) so it does not depend on the
     script.
+
+## For web-shell (new)
+
+14. **Aim button names.** Placement cells become buttons that aim, but their accessible names are
+    not in the contract. The keyboard spec finds them inside the placement list by the site label
+    (`/\brow 4\b/`). Please bind a name that contains the site label.

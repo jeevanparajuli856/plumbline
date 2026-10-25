@@ -40,7 +40,7 @@ test.describe('keyboard only', () => {
     await expect(sim.shortcuts).toBeHidden()
   })
 
-  test('T, type, Enter, ], [, P and R drive the worked example', async ({ page, browserName }) => {
+  test('T, type, Enter, ], [, P and R drive the worked example', async ({ page }) => {
     needsFullUi('web-shell (reading input, replay keys)')
     await blurToBody(page)
     await page.keyboard.press('t')
@@ -50,9 +50,8 @@ test.describe('keyboard only', () => {
     await sim.waitForStep(1)
     await expect(sim.warning).toContainText('row 2')
 
-    // Leave the input so single-key shortcuts are live again.
-    await page.keyboard.press(tabKey(browserName))
-    await expect(sim.voltsInput).not.toBeFocused()
+    // The warning banner takes focus (it is not editable), so single-key shortcuts are live.
+    await expect(sim.warning).toBeFocused()
     await page.keyboard.press(']')
     await sim.waitForStep(2)
     await expect(sim.diagnosis).toBeFocused()
@@ -70,13 +69,65 @@ test.describe('keyboard only', () => {
     await expect(sim.diagnosis).toBeVisible({ timeout: 10_000 })
   })
 
-  test('number keys aim without submitting anything', async ({ page }) => {
-    needsFullUi('web-shell (aim keys)')
+  // Decision 4: the aimed placement item carries aria-current="true" and the word "aimed".
+  test('number keys and placement buttons aim, and aiming submits nothing', async ({ page }) => {
+    needsFullUi('web-shell (aim keys, placement buttons)')
+    await expect(sim.aimedItem()).toHaveCount(1)
+    await expect(sim.aimedItem()).toContainText('row 3')
     await blurToBody(page)
-    for (const key of ['1', '2', '6', '9']) await page.keyboard.press(key)
+    await page.keyboard.press('2')
+    await expect(sim.aimedItem()).toContainText('row 2')
+    await expect(sim.aimedItem()).toContainText('aimed')
+    await page.keyboard.press('9')
+    await expect(sim.aimedItem()).toContainText('row 2')
+
+    await sim.aimButton('row 4').focus()
+    await page.keyboard.press('Enter')
+    await expect(sim.aimedItem()).toHaveCount(1)
+    await expect(sim.aimedItem()).toContainText('row 4')
     await page.waitForTimeout(QUIET_MS)
     await expect(sim.logRows()).toHaveCount(0)
     await expect(sim.heading).toContainText('row 3')
+  })
+
+  test('shortcuts are inert while the Keyboard shortcuts dialog is open', async ({ page }) => {
+    needsFullUi('web-shell (keyboard map dialog)')
+    await blurToBody(page)
+    await page.keyboard.press('?')
+    await expect(sim.shortcuts).toBeVisible()
+    for (const key of [']', 'p', 't', '2', 'v']) await page.keyboard.press(key)
+    await page.waitForTimeout(QUIET_MS)
+    await expect(sim.shortcuts).toBeVisible()
+    await expect(sim.logRows()).toHaveCount(0)
+    await expect(sim.voltsInput).not.toBeFocused()
+    await expect(sim.aimedItem()).toContainText('row 3')
+
+    await page.keyboard.press('Escape')
+    await expect(sim.shortcuts).toBeHidden()
+    await blurToBody(page)
+    await page.keyboard.press(']')
+    await sim.waitForStep(1)
+  })
+
+  // WCAG 2.1.4: single-character shortcuts can be turned off; buttons still work.
+  test('the Single-key shortcuts switch turns letter and number keys off', async ({ page }) => {
+    needsFullUi('web-shell (Single-key shortcuts switch)')
+    await expect(sim.singleKeyShortcuts).toHaveAttribute('aria-checked', 'true')
+    await sim.singleKeyShortcuts.focus()
+    await page.keyboard.press('Space')
+    await expect(sim.singleKeyShortcuts).toHaveAttribute('aria-checked', 'false')
+
+    await blurToBody(page)
+    for (const key of ['?', ']', 'p', 't', '2']) await page.keyboard.press(key)
+    await page.waitForTimeout(QUIET_MS)
+    await expect(sim.shortcuts).toBeHidden()
+    await expect(sim.logRows()).toHaveCount(0)
+    await expect(sim.voltsInput).not.toBeFocused()
+    await expect(sim.aimedItem()).toContainText('row 3')
+
+    await sim.next.focus()
+    await page.keyboard.press('Enter')
+    await sim.waitForStep(1)
   })
 
   test('shortcuts are ignored inside the reading input and with modifiers held', async ({

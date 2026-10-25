@@ -39,21 +39,32 @@ test.describe('slip warning', () => {
     expect(log.assertive.filter((t) => t.startsWith('Warning.'))).toHaveLength(1)
   })
 
-  test('the banner is a role=alert, appears once, and names told and likely rows', async ({
+  // UI_CONTRACT section 1 "Warning" and section 6 decision 2: the banner is a focusable labelled
+  // region, not a live region; #live-assertive (no role) is the only spoken copy.
+  test('the banner is a focused "Placement warning" region, mounted once, never an alert', async ({
     page,
   }) => {
-    needsFullUi('web-shell (WarningBanner)')
+    needsFullUi('web-shell (WarningBanner) and main c9b7f53 (assertive region without role)')
     await expect(sim.warning).toHaveCount(0)
     await stepReplay(sim, 1)
     await expect(sim.warning).toHaveCount(1)
-    await expect(sim.warning).toHaveAttribute('role', 'alert')
+    await expect(sim.warningRegion).toHaveAttribute('data-testid', 'warning-banner')
+    await expect(sim.warning).toHaveAttribute('tabindex', '-1')
+    await expect(sim.warning).toBeFocused()
     await expect(sim.warning).toHaveText(/^\s*Warning\./)
     await expect(sim.warning).toContainText(told)
     await expect(sim.warning).toContainText(likely)
+    await expect(sim.warning).not.toHaveAttribute('aria-live', /.+/)
+    await expect(sim.warning.locator('[aria-live], [role="alert"], [role="status"]')).toHaveCount(0)
+    await expect(sim.liveAssertive).toHaveAttribute('aria-live', 'assertive')
+    await expect(sim.liveAssertive).not.toHaveAttribute('role', /.+/)
+    await expect(page.getByRole('alert')).toHaveCount(0)
 
     await stepReplay(sim, 1)
     await expect(sim.diagnosis).toBeVisible()
-    expect((await readLiveLog(page)).warningBannerMounts).toBe(1)
+    const log = await readLiveLog(page)
+    expect(log.warningBannerMounts).toBe(1)
+    expect(log.assertive.filter((t) => t.startsWith('Warning.'))).toHaveLength(1)
   })
 
   test('the log marks only the slipped step', async () => {
