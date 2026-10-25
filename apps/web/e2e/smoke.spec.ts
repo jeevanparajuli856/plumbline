@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-test('landing renders the promise and links to the simulator', async ({ page }) => {
+test('landing renders the promise and links to the web app', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Measurement you can trust')
   await expect(page.getByRole('link', { name: 'Open the simulator' })).toBeVisible()

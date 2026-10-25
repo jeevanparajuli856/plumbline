@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 // Runs on the Sprint 0 shell.
-test('the mast carries the promise and links to the simulator', async () => {
+test('the mast carries the promise and links to the web app', async () => {
   await expect(landing.heading).toHaveText('Measurement you can trust without looking.')
   await expect(landing.openSimulator).toHaveAttribute('href', '/sim')
 })
