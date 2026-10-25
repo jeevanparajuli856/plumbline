@@ -45,4 +45,15 @@ describe('AboutPage', () => {
     await waitFor(() => expect(screen.getByText(/0\.78, 0\.08 and 0\.03/)).toBeInTheDocument())
     expect(screen.queryByText(/used in the pitch/i)).not.toBeInTheDocument()
   })
+
+  it('has the pilot and partner anchors the landing links to, without inventing an address', () => {
+    render(
+      <MemoryRouter>
+        <AboutPage />
+      </MemoryRouter>,
+    )
+    expect(document.getElementById('pilot')).toHaveAccessibleName('Join the pilot')
+    expect(document.getElementById('partner')).toHaveAccessibleName('Partner with us')
+    expect(document.body.textContent).not.toMatch(/@[a-z0-9-]+\./i)
+  })
 })

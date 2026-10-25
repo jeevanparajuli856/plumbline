@@ -116,6 +116,42 @@ export function AboutPage() {
       </section>
 
       <section
+        id="pilot"
+        aria-labelledby="pilot-heading"
+        className="mt-16 grid scroll-mt-24 gap-x-12 gap-y-4 lg:grid-cols-12"
+      >
+        <h2 id="pilot-heading" className="text-lg font-semibold lg:col-span-4">
+          Join the pilot
+        </h2>
+        <div className="grid gap-4 text-md lg:col-span-8">
+          <p>
+            For blindness organizations and instructors who teach electronics. A pilot is a short
+            session where students try the simulator and, with permission, help us measure how a
+            hand actually misses a breadboard row. That measurement replaces our assumed numbers.
+          </p>
+          <p>Contact details for the pilot will be posted here.</p>
+        </div>
+      </section>
+
+      <section
+        id="partner"
+        aria-labelledby="partner-heading"
+        className="mt-16 grid scroll-mt-24 gap-x-12 gap-y-4 lg:grid-cols-12"
+      >
+        <h2 id="partner-heading" className="text-lg font-semibold lg:col-span-4">
+          Partner with us
+        </h2>
+        <div className="grid gap-4 text-md lg:col-span-8">
+          <p>
+            For instrument makers and rehabilitation agencies. The engine is domain-agnostic: a new
+            instrument needs a model of what each reading should be at each place the probe can
+            land.
+          </p>
+          <p>Contact details for partners will be posted here.</p>
+        </div>
+      </section>
+
+      <section
         aria-labelledby="sources-heading"
         className="mt-16 grid gap-x-12 gap-y-4 lg:grid-cols-12"
       >
