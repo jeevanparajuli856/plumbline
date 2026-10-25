@@ -19,12 +19,13 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/main.tsx', 'src/vite-env.d.ts'],
-      // Ratchet: Sprint 0 floors. The Sprint 1 integration step raises these to the
-      // .claude/rules/testing.md targets (engine 90, state/voice/a11y 80). Never lower them.
+      // Ratchet: the .claude/rules/testing.md targets, raised at the Sprint 1 integration
+      // (2026-10-25). Never lower them.
       thresholds: {
-        'src/engine/**': { lines: 40, statements: 40 },
-        'src/state/**': { lines: 55, statements: 55 },
-        'src/a11y/**': { lines: 14, statements: 14 },
+        'src/engine/**': { lines: 90, statements: 90 },
+        'src/state/**': { lines: 80, statements: 80 },
+        'src/voice/**': { lines: 80, statements: 80 },
+        'src/a11y/**': { lines: 80, statements: 80 },
       },
     },
   },
