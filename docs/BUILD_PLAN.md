@@ -58,21 +58,25 @@ Docs, ADRs, contracts, scaffold and `render.yaml` are on `main`; `pnpm verify` g
 
 Sprint 1 merge gate, per lane: `/verify` PASS table in the worktree; `code-reviewer` on `git diff main...HEAD`. Integration gate: `/demo-worked-example` against the API and against `http://localhost:5173/sim?demo=worked-example`; keyboard-only run; screen-reader run planned for Sprint 2.
 
-## Sprint 2 - Nov 2 to 8: semifinal-review polish and evidence
+## Sprint 2 - Oct 26 to Nov 8: robustness, explainer, Lighthouse, release, video v2
 
-| Item                                                                   | Owner                                  | Acceptance                                                                           | State   |
-| ---------------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------ | ------- |
-| Experiments with stability (5 seeds) and sweep; figures on `/evidence` | engine-scientist                       | `stability.py`, `sweep.py`, `mkfigs.py` write `docs/results/` with command and seeds | backlog |
-| Mismatch stress tests                                                  | engine-scientist                       | `mismatch.py` writes `docs/results/`                                                 | backlog |
-| LLM transcript recorded and dated for the side-by-side                 | user, with ui-designer for the exhibit | `public/transcripts/` entry with date and source; labeled as a recorded transcript   | backlog |
-| Thermometer landing section and video shot 7                           | three-engineer + ui-designer           | new section, not among the eight in ARCHITECTURE section 9; labeled SIMULATED        | backlog |
-| Voice loop end-to-end blindfold recording                              | user + a11y-auditor                    | recording on camera, dated                                                           | backlog |
-| Lighthouse accessibility 100                                           | a11y-auditor                           | Lighthouse report in `docs/results/`                                                 | backlog |
-| `security-reviewer` on the API                                         | security-reviewer                      | review written up; findings fixed or noted                                           | backlog |
-| Pitch Q&A doc                                                          | user                                   | `docs/PITCH.md` Q&A section complete                                                 | backlog |
-| Louisiana Center visit booked                                          | user                                   | see Blocked / next action 2                                                          | blocked |
+Executed from `docs/HANDOFF_SPRINT2.md` by a coding session with parallel lanes. Verified on 2026-10-25 before kickoff: 656 web tests, 190 pytest, Playwright 95 passed / 3 skipped, live API replays the worked example, static site deep links 404 (rewrite missing).
 
-Sprint 2 merge gate: experiment outputs in `docs/results/` with commands and seeds; axe clean in three themes; Lighthouse accessibility 100.
+| Lane | Owner | Write surface | Acceptance | State |
+| --- | --- | --- | --- | --- |
+| `engine-robustness` | engine-scientist | `engine/**`, `docs/results/**` | contact-state placement model (single row, bridge, no contact); mismatch bridging and poor-contact rows improve with before/after numbers; stability incl. thermometer; figures regenerated | ready |
+| `explainer` | engine-scientist + tdd-guide | `engine/plumbline_api/explain/**`, `routers/explain.py`, tests, API_CONTRACT section | ADR-0012: `POST /v1/sessions/{id}/explain`, Vertex AI Gemini and Anthropic providers, flag off by default, numeric-leak guard, fake-provider tests, rate limit | ready |
+| `web-evidence-and-ask` | ui-designer + a11y-auditor + tdd-guide | `apps/web/src/{ui,sim,evidence,about,landing}/**`, `public/transcripts/**` | figures on `/evidence` with alt and source; transcript loader with provenance; Ask panel flag-gated with the mandatory label; Lighthouse a11y 100, perf 90+, best practices 95+ in three themes; VoiceOver checklist | ready |
+| `security` | security-reviewer | `guard/errors/settings` when needed, `docs/results/security_<date>.md`, `render.yaml` headers | API review incl. explain prompt surface; `pnpm audit`, `pip-audit`; CSP and security headers; findings with fix status | ready |
+| `release` | lead on main | shared files, Render | deep links 200 (rewrite rule or Blueprint); merges A, B, D, C with `/verify` and review; `PLUMBLINE_EXPLAIN_PROVIDER` set only with user-supplied credentials; tag `v0.2-sprint2` | ready |
+| `video-v2` | e2e-runner + user | `apps/web/e2e/record/**`, recordings (gitignored), storyboard | founder voiceover aligned to `shots.json`, ffmpeg mix, SRT, upload checklist | ready (waits on the user's takes) |
+| `ts-port` (stretch) | engine-scientist + tdd-guide | `apps/web/src/engine/local/**` | parity below 1e-6 on nine fixtures; `LocalClient` behind `chooseClient` | backlog |
+
+Done before kickoff (moved from the original Sprint 2 list): experiments with stability and sweep, mismatch stress tests, thermometer landing section (Generalize) and video shot 7, video v1 recorded.
+
+User-owned: voiceover takes, ChatGPT transcript (protocol in PITCH.md), Nexus and Louisiana Center emails, VoiceOver human pass, Google Cloud project and service-account secret for the explainer, pitch Q&A review.
+
+Sprint 2 merge gate: `/verify` PASS on main; mismatch before/after in `docs/results/`; Lighthouse accessibility 100; deep links 200; tag exists.
 
 ## Sprint 3 - Nov 9 to 22: self-sufficiency and the real world
 
