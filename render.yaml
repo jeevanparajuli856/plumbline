@@ -13,6 +13,9 @@ services:
         value: 3.13.7
       - key: TRUEHAND_CORS_ORIGINS
         value: https://plumbline-web-lxxc.onrender.com,http://localhost:5173
+      # Contact form (ADR-0014 decision 6). Set in the Render dashboard; never in the repo.
+      - key: TRUEHAND_RESEND_API_KEY
+        sync: false
   - type: web
     name: plumbline-web
     runtime: static

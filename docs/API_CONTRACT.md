@@ -26,8 +26,9 @@ Origin: approved plan, Appendix A4 (schemas), A5 (fixture shape), A8 (deploy hea
 | GET | `/v1/sessions/{id}` | none | `SessionView` | unknown, expired, or evicted: 404 `session_not_found`; malformed id: 422 |
 | POST | `/v1/sessions/{id}/step` | `StepRequest` (body may be `{}` or absent) | `StepView` | behaviour per mode, section 4 |
 | POST | `/v1/sessions/{id}/reset` | none | `SessionView` | same config and truth, step count back to 0 |
+| POST | `/v1/contact` | `ContactRequest` | `{status: "sent"}`, status 202 | emails support through Resend; nothing stored. Section 13 |
 
-Only these seven routes exist in v1, plus the two documentation routes in section 1. The v0 names are superseded and must not come back (section 12).
+Only these eight routes exist in v1, plus the two documentation routes in section 1. The v0 names are superseded and must not come back (section 12).
 
 ## 3. Schemas
 
@@ -170,6 +171,9 @@ Validation failures carry `details: {errors: [{loc, msg, type}]}`. Mode-rule fai
 | 405 | `method_not_allowed` | route exists, method does not |
 | 409 | `session_terminal` | step on a resolved or unresolved session |
 | 409 | `fixture_mismatch` | replay told site, reading, domain, or step count disagrees with the fixture |
+| 429 | `rate_limited` | contact form over its per-client or global limit; `details.retry_after_s` and the `Retry-After` header give the wait in seconds (section 13) |
+| 503 | `contact_unavailable` | contact form without `TRUEHAND_RESEND_API_KEY` |
+| 502 | `contact_send_failed` | Resend refused the contact email or could not be reached |
 | 413 | `payload_too_large` | request body over 16 KiB (`MAX_BODY_BYTES` = 16384; `details.max_bytes` gives the cap). Checked by Content-Length and by counting chunked bytes |
 | 500 | `fixture_corrupt` | fixture fails to parse or validate on load |
 | 500 | `internal_error` | any other unhandled failure. Message: "Something went wrong on the server." |
@@ -178,7 +182,7 @@ Any other HTTP status is returned with the code `http_error`; none is defined in
 
 ## 6. CORS and settings
 
-CORS is an allowlist. Only origins in `TRUEHAND_CORS_ORIGINS` receive `Access-Control-Allow-Origin`. Allowed methods: `GET`, `POST`, `OPTIONS`. Allowed headers: `Content-Type`. Credentials: not allowed. Anything else gets no CORS header.
+CORS is an allowlist. Only origins in `TRUEHAND_CORS_ORIGINS` receive `Access-Control-Allow-Origin`. Allowed methods: `GET`, `POST`, `OPTIONS`. Allowed headers: `Content-Type`. Exposed headers: `Retry-After` (so the contact form can read the wait on a 429). Credentials: not allowed. Anything else gets no CORS header.
 
 CORS headers are sent on every response for an allowed origin, including the 413 `payload_too_large` and the 500 `internal_error` replies. The request guard sits inside the CORS middleware to make that true.
 
@@ -190,6 +194,12 @@ Settings are read by `truehand_api/settings.py` (pydantic-settings, prefix `TRUE
 | `TRUEHAND_SESSION_MAX` | `session_max` | 500 | LRU capacity of the in-memory store |
 | `TRUEHAND_SESSION_TTL_S` | `session_ttl_s` | 3600 | idle expiry in seconds |
 | `TRUEHAND_FIXTURES_DIR` | `fixtures_dir` | `engine/fixtures/parity` | where replay fixtures are read |
+| `TRUEHAND_RESEND_API_KEY` | `resend_api_key` | unset (`SecretStr`; blank counts as unset). Render: `sync: false`, set in the dashboard | Resend key for `POST /v1/contact`. Unset: 503 `contact_unavailable`. Never logged or echoed |
+| `TRUEHAND_CONTACT_TO` | `contact_to` | `support@truehand.tech` | where contact emails go |
+| `TRUEHAND_CONTACT_FROM` | `contact_from` | `Truehand <contact@truehand.tech>` | sender; the domain must be verified in Resend |
+| `TRUEHAND_CONTACT_MAX_PER_WINDOW` | `contact_max_per_window` | 3 | contact sends per client per window |
+| `TRUEHAND_CONTACT_WINDOW_S` | `contact_window_s` | 600 | per-client window in seconds |
+| `TRUEHAND_CONTACT_GLOBAL_PER_HOUR` | `contact_global_per_hour` | 50 | contact sends per hour across all clients |
 
 The request body cap (16 KiB) is a constant in `truehand_api/guard.py`, not a setting.
 
@@ -293,7 +303,7 @@ Parity tolerances (checked by pytest recompute; the web parity test is planned i
 
 ## 9. Tests that pin this contract
 
-`engine/tests/test_api.py` (httpx `ASGITransport`) covers health, domains, catalog order and the flag, the three modes, the 422, 404, 405, 409, 413 and 500 envelopes, CORS allowed and disallowed (including on 413 and 500), and that every float is finite. `test_fixtures.py` recomputes every fixture and checks the unresolved pair. `test_worked_example.py` checks the demo numbers. `test_circuit.py` checks the six reference voltages and the class count. `test_thermometer.py` checks the simulated domain. `test_settings.py` checks the CORS parsing rules (comma list, `*` and empty entries rejected). `test_store.py` checks the in-memory store.
+`engine/tests/test_api.py` (httpx `ASGITransport`) covers health, domains, catalog order and the flag, the three modes, the 422, 404, 405, 409, 413 and 500 envelopes, CORS allowed and disallowed (including on 413 and 500), and that every float is finite. `test_fixtures.py` recomputes every fixture and checks the unresolved pair. `test_worked_example.py` checks the demo numbers. `test_circuit.py` checks the six reference voltages and the class count. `test_thermometer.py` checks the simulated domain. `test_settings.py` checks the CORS parsing rules (comma list, `*` and empty entries rejected). `test_store.py` checks the in-memory store. `test_contact.py` covers `POST /v1/contact` with Resend replaced by an httpx `MockTransport` (payload, every validation rule, header injection, honeypot, 503, 502, 429 with `Retry-After`, CORS, the key never in logs or responses); `test_rate_limit.py` covers the limiter with an injected clock.
 
 ## 10. Worked example walkthrough (curl)
 
@@ -364,3 +374,52 @@ Site identity: the store uses the engine's 0-based index. Labels come from `cata
 - A fixture schema change bumps `schema_version` (now 2). The recorder refuses silent overwrite.
 
 Superseded names (do not reintroduce): `POST /sessions/{id}/readings`, `landed_row`, `p_off_row`, `candidates`, root-level `GET /catalog`, root-level `GET /health`, `true_fault`, `volts` in step bodies (plan reconciliation 1 keeps engine names).
+
+## 13. Contact form: `POST /v1/contact`
+
+Added 2026-10-25 for the `/contact` page (ADR-0014 decision 6). Additive under section 12.
+
+### 13.1 ContactRequest (request)
+
+`extra="forbid"`. Every string is trimmed before its length is checked.
+
+| Field | Type | Rule |
+|---|---|---|
+| `name` | string | 1..100 chars, a single line (no control characters, no U+2028/U+2029) |
+| `email` | string | at most 254 chars, `local@host.tld` (dot-atom local part up to 64 chars, ASCII host with at least one dot), a single line. Becomes the email's `reply_to` |
+| `organization?` | string or null | at most 120 chars, a single line. `""` counts as absent |
+| `phone?` | string or null | at most 40 chars of digits, space, `+ - ( ) .`. `""` counts as absent |
+| `reason` | `"pilot"`, `"partnership"`, `"support"`, `"press"` | |
+| `message` | string | 10..4000 chars after trimming. `\r\n` becomes `\n`; newline and tab are allowed, any other control character is refused |
+| `website?` | string or null | honeypot, at most 200 chars. Hide it from people (off-screen, `tabindex="-1"`, `autocomplete="off"`, `aria-hidden="true"`) and send `""` |
+
+### 13.2 Response
+
+Success: 202 `{"status": "sent"}`. A filled honeypot gets the same 202 and nothing is sent, so a bot cannot tell.
+
+| HTTP | Code | When | The page should |
+|---|---|---|---|
+| 422 | `validation_error` | any rule in 13.1; `details.errors[].loc` names the field, for example `["body", "email"]` | mark that field |
+| 413 | `payload_too_large` | body over 16 KiB (RequestGuard, before the route) | ask for a shorter message |
+| 429 | `rate_limited` | over 3 sends per client per 600 s, or 50 sends per hour overall. `details.retry_after_s` (integer seconds) equals the `Retry-After` header, which CORS exposes | say when to try again |
+| 503 | `contact_unavailable` | no Resend key on the server | offer the prefilled `mailto:support@truehand.tech` |
+| 502 | `contact_send_failed` | Resend answered non-2xx, timed out (10 s) or could not be reached | offer retry and the `mailto:` |
+
+Each error `message` is one human sentence; 503 and 502 name the support address.
+
+### 13.3 Behaviour
+
+1. Order: validation (422), honeypot (202, sends nothing, does not count against any limit), key check (503), rate limit (429), one send (202 or 502). A failed send still counts against the limit.
+2. Client identity for the limit: the first `X-Forwarded-For` hop when present (Render proxies every request), else the socket peer. The limiter is in memory, bounded (at most 10 000 clients tracked, least recently admitted evicted first) and empty after a restart. Refused requests do not extend the wait.
+3. The email: `POST https://api.resend.com/emails` with `Authorization: Bearer <key>` and JSON `{from: contact_from, to: [contact_to], reply_to: email, subject, text}`. Subject `[<Reason>] <name>`, plus ` (<organization>)` when given; `<Reason>` is `Pilot`, `Partnership`, `Support` or `Press`. The text labels every field (`Name:`, `Email:`, `Organization:`, `Phone:`, `Reason:`, `Message:`), writing `not given` for absent optional fields.
+4. Nothing is stored. Logs carry the Resend status or the exception class only, never the key or the message.
+
+### 13.4 Example
+
+```bash
+curl -s -X POST localhost:8000/v1/contact -H 'Content-Type: application/json' -d '{
+  "name": "Ada Lovelace", "email": "ada@example.org", "organization": "", "phone": "",
+  "reason": "pilot", "message": "We would like to pilot Truehand in our lab.", "website": ""}'
+# key set:   202 {"status":"sent"}
+# key unset: 503 {"error":{"code":"contact_unavailable","message":"The contact form is not available right now; please write to support@truehand.tech instead.","details":{}}}
+```
