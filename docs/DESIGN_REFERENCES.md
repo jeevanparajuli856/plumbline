@@ -114,7 +114,7 @@ Regulatory context. Plumbline is not a medical device and should not borrow regu
 
 Phrasings for Plumbline (use verbatim or near verbatim):
 1. "Simulation validated. User validation in progress." (the status line, from POSITIONING.md)
-2. "Results on this page come from simulated faults and a simulated hand. We have not yet measured how real hands miss. That measurement is scheduled with the Louisiana Center for the Blind."
+2. "Results on this page come from simulated faults and a simulated hand. We have not yet measured how real hands miss. That measurement is scheduled with a regional blindness training center."
 3. "The confusion model uses three assumed numbers: 0.78, 0.08 and 0.03. They will be replaced by a measured matrix, and every experiment re-run." (from brief section 4)
 4. "Research preview. Not a safety device. Do not use it to work on mains voltage or anything that can hurt you." (scope then exclusion; mains and safety exclusion is our judgment, confirm with the team)
 5. "Simulated, n = [faults] per arm, [k] seeds, command `python -m plumbline.experiments.stability`, run [date]." Fill only from `docs/results/`; until then the row says PENDING.
@@ -193,7 +193,7 @@ Each sticky scene is a `<section aria-labelledby>` whose static mono caption is 
    - Motion: two candidate bars that stay equal, with a bracket and the word "Unresolved". No motion beyond the bracket draw.
    - DOM twin: "Unresolved. LED open and LED reversed give the same voltages at every row. Plumbline asks for a different measurement instead of guessing."
 
-Play never auto-starts on scroll (ADR-0007). Scrubbed scenes show states; the "Play the 20-second example" button runs the timed replay with Pause and Replay controls (WCAG 2.2.2 Pause, Stop, Hide, https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html , applies to moving content that starts automatically and lasts more than five seconds).
+Play never auto-starts on scroll (ADR-0007). Scrubbed scenes show states; the "Play the worked example" button runs the timed replay with Pause and Replay controls (WCAG 2.2.2 Pause, Stop, Hide, https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html , applies to moving content that starts automatically and lasts more than five seconds).
 
 Reduced motion basis: WCAG 2.3.3 Animation from Interactions (https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html) names parallax as "often non-essential" and cites "dizziness, nausea and headaches" for vestibular disorders. We meet it with both the OS query and an in-page toggle.
 
@@ -267,7 +267,7 @@ Each is sourced; bracketed values fill only from files named.
 4. "Every published diagnosis method assumes the test you asked for is the test that ran. We model the hand as a noisy actuator and recover where it really landed." (brief section 4)
 5. "Told row 3, the hand lands on row 2 and reads 3.671 volts. The published method is certain of the wrong part. Plumbline warns, asks once more, and names the right one." (fixture values only)
 6. "When the physics cannot tell two faults apart, it says so." (POSITIONING)
-7. "The dataset that makes this work, how blind hands actually miss, does not exist yet. We are measuring it with the Louisiana Center for the Blind." (EVIDENCE row "Measured confusion matrix"; true only while that session is booked or done)
+7. "The dataset that makes this work, how blind hands actually miss, does not exist yet. We are measuring it with a regional blindness training center." (EVIDENCE row "Measured confusion matrix"; true only while that session is booked or done)
 8. "Web simulator open now. iOS app next." (POSITIONING product line)
 
 ### E4. Moat, wedge, traction, team, roadmap, ask
@@ -279,7 +279,7 @@ Each is sourced; bracketed values fill only from files named.
 - One ask, three labeled exits: "Join the pilot" (for blindness organizations and instructors), "Partner with us" (purpose-split email, Isomorphic pattern), "Read the method" (the `how` section or a write-up). The primary button stays "Open the simulator".
 
 ### E5. Show now, hold for the finals
-Show now: the worked example replay with the side-by-side published-method baseline; the six-line math with glosses and named prior art; the refusal (unresolved pair); the simulated second instrument with its SIMULATED badge; the validation status table and phase chips; the three cited studies. Hold, and say they are coming without describing results: the measured confusion matrix from the Louisiana Center for the Blind; the real breadboard blindfold run on camera with a deliberate slip; the iOS app; the five-seed stability and stress-test numbers until they have run here and been reviewed. The evidence table already lists these as PENDING, which is the right amount of reveal: the reader sees that the work is planned and dated, not what it found. Like π0 and Helix, we can show the method in full and still withhold the newest data.
+Show now: the worked example replay with the side-by-side published-method baseline; the six-line math with glosses and named prior art; the refusal (unresolved pair); the simulated second instrument with its SIMULATED badge; the validation status table and phase chips; the three cited studies. Hold, and say they are coming without describing results: the measured confusion matrix from a regional blindness training center; the real breadboard blindfold run on camera with a deliberate slip; the iOS app; the five-seed stability and stress-test numbers until they have run here and been reviewed. The evidence table already lists these as PENDING, which is the right amount of reveal: the reader sees that the work is planned and dated, not what it found. Like π0 and Helix, we can show the method in full and still withhold the newest data.
 
 ---
 
