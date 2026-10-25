@@ -192,6 +192,8 @@ export function SimPage() {
                 pair={unresolvedPair}
               />
             ) : null}
+            {/* Sprint 2 (ADR-0012): the "Ask" explainer panel goes here, after the outcome and before the
+                reading panel; render nothing when the provider is off. The column's gap-8 stack absorbs it. */}
             <div className="rounded-hard border-2 border-border-strong bg-surface-1 p-5 shadow-[var(--shadow-panel)] sm:p-6">
               <ReadingForm
                 key={`${s.domain}-${s.mode}`}
