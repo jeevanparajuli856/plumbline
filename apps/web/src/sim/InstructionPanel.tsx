@@ -1,4 +1,4 @@
-import { buttonClass, KEYCAP } from '@/ui/button'
+import { KEYCAP } from '@/ui/button'
 import { formatBits } from '@/lib/format'
 import type { Heading } from './flow'
 import { uncertaintyFraction } from './view'
@@ -48,7 +48,7 @@ export function InstructionPanel({
             type="button"
             onClick={onRepeat}
             aria-keyshortcuts="R"
-            className={buttonClass('quiet', 'mt-2 -ml-1 px-1')}
+            className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-hard font-medium text-text underline decoration-hairline underline-offset-4 hover:decoration-text"
           >
             Repeat instruction
             <kbd aria-hidden="true" className={KEYCAP}>
