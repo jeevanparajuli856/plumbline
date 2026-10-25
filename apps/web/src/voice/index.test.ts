@@ -118,6 +118,21 @@ describe('voice loop', () => {
     expect(useSession.getState().readings[0]?.value).toBe(3.671)
   })
 
+  it.each(['no', "that's not right", "don't send it"])(
+    'does not submit when the confirmation answer is %j',
+    async (answer) => {
+      start()
+      toggleListen()
+      adapter.say('3.671', ['3.67'])
+      await flush()
+      adapter.say(answer)
+      await flush()
+      expect(useSession.getState().readings).toHaveLength(0)
+      expect(readVoiceStatus()).toBe('idle')
+      expect(announce).toHaveBeenLastCalledWith(voicePhrases.notSent, { priority: 'polite' })
+    },
+  )
+
   it('does not submit when the session is not waiting for a reading', async () => {
     start()
     useSession.setState({ phase: 'resolved' })
