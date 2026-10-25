@@ -53,7 +53,7 @@ Keyboard guard: no single-key shortcut fires when focus is in an input, textarea
 - The scene calls `setSceneMounted(true)` from `@/state/session` on Canvas mount and `false` on unmount. Without it the store does not wait for a reveal animation; with it the store still finishes the reveal itself after `REVEAL_TIMEOUT_MS` (3000) if the scene never calls `finishReveal(token)`.
 - Landing camera: `poseAt(progress)` and `ScenePose` from `@/landing/choreography` (signature frozen on `main`; landing owns the body, scene consumes the type).
 
-- Canvas wrapper `role="img"` with an `aria-label` (from `SceneHost`); `data-testid="scene"`.
+- Canvas wrapper `data-testid="scene"`. In sim mode it carries `role="img"` with an `aria-label`. In landing mode the fixed layer is decorative and `aria-hidden="true"` (the landing captions are the content), so it adds no landmark and no axe `region` finding.
 - `window.__plumblineScene` is set in dev and test builds only to `{ drawCalls: number, frames: number }`, updated after each rendered frame, so e2e and perf can read `renderer.info.render.calls` without a GPU profiler.
 - No informational text is only in the scene.
 - Without WebGL (or in text-only view) no `<canvas>` is created: `SceneHost` renders `SceneUnavailable` (or nothing) and three.js is never loaded.
@@ -84,3 +84,5 @@ Recorded fixtures must parse with `Fixture` in `apps/web/src/engine/schemas.ts` 
 | 10 | Refused replay reading: when a typed reading is not the next recorded one, the store sets error `not_next_in_replay`; `/sim` shows its sentence (from `state/session.ts`) and adds no log row. Specs wait for the sentence, then assert no new row. |
 | 11 | Voice (section 4): a phrase said before the mic opens is held for the next listen; transcripts are data and are never rendered as markup. |
 | 12 | Full e2e run: after the Sprint 1 integration, `PLUMBLINE_E2E_FULL` gating becomes opt-out (all specs run by default). |
+| 13 | Aim buttons: each placement-strip item contains a button named "Aim at <site label>" (e.g. "Aim at row 4"; thermometer "Aim at 3.5 cm"), which calls `aimProbe`. Single-key shortcuts switch: `getByRole('switch', { name: 'Single-key shortcuts' })`, on by default, in the site Display bar or the shortcuts dialog. |
+| 14 | Belief verdict: the one-line Plumbline verdict inside the belief figure is `data-testid="belief-verdict"`. Resolved or continuing: the top fault and its percentage. Unresolved: text starting "Unresolved" naming the class members, with no percentage. |

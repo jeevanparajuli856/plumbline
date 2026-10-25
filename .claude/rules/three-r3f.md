@@ -17,7 +17,7 @@ Verified against R3F docs (Context7 `/pmndrs/react-three-fiber`, `/pmndrs/drei`)
 
 ## The reveal
 - Phase `revealing` carries `reveal {landedSite, token, next}`. The scene animates the probe to `reveal.landedSite` and then calls `finishReveal(token)`; the store ignores stale tokens, writes `landedSite`, and moves to `reveal.next`. With reduced motion or no WebGL the store calls `finishReveal` itself.
-- Never read or draw the landed site before `revealing`. Before that the probe trembles toward the told site (amplitude 0.6 mm x (1 - P(l = n)), seeded).
+- Never read or draw the landed site before `revealing`. Before that the probe trembles toward the told site (amplitude 0.6 mm x (1 - p_same) / (1 - 0.78), p_same from the confusion prior, seeded; see ARCHITECTURE section 8).
 
 ## Per-frame work
 - Mutate refs inside `useFrame((state, delta) => ...)`, scale by `delta`. Never `setState` inside `useFrame`.
