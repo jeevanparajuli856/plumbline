@@ -3,6 +3,7 @@ import { defineConfig, searchForWorkspaceRoot } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { spaRouteCopies } from './spaRoutes'
 
 const fixturesDir = fileURLToPath(new URL('../../engine/fixtures', import.meta.url))
 const docsDir = fileURLToPath(new URL('../../docs', import.meta.url))
@@ -11,6 +12,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    spaRouteCopies(),
     VitePWA({
       registerType: 'prompt',
       injectRegister: 'auto',
