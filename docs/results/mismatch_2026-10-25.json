@@ -1,8 +1,8 @@
 {
  "name": "mismatch",
- "command": "uv run --project engine python -m plumbline.experiments.mismatch",
- "git_sha": "d4731fcec20e27998e4db258971a04b43da98a73",
- "generated_at": "2026-10-25T17:21:26+00:00",
+ "command": "uv run --project engine python -m truehand.experiments.mismatch",
+ "git_sha": "840267f60182798f57d0613dd67c78b298e737a0",
+ "generated_at": "2026-10-25T19:53:49+00:00",
  "simulated": true,
  "label": "Preliminary. Not peer reviewed.",
  "note": "All results are simulated: a simulated hand on our own circuit model, not people.",
@@ -15,7 +15,7 @@
  "scenario_descriptions": "*lopsided*: slips skewed one way (0.78 on the told row, 0.14 1 row down, 0.02 1 row up, 0.03 2 rows down, 0.03 2 rows up); *three_row_jumps*: 0.03 of the mass moved from the told row to three rows away (0.015 each side); *bridging*: with probability 0.1 the probe straddles the told row and a neighbour and reads their midpoint (a stated simplification); *poor_contact*: with probability 0.05 the probe makes no contact and reads 0 V plus noise.",
  "scenarios": {
   "lopsided": {
-   "plumbline": {
+   "truehand": {
     "n": 300,
     "correct": 298,
     "correct_pct": 99.33333333333333,
@@ -134,7 +134,7 @@
    }
   },
   "three_row_jumps": {
-   "plumbline": {
+   "truehand": {
     "n": 300,
     "correct": 292,
     "correct_pct": 97.33333333333333,
@@ -253,7 +253,7 @@
    }
   },
   "bridging": {
-   "plumbline": {
+   "truehand": {
     "n": 300,
     "correct": 248,
     "correct_pct": 82.66666666666667,
@@ -372,7 +372,7 @@
    }
   },
   "poor_contact": {
-   "plumbline": {
+   "truehand": {
     "n": 300,
     "correct": 274,
     "correct_pct": 91.33333333333333,

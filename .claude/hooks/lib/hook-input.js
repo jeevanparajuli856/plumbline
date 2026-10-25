@@ -1,6 +1,6 @@
 'use strict';
 /**
- * Shared stdin reader for Plumbline hooks.
+ * Shared stdin reader for Truehand hooks.
  * Reads the JSON payload Claude Code sends to a hook, capped at 1 MiB.
  * Returns {} on any failure so hooks always fail open.
  */

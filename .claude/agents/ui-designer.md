@@ -1,6 +1,6 @@
 ---
 name: ui-designer
-description: Sets and enforces Plumbline's visual direction: design tokens, typography, layout composition, motion, dark/light/high-contrast themes, and polish passes that remove template-looking UI. Use when building any DOM surface or when the UI reads as generic. Implements in Tailwind + CSS tokens.
+description: Sets and enforces Truehand's visual direction: design tokens, typography, layout composition, motion, dark/light/high-contrast themes, and polish passes that remove template-looking UI. Use when building any DOM surface or when the UI reads as generic. Implements in Tailwind + CSS tokens.
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: inherit
 color: pink

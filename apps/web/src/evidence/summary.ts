@@ -1,6 +1,6 @@
 import { overallStatus, type Evidence, type StatusKind } from './markdown'
 
-const EXPERIMENT_PREFIX = 'python -m plumbline.experiments'
+const EXPERIMENT_PREFIX = 'python -m truehand.experiments'
 
 /** Experiment commands named in the table. Their figures appear only once docs/results/ holds a run. */
 export function experimentCommands(ev: Evidence): string[] {

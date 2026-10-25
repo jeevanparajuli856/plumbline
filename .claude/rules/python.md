@@ -9,7 +9,7 @@ paths:
 Condensed from ECC `rules/python/*`. Extends `coding-style.md`.
 
 - Python 3.13 managed by `uv`. `uv run --project engine <cmd>`; never `pip install` globally.
-- Formatting and lint: `ruff format`, `ruff check` (hooks run both). Type hints on every public signature; `pyright` basic mode clean on `plumbline/`.
+- Formatting and lint: `ruff format`, `ruff check` (hooks run both). Type hints on every public signature; `pyright` basic mode clean on `truehand/`.
 - Immutable data: `@dataclass(frozen=True)` for Fault, Reading, Instruction; `NamedTuple` for small tuples. NumPy arrays are the one mutable hot path; never mutate caller-owned arrays.
 - Randomness only through an injected `numpy.random.Generator` seeded by the caller.
 - Numerics: log-space for belief updates when products get small; renormalize; assert `np.isfinite`. Keep `sigma`, confusion probabilities and thresholds as named module constants or a `Config` dataclass, never literals in formulas.

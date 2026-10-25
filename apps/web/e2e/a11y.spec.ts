@@ -44,7 +44,7 @@ for (const theme of THEMES) {
       test(`${path} has no serious or critical violations`, async ({ page }) => {
         test.fixme(
           fullUi && !FULL_UI,
-          'Needs web-shell (/sim panels). Run with PLUMBLINE_E2E_FULL=1.',
+          'Needs web-shell (/sim panels). Run with TRUEHAND_E2E_FULL=1.',
         )
         await page.goto(path)
         await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
@@ -54,7 +54,7 @@ for (const theme of THEMES) {
     }
 
     test('/sim with the warning and then the diagnosis showing', async ({ page }) => {
-      test.fixme(!FULL_UI, 'Needs web-shell (/sim panels). Run with PLUMBLINE_E2E_FULL=1.')
+      test.fixme(!FULL_UI, 'Needs web-shell (/sim panels). Run with TRUEHAND_E2E_FULL=1.')
       const sim = new SimPage(page)
       await sim.goto({ demo: 'worked-example' })
       await expectTheme(page, theme)

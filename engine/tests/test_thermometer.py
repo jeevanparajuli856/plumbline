@@ -1,14 +1,14 @@
 import numpy as np
 import pytest
 
-from plumbline.domains.thermometer import (
+from truehand.domains.thermometer import (
     BIOT,
     N_ROOTS,
     ThermometerModel,
     center_temperature,
     eigenvalues,
 )
-from plumbline.engine import Engine
+from truehand.engine import Engine
 
 DEEPEST = 5
 SURFACE = 0

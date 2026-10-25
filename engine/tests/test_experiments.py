@@ -6,10 +6,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from plumbline.domains import get_model
-from plumbline.engine import Engine
-from plumbline.experiments import experiment, mismatch, mkfigs, stability, sweep
-from plumbline.experiments.runner import ARM_NAMES, HandModel, make_policy, run_trial
+from truehand.domains import get_model
+from truehand.engine import Engine
+from truehand.experiments import experiment, mismatch, mkfigs, stability, sweep
+from truehand.experiments.runner import ARM_NAMES, HandModel, make_policy, run_trial
 
 LABEL = "Preliminary. Not peer reviewed."
 
@@ -23,7 +23,7 @@ def read_outputs(out: Path, name: str) -> tuple[dict, str]:
 def test_trial_with_a_perfect_hand_finds_the_truth() -> None:
     engine = Engine(get_model("circuit"))
     hand = HandModel(confusion=np.eye(6))
-    policy = make_policy("plumbline", engine)
+    policy = make_policy("truehand", engine)
     result = run_trial(policy, hand, engine, truth=12, seed=(1, 0))
     assert result.correct and not result.confidently_wrong
     assert result.warnings_issued == 0 and result.slips == 0
@@ -67,7 +67,7 @@ def test_stability_reports_mean_and_std(tmp_path: Path) -> None:
     assert stability.main(["--n", "3", "--seeds", "1,2", "--out-dir", str(tmp_path)]) == 0
     payload, md = read_outputs(tmp_path, "stability")
     assert payload["seeds"] == [1, 2]
-    assert {"mean", "std"} <= set(payload["arms"]["plumbline"]["correct_pct"])
+    assert {"mean", "std"} <= set(payload["arms"]["truehand"]["correct_pct"])
     assert LABEL in md
 
 
@@ -98,9 +98,9 @@ def test_mkfigs_writes_svg_figures(tmp_path: Path) -> None:
     assert all("Simulated" in (tmp_path / "figures" / s).read_text() for s in svgs)
 
 
-def test_plumbline_policy_remeasures_after_an_out_of_model_reading() -> None:
+def test_truehand_policy_remeasures_after_an_out_of_model_reading() -> None:
     engine = Engine(get_model("circuit"))
-    policy = make_policy("plumbline", engine)
+    policy = make_policy("truehand", engine)
     rng = np.random.default_rng(0)
     state = policy.start()
     _, site = policy.decide(state, rng)
@@ -113,11 +113,11 @@ def test_plumbline_policy_remeasures_after_an_out_of_model_reading() -> None:
 
 
 def test_summary_counts_misfit_readings() -> None:
-    from plumbline.experiments.runner import summarize
+    from truehand.experiments.runner import summarize
 
     engine = Engine(get_model("circuit"))
     hand = HandModel(confusion=engine.confusion)
-    result = run_trial(make_policy("plumbline", engine), hand, engine, truth=12, seed=(1, 0))
+    result = run_trial(make_policy("truehand", engine), hand, engine, truth=12, seed=(1, 0))
     summary = summarize([result])
     assert summary["misfit_readings"] == 0 and summary["trials_with_misfit"] == 0
 
@@ -126,24 +126,24 @@ def test_indistinguishable_pair_counts_as_correct_but_not_resolved_correct() -> 
     engine = Engine(get_model("circuit"))
     truth = engine.model.hypothesis_index("LED_reversed")
     hand = HandModel(confusion=np.eye(6))
-    result = run_trial(make_policy("plumbline", engine), hand, engine, truth=truth, seed=(1, 0))
+    result = run_trial(make_policy("truehand", engine), hand, engine, truth=truth, seed=(1, 0))
     assert result.status == "unresolved" and result.reason == "indistinguishable"
     assert result.correct and not result.resolved_correct
 
 
 def test_max_steps_ending_is_not_correct_even_with_the_truth_on_top() -> None:
-    from plumbline.config import EngineConfig
+    from truehand.config import EngineConfig
 
     engine = Engine(get_model("circuit"), EngineConfig(max_steps=1))
     truth = engine.model.hypothesis_index("R3_10x_low")
     hand = HandModel(confusion=np.eye(6))
-    result = run_trial(make_policy("plumbline", engine), hand, engine, truth=truth, seed=(1, 0))
+    result = run_trial(make_policy("truehand", engine), hand, engine, truth=truth, seed=(1, 0))
     assert result.reason == "max_steps"
     assert not result.correct and not result.resolved_correct
 
 
 def test_summary_reports_resolved_correct_precision_and_recall_separately() -> None:
-    from plumbline.experiments.runner import TrialResult, summarize
+    from truehand.experiments.runner import TrialResult, summarize
 
     base = dict(confidently_wrong=False, status="resolved", reason=None, steps=2, misfit_readings=0)
     results = [
@@ -173,10 +173,10 @@ def test_summary_reports_resolved_correct_precision_and_recall_separately() -> N
 
 
 def test_results_text_is_built_from_the_named_constants() -> None:
-    from plumbline.config import MAX_STEPS, OUT_OF_MODEL_SIGMAS
-    from plumbline.experiments import mismatch as mismatch_module
-    from plumbline.experiments.report import DEFINITIONS
-    from plumbline.experiments.runner import CONFIDENTLY_WRONG_THRESHOLD
+    from truehand.config import MAX_STEPS, OUT_OF_MODEL_SIGMAS
+    from truehand.experiments import mismatch as mismatch_module
+    from truehand.experiments.report import DEFINITIONS
+    from truehand.experiments.runner import CONFIDENTLY_WRONG_THRESHOLD
 
     text = " ".join(DEFINITIONS)
     assert f"{CONFIDENTLY_WRONG_THRESHOLD:g}" in text

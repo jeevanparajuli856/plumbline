@@ -33,11 +33,11 @@ Web service `plumbline-api`:
 
 - `rootDir: engine`, runtime Python, `PYTHON_VERSION` 3.13.x.
 - Build: `pip install uv && uv sync --frozen --no-dev`.
-- Start: `uv run --no-sync uvicorn plumbline_api.main:app --host 0.0.0.0 --port $PORT`.
+- Start: `uv run --no-sync uvicorn truehand_api.main:app --host 0.0.0.0 --port $PORT`.
 - Health check path `/v1/health`. Reconciliation 4 of the plan supersedes the `/health` path that
   Appendix B6 lists.
-- Environment: `PLUMBLINE_CORS_ORIGINS` (the static site origin and the Vite dev origin only) and
-  `PLUMBLINE_FIXTURES_DIR`.
+- Environment: `TRUEHAND_CORS_ORIGINS` (the static site origin and the Vite dev origin only) and
+  `TRUEHAND_FIXTURES_DIR`.
 
 Plan on the instance type: free during the build. Starter for the semifinal review window and the
 finals week, per Reconciliation 4. Sprint 5 says Starter is on by Dec 7. The plan does not give a

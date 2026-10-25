@@ -1,8 +1,8 @@
-# Plumbline design references
+# Truehand design references
 
 Date: 2026-10-25. Owner: landing and web-shell lanes. Read with `docs/POSITIONING.md`, `.claude/rules/web-design-quality.md` and ADR-0007 (`docs/decisions/0007-one-site-scroll-landing-light-instrument.md`).
 
-Method. Every observation below comes from a page fetched on 2026-10-25. Where a fetch returned only a page title (neuralink.com, anduril.com, ycombinator.com library, whoop.com returned 403), that site is listed as "not observed" and nothing is claimed about it. Text extraction does not expose CSS, so palette and type observations about other sites are limited to what the copy and structure show. Type sizes and section heights in sections D and F are our design recommendations, not measurements; tune them in the browser. Numbers about Plumbline come only from `docs/EVIDENCE.md` and the brief.
+Method. Every observation below comes from a page fetched on 2026-10-25. Where a fetch returned only a page title (neuralink.com, anduril.com, ycombinator.com library, whoop.com returned 403), that site is listed as "not observed" and nothing is claimed about it. Text extraction does not expose CSS, so palette and type observations about other sites are limited to what the copy and structure show. Type sizes and section heights in sections D and F are our design recommendations, not measurements; tune them in the browser. Numbers about Truehand come only from `docs/EVIDENCE.md` and the brief.
 
 ---
 
@@ -110,17 +110,17 @@ Sources: https://www.fortune.com/2025/02/19/hp-humane-deal-ai-pin-shutting-down 
 
 ## C. Honest-status language
 
-Regulatory context. Plumbline is not a medical device and should not borrow regulatory terms that imply a status it does not have. The FDA's IDE page (https://www.fda.gov/medical-devices/premarket-submissions-selecting-and-preparing-correct-submission/investigational-device-exemption-ide) requires investigational devices to carry "labeling stating that the device is for investigational use only". We borrow the shape (state what it is for, and what it is not yet) without the term. Oura's "intended for general wellness purposes only" and Butterfly's "not intended to provide information used to make decisions" show the shape: scope, then exclusion.
+Regulatory context. Truehand is not a medical device and should not borrow regulatory terms that imply a status it does not have. The FDA's IDE page (https://www.fda.gov/medical-devices/premarket-submissions-selecting-and-preparing-correct-submission/investigational-device-exemption-ide) requires investigational devices to carry "labeling stating that the device is for investigational use only". We borrow the shape (state what it is for, and what it is not yet) without the term. Oura's "intended for general wellness purposes only" and Butterfly's "not intended to provide information used to make decisions" show the shape: scope, then exclusion.
 
-Phrasings for Plumbline (use verbatim or near verbatim):
+Phrasings for Truehand (use verbatim or near verbatim):
 1. "Simulation validated. User validation in progress." (the status line, from POSITIONING.md)
 2. "Results on this page come from simulated faults and a simulated hand. We have not yet measured how real hands miss. That measurement is scheduled with the Louisiana Center for the Blind."
 3. "The confusion model uses three assumed numbers: 0.78, 0.08 and 0.03. They will be replaced by a measured matrix, and every experiment re-run." (from brief section 4)
 4. "Research preview. Not a safety device. Do not use it to work on mains voltage or anything that can hurt you." (scope then exclusion; mains and safety exclusion is our judgment, confirm with the team)
-5. "Simulated, n = [faults] per arm, [k] seeds, command `python -m plumbline.experiments.stability`, run [date]." Fill only from `docs/results/`; until then the row says PENDING.
+5. "Simulated, n = [faults] per arm, [k] seeds, command `python -m truehand.experiments.stability`, run [date]." Fill only from `docs/results/`; until then the row says PENDING.
 6. "Compared with the published method: entropy-based test selection that assumes the probe is where you were told (Gao et al., 2014)." (named baseline next to every comparison)
 7. "Thermometer: SIMULATED. The engine is the same; the instrument model is a textbook heat equation, not a real probe." (source in EVIDENCE: Incropera ch. 5)
-8. "When two faults produce the same voltages at every row, Plumbline says it cannot tell them apart and asks for a different measurement. It does not pick one."
+8. "When two faults produce the same voltages at every row, Truehand says it cannot tell them apart and asks for a different measurement. It does not pick one."
 9. "Preliminary. Not peer reviewed." on any number from our own runs until a paper exists.
 10. "No participant results yet." in the evidence table row for user sessions, replaced only by a dated file in `docs/results/sessions_<date>.md`.
 
@@ -168,10 +168,10 @@ Each sticky scene is a `<section aria-labelledby>` whose static mono caption is 
    - DOM twin: "Warning. Your probe is not where you think it is. Most likely row: 2." In `/sim` this is `role="alert"`; on the landing it is static text in the step list.
 4. Belief bars race side by side (play).
    - Trigger: each replay step, from the fixture.
-   - Motion: Plumbline bars (cyan, outlined) and published-method bar (dashed neutral) tween width to the new posterior; the published bar jumps to its certain wrong answer while ours stays spread.
+   - Motion: Truehand bars (cyan, outlined) and published-method bar (dashed neutral) tween width to the new posterior; the published bar jumps to its certain wrong answer while ours stays spread.
    - Duration: `--motion-belief-bars` (aliases `--motion-normal`, 350 ms), `--ease-smooth`. Labels are text percentages, updated at the end of the tween, not counted up.
    - Reduced motion: bars snap.
-   - DOM twin: a real table, two columns, "Plumbline" and "Published method", top candidate and percentage per step, values from `worked_example.json`.
+   - DOM twin: a real table, two columns, "Truehand" and "Published method", top candidate and percentage per step, values from `worked_example.json`.
 5. Six lines of math light up (how, scrubbed).
    - Trigger: progress through the `how` section, one line per sixth.
    - Motion: the current line goes from text-2 to text with a 2 px measured or inferred left rule; previous lines stay at full ink. The matching part of the 3D scene highlights (confusion fan over rows for line 1, likelihood for line 2, bars for line 3, row choice for line 4, warning for line 5).
@@ -191,7 +191,7 @@ Each sticky scene is a `<section aria-labelledby>` whose static mono caption is 
 8. The refusal (play or how, event).
    - Trigger: a scripted moment showing the unresolved pair from `unresolved_pair.json`.
    - Motion: two candidate bars that stay equal, with a bracket and the word "Unresolved". No motion beyond the bracket draw.
-   - DOM twin: "Unresolved. LED open and LED reversed give the same voltages at every row. Plumbline asks for a different measurement instead of guessing."
+   - DOM twin: "Unresolved. LED open and LED reversed give the same voltages at every row. Truehand asks for a different measurement instead of guessing."
 
 Play never auto-starts on scroll (ADR-0007). Scrubbed scenes show states; the "Play the worked example" button runs the timed replay with Pause and Replay controls (WCAG 2.2.2 Pause, Stop, Hide, https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html , applies to moving content that starts automatically and lasts more than five seconds).
 
@@ -218,7 +218,7 @@ Recommended heights, in viewports (vh), for the nine POSITIONING sections:
 
 | Section | Height | Sticky scene |
 |---|---|---|
-| mast | 100 | No; static scene pose, plumb line settles once |
+| mast | 100 | No; static scene pose, the edge cell's ringed dot settles once |
 | research | about 120, normal flow | No |
 | problem | 100 | No |
 | play | 300, scene sticky for 200 | Yes: moments 2, 3, 4 |
@@ -226,7 +226,7 @@ Recommended heights, in viewports (vh), for the nine POSITIONING sections:
 | generalize | 200, scene sticky for 125 | Yes: moment 7 |
 | ladder | 100, normal flow | No |
 | evidence | normal flow (table length) | No |
-| close | 80 | No; plumb line at rest |
+| close | 80 | No; the edge cell's ringed dot at rest |
 
 Three sticky scenes. `play` and `how` are adjacent by design, so put a 40 vh flow band carrying the step list between them. Total about 12 to 13 viewports. On phones, sticky scenes shorten to 150 vh and the canvas may be replaced by static frames if the frame budget fails (ADR-0007 re-visit clause).
 
@@ -252,7 +252,7 @@ The POSITIONING order already maps onto Sequoia's. What the 90-second reader nee
 | 0 | mast | Purpose | Category, promise, status line |
 | 1 | research | Problem plus why now | Three studies, 51 blind participants, AI raised the verification burden |
 | 2 | problem | Problem, concrete | "The display was solved. The probe was never solved." |
-| 3 | play | Solution and moat | Baseline confidently wrong, Plumbline warns and is right |
+| 3 | play | Solution and moat | Baseline confidently wrong, Truehand warns and is right |
 | 4 | how | Defensibility | Actuator noise with a recoverable hidden state, named prior art |
 | 5 | generalize | Market expansion | Same engine, second instrument, SIMULATED |
 | 6 | ladder | Wedge and scale | Four rungs, who pays |
@@ -261,18 +261,18 @@ The POSITIONING order already maps onto Sequoia's. What the 90-second reader nee
 
 ### E3. The sentences that carry the pitch
 Each is sourced; bracketed values fill only from files named.
-1. "Plumbline is the first assistant that infers the fault and the probe's true position from each reading." (POSITIONING copy rule; never "first ever")
+1. "Truehand is the first assistant that infers the fault and the probe's true position from each reading." (POSITIONING copy rule; never "first ever")
 2. "In three studies with 51 blind participants, two peer reviewed and one preprint, AI tools increased the work of checking answers instead of removing it." (EVIDENCE section 2, studies 1 to 3)
 3. "Talking multimeters solved the display. Nobody solved the probe." (brief section 3, EEVblog)
 4. "Every published diagnosis method assumes the test you asked for is the test that ran. We model the hand as a noisy actuator and recover where it really landed." (brief section 4)
-5. "Told row 3, the hand lands on row 2 and reads 3.671 volts. The published method is certain of the wrong part. Plumbline warns, asks once more, and names the right one." (fixture values only)
+5. "Told row 3, the hand lands on row 2 and reads 3.671 volts. The published method is certain of the wrong part. Truehand warns, asks once more, and names the right one." (fixture values only)
 6. "When the physics cannot tell two faults apart, it says so." (POSITIONING)
 7. "The dataset that makes this work, how blind hands actually miss, does not exist yet. We are measuring it with the Louisiana Center for the Blind." (EVIDENCE row "Measured confusion matrix"; true only while that session is booked or done)
 8. "Web simulator open now. iOS app next." (POSITIONING product line)
 
 ### E4. Moat, wedge, traction, team, roadmap, ask
 - Moat: (a) the formulation (actuator noise with a recoverable hidden state) stated against named prior art; (b) the measured confusion data from blind participants, which no competitor has; (c) the domain-agnostic engine (ADR-0003). Say (b) as "the dataset nobody has" only after the first session produces data; before that say "the dataset we are building".
-- Wedge and ladder: four rungs from `docs/brief/Plumbline_Scale_and_Build.md`; employment context from EVIDENCE section 3 (52.3% employed against 76.3% overall, 2023 ACS via NRTC). Do not use the "70% unemployed" figure (EVIDENCE marks it inaccurate).
+- Wedge and ladder: four rungs from `docs/brief/Truehand_Scale_and_Build.md`; employment context from EVIDENCE section 3 (52.3% employed against 76.3% overall, 2023 ACS via NRTC). Do not use the "70% unemployed" figure (EVIDENCE marks it inaccurate).
 - Traction that is honest at this stage, in this order: simulation results with n, seeds, command, date (once run); named partner organization with written permission; letter of support (EVIDENCE row, PENDING); people who used the simulator, counted from a real log if one exists, otherwise not shown. No waitlist count unless a waitlist exists; we are not building one (rule 5).
 - Team block: two names, roles, university, one line each on what they built; advisor slot shown as "Advisor: to be announced" only if one is being asked, otherwise omitted. No logos of organizations that have not agreed.
 - Roadmap: the six phase chips with month and year (Research, Engine, Simulation, User validation now, Pilot, Product). Dates come from `docs/BUILD_PLAN.md`; a phase without a date shows "date to be set".

@@ -13,7 +13,7 @@ folder matching `*handsight*` returned nothing. The brief's headline figures the
 re-run here. They are the brief's expectation, not our run.
 
 `CLAUDE.md` still says the engine "wraps the teammate's `handsight` scripts without rewriting
-them". This ADR supersedes that line. The six-line math in `.claude/rules/00-plumbline.md` is the
+them". This ADR supersedes that line. The six-line math in `.claude/rules/00-truehand.md` is the
 specification that can be implemented and tested now, without the missing code. Rule 2 of the same
 file makes the Python engine the source of truth, so the engine must be written in `engine/` and
 tested there before any other implementation is trusted.
@@ -21,8 +21,8 @@ tested there before any other implementation is trusted.
 ## Decision
 
 Write the engine from the math, test-first (tdd-guide), inside `engine/`. The package layout is
-`engine/plumbline` (config, model, confusion, engine, session, baselines, `domains/circuit.py`,
-`domains/thermometer.py`, record_fixtures, experiments) and `engine/plumbline_api` (FastAPI).
+`engine/truehand` (config, model, confusion, engine, session, baselines, `domains/circuit.py`,
+`domains/thermometer.py`, record_fixtures, experiments) and `engine/truehand_api` (FastAPI).
 
 The circuit netlist is the reconstructed one from Appendix A1 of the plan. The ground rail is the
 battery negative, not a site. The sites are rows 1 to 6. The battery is 9.0 V between row 1 and
@@ -42,11 +42,11 @@ rows 1 to 6 are 9.0000, 3.8708, 1.7326, 2.4989, 0.4157, 0.8663 V, with a residua
 The 33-entry fault catalog reduces to 32 classes at a 1e-3 V tolerance, because `LED_open` and
 `LED_reversed` are electrically identical. The brief said 31 classes. We report 32 and label the
 difference. The worked example in scratch gives a published-method top candidate `R2_short` at
-100% and a Plumbline top candidate `R3_short` at 63.1% after the first reading (the brief said
+100% and a Truehand top candidate `R3_short` at 63.1% after the first reading (the brief said
 63.5%). After the second reading at 0.338 V, `R3_10x_low` is at 97.5% (the brief said 97.6%). We
 show our numbers with the label above.
 
-Handsight becomes the parity reference when it arrives. Sprint 3 adds `engine/plumbline/legacy/`
+Handsight becomes the parity reference when it arrives. Sprint 3 adds `engine/truehand/legacy/`
 (the adapter) and `test_legacy_parity.py`. Differences are resolved by reading the two code paths,
 not by editing one set of numbers to match the other.
 

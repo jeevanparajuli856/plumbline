@@ -27,7 +27,7 @@ def test_warning_is_active_after_step_one_pointing_at_row_2(worked_example: dict
     assert first["status"] == "continue"
 
 
-def test_plumbline_is_unsure_while_the_published_method_is_certain_and_wrong(
+def test_truehand_is_unsure_while_the_published_method_is_certain_and_wrong(
     worked_example: dict[str, Any],
 ) -> None:
     first = worked_example["steps"][0]

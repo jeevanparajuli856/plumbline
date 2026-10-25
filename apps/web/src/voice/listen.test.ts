@@ -156,12 +156,12 @@ describe('fake recognition for Playwright', () => {
     await expect(pending).rejects.toMatchObject({ code: 'aborted' })
   })
 
-  it('installs window.__plumblineFakeRecognition with say()', async () => {
+  it('installs window.__truehandFakeRecognition with say()', async () => {
     const adapter = installFakeRecognition(window)
     const pending = adapter.start(DEFAULT_LISTEN_OPTIONS)
-    window.__plumblineFakeRecognition?.say('nine')
+    window.__truehandFakeRecognition?.say('nine')
     await expect(pending).resolves.toEqual({ alternatives: ['nine'] })
-    delete window.__plumblineFakeRecognition
+    delete window.__truehandFakeRecognition
   })
 })
 
@@ -179,9 +179,9 @@ describe('adapter choice', () => {
   it('picks and installs the fake only when allowed', () => {
     const fakeWindow = { location: { search: '?fakeVoice=1' } } as unknown as Window
     expect(pickListenAdapter(fakeWindow, { DEV: true, MODE: 'development' }).isSupported()).toBe(true)
-    expect(fakeWindow.__plumblineFakeRecognition).toBeDefined()
+    expect(fakeWindow.__truehandFakeRecognition).toBeDefined()
     const prodWindow = { location: { search: '?fakeVoice=1' } } as unknown as Window
     expect(pickListenAdapter(prodWindow, { DEV: false, MODE: 'production' }).isSupported()).toBe(false)
-    expect(prodWindow.__plumblineFakeRecognition).toBeUndefined()
+    expect(prodWindow.__truehandFakeRecognition).toBeUndefined()
   })
 })

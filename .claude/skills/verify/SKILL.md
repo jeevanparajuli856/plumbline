@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Run the Plumbline verification loop and produce a PASS/FAIL table - install sanity, TypeScript typecheck, eslint, vitest with coverage, Python ruff + pyright + pytest, engine parity fixtures, Playwright smoke (optional), bundle budget, secret grep, diff review. Use before any merge, PR, or demo freeze.
+description: Run the Truehand verification loop and produce a PASS/FAIL table - install sanity, TypeScript typecheck, eslint, vitest with coverage, Python ruff + pyright + pytest, engine parity fixtures, Playwright smoke (optional), bundle budget, secret grep, diff review. Use before any merge, PR, or demo freeze.
 argument-hint: "[--e2e] [--quick]"
 allowed-tools: Bash, Read, Grep, Glob
 ---
@@ -17,7 +17,7 @@ Adapted from ECC `verification-loop` for this repo. Run every phase that applies
 | 2 | Typecheck | `pnpm -r typecheck` | 0 errors |
 | 3 | Lint | `pnpm -r lint` | 0 errors (warnings listed) |
 | 4 | Unit (web) | `pnpm --filter web test -- --run --coverage` | all pass; coverage per `.claude/rules/testing.md` |
-| 5 | Python | `uv run --project engine ruff check engine && uv run --project engine pyright engine/plumbline engine/plumbline_api && uv run --project engine pytest -q --cov=plumbline --rootdir engine engine/tests` | all pass |
+| 5 | Python | `uv run --project engine ruff check engine && uv run --project engine pyright engine/truehand engine/truehand_api && uv run --project engine pytest -q --cov=truehand --rootdir engine engine/tests` | all pass |
 | 6 | Parity | `pnpm --filter web test -- --run src/engine/__tests__/parity.test.ts` (if the TS port exists) | max abs error < 1e-6 |
 | 7 | Build | `pnpm --filter web build` | exit 0; report gzip sizes of main and three chunks vs budget |
 | 8 | E2E | `pnpm test:e2e` (only with --e2e) | worked-example, slip-warning, keyboard-only, a11y specs pass |

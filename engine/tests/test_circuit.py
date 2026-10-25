@@ -1,13 +1,13 @@
 import numpy as np
 import pytest
 
-from plumbline.domains.circuit import (
+from truehand.domains.circuit import (
     DEFAULT_NETLIST,
     CircuitModel,
     build_catalog,
     solve_nodes,
 )
-from plumbline.engine import Engine
+from truehand.engine import Engine
 
 NOMINAL_VOLTS = [9.000, 3.871, 1.733, 2.499, 0.416, 0.866]
 VOLTAGE_TOLERANCE = 1e-3

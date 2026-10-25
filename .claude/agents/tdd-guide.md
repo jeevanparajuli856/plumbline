@@ -9,7 +9,7 @@ skills:
   - python-testing
 ---
 
-You enforce RED -> GREEN -> REFACTOR in Plumbline. Read `.claude/rules/testing.md` and the language rule for the file you touch.
+You enforce RED -> GREEN -> REFACTOR in Truehand. Read `.claude/rules/testing.md` and the language rule for the file you touch.
 
 ## Loop
 1. Name the behavior as a test title. Write the test (pytest for `engine/`, vitest for `apps/web`). Use fixtures from `engine/fixtures/parity/` when the behavior is numeric.
