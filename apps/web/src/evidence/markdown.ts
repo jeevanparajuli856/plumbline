@@ -135,11 +135,25 @@ export function parseParagraphs(block: string): string[] {
   return paragraphs
 }
 
+const BRIEF_CLAUSE = /\s*;?\s*\bbrief expect(?:ation|ed)\b.*?(?:\.(?=\s+[A-Z])|$)/gi
+const NOT_OURS = /\s*Not our numbers until this command has run here\.?/gi
+
+/**
+ * docs/EVIDENCE.md keeps the brief's expected figures next to each row for the team, and says
+ * they are never shown in the UI until reproduced here (ADR-0004). This removes those clauses.
+ */
+export function withholdBriefExpectations(cell: string): { text: string; withheld: boolean } {
+  const text = cell.replace(BRIEF_CLAUSE, '').replace(NOT_OURS, '').trim()
+  return { text, withheld: text !== cell.trim() }
+}
+
 export interface EvidenceRow {
   item: Inline[]
   statusText: string
   statuses: StatusPart[]
   evidence: Inline[]
+  /** True when a brief expectation was removed from this row's evidence. */
+  withheld: boolean
 }
 
 export interface Statistic {
@@ -157,12 +171,16 @@ export interface Evidence {
 
 export function parseEvidence(md: string): Evidence {
   const readiness = parseTable(section(md, '1')).rows.map(
-    ([item = '', status = '', evidence = '']) => ({
-      item: parseInline(item),
-      statusText: status,
-      statuses: parseStatus(status),
-      evidence: parseInline(evidence),
-    }),
+    ([item = '', status = '', evidence = '']) => {
+      const shown = withholdBriefExpectations(evidence)
+      return {
+        item: parseInline(item),
+        statusText: status,
+        statuses: parseStatus(status),
+        evidence: parseInline(shown.text),
+        withheld: shown.withheld,
+      }
+    },
   )
   const studiesBlock = section(md, '2')
   const statistics = parseTable(section(md, '3')).rows.map(([statistic = '', source = '']) => ({
