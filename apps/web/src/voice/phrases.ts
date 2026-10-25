@@ -3,6 +3,7 @@ import type { DomainSpec, Phase, SessionData } from '@/state/types'
 import type { ListenErrorCode } from './listen'
 import type { ParseErrorCode } from './parseReading'
 import type { SpeechPriority } from './speak'
+import { currentPhrase } from '@/a11y/announcer'
 
 /**
  * Everything the voice channel says. Engine events are worded only by state/domains.ts and
@@ -84,11 +85,16 @@ export function createEventPhraser(
   let lastReadingCount = initial.readings.length
   let lastSessionId = initial.sessionId
   let lastDomain = initial.domain
+  let lastAimed = initial.aimedSite
+  let lastSilent = initial.replay?.silent ?? false
   return (state) => {
     const out: Utterance[] = []
     const say = (text: string, priority: SpeechPriority = 'polite') => out.push({ text, priority })
     const spec = DOMAINS[state.domain]
     const catalog = state.catalog
+    const silent = state.replay?.silent ?? false
+    const silenceLifted = lastSilent && !silent
+    lastSilent = silent
     // The phase may not change on a fresh start, so it is detected here (replay keeps its session
     // id across a reset, which is why a drop in the reading count also counts).
     const isFreshStart =
@@ -96,31 +102,45 @@ export function createEventPhraser(
       state.domain !== lastDomain ||
       state.readings.length < lastReadingCount
     if (isFreshStart) {
+      lastAimed = state.aimedSite
       lastSessionId = state.sessionId
       lastDomain = state.domain
       lastReadingCount = state.readings.length
       lastPhase = state.phase
       options.onFreshStart?.()
       const site = state.instruction && catalog ? catalog.sites[state.instruction.site] : undefined
-      if (site && !state.replay?.silent && state.phase === 'awaiting_reading') say(spec.phrases.instruction(site))
+      if (site && !silent && state.phase === 'awaiting_reading') say(spec.phrases.instruction(site))
       return out
     }
     if (state.readings.length > lastReadingCount && catalog) {
       lastReadingCount = state.readings.length
       const last = state.readings[state.readings.length - 1]
-      if (last) say(spec.phrases.accepted(last.value))
+      if (last && !silent) say(spec.phrases.accepted(last.value))
     }
-    if (state.phase === lastPhase) return out
+    const aimChanged = state.aimedSite !== lastAimed
+    lastAimed = state.aimedSite
+    if (silenceLifted) {
+      lastPhase = state.phase
+      const phrase = currentPhrase(state)
+      if (phrase) say(phrase, state.warning ? 'assertive' : 'polite')
+      return out
+    }
+    if (state.phase === lastPhase) {
+      const aimed = state.aimedSite !== null && catalog ? catalog.sites[state.aimedSite] : undefined
+      if (aimChanged && aimed && state.phase === 'awaiting_reading') say(spec.phrases.aimed(aimed))
+      return out
+    }
     const previous = lastPhase
     lastPhase = state.phase
-    if (!catalog || state.replay?.silent) return out
+    if (!catalog || silent) return out
     switch (state.phase) {
       case 'awaiting_reading': {
         if (previous === 'revealing' || previous === 'submitting') {
           if (state.warning) say(state.warning.text, 'assertive')
           else {
             const likely = catalog.sites[argmax(state.placement)]
-            if (likely && state.readings.length > 0) say(spec.phrases.likely(likely, Math.max(...state.placement)))
+            if (likely && state.readings.length > 0)
+              say(spec.phrases.likely(likely, Math.max(...state.placement)))
           }
         }
         const site = state.instruction ? catalog.sites[state.instruction.site] : undefined
