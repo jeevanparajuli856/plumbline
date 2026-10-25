@@ -123,7 +123,8 @@ def solve_nodes(netlist: Netlist) -> FloatArray:
         forward = volts[anode] - volts[cathode]
         should_conduct = forward > led.vf0
         if should_conduct == conducting:
-            assert np.isfinite(volts).all()
+            if not np.isfinite(volts).all():
+                raise ArithmeticError("nodal solve produced non-finite voltages")
             return volts
         conducting = should_conduct
     raise RuntimeError("LED region iteration did not converge")

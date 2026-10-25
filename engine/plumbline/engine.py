@@ -20,6 +20,10 @@ from plumbline.model import FloatArray, InstrumentModel
 SQRT_2PI = float(np.sqrt(2.0 * np.pi))
 
 
+class NonFiniteBelief(ArithmeticError):
+    """Raised instead of returning a belief that contains nan or inf."""
+
+
 class Instruction(NamedTuple):
     site: int
     gains: FloatArray
@@ -47,7 +51,12 @@ class Resolution:
 def distinguishability_classes(
     expected: FloatArray, tolerance: float
 ) -> tuple[tuple[int, ...], ...]:
-    """Union-find over hypotheses whose readings agree within ``tolerance`` at every site."""
+    """Union-find over hypotheses whose readings agree within ``tolerance`` at every site.
+
+    Union-find is transitive: if a~b and b~c are each within tolerance, a, b and c share a
+    class even when a and c differ by more. In the circuit no such chain exists; the closest
+    distinct pair (R7_short vs R7_10x_low, about 0.045 V at row 5) stays separate.
+    """
     n_hypotheses = expected.shape[0]
     parent = list(range(n_hypotheses))
 
@@ -197,7 +206,8 @@ def _logsumexp(values: FloatArray, axis: int) -> FloatArray:
 def _normalise_log(log_values: FloatArray) -> FloatArray:
     """exp and normalise along the last axis; the result is finite and sums to one."""
     normalised = np.exp(log_values - _logsumexp(log_values, axis=-1)[..., None])
-    assert np.isfinite(normalised).all()
+    if not np.isfinite(normalised).all():
+        raise NonFiniteBelief("belief became non-finite after normalisation")
     return normalised
 
 

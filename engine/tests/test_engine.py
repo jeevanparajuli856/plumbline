@@ -113,19 +113,45 @@ def test_indistinguishable_pair_gives_zero_gain_so_belief_cannot_change(
     np.testing.assert_allclose(engine.expected_gain(belief), 0.0, atol=1e-9)
 
 
-def test_gauss_hermite_gain_agrees_with_seeded_monte_carlo(engine: Engine) -> None:
-    rng = np.random.default_rng(2026)
-    belief = engine.prior()
-    site = TOLD_ROW_3
-    samples = 20000
-    truths = rng.choice(33, size=samples, p=belief)
-    landed = np.array([rng.choice(6, p=engine.confusion[site]) for _ in range(samples)])
-    readings = engine.expected[truths, landed] + engine.sigma * rng.standard_normal(samples)
-    posterior_entropy = np.mean(
-        [engine.entropy_bits(engine.update(belief, r, site)) for r in readings]
-    )
-    monte_carlo_gain = engine.entropy_bits(belief) - posterior_entropy
-    assert engine.expected_gain(belief)[site] == pytest.approx(monte_carlo_gain, abs=0.03)
+GRID_STEP_SIGMAS = 0.02
+GRID_PAD_SIGMAS = 10.0
+
+
+def grid_gain(engine: Engine, belief: np.ndarray, site: int) -> float:
+    """Deterministic reference: integrate p(r) H(b' | r) on a dense reading grid."""
+    sigma = engine.sigma
+    lo = engine.expected.min() - GRID_PAD_SIGMAS * sigma
+    hi = engine.expected.max() + GRID_PAD_SIGMAS * sigma
+    grid = np.arange(lo, hi, GRID_STEP_SIGMAS * sigma)
+    density = np.exp(engine.log_kernel(grid))
+    likelihood = density @ engine.confusion[site]
+    joint = likelihood * belief
+    evidence = joint.sum(axis=1)
+    posterior = joint / np.where(evidence > 0, evidence, 1.0)[:, None]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        entropy = -np.where(posterior > 0, posterior * np.log2(posterior), 0.0).sum(axis=1)
+    step = grid[1] - grid[0]
+    expected_entropy = float((evidence * entropy).sum() * step / (evidence.sum() * step))
+    return engine.entropy_bits(belief) - expected_entropy
+
+
+def test_gauss_hermite_gain_matches_a_dense_grid_integral(engine: Engine) -> None:
+    beliefs = [engine.prior(), engine.update(engine.prior(), 3.671, TOLD_ROW_3)]
+    for belief in beliefs:
+        gains = engine.expected_gain(belief)
+        for site in range(6):
+            assert gains[site] == pytest.approx(grid_gain(engine, belief, site), abs=1e-3)
+
+
+def test_worked_example_step_one_numbers_from_the_engine_directly(
+    engine: Engine, model: CircuitModel
+) -> None:
+    belief = engine.update(engine.prior(), 3.671, TOLD_ROW_3)
+    assert belief[model.hypothesis_index("R3_short")] == pytest.approx(0.631, abs=1e-3)
+    assert belief[model.hypothesis_index("R3_10x_low")] == pytest.approx(0.345, abs=1e-3)
+    assert engine.entropy_bits(belief) == pytest.approx(1.0995, abs=1e-3)
+    after = engine.update(belief, 0.338, TOLD_ROW_3)
+    assert after[model.hypothesis_index("R3_10x_low")] == pytest.approx(0.975, abs=1e-3)
 
 
 def test_prior_instruction_is_row_3(engine: Engine) -> None:
@@ -197,3 +223,10 @@ def test_custom_sigma_and_class_tolerance_override_the_model(model: CircuitModel
     custom = Engine(model, EngineConfig(sigma=0.05, class_tolerance=0.05))
     assert custom.sigma == 0.05
     assert len(custom.classes) < 32
+
+
+def test_normalising_a_non_finite_log_belief_raises_instead_of_asserting() -> None:
+    from plumbline.engine import NonFiniteBelief, _normalise_log
+
+    with pytest.raises(NonFiniteBelief):
+        _normalise_log(np.array([np.nan, 0.0]))

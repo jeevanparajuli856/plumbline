@@ -95,3 +95,13 @@ def test_phrases_are_human_sentences() -> None:
     assert "row 2" in model.warning_phrase(2, 1)
     assert "%" in model.diagnosis_phrase(12, 0.975)
     assert "LED" in model.unresolved_phrase(["LED_open", "LED_reversed"], "indistinguishable")
+
+
+def test_closest_distinct_pair_stays_in_separate_classes() -> None:
+    model = CircuitModel()
+    engine = Engine(model)
+    volts = model.expected_readings()
+    short, low = model.hypothesis_index("R7_short"), model.hypothesis_index("R7_10x_low")
+    assert np.max(np.abs(volts[short] - volts[low])) == pytest.approx(0.0448, abs=1e-4)
+    class_of = {i: c for c, members in enumerate(engine.classes) for i in members}
+    assert class_of[short] != class_of[low]
