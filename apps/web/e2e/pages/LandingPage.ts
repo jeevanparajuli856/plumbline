@@ -21,31 +21,27 @@ export class LandingPage {
   readonly openSimulator: Locator
   readonly transcript: Locator
   readonly captions: Locator
-  readonly reduceMotion: Locator
 
   constructor(readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 })
     this.play = page.getByRole('button', { name: 'Play the worked example' })
-    // The banner has its own "Open the simulator" (UI_CONTRACT 5.1); the landing's is in main.
+    // The landing's call to action, scoped to main so banner links (Demo) never match it.
     this.openSimulator = page.getByRole('main').getByRole('link', { name: 'Open the simulator' })
     this.transcript = page.getByRole('list', { name: 'Worked example, step by step' })
     this.captions = page.getByTestId('caption')
-    this.reduceMotion = page
-      .getByRole('dialog', { name: 'Display' })
-      .getByRole('switch', { name: 'Reduce motion' })
   }
 
   async goto(query = ''): Promise<void> {
     await this.page.goto(`/${query}`)
   }
 
-  /** Opens the Display popover from the banner's theme button; Reduce motion lives inside it. */
-  async openDisplay(): Promise<void> {
-    await this.page
-      .getByRole('banner')
-      .getByRole('button', { name: /^Theme: / })
-      .click()
-    await this.page.getByRole('dialog', { name: 'Display' }).waitFor()
+  /**
+   * Turns on the in-page Reduce motion preference the way the switch stores it, then reloads into
+   * it. The switch is in the web app toolbar; /accessibility will carry it once the pages lane lands.
+   */
+  async preferReducedMotion(): Promise<void> {
+    await this.page.evaluate(() => localStorage.setItem('truehand.reduceMotion', '1'))
+    await this.page.reload()
   }
 
   section(id: LandingSectionId): Locator {

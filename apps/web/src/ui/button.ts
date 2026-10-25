@@ -1,5 +1,5 @@
 /**
- * Button looks. Amber primary (the one action per view), ink for the way into the simulator,
+ * Button looks. Amber primary (the one action per view), ink for the way into the demo,
  * a 1.5px line for everything secondary, quiet for tertiary. Hover shifts the background only.
  */
 export type ButtonVariant = 'primary' | 'ink' | 'line' | 'secondary' | 'quiet'

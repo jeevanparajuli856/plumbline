@@ -38,6 +38,11 @@ function subscribeToOs(onChange: () => void): () => void {
   return () => queries.forEach((q) => q.removeEventListener('change', onChange))
 }
 
+/** The theme on screen at this moment, read outside React (event handlers, transition callbacks). */
+export function currentResolvedTheme(theme: Theme): ResolvedTheme {
+  return resolvedTheme(theme, matches(DARK), matches(HIGH_CONTRAST))
+}
+
 /** The theme on screen right now, live with the OS while the choice is System. */
 export function useResolvedTheme(theme: Theme): ResolvedTheme {
   const os = useSyncExternalStore(

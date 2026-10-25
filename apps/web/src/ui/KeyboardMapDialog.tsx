@@ -54,8 +54,8 @@ export function KeyboardMapDialog({ open, onClose }: KeyboardMapDialogProps) {
           description="Turn off if speech input or a stray key press triggers them. Enter and Esc keep working."
         />
         <p className="text-text-2">
-          Single keys work anywhere on the simulator except while you are typing in a field. Most
-          also have a control on the page: the row cells aim, and the buttons carry their key.
+          Single keys work anywhere in the web app except while you are typing in a field. Most also
+          have a control on the page: the row cells aim, and the buttons carry their key.
         </p>
       </div>
       <table className="mx-6 my-4 w-[calc(100%-3rem)] border-collapse text-left">

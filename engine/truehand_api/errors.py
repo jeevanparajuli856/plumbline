@@ -44,19 +44,30 @@ class ApiError(Exception):
         self.message = message
         self.details = details
 
+    @property
+    def headers(self) -> dict[str, str]:
+        """A 429 that names its wait also sends it as Retry-After (RFC 9110 section 10.2.3)."""
+        retry_after = self.details.get("retry_after_s")
+        return {"Retry-After": str(retry_after)} if retry_after is not None else {}
+
 
 def envelope(
-    status: int, code: str, message: str, details: dict[str, Any] | None = None
+    status: int,
+    code: str,
+    message: str,
+    details: dict[str, Any] | None = None,
+    headers: dict[str, str] | None = None,
 ) -> JSONResponse:
     return JSONResponse(
         status_code=status,
         content={"error": {"code": code, "message": message, "details": details or {}}},
+        headers=headers,
     )
 
 
 async def _api_error(_: Request, exc: Exception) -> JSONResponse:
     assert isinstance(exc, ApiError)
-    return envelope(exc.status, exc.code, exc.message, exc.details)
+    return envelope(exc.status, exc.code, exc.message, exc.details, exc.headers)
 
 
 async def _session_error(_: Request, exc: Exception) -> JSONResponse:

@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 // Runs on the Sprint 0 shell.
-test('the mast carries the promise and links to the simulator', async () => {
+test('the mast carries the promise and links to the web app', async () => {
   await expect(landing.heading).toHaveText('Measurement you can trust without looking.')
   await expect(landing.openSimulator).toHaveAttribute('href', '/sim')
 })
@@ -68,15 +68,14 @@ test.describe('landing sections', () => {
   })
 
   test('reduced motion snaps the example to its final state', async ({ page }) => {
-    needsFullUi('web-shell (app-wide Reduce motion switch in the Display popover)')
+    needsFullUi('web-shell (app-wide Reduce motion preference)')
     const osReduced = await page.evaluate(
       () => matchMedia('(prefers-reduced-motion: reduce)').matches,
     )
-    // The switch records the in-page choice; the OS setting is honoured without flipping it.
+    // The in-page preference adds to the OS setting; the OS setting is honoured without flipping it.
     if (!osReduced) {
-      await landing.openDisplay()
-      await landing.reduceMotion.click()
-      await expect(landing.reduceMotion).toHaveAttribute('aria-checked', 'true')
+      await landing.preferReducedMotion()
+      await expect(page.locator('html')).toHaveAttribute('data-reduce-motion', 'true')
     }
     await landing.play.click()
     await expect(
