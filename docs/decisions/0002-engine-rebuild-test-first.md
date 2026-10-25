@@ -42,7 +42,7 @@ rows 1 to 6 are 9.0000, 3.8708, 1.7326, 2.4989, 0.4157, 0.8663 V, with a residua
 The 33-entry fault catalog reduces to 32 classes at a 1e-3 V tolerance, because `LED_open` and
 `LED_reversed` are electrically identical. The brief said 31 classes. We report 32 and label the
 difference. The worked example in scratch gives a published-method top candidate `R2_short` at
-100% and a Plumbline top candidate `R3_short` at 63.1% after the first reading (the brief said
+100% and a Truehand top candidate `R3_short` at 63.1% after the first reading (the brief said
 63.5%). After the second reading at 0.338 V, `R3_10x_low` is at 97.5% (the brief said 97.6%). We
 show our numbers with the label above.
 

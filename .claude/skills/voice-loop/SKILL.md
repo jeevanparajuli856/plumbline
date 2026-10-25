@@ -1,6 +1,6 @@
 ---
 name: voice-loop
-description: Implement the Plumbline spoken interaction loop with the browser Web Speech API - speak instructions, listen for a spoken reading, confirm, handle recognition failure with typed fallback, mirror everything to the aria-live region, keep speech off by default, unlock audio on iOS, and keep the state machine testable behind an adapter so Capacitor can replace the browser later. Use when building or debugging apps/web/src/voice.
+description: Implement the Truehand spoken interaction loop with the browser Web Speech API - speak instructions, listen for a spoken reading, confirm, handle recognition failure with typed fallback, mirror everything to the aria-live region, keep speech off by default, unlock audio on iOS, and keep the state machine testable behind an adapter so Capacitor can replace the browser later. Use when building or debugging apps/web/src/voice.
 ---
 
 # Voice loop (Web Speech API)

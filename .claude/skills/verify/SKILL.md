@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Run the Plumbline verification loop and produce a PASS/FAIL table - install sanity, TypeScript typecheck, eslint, vitest with coverage, Python ruff + pyright + pytest, engine parity fixtures, Playwright smoke (optional), bundle budget, secret grep, diff review. Use before any merge, PR, or demo freeze.
+description: Run the Truehand verification loop and produce a PASS/FAIL table - install sanity, TypeScript typecheck, eslint, vitest with coverage, Python ruff + pyright + pytest, engine parity fixtures, Playwright smoke (optional), bundle budget, secret grep, diff review. Use before any merge, PR, or demo freeze.
 argument-hint: "[--e2e] [--quick]"
 allowed-tools: Bash, Read, Grep, Glob
 ---

@@ -1,4 +1,4 @@
-# Plumbline pitch: criteria map, scripts, judge Q&A, numbers policy
+# Truehand pitch: criteria map, scripts, judge Q&A, numbers policy
 
 Date: 2026-10-25. Nexus Technology Cup 2026, College Track. Finals Dec 14-16, Nexus HQ, Baton Rouge.
 Format confirmed by the dossier: 10 minutes presentation and demo, 5 minutes judge Q&A, prerecorded demo permitted.
@@ -27,7 +27,7 @@ or in an answer to a judge.
 ## 2. The 30-second explanation
 
 > When a blind person measures a circuit, every existing tool assumes the probe landed where it was told.
-> It did not always. Plumbline is an assistant that infers the fault and the probe's real position at the
+> It did not always. Truehand is an assistant that infers the fault and the probe's real position at the
 > same time, from the reading alone. So instead of confidently naming the wrong broken part, it can say
 > "that number came from row 2, not row 3", ask for one more reading, and get it right. When two faults
 > are electrically identical it says so and refuses to guess. It cannot tell you something it has not measured.
@@ -39,11 +39,11 @@ Runs from the fixture at `/sim?demo=worked-example&present=1`. Numbers on screen
 
 | Time | What the room sees | What we say |
 |---|---|---|
-| 0:00 | Breadboard scene, six rows, one LED. Side-by-side panel: Plumbline left, Published method right. | "Same circuit, same meter, same hands. One resistor is ten times too small. Neither system knows which." |
+| 0:00 | Breadboard scene, six rows, one LED. Side-by-side panel: Truehand left, Published method right. | "Same circuit, same meter, same hands. One resistor is ten times too small. Neither system knows which." |
 | 0:10 | Instruction appears and is spoken: "Touch row 3." The probe trembles toward row 3. | "Both systems ask for row 3. This is what a blind hand does next." |
 | 0:20 | Probe lands on row 2. Reading 3.671 V is entered. | "The hand lands one row off. The meter reads 3.671 volts. The reading is perfect. The row is wrong." |
 | 0:30 | Right panel: published method, R2 shorted, 100% confident. | "The published method trusts the row. It is now certain R2 is shorted. It is wrong, and it is certain." |
-| 0:40 | Left panel: Plumbline, top candidate R3 shorted at 63.1% (fixture step 1), entropy still high. Warning banner, spoken: "That reading did not come from row 3. It most likely came from row 2." | "Plumbline does not trust the row. The reading itself says where the probe really was. It warns, and it asks again." |
+| 0:40 | Left panel: Truehand, top candidate R3 shorted at 63.1% (fixture step 1), entropy still high. Warning banner, spoken: "That reading did not come from row 3. It most likely came from row 2." | "Truehand does not trust the row. The reading itself says where the probe really was. It warns, and it asks again." |
 | 0:55 | Second instruction, second reading 0.338 V. | "Second reading, 0.338 volts." |
 | 1:05 | Left panel resolves: R3 ten times too small, 97.5% (fixture step 2). Plumb line settles over R3. Spoken diagnosis. | "R3 is ten times too small. Correct. Two readings, one warning, no guessing." |
 | 1:20 | Switch to the unresolved fixture: LED open vs LED reversed. Status "unresolved", spoken refusal. | "And when two faults are electrically identical, it says so. It refuses. That is a feature." |

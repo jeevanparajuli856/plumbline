@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 124" width="168" height="124" fill="none" role="img" aria-label="Truehand">
+<g transform="translate(73,12)">
+  <circle cx="0" cy="0" r="5.6" stroke="#111111" stroke-width="2.3"/>
+  <circle cx="0" cy="21" r="5.6" stroke="#111111" stroke-width="2.3"/>
+  <circle cx="0" cy="42" r="5.6" stroke="#111111" stroke-width="2.3"/>
+  <circle cx="21" cy="0" r="5.6" stroke="#111111" stroke-width="2.3"/>
+  <circle cx="21" cy="42" r="5.6" stroke="#111111" stroke-width="2.3"/>
+  <circle cx="21" cy="21" r="9.6" stroke="#C0271D" stroke-width="2.3"/>
+  <circle cx="21" cy="21" r="5.6" fill="#C0271D"/>
+</g>
+<text x="84" y="102" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="27" font-weight="700" letter-spacing="-.9" fill="#111111">Truehand</text>
+</svg>

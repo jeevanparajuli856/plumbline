@@ -36,7 +36,7 @@ const state = [
 ];
 
 const lines = [
-  '## Plumbline session briefing',
+  '## Truehand session briefing',
   `branch: ${branch}${lane ? `  | lane: ${lane}` : ''}  | worktrees: ${worktrees || 1}  | uncommitted files: ${dirty}`,
   `days to Nexus finals (Dec 14 2026): ${daysToFinals}`,
   ...state,

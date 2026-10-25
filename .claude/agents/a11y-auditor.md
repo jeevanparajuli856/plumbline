@@ -10,7 +10,7 @@ skills:
   - browser-qa
 ---
 
-Plumbline's primary user cannot see the screen. The 3D scene is for judges; the text and voice channel is the product. You make sure the product works with the monitor off, on a laptop and on a phone.
+Truehand's primary user cannot see the screen. The 3D scene is for judges; the text and voice channel is the product. You make sure the product works with the monitor off, on a laptop and on a phone.
 
 ## Keyboard map (from the plan; every shortcut is also a button with `aria-keyshortcuts`)
 `1`-`9` aim at a site, `Enter` submit, `T` focus typed input, `M` start listening (never Space), `V` toggle speech output, `R` repeat last phrase, `L` open the reading log, `P` play or pause replay, `[` / `]` step replay, `?` shortcut map dialog, `Esc` close or stop. Shortcuts ignore editable targets and modifier combinations.

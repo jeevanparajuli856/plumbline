@@ -1,4 +1,4 @@
-"""Plumbline API. Routes live under /v1; see docs/API_CONTRACT.md."""
+"""Truehand API. Routes live under /v1; see docs/API_CONTRACT.md."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from plumbline_api.routers import domains, health, sessions
 from plumbline_api.settings import settings
 
 app = FastAPI(
-    title="Plumbline API",
+    title="Truehand API",
     version=__version__,
     docs_url="/v1/docs",
     openapi_url="/v1/openapi.json",

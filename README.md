@@ -1,8 +1,8 @@
-# Plumbline
+# Truehand
 
 **An assistant for blind hands that cannot tell you something it has not measured.**
 
-When a blind person measures a circuit, Plumbline does not assume the probe landed where it was told. It infers the fault and the probe's real position together from the reading, so it can say "that number came from row 2, not row 3" instead of confidently naming the wrong part. Nexus Technology Cup 2026, College Track. Jeevan Parajuli and Pankaj Bhatta, University of Louisiana Monroe.
+When a blind person measures a circuit, Truehand does not assume the probe landed where it was told. It infers the fault and the probe's real position together from the reading, so it can say "that number came from row 2, not row 3" instead of confidently naming the wrong part. Nexus Technology Cup 2026, College Track. Jeevan Parajuli and Pankaj Bhatta, University of Louisiana Monroe.
 
 ## Repo
 - `apps/web` - Vite + React + React Three Fiber prototype: 3D breadboard sim, belief visualization, side-by-side baseline, voice loop.

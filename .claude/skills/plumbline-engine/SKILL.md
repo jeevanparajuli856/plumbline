@@ -1,9 +1,9 @@
 ---
 name: plumbline-engine
-description: Reference for the Plumbline inference engine - the joint fault-and-probe-position math, fault catalog and reference voltages, the domain-agnostic Python package layout, the v1 API (contract lives in docs/API_CONTRACT.md), the parity-fixture protocol for the TypeScript port, and how to reproduce the experiment numbers. Use before touching engine/, apps/web/src/engine/, or any number shown to judges.
+description: Reference for the Truehand inference engine - the joint fault-and-probe-position math, fault catalog and reference voltages, the domain-agnostic Python package layout, the v1 API (contract lives in docs/API_CONTRACT.md), the parity-fixture protocol for the TypeScript port, and how to reproduce the experiment numbers. Use before touching engine/, apps/web/src/engine/, or any number shown to judges.
 ---
 
-# Plumbline engine
+# Truehand engine
 
 Source documents: `docs/brief/PLUMBLINE_BUILD.md` (sections 4-6), `docs/brief/Plumbline_Scale_and_Build.md`, and the competition plan dated 2026-10-25 (Appendix A). The engine is rebuilt test-first from the six-line math (ADR 0002). The teammate's `handsight` scripts, when they arrive, go to `engine/plumbline/legacy/` and become a parity reference, not the source of truth.
 
@@ -86,4 +86,4 @@ uv run --project engine python -m plumbline.experiments.mismatch
 uv run --project engine python -m plumbline.experiments.sweep
 uv run --project engine python -m plumbline.experiments.mkfigs
 ```
-Each writes `docs/results/<name>_<date>.{md,json}` with the command, git SHA and seeds; figures go to `docs/results/figures/`. The brief's expectations (five seeds, 1500 faults per arm): Plumbline 99.0 ± 0.4% correct, 1.0 ± 0.4% confidently wrong; published method 78.7 ± 1.8% / 21.2 ± 1.8%; warnings 176 of 178 correct. They are expectations, not claims, until `stability.py` has run in this repo. If your run differs, report your numbers with the command and seed; never quote the brief as if it were your run.
+Each writes `docs/results/<name>_<date>.{md,json}` with the command, git SHA and seeds; figures go to `docs/results/figures/`. The brief's expectations (five seeds, 1500 faults per arm): Truehand 99.0 ± 0.4% correct, 1.0 ± 0.4% confidently wrong; published method 78.7 ± 1.8% / 21.2 ± 1.8%; warnings 176 of 178 correct. They are expectations, not claims, until `stability.py` has run in this repo. If your run differs, report your numbers with the command and seed; never quote the brief as if it were your run.

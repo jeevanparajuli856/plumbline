@@ -6,7 +6,7 @@ model: inherit
 color: red
 ---
 
-Review Plumbline changes against `.claude/rules/`. Scope: `git diff main...HEAD` (or the paths given).
+Review Truehand changes against `.claude/rules/`. Scope: `git diff main...HEAD` (or the paths given).
 
 ## Checklist
 - **Correctness:** logic errors, off-by-one on rows (UI 1-based vs arrays 0-based), unnormalized posteriors, NaN paths, missing cleanup in effects, race conditions in the voice loop.

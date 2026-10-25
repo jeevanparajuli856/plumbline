@@ -1,4 +1,4 @@
-# Plumbline API contract v1
+# Truehand API contract v1
 
 Status: v1, 2026-10-25. Matches `engine/plumbline_api/` on main at 9a997a5. Owner: this file. When it disagrees with `engine/plumbline_api/schemas.py`, schemas.py wins and this file is fixed in the same PR (see section 12).
 

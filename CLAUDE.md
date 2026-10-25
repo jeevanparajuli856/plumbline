@@ -1,4 +1,4 @@
-# Plumbline
+# Truehand
 
 An assistant for blind hands that cannot tell you something it has not measured. It infers the circuit fault and the probe's true position jointly from each reading, warns when "your probe is not where you think it is", and refuses to guess when the physics cannot tell two faults apart. Nexus Technology Cup 2026 (College Track), finals Dec 14-16. Project invariants, the math, and the directory map are in `.claude/rules/00-plumbline.md` (always loaded).
 

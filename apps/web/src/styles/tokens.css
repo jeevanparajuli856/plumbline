@@ -52,6 +52,7 @@
   --scene-roast-centre: #d8838e;
   --shadow-panel: none;
   --shadow-instrument: 0 1px 2px rgba(30, 26, 22, 0.08), 0 24px 48px -28px rgba(30, 26, 22, 0.35);
+  --brand: #c0271d;
   --scene-bg: var(--bench);
   --font-display: 'Fraunces Variable', Georgia, serif;
   --font-sans: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
@@ -154,6 +155,7 @@
   --scene-roast-centre: #d8838e;
   --shadow-panel: none;
   --shadow-instrument: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 24px 48px -24px rgba(0, 0, 0, 0.7);
+  --brand: #e8503f;
 }
 
 :root[data-theme='hc'],
@@ -206,6 +208,7 @@
   --scene-roast-centre: #d8838e;
   --shadow-panel: none;
   --shadow-instrument: none;
+  --brand: #ff7a5c;
   --motion-instant: 0ms;
   --motion-fast: 0ms;
   --motion-normal: 0ms;

@@ -4,7 +4,7 @@ Copy everything below the line into the new session as the first message.
 
 ---
 
-You are the Sprint 1 lead for Plumbline, in /Users/jeevaparajuli/Desktop/Project_Active/Plumbline. Sprint 0 is done on `main`: decisions, architecture, contracts, scaffold and a green `pnpm verify`. Your job is to deliver Sprint 1 (Oct 26 to Nov 1): a deployed working simulation and a recorded video, by running up to six parallel worktree lanes with owner agents and merging them in order. Work autonomously; do not stop to ask unless a decision would change the deliverable.
+You are the Sprint 1 lead for Truehand, in /Users/jeevaparajuli/Desktop/Project_Active/Truehand. Sprint 0 is done on `main`: decisions, architecture, contracts, scaffold and a green `pnpm verify`. Your job is to deliver Sprint 1 (Oct 26 to Nov 1): a deployed working simulation and a recorded video, by running up to six parallel worktree lanes with owner agents and merging them in order. Work autonomously; do not stop to ask unless a decision would change the deliverable.
 
 Read in this order before any code (all paths relative to the repo):
 1. CLAUDE.md and every file in .claude/rules/ (always loaded, but read 00-plumbline.md and web-design-quality.md consciously).

@@ -1,6 +1,6 @@
-# Plumbline: project invariants (always loaded)
+# Truehand: project invariants (always loaded)
 
-Plumbline is an assistant for blind hands that cannot tell you something it has not measured.
+Truehand is an assistant for blind hands that cannot tell you something it has not measured.
 It infers the circuit fault AND the probe's true position jointly from each multimeter reading,
 so it can say "that number came from row 2, not row 3" instead of confidently naming the wrong part.
 Nexus Technology Cup 2026, College Track. Team: Jeevan Parajuli, Pankaj Bhatta (ULM). Finals Dec 14-16, 2026.
