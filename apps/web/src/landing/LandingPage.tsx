@@ -18,8 +18,8 @@ export function LandingPage() {
         Measurement you can trust without looking.
       </h1>
       <p className="mt-6 max-w-2xl text-xl leading-relaxed text-text-2">
-        When a blind person measures a circuit, nothing checks whether the probe landed where it
-        was told. Plumbline infers the fault and the probe's true position from each reading, and it
+        When a blind person measures a circuit, nothing checks whether the probe landed where it was
+        told. Plumbline infers the fault and the probe's true position from each reading, and it
         refuses to guess when the physics cannot tell two faults apart.
       </p>
       <div className="mt-8 flex flex-wrap gap-3">
@@ -29,10 +29,7 @@ export function LandingPage() {
         >
           Play the 20-second example
         </Link>
-        <Link
-          to="/sim"
-          className="rounded-hard border border-border-strong px-5 py-3 font-medium"
-        >
+        <Link to="/sim" className="rounded-hard border border-border-strong px-5 py-3 font-medium">
           Open the simulator
         </Link>
       </div>
