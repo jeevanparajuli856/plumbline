@@ -1,5 +1,8 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 
+export const LOG_COLUMNS = ['step', 'told', 'reading', 'landed', 'warning'] as const
+export type LogColumn = (typeof LOG_COLUMNS)[number]
+
 /** Selectors for `/sim`, exactly as bound in docs/UI_CONTRACT.md section 1. */
 export class SimPage {
   readonly heading: Locator
@@ -99,6 +102,20 @@ export class SimPage {
     const items = this.placementStrip.getByRole('listitem')
     const current = this.page.locator('[aria-current="true"]')
     return items.and(current).or(items.filter({ has: current }))
+  }
+
+  /** Placement-strip item for a 0-based site. */
+  placementItem(site: number): Locator {
+    return this.placementStrip.getByRole('listitem').nth(site)
+  }
+
+  /** Decision 4: item `site` (or its aim button) is aria-current and says "aimed"; no other item is. */
+  async expectAimed(site: number): Promise<void> {
+    const item = this.placementItem(site)
+    const current = this.page.locator('[aria-current="true"]')
+    await expect(item.and(current).or(item.locator('[aria-current="true"]'))).toHaveCount(1)
+    await expect(item).toContainText('aimed')
+    await expect(this.aimedItem()).toHaveCount(1)
   }
 
   /** Aim button inside a placement-strip item, matched by its site label ("row 4"). */

@@ -14,6 +14,7 @@ export interface FixtureStep {
   status: 'continue' | 'resolved' | 'unresolved'
   diagnosis: { hypothesis_id: string; confidence: number } | null
   baseline: { top: string; confidence: number }
+  unresolved?: { classes: string[][]; reason: string; text: string } | null
 }
 
 export interface FixtureFile {
