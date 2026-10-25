@@ -237,7 +237,7 @@ Draw-call budget (from B5 items; the total is measured, not assumed):
 The itemized sum (24) does not match the plan's target (about 27). The scene lane records the measured `renderer.info.render.calls` in its PR, and that measured number replaces this table.
 
 Scene behaviours:
-- Probe tremor: sum of sines at 1.3 Hz and 2.1 Hz, amplitude 0.6 mm times (1 - P(l = told)), seeded.
+- Probe tremor: sum of sines at 1.3 Hz and 2.1 Hz, seeded. Amplitude 0.6 mm x (1 - p_same) / (1 - 0.78), where p_same = P(l = n | n) from the confusion prior (not the placement posterior, which describes the last reading). So it is 0.6 mm under the assumed model, grows if a measured hand is less accurate, and is 0 when p_same = 1. Drawn only in the circuit while awaiting a reading and above about one pixel; reduced motion shows a static +/-2 bracket instead. (Revised 2026-10-25 in the scene review.)
 - Reveal: arc path with an 8 mm lift, `springs.gentle`, contact dip 1.5 mm, then `finishReveal(token)`.
 - Told row: cyan outline. Landed row: amber fill only after reveal.
 - Belief overlay: strip emissive intensity = colorScale(placement[i]) times `sceneGlowMax` (1.6). A warning turns the told outline vermilion.
