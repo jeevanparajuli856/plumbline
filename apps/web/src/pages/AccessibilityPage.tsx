@@ -40,9 +40,13 @@ export function AccessibilityPage() {
               channel is the product, not an add-on.
             </p>
           </div>
-          <ul className={cx(s.outcomes, 'col-span-4 md:col-span-7')}>
+          <ul
+            data-motion="reveal"
+            data-motion-reveal="stagger"
+            className={cx(s.outcomes, 'col-span-4 md:col-span-7')}
+          >
             {COMMITMENTS.map((c) => (
-              <li key={c.name} className={s.outcome}>
+              <li key={c.name} data-motion-item className={s.outcome}>
                 <h3 className={s.h3}>{c.name}</h3>
                 <p className={s.body}>{c.sentence}</p>
               </li>
@@ -51,7 +55,7 @@ export function AccessibilityPage() {
         </div>
       </Section>
 
-      <Section id="settings" className={cx(s.section, s.sectionTight, s.band)}>
+      <Section id="settings" reveal="up" className={cx(s.section, s.sectionTight, s.band)}>
         <div className={cx(s.frame, s.grid, 'gap-y-8')}>
           <div className="col-span-4 md:col-span-5">
             <Eyebrow>Settings</Eyebrow>
@@ -68,7 +72,7 @@ export function AccessibilityPage() {
         </div>
       </Section>
 
-      <Section id="support" className={cx(s.section, s.sectionTight, s.sheet)}>
+      <Section id="support" reveal="up" className={cx(s.section, s.sectionTight, s.sheet)}>
         <div className={cx(s.frame, s.grid, 'gap-y-6')}>
           <div className="col-span-4 md:col-span-5">
             <Eyebrow>Support</Eyebrow>

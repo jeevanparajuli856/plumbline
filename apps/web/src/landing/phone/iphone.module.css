@@ -1,5 +1,10 @@
 /* The iPhone preview. Device in ink in every theme; the screen uses the surface tokens, so it goes
    dark with the dark theme. Shadow only here and on nothing else in the page body. */
+.deviceWrap {
+  display: flex;
+  justify-content: center;
+  max-width: 100%;
+}
 .device {
   --device-w: 300px;
   --device-h: 620px;
@@ -14,10 +19,12 @@
   padding: var(--bezel);
   border-radius: var(--outer-radius);
   background: var(--ink);
-  /* Two-tone edge: a lighter outer ring and an inner rim, then the soft instrument shadow. */
+  /* Titanium edge: a highlight ring and an inner rim from border-strong (light on the dark theme),
+     a soft separation ring so the silhouette reads on any page, then the instrument shadow. */
   box-shadow:
-    0 0 0 1px var(--ink-divider),
-    inset 0 0 0 1px var(--ink-divider),
+    0 0 0 1px color-mix(in srgb, var(--border-strong) 55%, transparent),
+    inset 0 0 0 2px color-mix(in srgb, var(--border-strong) 35%, transparent),
+    0 0 0 7px color-mix(in srgb, var(--hairline) 70%, transparent),
     var(--shadow-instrument);
 }
 @media (max-width: 400px) {
@@ -74,9 +81,9 @@
 /* ---------- Navigation header ---------- */
 .navBar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
   flex: none;
 }
 .largeTitle {
@@ -95,7 +102,7 @@
   white-space: nowrap;
 }
 .step {
-  margin-top: -8px;
+  margin-top: -6px;
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   color: var(--text-2);
@@ -270,8 +277,7 @@
 
 /* ---------- App controls (pictures of controls) and the home indicator ---------- */
 .actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 8px;
   flex: none;
 }
@@ -280,11 +286,15 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 46px;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 44px;
+  padding: 0 10px;
+  white-space: nowrap;
   border-radius: 14px;
   background: var(--surface-2);
   color: var(--text);
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 700;
 }
 .actionPrimary {

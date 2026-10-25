@@ -1,18 +1,17 @@
 # Image credits
 
-Stock photography on the landing (`apps/web/src/landing/assets/photos/`, manifest `apps/web/src/landing/photos.ts`).
-All are free photos under the [Unsplash License](https://unsplash.com/license): free for commercial and non-commercial use, no permission or attribution required. We credit them anyway. None is an Unsplash+ (paid) photo. Downloaded 2026-10-25, re-encoded to WebP at 800 and 1600 px wide (`cwebp -q 72`), metadata stripped.
+No third-party images are used on the site (POSITIONING section 4.2.1, revised 2026-10-25).
 
-| File stem             | Photographer   | Source                                  | Visible content                                          |
-| --------------------- | -------------- | --------------------------------------- | -------------------------------------------------------- |
-| braille-display-hands | Compagnons     | https://unsplash.com/photos/4MoIpDcSlr4 | hands on a keyboard and a refreshable braille display    |
-| multimeter-probes     | Nekhil R       | https://unsplash.com/photos/g8Pr-LbVbjU | digital multimeter with red and black probes             |
-| breadboard-wired      | Vishnu Mohanan | https://unsplash.com/photos/vtg8tAdoWVQ | breadboard with jumper wires and a microcontroller board |
-| braille-rows          | Marcus Lenk    | https://unsplash.com/photos/ypChyZRAR_U | raised braille dots in numbered rows                     |
-| breadboard-empty      | Vishnu Mohanan | https://unsplash.com/photos/AcTlEUJJEIg | empty breadboard beside a microcontroller board          |
+Every image is our own:
 
-Rules (from `.claude/rules/00-truehand.md`, honesty of numbers and claims):
+- **Line art**: inline SVG drawn in the site palette (tokens only), in
+  `apps/web/src/landing/art/Illustrations.tsx`: the braille cell and breadboard grid (Evidence),
+  a hand holding a probe over breadboard rows (Home), and a talking meter beside the phone
+  (The app). Each has alt text that describes only what it shows.
+- **Scene renders**: still renders of our own 3D breadboard scene, made by
+  `apps/web/scripts/render-scene.mjs` from a built app (light and dark, WebP at 1600 and 800 px
+  wide) into `apps/web/src/landing/assets/renders/`. Re-run the script after the scene changes.
+- **The mark and brand files**: `apps/web/public/brand/` (ADR-0013).
 
-- Stock photos never stand in for our users, our study participants, our partner or our hardware. Each one carries a visible "Stock photo: <name> on Unsplash" credit and alt text that describes only what is visible.
-- No staged portraits of blind people. Photos show hands, tools and tactile materials.
-- Not used in the hero (the hero is the live instrument card). Lazy-loaded below the fold, with explicit width and height.
+The five Unsplash stock photos used briefly during the 2026-10-25 revamp were removed the same
+day, with their manifest (`landing/photos.ts`) and files.

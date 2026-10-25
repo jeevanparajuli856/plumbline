@@ -1,4 +1,4 @@
-/* The worked-example panel in the technology band, a paper card on ink. Colors, radii, shadows and durations come from tokens.css; reduced motion zeroes the duration tokens on the landing root. */
+/* The worked-example panel in the technology band, a paper card on the feature band. Colors, radii, shadows and durations come from tokens.css; reduced motion zeroes the duration tokens on the landing root. */
 .panel {
   background: var(--surface-1);
   color: var(--text);

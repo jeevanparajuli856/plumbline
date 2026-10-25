@@ -1,0 +1,141 @@
+/* Our own imagery: inline SVG line art and still renders of our 3D scene. Tokens only; no
+   gradients, glow or filters. */
+
+/* ---------- Scene renders: one rendition per theme ---------- */
+.render {
+  margin: 0;
+}
+.render img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: var(--radius-card);
+}
+.renderDark {
+  display: none !important;
+}
+:global(html[data-theme='dark']) .renderLight,
+:global(html[data-theme='hc']) .renderLight {
+  display: none !important;
+}
+:global(html[data-theme='dark']) .renderDark,
+:global(html[data-theme='hc']) .renderDark {
+  display: block !important;
+}
+@media (prefers-color-scheme: dark) {
+  :global(html:not([data-theme])) .renderLight {
+    display: none !important;
+  }
+  :global(html:not([data-theme])) .renderDark {
+    display: block !important;
+  }
+}
+
+/* ---------- Line art ---------- */
+.art {
+  margin: 0;
+}
+.art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.plate {
+  fill: var(--surface-1);
+  stroke: var(--hairline);
+  stroke-width: 1.5;
+}
+.hole {
+  fill: var(--scene-hole);
+}
+.line {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.lineThin {
+  fill: none;
+  stroke: var(--text-2);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.skin {
+  fill: var(--surface-1);
+  stroke: var(--text);
+  stroke-width: 2.25;
+  stroke-linejoin: round;
+}
+.told {
+  fill: none;
+  stroke: var(--inferred);
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+}
+.landed {
+  fill: var(--measured-fill);
+  stroke: var(--measured);
+  stroke-width: 1.5;
+}
+.found {
+  fill: none;
+  stroke: var(--measured);
+  stroke-width: 2.5;
+}
+.dot {
+  fill: var(--text);
+}
+.probe {
+  fill: var(--scene-probe);
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+.lead {
+  fill: none;
+  stroke: var(--scene-probe);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.body {
+  fill: var(--surface-2);
+  stroke: var(--text);
+  stroke-width: 2.25;
+  stroke-linejoin: round;
+}
+.screen {
+  fill: var(--bench);
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+.label {
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.reading {
+  fill: var(--measured);
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 600;
+}
+.appTitle {
+  fill: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 700;
+}
+.appText {
+  fill: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+.appTextOnAccent {
+  fill: var(--on-measured);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+}

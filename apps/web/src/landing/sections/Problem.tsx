@@ -1,13 +1,13 @@
 import { FORUM_QUOTE } from '../content'
 import s from '../landing.module.css'
-import { Eyebrow, PhotoFigure, Section } from '../parts'
+import { HandProbeArt } from '../art/Illustrations'
+import { Eyebrow, Section } from '../parts'
 import { cx } from '../cx'
-import { PHOTOS } from '../photos'
 
 /** A surface-2 band, 7:5: the hand, not the meter, is the unsolved problem. */
 export function Problem() {
   return (
-    <Section id="problem" className={cx(s.section, s.sectionTight, s.band)}>
+    <Section id="problem" reveal="up" className={cx(s.section, s.sectionTight, s.band)}>
       <div className={cx(s.frame, s.grid, 'w-full items-center gap-y-10')}>
         <div className="col-span-4 md:col-span-7">
           <Eyebrow>The problem</Eyebrow>
@@ -24,7 +24,7 @@ export function Problem() {
           </p>
         </div>
         <div className="col-span-4 md:col-span-5">
-          <PhotoFigure photo={PHOTOS.multimeter} sizes="(min-width: 768px) 40vw, 100vw" />
+          <HandProbeArt />
         </div>
       </div>
     </Section>

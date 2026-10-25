@@ -12,6 +12,7 @@ export function Refusal({ fixture }: { fixture: FixtureT | null }) {
   return (
     <Section
       id="refusal"
+      reveal="up"
       sceneKey={HOW_IT_WORKS_SCENE_KEYS.refusal}
       className={cx(s.section, s.sceneSection)}
     >

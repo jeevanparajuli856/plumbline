@@ -30,7 +30,11 @@ interface AboutBlockProps {
 
 function AboutBlock({ id, title, children }: AboutBlockProps) {
   return (
-    <Section id={id} className={cx(s.section, s.sectionTight, s.sheet, s.ruleTop, 'scroll-mt-24')}>
+    <Section
+      id={id}
+      reveal="up"
+      className={cx(s.section, s.sectionTight, s.sheet, s.ruleTop, 'scroll-mt-24')}
+    >
       <div className={cx(s.frame, s.grid, 'gap-y-6')}>
         <h2 id={`${id}-title`} className={cx(s.h2, 'col-span-4 md:col-span-4')}>
           {title}

@@ -14,9 +14,13 @@ export function Audience() {
             Wherever a blind hand holds the probe.
           </h2>
         </header>
-        <ul className={cx(s.outcomes, 'col-span-4 md:col-span-8')}>
+        <ul
+          data-motion="reveal"
+          data-motion-reveal="stagger"
+          className={cx(s.outcomes, 'col-span-4 md:col-span-8')}
+        >
           {USE_CASES.map((u) => (
-            <li key={u.name} className={s.outcome}>
+            <li key={u.name} data-motion-item className={s.outcome}>
               <h3 className={s.rungTitle}>{u.name}</h3>
               <div>
                 <p className={s.body}>{u.sentence}</p>

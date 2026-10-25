@@ -12,8 +12,8 @@ import { cx } from '@/landing/cx'
 import s from '@/landing/landing.module.css'
 import { MarketingPage } from '@/landing/MarketingPage'
 import { countWord } from '@/landing/numberWords'
-import { Caption, Eyebrow, PhotoFigure, Section } from '@/landing/parts'
-import { PHOTOS } from '@/landing/photos'
+import { BrailleGridArt } from '@/landing/art/Illustrations'
+import { Caption, Eyebrow, Section } from '@/landing/parts'
 import { StatGrid } from '@/landing/sections/StatGrid'
 
 /** /evidence: why it matters (research), how far validation has come (results), and its limits (scope). */
@@ -32,11 +32,7 @@ export function EvidencePage() {
               participants, AI tools added work: people had to check the answers. Truehand is built
               so that the checking is done for you.
             </p>
-            <PhotoFigure
-              photo={PHOTOS.brailleDisplay}
-              sizes="(min-width: 768px) 40vw, 100vw"
-              className={cx(s.ratioWide, 'mt-8 max-w-[26rem]')}
-            />
+            <BrailleGridArt className="mt-8 max-w-[28rem]" />
           </div>
           <ol className={cx(s.studies, 'col-span-4 md:col-span-7')} aria-label="Studies">
             {STUDIES.map((study) => (
@@ -60,7 +56,7 @@ export function EvidencePage() {
         </div>
       </Section>
 
-      <Section id="results" className={cx(s.section, s.sectionTight, s.band)}>
+      <Section id="results" reveal="up" className={cx(s.section, s.sectionTight, s.band)}>
         <div className={cx(s.frame, s.grid, 'gap-y-10')}>
           <div className="col-span-4 md:col-span-4">
             <Eyebrow>Results</Eyebrow>
@@ -83,7 +79,7 @@ export function EvidencePage() {
         </div>
       </Section>
 
-      <Section id="scope" className={cx(s.section, s.sectionTight, s.sheet)}>
+      <Section id="scope" reveal="up" className={cx(s.section, s.sectionTight, s.sheet)}>
         <div className={cx(s.frame, s.grid, 'gap-y-8')}>
           <div className="col-span-4 md:col-span-4">
             <Eyebrow>Scope</Eyebrow>
