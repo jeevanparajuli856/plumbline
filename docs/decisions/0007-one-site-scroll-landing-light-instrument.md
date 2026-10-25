@@ -87,3 +87,8 @@ What to re-visit:
 ## Amendment 2026-10-25 evening: warm beige, editorial type, GSAP
 
 After reviewing the Sprint 1 site the user chose a new visual direction from four option boards. Palette: warm beige (page #F3EDE3, cards #FBF8F2, ink sections #1E1A16, amber #B95A0F / #F2A93B, inferred #0B6478). Type: Fraunces display with Atkinson Hyperlegible Next body (replacing IBM Plex Sans), JetBrains Mono kept. Cards are solid with 1px borders; no glass, gradients or glow. Layout is asymmetric by rule (no three-card rows). One header bar with a single theme button that opens the Display popover holding the existing Theme radiogroup and the Text only and Reduce motion switches (contract names unchanged). Motion: GSAP ScrollTrigger drives DOM animation on the landing (the hero runs the real engine on recorded fixtures in a loop with a Pause control); the 3D camera keeps `poseAt(progress)`; everything snaps under reduced motion. Full direction: docs/POSITIONING.md section 4; implementation: docs/HANDOFF_UI.md.
+
+
+## Amendment 2026-10-25 (late)
+
+The one-page scroll landing is superseded by five short pages (ADR-0014). The light instrument direction, the palette and the accessibility rules stand.

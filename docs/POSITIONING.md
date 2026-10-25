@@ -4,19 +4,27 @@ Owner: the web-shell and landing lanes. Read this before writing any copy or lay
 `ui-designer` agent enforces it. Mockups that show the intended look: the "Truehand UI
 Mockups" design canvas (three boards: landing, simulator, phone text channel).
 
-## 1. Frame: a company with a product, not a competition entry
+## 1. Frame: a company with a product (revised 2026-10-25, ADR-0014)
 
-Truehand presents itself the way a research-backed robotics or instrument company does:
-the research first, then the technology, then an honest validation status, then "product
-coming" with something you can use today. The Nexus Technology Cup is never mentioned on the
-site. The team and the university appear in the team row and the footer, not in the hero.
+Truehand presents itself as a company with a product people can use today, in a business tone:
+the outcome first, who it is for, the product, then proof. It is not a research poster and not a
+competition entry. The Nexus Technology Cup is never mentioned on the site. Founder names and the
+university appear on `/about` only (team section), never in the header, footer, home page or
+evidence page.
 
 One-line category: **trustworthy measurement for hands that cannot see the tool.**
 
 Status line, used verbatim wherever status is shown:
 **"Simulation validated. User validation in progress."**
 
-Product line: **"Web simulator open now. iOS app next."**
+Product line, used verbatim wherever the product is named:
+**"Truehand for iPhone and the web. Try the web app today."**
+
+The product is the Truehand app, on iPhone and on the web. It is the solution itself: it tells the
+user where to probe, takes the reading, warns when the probe landed somewhere else, and names the
+fault or says it cannot tell. Simulation is one mode inside the app (alongside a live meter and
+recorded replays), used for demos and validation; it is never the product's name. Never call the
+web app "the simulator" in copy. Primary call to action: **"Try Truehand"** (opens the web app).
 
 ## 1.1 Name, mark and contact (ADR-0013)
 
@@ -26,21 +34,36 @@ The idea the mark is built on, and the sentence to use when someone asks: **a br
 
 Brand files: `apps/web/public/brand/` (press kit SVGs and PNGs, the social card). The red of the found dot is the mark's alone; it never signals a UI state.
 
-## 2. Landing sections, in order, with the job of each
+## 2. Site map: five pages, each short (replaces the one-page scroll landing, ADR-0014)
 
-| #   | Section id   | Job                                                                                                          | Copy anchors                                                                                                                                                                                                                                                                                                                                                 |
-| --- | ------------ | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 0   | `mast`       | State the category and the one promise; two exits                                                            | Eyebrow "Research preview. Trustworthy measurement for hands that cannot see the tool". H1 "Measurement you can trust without looking." Status, Product, Built-at triplet under the lead. Buttons "Play the worked example", "Open the simulator"                                                                                                            |
-| 1   | `research`   | Show the evidence base like a company shows its papers                                                       | Three study cards (CHI 2026 UMD "Say It My Way"; ASSETS 2024 Michigan "Misfitting With AI"; arXiv 2602.18623 Stony Brook) with one quote each; a prior-art strip (Gao 2014; IEEE 2019 sequential diagnosis; de Kleer and Williams 1987) and the one-sentence difference: "those model sensor noise, we model actuator noise with a recoverable hidden state" |
-| 2   | `problem`    | Make the hand, not the meter, the unsolved problem                                                           | EEVblog quote "He can't see the probes"; "the display was solved, the probe was never solved"                                                                                                                                                                                                                                                                |
-| 3   | `play`       | The technology: the worked example (told row 3, lands row 2, two readings), Truehand vs the published method | Eyebrow "The technology". Six-step transcript always in the DOM. Play runs the real replay fixture                                                                                                                                                                                                                                                           |
-| 4   | `how`        | Six lines of math, not a black box                                                                           | Each line with a plain-English gloss                                                                                                                                                                                                                                                                                                                         |
-| 5   | `generalize` | The engine is domain-agnostic                                                                                | Roast thermometer, SIMULATED badge, the honest step-2 recovery story                                                                                                                                                                                                                                                                                         |
-| 6   | `ladder`     | Who it is for and who pays                                                                                   | Four rungs from docs/brief/Truehand_Scale_and_Build.md                                                                                                                                                                                                                                                                                                      |
-| 7   | `evidence`   | Validation status as a roadmap                                                                               | Eyebrow "Validation status". H2 is the status line. Phase chips: 1 Research, 2 Engine, 3 Simulation, 4 User validation (now), 5 Pilot, 6 Product. Evidence table from docs/EVIDENCE.md with DONE / IN PROGRESS / SIMULATED / PENDING. Team row with advisor placeholder                                                                                      |
-| 8   | `close`      | The promise and the exits                                                                                    | "It cannot tell you something it has not measured."                                                                                                                                                                                                                                                                                                          |
+Header: wordmark (mark + "Truehand", no tag), links **How it works** (`/how-it-works`), **Evidence**
+(`/evidence`), **The app** (`/app`), **Accessibility** (`/accessibility`), one theme toggle, and the ink **"Demo"** button (`/sim`, the web app). Footer: "Truehand.", "Not a safety device.",
+support@truehand.tech, About. No names, no university, no "research preview".
+
+| Page          | Path             | Job                                                    | Sections (ids, each with `${id}-title`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------- | ---------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Home          | `/`              | Promise, proof, one action; under four screens at 1440 | `hero` (H1 "Measurement you can trust without looking.", lead, product line, status line, "Try Truehand" and "See how it works", the live instrument card), `problem` (the hand, not the meter, is the unsolved problem; the EEVblog forum quote "He can't see the probes"), `outcomes` (what changes for the user: told where to probe, warned when the probe slipped, never given a guess), `proof` (two or three validation numbers, labeled simulated, linking to Evidence), `audience` (who it is for and who buys it, from the scale ladder, generic roles only), `cta` (ink band: the promise "It cannot tell you something it has not measured.", "Try Truehand", pilot contact) |
+| How it works  | `/how-it-works`  | Show the experience, not the method                    | `intro`, `play` (the worked example: told row 3, the hand lands on row 2, two readings; Truehand vs a conventional assistant on the same readings; the "Play the worked example", "Pause", "Replay" buttons and the "Worked example, step by step" list), `refusal` (it refuses to guess when two faults look identical), `domains` (the same engine on a thermometer, SIMULATED badge)                                                                                                                                                                                                                                                                                                  |
+| Evidence      | `/evidence`      | Why it matters and how far validation has come         | `research` (three studies with one quote each), `results` (validation stats grid, labeled simulated, with run date), `scope` (what is simulated, what is not yet measured, the result that would change our minds)                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| The app       | `/app`           | The product: what the user does and what they get      | `app` (product line as H1 subtitle, iPhone and web), `modes` (live meter, recorded replays, simulation for practice and demos), `phone` (the phone preview with "Next recorded reading"), `buyers` (schools and programs, employers, the pilot), `cta`                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Accessibility | `/accessibility` | Our commitment and the controls                        | `commitment` (screen reader first, voice optional, keyboard throughout, no information only in visuals), `settings` (the real controls: radiogroup "Theme" System, Light, Dark, High contrast; switch "Text only"; switch "Reduce motion"), `support` (how to report a barrier: support@truehand.tech)                                                                                                                                                                                                                                                                                                                                                                                   |
+
+The 3D scene appears only on How it works (behind the worked example). The edge cell column
+appears on Home, How it works and The app. `/about` keeps the team, the university and the
+partner sentence.
 
 ## 3. Copy rules
+
+- **Never disclose the method on the site** (ADR-0014). No formulas, no probability model, no hand
+  model numbers (e.g. 0.78 / 0.08 / 0.03), no thresholds, no "information gain", no description of
+  how belief or placement is computed, no prior-art comparison that names our modelling idea, no
+  engine internals (file paths, test names, reference voltages, commands, commit hashes). Say what
+  it does ("it works out where the probe actually landed from each reading"), never how. The method
+  lives in the repo, the pitch and the judges' Q&A, not on the public site.
+- Provenance on the site is a short label: "Simulated, 1,500 runs, October 2026". The trace from
+  each number to its file is enforced by tests (`content.test.ts`) and documented in docs/EVIDENCE.md.
+- Business tone: outcomes for the user and the buyer, plain verbs, short paragraphs. No academic
+  hedging on every line ("Preliminary. Not peer reviewed." appears once, on Evidence, next to results).
 
 - Present tense, first person plural, plain words. No hype adjectives ("revolutionary",
   "game-changing", "seamless"), no exclamation marks, no emoji.
@@ -71,7 +94,7 @@ Reference board: "B2" in the design canvas "Plumbline UI Directions". Implementa
 
 ### 4.2 Layout
 
-Asymmetric by rule: 7:5 hero with the live instrument card, 2:3 research with a pinned left column and an offset numbered quote list, full-bleed ink technology section 5:7, 3:2 product with an offset three-row list and the phone card, 2:3 validation with a ruled four-cell stat grid, 7:5 CTA band. A thin column of identical holes pinned at the right page edge follows scroll, its ringed dot sliding to the reader's place (the mark, read vertically). One 72px header: wordmark, four links, one theme button that opens the Display popover (Theme radiogroup, Text only, Reduce motion), one ink "Open the simulator" button.
+Asymmetric by rule (applies per page since ADR-0014): 7:5 hero with the live instrument card, 2:3 research with a pinned left column and an offset numbered quote list, full-bleed ink technology section 5:7, 3:2 product with an offset three-row list and the phone card, 2:3 validation with a ruled four-cell stat grid, 7:5 CTA band. A thin column of identical holes pinned at the right page edge follows scroll, its ringed dot sliding to the reader's place (the mark, read vertically). One header: wordmark, four links (How it works, Evidence, The app, Accessibility), one theme toggle that flips light and dark with a circular reveal from the button (View Transitions API; instant under reduced motion), one ink "Try Truehand" button. High contrast, System, Text only and Reduce motion live on /accessibility and in the web app toolbar.
 
 ### 4.2.1 Photography (added 2026-10-25 at the user's request)
 

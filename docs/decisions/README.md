@@ -22,6 +22,7 @@ Source for the decisions: the approved plan `/Users/jeevaparajuli/.claude/plans/
 | [0011](0011-worktree-lanes-and-verify-gate.md) | Worktree lanes with disjoint write surfaces; `/verify` gate; conventional commits | accepted | 2026-10-25 |
 | [0012](0012-grounded-explainer-llm.md) | Grounded language-model explainer (Vertex AI or Anthropic, server-side, flagged off); never inside the inference | accepted | 2026-10-25 |
 | [0013](0013-brand-truehand.md) | The product is named Truehand; the mark is a braille cell that is also a breadboard; internal identifiers keep truehand | accepted | 2026-10-25 |
+| [0014](0014-multipage-business-site-no-method.md) | Five short pages in a business tone; theme toggle with circular reveal; no method disclosed on the site; contact form via API email | accepted | 2026-10-25 |
 
 Numbers in these records follow the labeling rule in ADR-0004. Figures from the brief are called
 "the brief's expectation, not our run". Figures from the plan's scratch computations are called
