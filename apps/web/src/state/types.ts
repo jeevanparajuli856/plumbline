@@ -53,6 +53,7 @@ export interface DomainSpec {
   readingRange: [number, number]
   phrases: {
     instruction: (site: SiteSpec) => string
+    aimed: (site: SiteSpec) => string
     accepted: (value: number) => string
     warning: (told: SiteSpec, likely: SiteSpec, pOff: number) => string
     likely: (likely: SiteSpec, p: number) => string
@@ -181,6 +182,8 @@ export interface SessionActions {
   submitReading(value: number, source: ReadingSource): Promise<void>
   finishReveal(token: number): void
   replayNext(): Promise<void>
+  /** Back to the state after the previous recorded step, silently, then one announcement. */
+  replayPrevious(): Promise<void>
   replayPlay(paceMs?: number): void
   replayPause(): void
   retry(): Promise<void>

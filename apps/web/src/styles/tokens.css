@@ -30,6 +30,17 @@
   --scene-hole: #3a352c;
   --scene-board: #d9d3c6;
   --scene-glow-max: 1.2;
+  /* physical materials in the 3D scene (not UI semantics); they follow the theme for contrast */
+  --scene-probe: #bc2924;
+  --scene-lead: #212327;
+  --scene-metal: #aeb2b7;
+  --scene-resistor: #d8c097;
+  --scene-led: #e02938;
+  --scene-battery: #32363e;
+  --scene-rail-positive: #ce403b;
+  --scene-rail-negative: #2f71bc;
+  --scene-roast-crust: #774d31;
+  --scene-roast-centre: #d8838e;
   --shadow-panel: 0 1px 2px rgba(20, 24, 28, 0.08), 0 12px 32px -20px rgba(20, 24, 28, 0.25);
 
   --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
@@ -99,6 +110,17 @@
   --scene-hole: #05060a;
   --scene-board: #23272e;
   --scene-glow-max: 1.6;
+  /* physical materials in the 3D scene (not UI semantics); they follow the theme for contrast */
+  --scene-probe: #bc2924;
+  --scene-lead: #6c727f;
+  --scene-metal: #989ea4;
+  --scene-resistor: #d8c097;
+  --scene-led: #e02938;
+  --scene-battery: #575e6b;
+  --scene-rail-positive: #ce403b;
+  --scene-rail-negative: #498fdf;
+  --scene-roast-crust: #774d31;
+  --scene-roast-centre: #d8838e;
   --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 12px 32px -16px rgba(0, 0, 0, 0.6);
 }
 
@@ -130,6 +152,17 @@
   --scene-hole: #000000;
   --scene-board: #1a1a1a;
   --scene-glow-max: 2.2;
+  /* physical materials in the 3D scene (not UI semantics); they follow the theme for contrast */
+  --scene-probe: #f42c25;
+  --scene-lead: #d9d9d9;
+  --scene-metal: #bfbfbf;
+  --scene-resistor: #d8c097;
+  --scene-led: #ff3344;
+  --scene-battery: #999999;
+  --scene-rail-positive: #ff3a33;
+  --scene-rail-negative: #4da0ff;
+  --scene-roast-crust: #774d31;
+  --scene-roast-centre: #d8838e;
   --shadow-panel: none;
   --motion-instant: 0ms;
   --motion-fast: 0ms;
