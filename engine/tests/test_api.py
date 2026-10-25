@@ -279,10 +279,44 @@ async def test_confusion_override_must_sum_to_one(client: httpx.AsyncClient) -> 
 
 
 async def test_unknown_session_is_404(client: httpx.AsyncClient) -> None:
-    assert_error(await client.get("/v1/sessions/does-not-exist"), 404, "session_not_found")
+    unknown = "0b0e7e1c-6a1f-4c2e-9d3a-1f2e3d4c5b6a"
+    assert_error(await client.get(f"/v1/sessions/{unknown}"), 404, "session_not_found")
     assert_error(
-        await client.post("/v1/sessions/does-not-exist/step", json={}), 404, "session_not_found"
+        await client.post(f"/v1/sessions/{unknown}/step", json={}), 404, "session_not_found"
     )
+
+
+@pytest.mark.parametrize(
+    "bad_id", ["does-not-exist", "x" * 300, "0B0E7E1C-6A1F-4C2E-9D3A-1F2E3D4C5B6A"]
+)
+async def test_malformed_session_ids_are_validation_errors(
+    client: httpx.AsyncClient, bad_id: str
+) -> None:
+    for response in (
+        await client.get(f"/v1/sessions/{bad_id}"),
+        await client.post(f"/v1/sessions/{bad_id}/step", json={}),
+        await client.post(f"/v1/sessions/{bad_id}/reset"),
+    ):
+        error = assert_error(response, 422, "validation_error")
+        assert bad_id not in json.dumps(error) or len(bad_id) <= 64
+
+
+async def test_long_domain_names_are_truncated_in_the_error(client: httpx.AsyncClient) -> None:
+    long_domain = "z" * 500
+    error = assert_error(
+        await client.get(f"/v1/domains/{long_domain}/catalog"), 422, "unknown_domain"
+    )
+    assert "z" * 65 not in json.dumps(error)
+
+
+@pytest.mark.parametrize("raw", [b"{not json", b"\xff\xfe\x00"])
+async def test_unparseable_bodies_are_validation_errors(
+    client: httpx.AsyncClient, raw: bytes
+) -> None:
+    response = await client.post(
+        "/v1/sessions", content=raw, headers={"Content-Type": "application/json"}
+    )
+    assert_error(response, 422, "validation_error")
 
 
 async def test_unknown_route_uses_the_envelope(client: httpx.AsyncClient) -> None:

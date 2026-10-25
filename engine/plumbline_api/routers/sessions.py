@@ -3,13 +3,13 @@ from __future__ import annotations
 import json
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Path, status
 
 from plumbline.config import ConfusionSpec, EngineConfig
 from plumbline.engine import Engine
 from plumbline.fixture_io import engine_from_fixture
 from plumbline.session import ReplayScript, Session
-from plumbline_api.errors import ApiError
+from plumbline_api.errors import ApiError, clip
 from plumbline_api.routers.domains import default_engine, model_or_422
 from plumbline_api.schemas import CreateSession, SessionView, StepRequest, StepView
 from plumbline_api.settings import Settings, get_settings
@@ -18,6 +18,8 @@ from plumbline_api.store import SessionStore, get_store
 router = APIRouter(prefix="/v1/sessions", tags=["sessions"])
 StoreDep = Annotated[SessionStore, Depends(get_store)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
+UUID4_PATTERN = r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+SessionId = Annotated[str, Path(pattern=UUID4_PATTERN, max_length=36)]
 
 
 def _invalid(field: str, message: str) -> ApiError:
@@ -80,7 +82,7 @@ def _build_session(body: CreateSession, settings: Settings) -> Session:
         raise ApiError(
             422,
             "unknown_hypothesis",
-            f"{body.true_hypothesis!r} is not in the catalog.",
+            f"{clip(body.true_hypothesis)!r} is not in the catalog.",
             field="true_hypothesis",
         )
     return Session(
@@ -105,14 +107,16 @@ def create_session(body: CreateSession, store: StoreDep, settings: SettingsDep) 
 
 
 @router.get("/{session_id}", response_model=SessionView)
-def get_session(session_id: str, store: StoreDep) -> SessionView:
+def get_session(session_id: SessionId, store: StoreDep) -> SessionView:
     entry = store.get(session_id)
     with entry.lock:
         return _session_view(session_id, entry.session)
 
 
 @router.post("/{session_id}/step", response_model=StepView)
-def step_session(session_id: str, store: StoreDep, body: StepRequest | None = None) -> StepView:
+def step_session(
+    session_id: SessionId, store: StoreDep, body: StepRequest | None = None
+) -> StepView:
     entry = store.get(session_id)
     reading = body.reading if body is not None else None
     with entry.lock:
@@ -121,7 +125,7 @@ def step_session(session_id: str, store: StoreDep, body: StepRequest | None = No
 
 
 @router.post("/{session_id}/reset", response_model=SessionView)
-def reset_session(session_id: str, store: StoreDep) -> SessionView:
+def reset_session(session_id: SessionId, store: StoreDep) -> SessionView:
     entry = store.get(session_id)
     with entry.lock:
         entry.session.reset()

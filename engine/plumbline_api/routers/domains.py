@@ -8,7 +8,7 @@ from plumbline.domains import DOMAIN_FACTORIES, get_model
 from plumbline.engine import Engine
 from plumbline.model import InstrumentModel
 from plumbline.views import catalog_view
-from plumbline_api.errors import ApiError
+from plumbline_api.errors import ApiError, clip
 from plumbline_api.schemas import CatalogView, DomainsView, DomainView
 
 router = APIRouter(prefix="/v1", tags=["domains"])
@@ -16,8 +16,9 @@ router = APIRouter(prefix="/v1", tags=["domains"])
 
 def model_or_422(domain: str) -> InstrumentModel:
     if domain not in DOMAIN_FACTORIES:
+        shown = clip(domain)
         raise ApiError(
-            422, "unknown_domain", f"There is no domain called {domain!r}.", field="domain"
+            422, "unknown_domain", f"There is no domain called {shown!r}.", field="domain"
         )
     return get_model(domain)
 

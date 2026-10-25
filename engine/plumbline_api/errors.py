@@ -27,6 +27,13 @@ HTTP_STATUS_ERRORS = {
     405: ("method_not_allowed", "This address does not accept that method."),
 }
 INTERNAL_ERROR_MESSAGE = "Something went wrong on the server."
+BAD_BODY_MESSAGE = "The request body could not be read as JSON."
+ECHO_MAX_CHARS = 64
+
+
+def clip(text: str, limit: int = ECHO_MAX_CHARS) -> str:
+    """Bound any client-supplied text echoed back in a message or details."""
+    return text if len(text) <= limit else text[:limit] + "..."
 
 
 class ApiError(Exception):
@@ -72,6 +79,8 @@ async def _validation_error(_: Request, exc: Exception) -> JSONResponse:
 
 async def _http_error(_: Request, exc: Exception) -> JSONResponse:
     assert isinstance(exc, StarletteHTTPException)
+    if exc.status_code == 400:
+        return envelope(422, "validation_error", BAD_BODY_MESSAGE)
     code, message = HTTP_STATUS_ERRORS.get(exc.status_code, ("http_error", "The request failed."))
     return envelope(exc.status_code, code, message)
 
