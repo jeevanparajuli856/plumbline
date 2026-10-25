@@ -135,6 +135,20 @@ describe('voice loop', () => {
     expect(useSession.getState().readings).toHaveLength(0)
   })
 
+  it('closes the microphone before an engine event is spoken, so speech never feeds the mic', async () => {
+    usePrefs.setState({ voiceEnabled: true })
+    const abort = vi.spyOn(adapter, 'abort')
+    start()
+    toggleListen()
+    await flush()
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+    expect(abort).toHaveBeenCalled()
+    expect(readVoiceStatus()).not.toBe('listening')
+    adapter.say('3.671')
+    await flush()
+    expect(useSession.getState().readings).toHaveLength(0)
+  })
+
   it('reports a recognition error and returns to idle', async () => {
     const failing: ListenAdapter = {
       isSupported: () => true,

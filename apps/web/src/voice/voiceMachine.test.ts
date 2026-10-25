@@ -52,14 +52,14 @@ const TABLE: Row[] = [
   ['listening', { type: 'AUDIO_END' }, 'parsing', []],
   ['listening', result('3.671'), 'submitting', ['submit']],
   ['listening', { type: 'LISTEN_ERROR', code: 'no-speech' }, 'idle', ['announce']],
-  ['listening', { type: 'SAY', text: 'Warning.', priority: 'assertive' }, 'listening', ['speak']],
+  ['listening', { type: 'SAY', text: 'Warning.', priority: 'assertive' }, 'idle', ['stopListening', 'speak']],
   ['listening', { type: 'STOP' }, 'off', ['stopListening', 'cancelSpeech']],
 
   ['parsing', result('3.671'), 'submitting', ['submit']],
   ['parsing', { type: 'CANCEL' }, 'idle', ['stopListening', 'announce']],
   ['parsing', { type: 'TOGGLE_LISTEN' }, 'idle', ['stopListening', 'announce']],
   ['parsing', { type: 'LISTEN_ERROR', code: 'network' }, 'idle', ['announce']],
-  ['parsing', { type: 'SAY', text: 'Row 3.', priority: 'polite' }, 'parsing', ['speak']],
+  ['parsing', { type: 'SAY', text: 'Row 3.', priority: 'polite' }, 'idle', ['stopListening', 'speak']],
   ['parsing', { type: 'STOP' }, 'off', ['stopListening', 'cancelSpeech']],
 
   ['confirming', result('yes'), 'submitting', ['submit']],
@@ -67,7 +67,7 @@ const TABLE: Row[] = [
   ['confirming', { type: 'CANCEL' }, 'idle', ['stopListening', 'announce']],
   ['confirming', { type: 'TOGGLE_LISTEN' }, 'idle', ['stopListening', 'announce']],
   ['confirming', { type: 'LISTEN_ERROR', code: 'no-speech' }, 'idle', ['announce']],
-  ['confirming', { type: 'SAY', text: 'Row 3.', priority: 'polite' }, 'confirming', ['speak']],
+  ['confirming', { type: 'SAY', text: 'Row 3.', priority: 'polite' }, 'idle', ['stopListening', 'speak']],
   ['confirming', { type: 'STOP' }, 'off', ['stopListening', 'cancelSpeech']],
 
   ['submitting', { type: 'SUBMIT_DONE' }, 'idle', []],
