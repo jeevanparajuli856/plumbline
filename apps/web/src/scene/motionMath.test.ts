@@ -4,22 +4,39 @@ import {
   MAX_PENDULUM_RAD,
   PENDULUM_PERIOD_S,
   TREMOR_FREQS_HZ,
+  TREMOR_REFERENCE_M,
+  TREMOR_VISIBLE_M,
   alternateIndex,
-  pTold,
+  confusionPSame,
   pendulumAmplitude,
   pendulumAngle,
+  tremorActive,
   tremorAmplitude,
   tremorOffset,
   tremorPhases,
 } from './motionMath'
 
 describe('tremor', () => {
-  it('is 0.6 mm times (1 - P(l = told))', () => {
-    expect(tremorAmplitude(0)).toBeCloseTo(0.0006, 12)
-    expect(tremorAmplitude(0.78)).toBeCloseTo(0.0006 * 0.22, 12)
+  it('is 0.6 mm under the assumed confusion model and scales with 1 - p_same (ARCHITECTURE 8)', () => {
+    expect(TREMOR_REFERENCE_M).toBe(0.0006)
+    expect(tremorAmplitude(DEFAULT_P_SAME)).toBeCloseTo(0.0006, 12)
+    expect(tremorAmplitude(0.56)).toBeCloseTo(0.0012, 12)
     expect(tremorAmplitude(1)).toBe(0)
     expect(tremorAmplitude(1.2)).toBe(0)
-    expect(tremorAmplitude(Number.NaN)).toBeCloseTo(0.0006, 12)
+  })
+
+  it('takes p_same from the confusion prior, not from the last reading', () => {
+    expect(confusionPSame()).toBe(0.78)
+  })
+
+  it('runs only in the circuit, while awaiting a reading, above about one pixel', () => {
+    const on = { phase: 'awaiting_reading', domain: 'circuit', amplitude: 0.0006 } as const
+    expect(TREMOR_VISIBLE_M).toBe(0.00025)
+    expect(tremorActive(on)).toBe(true)
+    expect(tremorActive({ ...on, phase: 'revealing' })).toBe(false)
+    expect(tremorActive({ ...on, phase: 'resolved' })).toBe(false)
+    expect(tremorActive({ ...on, domain: 'thermometer' })).toBe(false)
+    expect(tremorActive({ ...on, amplitude: 0.0002 })).toBe(false)
   })
 
   it('sums sines at 1.3 Hz and 2.1 Hz, never exceeding the amplitude', () => {
@@ -37,14 +54,6 @@ describe('tremor', () => {
       expect(p).toBeGreaterThanOrEqual(0)
       expect(p).toBeLessThan(2 * Math.PI)
     }
-  })
-
-  it('reads P(l = told) from placement, falling back to the confusion prior before any reading', () => {
-    expect(pTold([0, 1, 0], 1)).toBe(1)
-    expect(pTold([0, 1, 0], 2)).toBe(0)
-    expect(pTold([0, 0, 0], 1)).toBe(DEFAULT_P_SAME)
-    expect(pTold([], 0)).toBe(DEFAULT_P_SAME)
-    expect(pTold([0.5, 0.5], null)).toBe(DEFAULT_P_SAME)
   })
 })
 

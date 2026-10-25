@@ -7,6 +7,8 @@ import type { Catalog, ReadingEntry } from '@/state/types'
 import { REVEAL_TOTAL_S } from '../easing'
 import { siteX } from '../layout'
 import { SceneContent } from '../SceneContent'
+import { readSceneTokens } from '../tokens'
+import { animationCount } from '../useAnimating'
 
 // Tell React this environment drives act() itself.
 ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
@@ -52,14 +54,37 @@ function mockReducedMotion(reduce: boolean) {
   )
 }
 
+let mounted: Renderer | null = null
+
 async function mount(): Promise<Renderer> {
-  return ReactThreeTestRenderer.create(
+  mounted = await ReactThreeTestRenderer.create(
     <SceneContent labels={false} controls={false} benchShadow={false} />,
   )
+  return mounted
 }
 
 const object = (r: Renderer, name: string) =>
   r.scene.findByProps({ name }).instance as THREE.Object3D
+
+const colourOf = (r: Renderer, name: string) =>
+  ((object(r, name) as THREE.Mesh).material as THREE.MeshBasicMaterial).color.getHexString()
+
+const tokenHex = (value: string) => new THREE.Color(value).getHexString()
+
+const FAKE_CLOCK: Parameters<typeof vi.useFakeTimers>[0] = {
+  toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance', 'Date'],
+}
+
+/** Fake wall clock (timers and performance.now) plus rendered frames, in lockstep at `fps`. */
+async function play(r: Renderer, seconds: number, fps: number) {
+  const frames = Math.round(seconds * fps)
+  for (let i = 0; i < frames; i++) {
+    await act(async () => {
+      vi.advanceTimersByTime(1000 / fps)
+      await r.advanceFrames(1, 1 / fps)
+    })
+  }
+}
 
 beforeEach(() => {
   useSession.setState(useSession.getInitialState(), true)
@@ -68,7 +93,10 @@ beforeEach(() => {
   mockReducedMotion(false)
 })
 
-afterEach(() => {
+afterEach(async () => {
+  // Unmount even when an assertion failed, so animation leases never leak between tests.
+  await mounted?.unmount()
+  mounted = null
   vi.unstubAllGlobals()
   vi.useRealTimers()
 })
@@ -86,7 +114,6 @@ describe('scene smoke', () => {
     ]) {
       expect(r.scene.findByProps({ name })).toBeTruthy()
     }
-    await r.unmount()
   })
 
   it('keeps hitboxes invisible but still hit by the raycaster', async () => {
@@ -99,7 +126,6 @@ describe('scene smoke', () => {
       new THREE.Vector3(0, -1, 0),
     )
     expect(ray.intersectObject(hitbox).length).toBeGreaterThan(0)
-    await r.unmount()
   })
 
   it('aims the probe at the clicked row (0-based) and the probe follows', async () => {
@@ -108,7 +134,6 @@ describe('scene smoke', () => {
     expect(useSession.getState().aimedSite).toBe(4)
     await act(async () => r.advanceFrames(120, 1 / 30))
     expect(object(r, 'probe').position.x).toBeCloseTo(siteX(4), 3)
-    await r.unmount()
   })
 
   it('swaps the circuit for the roast when the domain changes', async () => {
@@ -120,14 +145,13 @@ describe('scene smoke', () => {
     await act(async () => r.advanceFrames(120, 1 / 30))
     expect(object(r, 'circuit-scene').visible).toBe(false)
     expect(object(r, 'roast-scene').visible).toBe(true)
-    await r.unmount()
   })
 
   it('finishes a reveal immediately with the token under reduced motion', async () => {
     mockReducedMotion(true)
     const finishReveal = vi.fn()
     useSession.setState({ finishReveal })
-    const r = await mount()
+    await mount()
     await act(async () =>
       useSession.setState({
         phase: 'revealing',
@@ -136,11 +160,10 @@ describe('scene smoke', () => {
       }),
     )
     expect(finishReveal).toHaveBeenCalledWith(7)
-    await r.unmount()
   })
 
   it('animates the reveal, then finishes with the token and leaves the probe on the landed row', async () => {
-    vi.useFakeTimers()
+    vi.useFakeTimers(FAKE_CLOCK)
     const finishReveal = vi.fn()
     useSession.setState({ finishReveal })
     const r = await mount()
@@ -152,11 +175,12 @@ describe('scene smoke', () => {
       }),
     )
     expect(finishReveal).not.toHaveBeenCalled()
-    await act(async () => r.advanceFrames(40, 1 / 30))
+    await play(r, 0.7, 30)
     expect(object(r, 'probe').position.x).toBeCloseTo(siteX(1), 4)
-    await act(async () => vi.advanceTimersByTime(REVEAL_TOTAL_S * 1000))
+    expect(finishReveal).not.toHaveBeenCalled()
+    await play(r, REVEAL_TOTAL_S, 30)
+    expect(finishReveal).toHaveBeenCalledTimes(1)
     expect(finishReveal).toHaveBeenCalledWith(9)
-    await r.unmount()
   })
 
   it('never shows the landed fill while revealing, and shows it after', async () => {
@@ -172,6 +196,86 @@ describe('scene smoke', () => {
     await act(async () => useSession.setState({ phase: 'awaiting_reading', reveal: null }))
     expect(object(r, 'landed-fill').visible).toBe(true)
     expect(object(r, 'landed-fill').position.x).toBeCloseTo(siteX(1), 9)
+  })
+
+  it('lands on the landed row before finishReveal even at 15 fps', async () => {
+    vi.useFakeTimers(FAKE_CLOCK)
+    const r = await mount()
+    let xAtFinish = Number.NaN
+    useSession.setState({
+      finishReveal: vi.fn(() => {
+        xAtFinish = object(r, 'probe').position.x
+      }),
+    })
+    await act(async () =>
+      useSession.setState({
+        phase: 'revealing',
+        readings: [reading],
+        reveal: { landedSite: 1, token: 5, next: 'awaiting_reading' },
+      }),
+    )
+    await play(r, REVEAL_TOTAL_S + 0.2, 15)
+    expect(xAtFinish).toBeCloseTo(siteX(1), 4)
+  })
+
+  it('finishes only the newest token when a reveal is replaced mid-flight', async () => {
+    vi.useFakeTimers(FAKE_CLOCK)
+    const finishReveal = vi.fn()
+    useSession.setState({ finishReveal })
+    const r = await mount()
+    await act(async () =>
+      useSession.setState({
+        phase: 'revealing',
+        readings: [reading],
+        reveal: { landedSite: 1, token: 1, next: 'awaiting_reading' },
+      }),
+    )
+    await play(r, 0.3, 30)
+    await act(async () =>
+      useSession.setState({ reveal: { landedSite: 4, token: 2, next: 'awaiting_reading' } }),
+    )
+    await play(r, REVEAL_TOTAL_S + 0.2, 30)
+    expect(finishReveal.mock.calls).toEqual([[2]])
+    expect(object(r, 'probe').position.x).toBeCloseTo(siteX(4), 4)
+  })
+
+  it('keeps the warning outline hidden while revealing and shows it after', async () => {
+    const warning = { toldSite: 2, likelySite: 1, pOffSite: 1, text: 'Warning.' }
+    const r = await mount()
+    await act(async () =>
+      useSession.setState({
+        phase: 'revealing',
+        warning,
+        readings: [{ ...reading, warning }],
+        reveal: { landedSite: 1, token: 4, next: 'awaiting_reading' },
+      }),
+    )
+    expect(object(r, 'warning-outline').visible).toBe(false)
+    await act(async () => useSession.setState({ phase: 'awaiting_reading', reveal: null }))
+    expect(object(r, 'warning-outline').visible).toBe(true)
+    expect(object(r, 'warning-outline').position.x).toBeCloseTo(siteX(2), 9)
+  })
+
+  it('draws strokes and edges in the 3:1 tokens, not the pale fills', async () => {
+    const t = readSceneTokens()
+    const r = await mount()
+    expect(colourOf(r, 'told-outline')).toBe(tokenHex(t.inferred))
+    expect(colourOf(r, 'plumb-bob')).toBe(tokenHex(t.inferred))
+    expect(colourOf(r, 'landed-edge')).toBe(tokenHex(t.measured))
+    expect(colourOf(r, 'placement-glow-edge')).toBe(tokenHex(t.inferred))
+  })
+
+  it('holds a tremor lease only for the circuit while awaiting a reading', async () => {
+    const r = await mount()
+    expect(animationCount()).toBe(1)
+    await act(async () => useSession.setState({ phase: 'resolved' }))
+    expect(animationCount()).toBe(0)
+    await act(async () => useSession.setState({ phase: 'awaiting_reading', domain: 'thermometer' }))
+    expect(animationCount()).toBe(0)
+    await act(async () => useSession.setState({ domain: 'circuit' }))
+    expect(animationCount()).toBe(1)
     await r.unmount()
+    mounted = null
+    expect(animationCount()).toBe(0)
   })
 })

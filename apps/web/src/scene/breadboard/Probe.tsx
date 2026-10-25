@@ -6,7 +6,13 @@ import { useSession } from '@/state/session'
 import type { SessionState } from '@/state/types'
 import { REVEAL_TOTAL_S, clampDelta, damp, revealPose } from '../easing'
 import { probeSitePosition, type Vec3 } from '../layout'
-import { pTold, tremorAmplitude, tremorOffset, tremorPhases } from '../motionMath'
+import {
+  confusionPSame,
+  tremorActive,
+  tremorAmplitude,
+  tremorOffset,
+  tremorPhases,
+} from '../motionMath'
 import { useSceneTokens } from '../tokens'
 import { useAnimationWhile } from '../useAnimating'
 import { mergeAll, segment } from './geometry'
@@ -56,26 +62,35 @@ function restTarget(s: SessionState, out: THREE.Vector3): THREE.Vector3 {
 }
 
 /**
- * Red probe. Trembles toward the told site (0.6 mm x (1 - P(l = told)), seeded), then on
- * `revealing` arcs to the landed site, dips, and hands control back with finishReveal(token).
- * The landed site is read only from `reveal`, never before the phase says so.
+ * Red probe. Trembles toward the told site (amplitude from the confusion prior, seeded; see
+ * motionMath.tremorAmplitude), then on `revealing` arcs to the landed site, dips, and hands
+ * control back with finishReveal(token). The landed site is read only from `reveal`.
+ * The arc runs on the same wall clock as the finishReveal timer, both started in one effect,
+ * so a slow frame rate shortens nothing: the probe is on the landed row before the token ends.
  */
 export function Probe() {
   const geometry = useProbeGeometry()
   const reduced = useReducedMotion()
   const finishReveal = useSession((s) => s.finishReveal)
   const revealToken = useSession((s) => s.reveal?.token ?? null)
-  const tremoring = useSession(
-    (s) => s.phase === 'awaiting_reading' && tremorAmplitude(pTold(s.placement, s.aimedSite)) > 0,
+  const tremoring = useSession((s) =>
+    tremorActive({
+      phase: s.phase,
+      domain: s.domain,
+      amplitude: tremorAmplitude(confusionPSame()),
+    }),
   )
   useAnimationWhile(!reduced && (tremoring || revealToken !== null))
 
+  /** Wall-clock start (ms) of the reveal for `token`; read by the frame loop. */
+  const revealClock = useRef({ token: -1, startMs: 0 })
   useEffect(() => {
     if (revealToken === null) return
     if (reduced) {
       finishReveal(revealToken)
       return
     }
+    revealClock.current = { token: revealToken, startMs: performance.now() }
     const id = window.setTimeout(() => finishReveal(revealToken), REVEAL_TOTAL_S * 1000)
     return () => window.clearTimeout(id)
   }, [revealToken, reduced, finishReveal])
@@ -89,7 +104,7 @@ export function Probe() {
   const base = useMemo(() => new THREE.Vector3(), [])
   const target = useMemo(() => new THREE.Vector3(), [])
   const start = useMemo(() => new THREE.Vector3(), [])
-  const anim = useRef({ token: -1, elapsed: 0, placed: false })
+  const anim = useRef({ token: -1, placed: false })
   const phases = useMemo(() => tremorPhases(TREMOR_SEED), [])
 
   useFrame((state, rawDelta) => {
@@ -102,14 +117,14 @@ export function Probe() {
     if (s.phase === 'revealing' && s.reveal) {
       if (anim.current.token !== s.reveal.token) {
         anim.current.token = s.reveal.token
-        anim.current.elapsed = 0
         start.copy(g.position)
-      } else {
-        // Frame time, not wall time, so a stalled tab resumes the arc instead of skipping it.
-        anim.current.elapsed += clampDelta(rawDelta)
       }
+      // Until the effect has stamped this token's start, hold at the start of the arc.
+      const clock = revealClock.current
+      const elapsed =
+        clock.token === s.reveal.token ? (performance.now() - clock.startMs) / 1000 : 0
       const end = probeSitePosition(s.reveal.landedSite, scratch)
-      const pose = snap ? revealPose(Infinity) : revealPose(anim.current.elapsed)
+      const pose = snap ? revealPose(Infinity) : revealPose(elapsed)
       const k = Math.min(pose.travel, 1)
       g.position.set(
         start.x + (end[0] - start.x) * pose.travel,
@@ -135,8 +150,8 @@ export function Probe() {
       if (base.distanceTo(target) > SETTLED_M) state.invalidate()
     }
     g.position.copy(base)
-    if (s.phase === 'awaiting_reading' && !snap) {
-      const amp = tremorAmplitude(pTold(s.placement, s.aimedSite))
+    const amp = tremorAmplitude(confusionPSame())
+    if (!snap && tremorActive({ phase: s.phase, domain: s.domain, amplitude: amp })) {
       g.position.x += tremorOffset(now, amp, phases[0], phases[1])
       g.position.z += tremorOffset(now, amp, phases[2], phases[3])
     }
