@@ -6,6 +6,9 @@ import { loadFixture } from '@/state/replay'
 
 const evidence = parseEvidence(evidenceMd)
 
+/** Notes under the citations, minus the file's own intro line and internal pitch bookkeeping. */
+const publicNotes = evidence.studyNotes.slice(1).filter((note) => !/used in the pitch/i.test(note))
+
 const REPRODUCE: readonly { command: string; does: string }[] = [
   { command: 'pnpm install', does: 'Install the web workspace.' },
   { command: 'uv sync --project engine', does: 'Install the Python engine.' },
@@ -139,7 +142,7 @@ export function AboutPage() {
             ))}
           </ol>
           <div className="mt-6 grid gap-3 text-text-2">
-            {evidence.studyNotes.slice(1).map((note, i) => (
+            {publicNotes.map((note, i) => (
               <p key={i}>
                 <InlineText parts={parseInline(note)} />
               </p>

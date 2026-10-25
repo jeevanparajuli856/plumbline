@@ -147,6 +147,13 @@ export function withholdBriefExpectations(cell: string): { text: string; withhel
   return { text, withheld: text !== cell.trim() }
 }
 
+const DATE = /\b\d{4}-\d{2}-\d{2}\b/
+
+/** A status can be DONE only with a command or path (code span), a link, or a date in its evidence. */
+export function hasProof(parts: readonly Inline[]): boolean {
+  return parts.some((p) => p.kind === 'code' || p.kind === 'link' || DATE.test(p.text))
+}
+
 export interface EvidenceRow {
   item: Inline[]
   statusText: string
@@ -154,6 +161,8 @@ export interface EvidenceRow {
   evidence: Inline[]
   /** True when a brief expectation was removed from this row's evidence. */
   withheld: boolean
+  /** True when a DONE was downgraded to PENDING for lack of proof. */
+  unproven: boolean
 }
 
 export interface Statistic {
@@ -173,12 +182,19 @@ export function parseEvidence(md: string): Evidence {
   const readiness = parseTable(section(md, '1')).rows.map(
     ([item = '', status = '', evidence = '']) => {
       const shown = withholdBriefExpectations(evidence)
+      const parts = parseInline(shown.text)
+      const claimed = parseStatus(status)
+      const proven = hasProof(parts)
+      const statuses = proven
+        ? claimed
+        : claimed.map((p) => (p.status === 'DONE' ? { ...p, status: 'PENDING' as const } : p))
       return {
         item: parseInline(item),
         statusText: status,
-        statuses: parseStatus(status),
-        evidence: parseInline(shown.text),
+        statuses,
+        evidence: parts,
         withheld: shown.withheld,
+        unproven: !proven && claimed.some((p) => p.status === 'DONE'),
       }
     },
   )

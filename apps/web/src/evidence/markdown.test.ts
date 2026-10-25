@@ -188,3 +188,32 @@ describe('withholdBriefExpectations', () => {
     expect(text).toContain('63.1%')
   })
 })
+
+describe('DONE needs proof', () => {
+  it('downgrades DONE to PENDING when the evidence has no command, file, link or date', async () => {
+    const { parseEvidence: parse } = await import('./markdown')
+    const md = `## 1. Readiness table
+
+| Item | Status | Evidence |
+| --- | --- | --- |
+| Claimed | DONE | we think so |
+| Proven by code | DONE | \`pytest -q\` |
+| Proven by date | DONE | run on 2026-10-25 |
+| Proven by link | DONE | https://example.org/run |
+`
+    const rows = parse(md).readiness
+    expect(rows.map((r) => r.statuses[0]?.status)).toEqual(['PENDING', 'DONE', 'DONE', 'DONE'])
+    expect(rows[0]?.unproven).toBe(true)
+  })
+
+  it('keeps the proven scratch DONE in the real file', () => {
+    const row = parseEvidence(evidenceMd).readiness.find((r) =>
+      r.statusText.includes('scratch DONE'),
+    )
+    expect(row?.statuses).toEqual([
+      { qualifier: 'scratch', status: 'DONE' },
+      { qualifier: 'engine', status: 'PENDING' },
+    ])
+    expect(row?.unproven).toBe(false)
+  })
+})

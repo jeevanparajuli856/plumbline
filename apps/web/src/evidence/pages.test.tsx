@@ -18,8 +18,10 @@ describe('EvidencePage', () => {
   })
 
   it('renders commands in mono and URLs as links', () => {
-    const { container } = render(<EvidencePage />)
-    expect(container.querySelector('code')?.className).toContain('font-mono')
+    render(<EvidencePage />)
+    const code = screen.getByRole('table', { name: 'Readiness' }).querySelector('code')
+    expect(code?.className).toContain('font-mono')
+    expect(code?.className).toContain('text-[1em]')
     expect(
       screen.getAllByRole('link').some((a) => a.getAttribute('href')?.startsWith('https://')),
     ).toBe(true)
@@ -41,5 +43,6 @@ describe('AboutPage', () => {
     expect(new Set(names).size).toBe(names.length)
     expect(names).toContain('arXiv 2602.18623')
     await waitFor(() => expect(screen.getByText(/0\.78, 0\.08 and 0\.03/)).toBeInTheDocument())
+    expect(screen.queryByText(/used in the pitch/i)).not.toBeInTheDocument()
   })
 })

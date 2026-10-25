@@ -1,5 +1,5 @@
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react'
-import { createMemoryRouter, RouterProvider } from 'react-router'
+import { createMemoryRouter, MemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { App } from '@/App'
 import { usePrefs } from '@/state/prefs'
@@ -67,6 +67,19 @@ describe('SmallScreenDisclosure', () => {
     expect(document.getElementById(button.getAttribute('aria-controls')!)?.className).toContain(
       'flex',
     )
+  })
+})
+
+describe('NotFound', () => {
+  it('is a skip-link target with a focusable h1', async () => {
+    const { NotFound } = await import('./NotFound')
+    render(
+      <MemoryRouter>
+        <NotFound />
+      </MemoryRouter>,
+    )
+    expect(screen.getByRole('main')).toHaveAttribute('id', 'main')
+    expect(screen.getByRole('heading', { level: 1 })).toHaveAttribute('tabindex', '-1')
   })
 })
 

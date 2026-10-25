@@ -55,6 +55,12 @@ export function EvidenceTable({ rows }: EvidenceTableProps) {
                 </td>
                 <td className="border-b border-hairline py-3 text-text-2">
                   <InlineText parts={row.evidence} />
+                  {row.unproven ? (
+                    <span className="mt-1 block italic">
+                      Marked done in the file, shown as pending: no command, file, link or date
+                      proves it yet.
+                    </span>
+                  ) : null}
                   {row.withheld ? (
                     <span className="mt-1 block italic">
                       The brief&apos;s expected figure is withheld until we reproduce it here.

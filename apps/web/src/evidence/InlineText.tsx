@@ -13,7 +13,7 @@ export function InlineText({ parts }: InlineTextProps) {
           return (
             <code
               key={i}
-              className="break-words rounded-hard bg-surface-2 px-1 font-mono text-[0.95em]"
+              className="break-words rounded-hard bg-surface-2 px-1 font-mono text-[1em]"
             >
               {part.text}
             </code>
