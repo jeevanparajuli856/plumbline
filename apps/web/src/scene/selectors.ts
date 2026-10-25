@@ -28,7 +28,11 @@ export function landedSite(s: SessionState): number | null {
   return lastReading(s)?.landedSite ?? null
 }
 
-/** Parts the plumb line should point at: the diagnosis, or up to two unresolved candidates. */
+/**
+ * Parts the plumb line should point at: the diagnosis, or up to two unresolved candidates.
+ * An unresolved class can hold more parts; only the first two are kept here because the line
+ * alternates between two. The DOM outcome panel lists every part, so nothing is lost.
+ */
 export function plumbCandidates(s: SessionState): PartId[] {
   if (s.phase === 'resolved' && s.diagnosis) {
     const part = partForHypothesis(s.diagnosis.hypothesisId)

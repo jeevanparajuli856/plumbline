@@ -33,6 +33,8 @@ export function SceneContent({
       <SceneLifecycle />
       <Lights />
       <CameraRig controls={controls} />
+      {/* Both branches stay mounted (crossfaded, not swapped), so Probe is the only caller of
+          finishReveal for every domain, thermometer reveals included; ThermoProbe never calls it. */}
       <InstrumentSwitch
         circuit={
           <>
