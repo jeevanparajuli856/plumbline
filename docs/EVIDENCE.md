@@ -29,7 +29,7 @@ Two kinds of numbers appear in this document and they are kept apart. The readin
 | LLM side-by-side transcript recorded, dated | PENDING | `apps/web/public/transcripts/chatgpt-<date>.json`; same netlist, same one-reading-at-a-time protocol; shown as an exhibit on `/evidence`, no percentage derived |
 | Real breadboard built to the netlist | PENDING | Photo in the application packet once built (Sprint 3); netlist in `plumbline/domains/circuit.py` `DEFAULT_NETLIST` |
 | Blindfold run on camera with a deliberate one-row slip | PENDING | Recording under `apps/web/recordings/` or linked; Sprint 3 |
-| Measured confusion matrix at a regional blindness training center (partner named once permission is on file) | PENDING | Protocol: 8 participants x 20 placements = 160 points; permission request to the center's director first; result replaces `Config.confusion.matrix` and all experiments are re-run. Date: to be booked (Sprint 2) |
+| Measured confusion matrix at the Louisiana Center for the Blind | PENDING | Protocol: 8 participants x 20 placements = 160 points; permission request to the center's director first; result replaces `Config.confusion.matrix` and all experiments are re-run. Date: to be booked (Sprint 2) |
 | Blind-user fault-finding sessions (success rate, time, quotes) | PENDING | Same visit or a second one; results to `docs/results/sessions_<date>.md` |
 | Letter of support from an instructor or rehabilitation professional | PENDING | Ask after the training-center visit (Sprint 3) |
 | Prior-art search by a non-team member | PENDING | Reviewer name and date recorded here when done; the three nearest relatives we found ourselves are in `docs/PITCH.md` section 6 |
@@ -72,9 +72,9 @@ From `docs/brief/Plumbline_Scale_and_Build.md`, with the sources it gives.
 
 ## 4. Validation partner (PENDING; internal planning notes, not rendered on the site)
 
-Rule F21: the partner's name and address stay out of the readiness table and every page until written permission is on file. Planning detail:
+Rule F21: written permission to name the Louisiana Center for the Blind is on file (2026-10-25), so the name may appear on the site. The center's street address and city stay unpublished in every rendered row and page. The city is to be confirmed with the user, because the earlier draft and the user's later mention disagree. Planning detail:
 
-101 South Trenton Street, Ruston, Louisiana, about 35 miles from campus. About 30 students enrolled at a time;
+The center is about 35 miles from campus. About 30 students enrolled at a time;
 industrial arts is a required class, two hours a day, taught under learning shades. Staff include a Director of
 Technology, a Technology Instructor, an IT Specialist and an Industrial Arts Instructor. We write to the Executive
 Director first and ask to be routed; we do not contact instructors around the director. We ask for 45 minutes and
