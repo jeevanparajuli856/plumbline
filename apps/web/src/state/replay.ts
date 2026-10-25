@@ -7,17 +7,14 @@ import {
   type SessionViewT,
   type StepViewT,
 } from '@/engine/schemas'
-import provisionalWorkedExample from '@/fixtures/provisional/worked_example.json'
 
 export const READING_MATCH_TOLERANCE = 1e-3
 
-const PROVISIONAL: Record<string, unknown> = { worked_example: provisionalWorkedExample }
-
-/** Loads a recorded fixture by id. Provisional hand-typed fixtures are the fallback until the engine records real ones. */
+/** Loads an engine recording by id from engine/fixtures/parity. There is no hand-typed fallback. */
 export async function loadFixture(id: string): Promise<FixtureT> {
   const recorded = import.meta.glob('@fixtures/parity/*.json', { import: 'default' })
   const key = Object.keys(recorded).find((path) => path.endsWith(`/${id}.json`))
-  const raw = key ? await recorded[key]!() : PROVISIONAL[id]
+  const raw = key ? await recorded[key]!() : undefined
   if (raw === undefined) throw new EngineError('fixture_missing', `No recording named ${id}.`)
   const parsed = Fixture.safeParse(raw)
   if (!parsed.success) throw new EngineError('fixture_missing', `The recording ${id} is malformed.`)
