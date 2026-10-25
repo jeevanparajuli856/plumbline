@@ -19,7 +19,7 @@ want to interrogate a system: "why this step", "what does this part do", "how su
 engine knows the answers as numbers and catalog text; a language model can turn them into
 sentences and answer follow-up questions in the user's words.
 
-The user has Vertex AI available on Google Cloud. The Anthropic API is the alternative.
+The team has Google Cloud enabled with Vertex AI. Chosen provider: Gemini on Vertex AI (server-side, service account). The Anthropic API stays as the alternative adapter.
 
 ## Decision
 
@@ -53,6 +53,10 @@ The user has Vertex AI available on Google Cloud. The Anthropic API is the alter
   session states, no live calls in CI).
 - Revisit: if the explainer ever needs to look at a photo of the board, that is a new decision,
   because perception is a separate claim.
+
+## Related: speech
+
+No third-party voice service (ElevenLabs or similar) is used in the product. The spoken loop stays on the browser Web Speech API (ADR-0008): instant, offline, no key, and compatible with the user's own screen-reader voice. If a narrator voice is ever wanted for the landing page's scripted play or the video, pre-render it once with Google Cloud Text-to-Speech on the same account; never call a voice API live in the loop.
 
 ## Alternatives considered
 
