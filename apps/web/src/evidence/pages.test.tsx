@@ -46,7 +46,7 @@ describe('AboutPage', () => {
     expect(screen.queryByText(/used in the pitch/i)).not.toBeInTheDocument()
   })
 
-  it('has the pilot and partner anchors the landing links to, without inventing an address', () => {
+  it('has the pilot and partner anchors the landing links to, each with its own contact link', () => {
     render(
       <MemoryRouter>
         <AboutPage />
@@ -54,6 +54,13 @@ describe('AboutPage', () => {
     )
     expect(document.getElementById('pilot')).toHaveAccessibleName('Join the pilot')
     expect(document.getElementById('partner')).toHaveAccessibleName('Partner with us')
-    expect(document.body.textContent).not.toMatch(/@[a-z0-9-]+\./i)
+    const pilot = screen.getByRole('link', { name: 'Email us about the pilot' })
+    const partner = screen.getByRole('link', { name: 'Email us about a partnership' })
+    expect(pilot).toHaveAttribute(
+      'href',
+      'mailto:hello@tryplumbline.tech?subject=Plumbline%20pilot',
+    )
+    expect(partner.getAttribute('href')).toMatch(/^mailto:hello@tryplumbline\.tech\?subject=/)
+    expect(document.getElementById('pilot')).toHaveTextContent('Monroe, Louisiana')
   })
 })

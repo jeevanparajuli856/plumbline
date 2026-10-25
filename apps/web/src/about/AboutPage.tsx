@@ -7,6 +7,14 @@ import { confusionBand, type ConfusionBand } from './confusionBand'
 
 const evidence = parseEvidence(evidenceMd)
 
+/** Purpose-split contact (DESIGN_REFERENCES E4): one address, a subject per purpose. */
+const CONTACT_EMAIL = 'hello@tryplumbline.tech'
+const CONTACT_PLACE = 'Monroe, Louisiana'
+
+function contactHref(subject: string): string {
+  return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}`
+}
+
 /** Notes under the citations, minus the file's own intro line and internal pitch bookkeeping. */
 const publicNotes = evidence.studyNotes.slice(1).filter((note) => !/used in the pitch/i.test(note))
 
@@ -85,8 +93,8 @@ export function AboutPage() {
           <p className="font-semibold">Simulation validated. User validation in progress.</p>
           <p>
             Results on this site come from simulated faults and a simulated hand. We have not yet
-            measured how real hands miss. That measurement is being scheduled with blind
-            participants.
+            measured how real hands miss. That measurement is being scheduled with the Louisiana
+            Center for the Blind.
           </p>
           <p>
             The confusion model uses three assumed numbers
@@ -129,7 +137,12 @@ export function AboutPage() {
             session where students try the simulator and, with permission, help us measure how a
             hand actually misses a breadboard row. That measurement replaces our assumed numbers.
           </p>
-          <p>Contact details for the pilot will be posted here.</p>
+          <p>
+            <a className="underline underline-offset-4" href={contactHref('Plumbline pilot')}>
+              Email us about the pilot
+            </a>{' '}
+            at <span className="font-mono">{CONTACT_EMAIL}</span>. {CONTACT_PLACE}.
+          </p>
         </div>
       </section>
 
@@ -147,7 +160,12 @@ export function AboutPage() {
             instrument needs a model of what each reading should be at each place the probe can
             land.
           </p>
-          <p>Contact details for partners will be posted here.</p>
+          <p>
+            <a className="underline underline-offset-4" href={contactHref('Plumbline partnership')}>
+              Email us about a partnership
+            </a>{' '}
+            at <span className="font-mono">{CONTACT_EMAIL}</span>. {CONTACT_PLACE}.
+          </p>
         </div>
       </section>
 
