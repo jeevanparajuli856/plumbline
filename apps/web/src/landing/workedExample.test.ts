@@ -122,3 +122,30 @@ describe('unresolvedGroups', () => {
     for (const g of groups) for (const h of g) expect(h.p).toBeCloseTo(1 / g.length, 9)
   })
 })
+
+describe('engine-shaped fixtures (schema_version 2)', () => {
+  it('parses a recorded v2 fixture with a per-step misfit object and renders every view from it', async () => {
+    const { Fixture } = await import('@/engine/schemas')
+    const raw = (await import('@/fixtures/provisional/worked_example.json')).default
+    const v2 = {
+      ...raw,
+      schema_version: 2,
+      name: 'thermometer_demo',
+      provisional: false,
+      generated_by: 'python -m plumbline.record_fixtures',
+      git_sha: '0123456789abcdef',
+      generated_at: '2026-10-26T12:00:00Z',
+      steps: raw.steps.map((s) => ({ ...s, misfit: { score: 0.1, flagged: false } })),
+    }
+    const parsed = Fixture.safeParse(v2)
+    expect(parsed.success).toBe(true)
+    const recorded = parsed.data!
+    expect(recorded.schema_version).toBe(2)
+    expect('misfit' in recorded.steps[0]!).toBe(false)
+    expect(isProvisional(recorded)).toBe(false)
+    const items = transcript(recorded)
+    expect(items.filter((t) => t.kind === 'reading')).toHaveLength(recorded.steps.length)
+    expect(frameAt(recorded, 1).reading).not.toBeNull()
+    expect(comparisonRows(recorded)).toHaveLength(recorded.steps.length)
+  })
+})
