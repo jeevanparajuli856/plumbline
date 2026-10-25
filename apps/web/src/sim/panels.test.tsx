@@ -41,8 +41,9 @@ describe('BeliefChart', () => {
         unresolvedLabels={['LED is open', 'LED is installed backwards']}
       />,
     )
-    const verdict = screen.getByText('Unresolved: LED is open or LED is installed backwards')
-    expect(verdict.parentElement?.textContent).not.toMatch(/%/)
+    const verdict = screen.getByTestId('belief-verdict')
+    expect(verdict.textContent).toBe('Unresolved: LED is open or LED is installed backwards')
+    expect(verdict.textContent).not.toMatch(/%/)
   })
 
   it('shows the top fault with its percentage otherwise', () => {
@@ -50,6 +51,8 @@ describe('BeliefChart', () => {
     const figure = screen.getByRole('figure', { name: 'Belief over faults' })
     expect(within(figure).getAllByText('70.0%').length).toBeGreaterThan(0)
     expect(screen.queryByText(/^Unresolved:/)).not.toBeInTheDocument()
+    expect(screen.getByTestId('belief-verdict')).toHaveTextContent('LED is open 70.0%')
+    expect(screen.getAllByTestId('belief-verdict')).toHaveLength(1)
   })
 })
 

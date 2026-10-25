@@ -44,6 +44,7 @@ export function BeliefChart({
           title="Plumbline"
           note="Infers where the probe landed"
           verdict={plumblineVerdict(rows, hasReadings, unresolvedLabels)}
+          testId="belief-verdict"
           look="inferred"
         />
         <VerdictCell
@@ -104,11 +105,14 @@ function VerdictCell({
   note,
   verdict,
   look,
+  testId,
 }: {
   title: string
   note: string
   verdict: Verdict
   look: 'inferred' | 'baseline'
+  /** UI_CONTRACT 6.14: the Plumbline verdict line is data-testid="belief-verdict". */
+  testId?: string
 }) {
   return (
     <div className="bg-surface-1 p-4">
@@ -120,10 +124,10 @@ function VerdictCell({
         {title}
       </p>
       <p className="text-text-2">{note}</p>
-      <p className="mt-3 min-h-[3.25rem] text-md">
+      <p data-testid={testId} className="mt-3 min-h-[3.25rem] text-md">
         {verdict.kind === 'top' ? (
           <>
-            <span className="block font-medium">{verdict.label}</span>
+            <span className="block font-medium">{verdict.label}</span>{' '}
             <span className="font-mono tnum text-lg">{formatPct(verdict.p, 1)}</span>
           </>
         ) : verdict.kind === 'unresolved' ? (
