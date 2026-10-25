@@ -220,7 +220,7 @@ Sessions live in memory only. A restart empties the store. There is no database.
     - belief is not updated, and the step's placement is the landing prior `P(l | told)`;
     - the warning is inactive, and `misfit.active` is true with the distance in `misfit.sigmas`;
     - the next instruction is the same site, and the status stays `continue` unless the step limit is reached (invariant 9 still applies to the step count);
-    - `misfit.text` asks the user to check that the probe is touching metal and to measure the same site again.
+    - `misfit.text` is a domain sentence that asks the user to check contact and measure the same site again (circuit: "Check that the probe is touching metal, then measure row N again.").
 
     No new status or reason was added. The reading still counts as a step.
 
