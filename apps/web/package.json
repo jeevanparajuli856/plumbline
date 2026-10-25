@@ -63,8 +63,8 @@
       "gzip": true
     },
     {
-      "name": "three + r3f chunk",
-      "path": "dist/assets/{three,r3f}-*.js",
+      "name": "lazy 3D scene chunk (three + r3f + drei)",
+      "path": "dist/assets/SceneRoot-*.js",
       "limit": "700 kB",
       "gzip": true
     }

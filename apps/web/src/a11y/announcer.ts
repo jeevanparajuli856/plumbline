@@ -9,11 +9,30 @@ import type { Phase } from '@/state/types'
  * landing is mounted. Returns an unsubscribe function.
  */
 export function startAnnouncer(): () => void {
-  let lastPhase: Phase = useSession.getState().phase
-  let lastReadingCount = 0
+  const initial = useSession.getState()
+  let lastPhase: Phase = initial.phase
+  let lastReadingCount = initial.readings.length
+  let lastSessionId = initial.sessionId
+  let lastDomain = initial.domain
   return useSession.subscribe((state) => {
     const spec = DOMAINS[state.domain]
     const catalog = state.catalog
+    // A fresh start (new session, new instrument, or a reset that drops the readings) may keep the
+    // same phase, so it is detected here and its first instruction is announced explicitly.
+    const isFreshStart =
+      state.sessionId !== lastSessionId ||
+      state.domain !== lastDomain ||
+      state.readings.length < lastReadingCount
+    if (isFreshStart) {
+      lastSessionId = state.sessionId
+      lastDomain = state.domain
+      lastReadingCount = state.readings.length
+      lastPhase = state.phase
+      const site = state.instruction && catalog ? catalog.sites[state.instruction.site] : undefined
+      const silent = state.replay?.silent ?? false
+      if (site && !silent && state.phase === 'awaiting_reading') announce(spec.phrases.instruction(site))
+      return
+    }
     if (state.readings.length > lastReadingCount && catalog) {
       lastReadingCount = state.readings.length
       const last = state.readings[state.readings.length - 1]
