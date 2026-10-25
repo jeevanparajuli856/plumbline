@@ -147,6 +147,14 @@ body {
   box-shadow: 0 0 0 2px var(--focus-gap);
 }
 
+/* Route focus lands on the page heading so screen readers announce the page (a11y/useRouteFocus).
+   A heading is not a control, so it draws no ring; every interactive element keeps its own. */
+h1[tabindex='-1']:focus,
+h1[tabindex='-1']:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
 h1,
 h2,
 h3 {
