@@ -30,8 +30,9 @@ company site, and that the readiness table (engine internals) undermines the web
    October 2026"); the trace to the file is enforced by tests and kept in docs/EVIDENCE.md. This
    amends rule 1 of `.claude/rules/00-truehand.md` only in where the trace is shown, not in whether
    it exists.
-5. **Names**: founders and the university appear on `/about` only.
-6. **Contact form** (`/contact`): name, email, organization (optional), phone (optional), reason
+5. **No roadmap on the site**: the phase chips (Research, Engine, Simulation, User validation, Pilot, Product) are removed; dates and phases live in docs/BUILD_PLAN.md. The status line still states where validation stands.
+6. **Names**: founders and the university appear on `/about` only.
+7. **Contact form** (`/contact`): name, email, organization (optional), phone (optional), reason
    (pilot, partnership, support, press), message. It posts to `POST /v1/contact` on the API, which
    validates (Pydantic, bounded lengths, honeypot field), rate-limits per client in memory, and
    sends one email to support@truehand.tech through the Resend HTTP API with the key in
