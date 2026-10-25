@@ -21,7 +21,11 @@ export function useSimFocus(
     const target = focusTarget(prev.current, phase, { hasWarning, mode, lastSource })
     prev.current = phase
     if (!target) return
-    const frame = window.requestAnimationFrame(() => refs[target].current?.focus())
+    // If the person moved focus themselves before the frame (pressed T, tabbed), leave it there.
+    const before = document.activeElement
+    const frame = window.requestAnimationFrame(() => {
+      if (document.activeElement === before) refs[target].current?.focus()
+    })
     return () => window.cancelAnimationFrame(frame)
   }, [phase, hasWarning, mode, lastSource, refs])
 }
