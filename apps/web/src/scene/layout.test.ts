@@ -12,6 +12,7 @@ import {
   partCenter,
   partForHypothesis,
   partRows,
+  probeSitePosition,
   rowLaneZ,
   siteColumn,
   siteX,
@@ -123,5 +124,16 @@ describe('layout', () => {
     const [x, , z] = partCenter('R1')
     expect(x).toBeCloseTo((siteX(0) + siteX(1)) / 2, 12)
     expect(z).toBeCloseTo(rowLaneZ('b'), 12)
+  })
+})
+
+describe('probeSitePosition', () => {
+  it('touches lane e of the site on the board surface, reusing the out tuple', () => {
+    const out: [number, number, number] = [9, 9, 9]
+    const p = probeSitePosition(3, out)
+    expect(p).toBe(out)
+    expect(p[0]).toBeCloseTo(siteX(3), 12)
+    expect(p[1]).toBe(BOARD.top)
+    expect(p[2]).toBeCloseTo(rowLaneZ('e'), 12)
   })
 })

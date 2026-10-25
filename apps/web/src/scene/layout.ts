@@ -51,6 +51,13 @@ const RAIL_LAST_COLUMN = 61
 const RAIL_GAP_EVERY = 6
 
 export const PROBE_LANE: Lane = 'e'
+
+/** Frame drawn around a row's lanes a..e (told outline, landed fill). */
+export const ROW_FRAME = {
+  width: 3.4 * HOLE_PITCH,
+  depth: 5.8 * HOLE_PITCH,
+  centreZ: -3.5 * HOLE_PITCH,
+} as const
 export const GND_RAIL_Z = -8 * HOLE_PITCH
 
 export const BOARD = {
@@ -83,8 +90,11 @@ export function rowLaneZ(lane: Lane): number {
 }
 
 /** Where the probe tip touches a site, on the board surface. */
-export function probeSitePosition(site: number): Vec3 {
-  return [siteX(site), BOARD.top, rowLaneZ(PROBE_LANE)]
+export function probeSitePosition(site: number, out: Vec3 = [0, 0, 0]): Vec3 {
+  out[0] = siteX(site)
+  out[1] = BOARD.top
+  out[2] = rowLaneZ(PROBE_LANE)
+  return out
 }
 
 function row(site: number, lane: Lane): Terminal {
