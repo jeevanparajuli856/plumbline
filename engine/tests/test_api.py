@@ -377,3 +377,43 @@ async def test_unknown_routes_and_methods_get_human_sentences(client: httpx.Asyn
     assert missing["message"].endswith(".") and missing["message"] != "Not Found"
     wrong = assert_error(await client.delete("/v1/health"), 405, "method_not_allowed")
     assert wrong["message"].endswith(".") and wrong["message"] != "Method Not Allowed"
+
+
+async def test_oversized_body_with_content_length_is_413_with_cors(
+    client: httpx.AsyncClient,
+) -> None:
+    from plumbline_api.guard import MAX_BODY_BYTES
+
+    body = b'{"reading": 1.0, "pad": "' + b"x" * MAX_BODY_BYTES + b'"}'
+    response = await client.post(
+        "/v1/sessions",
+        content=body,
+        headers={"Content-Type": "application/json", "Origin": ALLOWED_ORIGIN},
+    )
+    error = assert_error(response, 413, "payload_too_large")
+    assert error["message"].endswith(".")
+    assert response.headers.get("access-control-allow-origin") == ALLOWED_ORIGIN
+
+
+async def test_oversized_chunked_body_is_413(client: httpx.AsyncClient) -> None:
+    from plumbline_api.guard import MAX_BODY_BYTES
+
+    async def chunks() -> AsyncIterator[bytes]:
+        for _ in range(4):
+            yield b"x" * (MAX_BODY_BYTES // 2)
+
+    response = await client.post(
+        "/v1/sessions", content=chunks(), headers={"Content-Type": "application/json"}
+    )
+    assert "content-length" not in {k.lower() for k in response.request.headers}
+    assert_error(response, 413, "payload_too_large")
+
+
+async def test_small_chunked_body_still_reaches_the_route(client: httpx.AsyncClient) -> None:
+    async def chunks() -> AsyncIterator[bytes]:
+        yield json.dumps(WORKED).encode()
+
+    response = await client.post(
+        "/v1/sessions", content=chunks(), headers={"Content-Type": "application/json"}
+    )
+    assert response.status_code == 201, response.text

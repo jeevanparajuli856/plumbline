@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Awaitable, Callable
 from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from plumbline.session import SessionError
@@ -79,17 +78,6 @@ async def _http_error(_: Request, exc: Exception) -> JSONResponse:
 async def internal_error(_: Request, exc: Exception) -> JSONResponse:
     logger.exception("unhandled error", exc_info=exc)
     return envelope(500, "internal_error", INTERNAL_ERROR_MESSAGE)
-
-
-async def catch_unhandled(
-    request: Request, call_next: Callable[[Request], Awaitable[Response]]
-) -> Response:
-    """HTTP middleware registered inside CORSMiddleware, so a 500 still gets CORS headers.
-    (The ``Exception`` handler alone runs in ServerErrorMiddleware, outside CORS.)"""
-    try:
-        return await call_next(request)
-    except Exception as exc:  # noqa: BLE001 - last-resort boundary, logged in internal_error
-        return await internal_error(request, exc)
 
 
 def register_error_handlers(app: FastAPI) -> None:

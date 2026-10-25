@@ -6,7 +6,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from plumbline import __version__
-from plumbline_api.errors import catch_unhandled, register_error_handlers
+from plumbline_api.errors import register_error_handlers
+from plumbline_api.guard import RequestGuard
 from plumbline_api.routers import domains, health, sessions
 from plumbline_api.settings import settings
 
@@ -16,8 +17,9 @@ app = FastAPI(
     docs_url="/v1/docs",
     openapi_url="/v1/openapi.json",
 )
-# Registered first so it sits inside CORSMiddleware (the last-added middleware is outermost).
-app.middleware("http")(catch_unhandled)
+# Registered first so it sits inside CORSMiddleware (the last-added middleware is outermost):
+# its 413 and 500 replies then carry CORS headers for allowed origins.
+app.add_middleware(RequestGuard)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
