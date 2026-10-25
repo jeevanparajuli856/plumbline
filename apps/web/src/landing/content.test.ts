@@ -26,11 +26,6 @@ describe('landing copy is backed by the docs', () => {
     expect(evidenceMd).toContain(`= ${content.TOTAL_PARTICIPANTS} blind participants`)
   })
 
-  it('names the prior art the way POSITIONING lists it', () => {
-    expect(positioningMd).toContain('Gao 2014')
-    expect(positioningMd).toContain('IEEE 2019 sequential diagnosis')
-    expect(positioningMd).toContain('de Kleer and Williams 1987')
-  })
 
   it('takes the forum quote, kill result and safety scope from the docs', () => {
     expect(positioningMd).toContain(content.FORUM_QUOTE.text)

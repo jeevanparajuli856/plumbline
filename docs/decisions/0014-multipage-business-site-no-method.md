@@ -16,7 +16,7 @@ company site, and that the readiness table (engine internals) undermines the web
    `/evidence`, The app `/app`, Accessibility `/accessibility`, Contact `/contact`, About `/about`.
    Each page is short; Home stays under four screens at 1440 px.
 2. **Header**: mark + "Truehand" (no tag); links How it works, Evidence, The app, Accessibility;
-   one theme toggle; ink "Try Truehand" (the web app, `/sim`). The toggle flips light and dark only,
+   one theme toggle; ink "Demo" button (the web app, `/sim`); in-page calls to action say "Try Truehand". The toggle flips light and dark only,
    with a circular reveal from the button (View Transitions API, `clip-path` on
    `::view-transition-new(root)`; the one allowed non-transform animation, user-initiated and
    one-shot; instant under reduced motion or without the API). The bar follows the theme.

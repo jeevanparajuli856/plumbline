@@ -7,7 +7,7 @@
 /** Used verbatim wherever status is shown (POSITIONING section 1). */
 export const STATUS_LINE = 'Simulation validated. User validation in progress.'
 /** Used verbatim wherever the product is named (POSITIONING section 1). */
-export const PRODUCT_LINE = 'Web simulator open now. iOS app next.'
+export const PRODUCT_LINE = 'Truehand for iPhone and the web. Try the web app today.'
 export const PROMISE = 'It cannot tell you something it has not measured.'
 
 export interface Study {
