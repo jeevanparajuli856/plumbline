@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import { LiveRegion } from './a11y/LiveRegion'
 import { startAnnouncer } from './a11y/announcer'
+import { wireVoice } from './voice/wire'
 import { applyReduceMotion, useMotionPref } from './a11y/motionPref'
 import { SkipLinks } from './a11y/SkipLinks'
 import { useRouteFocus } from './a11y/useRouteFocus'
@@ -23,6 +24,7 @@ export function App() {
   useSystemTheme(theme)
   useEffect(() => applyReduceMotion(reduceMotion), [reduceMotion])
   useEffect(() => startAnnouncer(), [])
+  useEffect(() => wireVoice(), [])
   useRouteFocus(location.pathname)
   useEffect(() => {
     const root = document.documentElement

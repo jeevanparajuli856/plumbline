@@ -27,6 +27,7 @@ import { requestViewReset } from '@/scene/viewControl'
 import { useSimFocus, type FocusRefs } from './useSimFocus'
 import { WarningBanner } from './WarningBanner'
 import { logRows, placementItems } from './view'
+import { ListenButton } from './ListenButton'
 
 /** Phases from which [ may rewind; never mid-step. */
 const REWINDABLE: readonly Phase[] = ['awaiting_reading', 'resolved', 'unresolved']
@@ -172,6 +173,7 @@ export function SimPage() {
         onSpeech={setVoiceEnabled}
         onShortcuts={() => setHelpOpen(true)}
         onRetryHealth={checkAgain}
+        listen={<ListenButton />}
       />
       <main id="main" className="bg-bench">
         <div className="mx-auto grid max-w-[90rem] grid-cols-1 gap-x-12 gap-y-10 px-4 pb-16 pt-8 sm:px-8 lg:grid-cols-12 lg:px-16 lg:pt-12">
