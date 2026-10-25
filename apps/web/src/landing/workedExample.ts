@@ -39,6 +39,7 @@ export interface PlayFrame {
   published: RankedHypothesis | null
   entropyBits: number
   maxEntropyBits: number
+  hypothesisCount: number
   diagnosis: RankedHypothesis | null
   isResolved: boolean
 }
@@ -230,6 +231,7 @@ export function frameAt(fx: FixtureT, readingsShown: number, revealed = true): P
       : null,
     entropyBits: last ? last.entropy_bits : maxEntropy(fx),
     maxEntropyBits: maxEntropy(fx),
+    hypothesisCount: n,
     diagnosis: revealed ? diagnosis : null,
     isResolved: revealed && last?.status === 'resolved',
   }
@@ -238,4 +240,11 @@ export function frameAt(fx: FixtureT, readingsShown: number, revealed = true): P
 /** Fixture is provisional when flagged or when no engine command recorded it. */
 export function isProvisional(fx: FixtureT): boolean {
   return fx.provisional || !fx.generated_by
+}
+
+/** Fault groups the physics cannot separate: classes with more than one member, labeled. */
+export function unresolvedGroups(fx: FixtureT): RankedHypothesis[][] {
+  return fx.catalog.classes
+    .filter((c) => c.length > 1)
+    .map((c) => c.map((id) => ({ id, label: labelOf(fx, id), p: 1 / c.length })))
 }

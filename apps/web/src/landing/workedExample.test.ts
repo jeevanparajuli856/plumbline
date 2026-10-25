@@ -8,6 +8,7 @@ import {
   maxEntropy,
   rank,
   transcript,
+  unresolvedGroups,
 } from './workedExample'
 
 let fx: FixtureT
@@ -110,5 +111,14 @@ describe('helpers', () => {
     expect(isProvisional({ ...fx, provisional: false, generated_by: 'record_fixtures' })).toBe(
       false,
     )
+  })
+})
+
+describe('unresolvedGroups', () => {
+  it('lists only the classes with more than one fault, with equal shares', () => {
+    const groups = unresolvedGroups(fx)
+    const expected = fx.catalog.classes.filter((c) => c.length > 1)
+    expect(groups.map((g) => g.map((h) => h.id))).toEqual(expected)
+    for (const g of groups) for (const h of g) expect(h.p).toBeCloseTo(1 / g.length, 9)
   })
 })

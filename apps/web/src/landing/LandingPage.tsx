@@ -1,41 +1,109 @@
-import { useEffect } from 'react'
-import { Link } from 'react-router'
+import { useCallback, useEffect, useRef } from 'react'
+import { webglSupported } from '@/lib/webgl'
 import { useLanding } from '@/state/landing'
+import { usePrefs } from '@/state/prefs'
+import { useSession } from '@/state/session'
+import s from './landing.module.css'
+import { useLandingReducedMotion } from './motionPref'
+import { cx } from './cx'
+import { ReduceMotionSwitch } from './ReduceMotionSwitch'
+import { Close } from './sections/Close'
+import { Evidence } from './sections/Evidence'
+import { Generalize } from './sections/Generalize'
+import { How } from './sections/How'
+import { Ladder } from './sections/Ladder'
+import { Mast } from './sections/Mast'
+import { PAUSE_BUTTON_ID, Play } from './sections/Play'
+import { Problem } from './sections/Problem'
+import { Product } from './sections/Product'
+import { Research } from './sections/Research'
+import { useFixture } from './useFixture'
+import { useScrollProgress } from './useScrollProgress'
 
-/** Sprint 0 placeholder. The landing lane replaces this with the sections in docs/POSITIONING.md. */
+const FIXTURE_ID = 'worked_example'
+/** Time between recorded readings on Play: long enough to read the warning before the next one. */
+export const PLAY_PACE_MS = 4000
+
+async function startReplay(): Promise<void> {
+  await useSession.getState().start({ mode: 'replay', fixture: FIXTURE_ID, silent: false })
+}
+
+function isReplayOfExample(): boolean {
+  const st = useSession.getState()
+  return st.replay?.fixtureId === FIXTURE_ID && st.phase !== 'idle'
+}
+
+/** Container: owns scroll progress, the scene mode and the replay actions. Sections are presentational. */
 export function LandingPage() {
-  const setSceneMode = useLanding((s) => s.setSceneMode)
+  const rootRef = useRef<HTMLElement>(null)
+  const reduced = useLandingReducedMotion()
+  const setSceneMode = useLanding((st) => st.setSceneMode)
+  const textOnly = usePrefs((st) => st.textOnly)
+  const load = useFixture(FIXTURE_ID)
+  const fixture = load.status === 'ready' ? load.fixture : null
+  const hasScene = !textOnly && webglSupported()
+
   useEffect(() => {
     setSceneMode('landing')
     return () => setSceneMode('hidden')
   }, [setSceneMode])
+  useScrollProgress(rootRef, reduced)
+
+  const play = useCallback(async () => {
+    const st = useSession.getState()
+    const canResume = isReplayOfExample() && st.phase === 'awaiting_reading'
+    if (!canResume) await startReplay()
+    useSession.getState().replayPlay(PLAY_PACE_MS)
+  }, [])
+
+  const replay = useCallback(async () => {
+    useSession.getState().replayPause()
+    await startReplay()
+    useSession.getState().replayPlay(PLAY_PACE_MS)
+  }, [])
+
+  const playFromMast = useCallback(async () => {
+    document.getElementById('play')?.scrollIntoView({ behavior: reduced ? 'instant' : 'smooth' })
+    await play()
+    document.getElementById(PAUSE_BUTTON_ID)?.focus({ preventScroll: true })
+  }, [play, reduced])
+
+  const stepPhone = useCallback(async () => {
+    const st = useSession.getState()
+    st.replayPause()
+    if (
+      !isReplayOfExample() ||
+      st.phase === 'resolved' ||
+      st.phase === 'unresolved' ||
+      st.phase === 'error'
+    ) {
+      const wasResolved = st.phase === 'resolved'
+      await startReplay()
+      if (wasResolved) return
+    }
+    await useSession.getState().replayNext()
+  }, [])
+
   return (
-    <main id="main" className="relative mx-auto max-w-6xl px-4 py-20">
-      <p className="text-sm font-medium uppercase tracking-[0.08em] text-text-2">
-        Research preview. Trustworthy measurement for hands that cannot see the tool
-      </p>
-      <h1 className="mt-5 max-w-3xl text-[clamp(2.75rem,6vw,5rem)] font-semibold leading-[1.05] tracking-tight">
-        Measurement you can trust without looking.
-      </h1>
-      <p className="mt-6 max-w-2xl text-xl leading-relaxed text-text-2">
-        When a blind person measures a circuit, nothing checks whether the probe landed where it was
-        told. Plumbline infers the fault and the probe's true position from each reading, and it
-        refuses to guess when the physics cannot tell two faults apart.
-      </p>
-      <div className="mt-8 flex flex-wrap gap-3">
-        <Link
-          to="/sim?demo=worked-example"
-          className="rounded-hard bg-inferred-fill px-5 py-3 font-semibold text-on-inferred"
-        >
-          Play the 20-second example
-        </Link>
-        <Link to="/sim" className="rounded-hard border border-border-strong px-5 py-3 font-medium">
-          Open the simulator
-        </Link>
+    <main id="main" ref={rootRef} className={s.root} data-reduced={reduced ? 'true' : 'false'}>
+      <div className={cx(s.frame, 'flex justify-end pt-4')}>
+        <ReduceMotionSwitch />
       </div>
-      <p className="mt-6 font-mono text-sm text-muted">
-        Scene: lab bench, breadboard, nothing measured yet. The plumb line swings freely.
-      </p>
+      <Mast fixture={fixture} hasScene={hasScene} onPlay={() => void playFromMast()} />
+      <Research />
+      <Problem fixture={fixture} />
+      <Play fixture={fixture} onPlay={() => void play()} onReplay={() => void replay()} />
+      <How fixture={fixture} reduced={reduced} />
+      <Generalize />
+      <Product fixture={fixture} onStep={() => void stepPhone()} />
+      <Ladder />
+      <Evidence fixture={fixture} />
+      <Close />
+      {load.status === 'missing' && (
+        <p role="status" className={cx(s.frame, s.body, 'pb-16')}>
+          {load.sentence}
+        </p>
+      )}
     </main>
   )
 }
