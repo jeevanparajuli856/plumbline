@@ -1,6 +1,6 @@
 ---
 name: lanes
-description: Run Plumbline work as parallel lanes - pick the current slice from docs/BUILD_PLAN.md, confirm disjoint write surfaces, create one git worktree per lane, launch an agent per lane (worktree-isolated subagents or agent-team teammates), track state, and merge through gates. Use when more than one independent piece of work is ready.
+description: Run Truehand work as parallel lanes - pick the current slice from docs/BUILD_PLAN.md, confirm disjoint write surfaces, create one git worktree per lane, launch an agent per lane (worktree-isolated subagents or agent-team teammates), track state, and merge through gates. Use when more than one independent piece of work is ready.
 disable-model-invocation: true
 argument-hint: "[slice number | lane names] [--teams]"
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Agent

@@ -1,6 +1,6 @@
 ---
 name: bootstrap
-description: Scaffold the Plumbline monorepo from scratch - pnpm workspace, Vite + React 19 + TypeScript + Tailwind + React Three Fiber + Zustand web app with vitest and Playwright, uv-managed Python engine package with FastAPI, shared scripts, and a first green /verify. Run once after the .claude setup, before any lane starts.
+description: Scaffold the Truehand monorepo from scratch - pnpm workspace, Vite + React 19 + TypeScript + Tailwind + React Three Fiber + Zustand web app with vitest and Playwright, uv-managed Python engine package with FastAPI, shared scripts, and a first green /verify. Run once after the .claude setup, before any lane starts.
 disable-model-invocation: true
 argument-hint: "[--skip-engine] [--skip-web]"
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep

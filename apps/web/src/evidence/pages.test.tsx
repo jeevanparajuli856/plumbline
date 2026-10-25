@@ -58,9 +58,9 @@ describe('AboutPage', () => {
     const partner = screen.getByRole('link', { name: 'Email us about a partnership' })
     expect(pilot).toHaveAttribute(
       'href',
-      'mailto:hello@tryplumbline.tech?subject=Plumbline%20pilot',
+      'mailto:support@truehand.tech?subject=Truehand%20pilot',
     )
-    expect(partner.getAttribute('href')).toMatch(/^mailto:hello@tryplumbline\.tech\?subject=/)
+    expect(partner.getAttribute('href')).toMatch(/^mailto:support@truehand\.tech\?subject=/)
     expect(document.getElementById('pilot')).toHaveTextContent('Monroe, Louisiana')
   })
 })

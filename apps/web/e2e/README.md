@@ -1,4 +1,4 @@
-# Plumbline end-to-end specs
+# Truehand end-to-end specs
 
 Playwright specs for the critical flows, written against the binding selector contract in
 `docs/UI_CONTRACT.md` (roles and accessible names first, `data-testid` second). Page objects in

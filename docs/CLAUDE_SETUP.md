@@ -1,4 +1,4 @@
-# Claude Code setup for Plumbline
+# Claude Code setup for Truehand
 
 What is installed in `.claude/`, why, how to use it, and how to turn pieces off. Verified against Claude Code 2.1.310 docs on 2026-10-25 (hooks, rules, sub-agents, skills, worktrees, agent-teams, permissions, statusline pages at code.claude.com/docs).
 
@@ -24,7 +24,7 @@ ECC-Claude/                   vendored ECC snapshot, gitignored; source for futu
 | `typescript.md` | `**/*.ts(x)` | ECC `rules/typescript/*` condensed |
 | `react.md` | `**/*.tsx`, hooks | ECC `rules/react/*` condensed, Vite SPA specifics |
 | `python.md` | `**/*.py`, pyproject | ECC `rules/python/*` + uv/ruff/pyright |
-| `web-design-quality.md` | `apps/web/**` UI files | ECC `rules/web/design-quality.md` + `performance.md`, with the Plumbline design direction fixed |
+| `web-design-quality.md` | `apps/web/**` UI files | ECC `rules/web/design-quality.md` + `performance.md`, with the Truehand design direction fixed |
 | `three-r3f.md` | `apps/web/src/scene/**` | written here, checked against R3F/drei docs via Context7 |
 Path-scoped rules use `paths:` frontmatter and load when a matching file is read or edited.
 
@@ -33,7 +33,7 @@ planner, architect, tdd-guide, three-engineer, ui-designer, engine-scientist, a1
 
 ## Skills (`.claude/skills/`)
 From ECC (unchanged): accessibility, browser-qa, design-system, e2e-testing, fastapi-patterns, frontend-a11y, frontend-design-direction, frontend-patterns, git-workflow, make-interfaces-feel-better, motion-foundations, motion-patterns, parallel-execution-optimizer, python-patterns, python-testing, react-patterns, react-performance, security-review, strategic-compact, tdd-workflow, team-agent-orchestration, ui-demo, verification-loop, vite-patterns.
-Written for Plumbline: `threejs-r3f` (with Context7 snapshots in `references/`), `plumbline-engine`, `voice-loop`, and the slash workflows `bootstrap`, `lanes`, `verify`, `demo-worked-example` (user-invoked only).
+Written for Truehand: `threejs-r3f` (with Context7 snapshots in `references/`), `plumbline-engine`, `voice-loop`, and the slash workflows `bootstrap`, `lanes`, `verify`, `demo-worked-example` (user-invoked only).
 
 ## Hooks (lean profile)
 | Event | Script | Behavior |
@@ -65,4 +65,4 @@ Turn a hook off: delete its entry in `.claude/settings.json` or override in `.cl
 ECC is vendored at `ECC-Claude/` (gitignored). To pull a newer skill: copy `ECC-Claude/skills/<name>` into `.claude/skills/`, read it, and strip anything that assumes the `ecc@ecc` plugin (`/ecc:*` commands, `ecc:` agent prefixes). Do not install the full plugin on top of this setup; it adds 293 skills and 68 agents of context the project does not need.
 
 ## Memory
-Claude keeps a per-project memory under `~/.claude/projects/-Users-jeevaparajuli-Desktop-Project-Active-Plumbline/memory/` for facts that are not in the repo (deadlines, decisions, people). Repo facts belong in these docs, not in memory.
+Claude keeps a per-project memory under `~/.claude/projects/-Users-jeevaparajuli-Desktop-Project-Active-Truehand/memory/` for facts that are not in the repo (deadlines, decisions, people). Repo facts belong in these docs, not in memory.

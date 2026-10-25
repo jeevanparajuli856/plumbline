@@ -127,7 +127,7 @@ export class SimPage {
     return this.placementStrip.getByRole('button', { name: `Aim at ${siteLabel}`, exact: true })
   }
 
-  /** The one-line Plumbline verdict inside the belief figure (decision 14). */
+  /** The one-line Truehand verdict inside the belief figure (decision 14). */
   beliefVerdict(): Locator {
     return this.beliefFigure.getByTestId('belief-verdict')
   }

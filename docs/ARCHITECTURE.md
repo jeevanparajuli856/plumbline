@@ -1,4 +1,4 @@
-# Plumbline architecture
+# Truehand architecture
 
 Status: v1, 2026-10-25, written before code; update through doc-updater when code lands.
 
@@ -262,7 +262,7 @@ The landing page is DOM-driven. `useScrollProgress` (passive listener, rAF) writ
 |---|---|---|---|
 | 0 | mast | one sentence; two exits (play the 20 s example, open the simulator); pendulum swings at max entropy | heading and buttons |
 | 1 | problem | probe trembles over row 3, bracket over rows 1 to 5 (plus or minus 2); pull quotes with sources | quotes in DOM |
-| 2 | play | sticky split, scene left, Plumbline against published method right; Play runs the fixture through the real store in replay | always-present `<ol>` transcript of six steps |
+| 2 | play | sticky split, scene left, Truehand against published method right; Play runs the fixture through the real store in replay | always-present `<ol>` transcript of six steps |
 | 3 | how | top-down camera; six math lines light as their meaning animates | the six lines as text |
 | 4 | generalize | crossfade to roast cross-section; told 25 mm, lands 15 mm (fat); SIMULATED badge in DOM and in scene | caption and badge |
 | 5 | ladder | plumb line fades into a DOM vertical rule that becomes the ladder rail | `<table>` of four stages |
@@ -360,7 +360,7 @@ Scripts (plan A6). Every run writes `docs/results/<name>_<date>.{md,json}` with 
 
 Reproduce: `uv run --project engine python -m plumbline.experiments.experiment 400`. Figures: fig1 arm bars; fig2 sweep; fig3 worked-example trajectories; fig4 warning precision and recall; fig5 thermometer profiles (labeled simulated roast); fig6 distinguishability heatmap.
 
-Numbers rule: the brief's expectations (99.0 percent correct for Plumbline, 21 times fewer confident errors) are expectations, not claims. A number appears in the UI only after `experiment.py` or `stability.py` has written it to `docs/results/`.
+Numbers rule: the brief's expectations (99.0 percent correct for Truehand, 21 times fewer confident errors) are expectations, not claims. A number appears in the UI only after `experiment.py` or `stability.py` has written it to `docs/results/`.
 
 ## 15. PWA and iOS path
 

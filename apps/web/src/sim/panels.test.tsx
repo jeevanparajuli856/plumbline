@@ -31,7 +31,7 @@ const catalog: Catalog = {
 }
 
 describe('BeliefChart', () => {
-  it('names the tied pair, with no single percentage, in the Plumbline verdict when unresolved', () => {
+  it('names the tied pair, with no single percentage, in the Truehand verdict when unresolved', () => {
     render(
       <BeliefChart
         belief={[0.5, 0.5, 0]}

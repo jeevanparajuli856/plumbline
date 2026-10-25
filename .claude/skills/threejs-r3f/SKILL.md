@@ -1,10 +1,10 @@
 ---
 name: threejs-r3f
-description: Build the Plumbline 3D simulation with React Three Fiber and drei - one app-level Canvas shared by landing and simulator, breadboard, circuit components, probe, seeded noisy-hand reveal, belief overlays, plumb-line motif, roast cross-section for the thermometer domain, camera rig, on-demand rendering with an animation ref-count, instancing, pointer and keyboard interaction, DOM accessibility mirror, and smoke tests. Use for anything rendered inside the Canvas or when planning the scene architecture.
+description: Build the Truehand 3D simulation with React Three Fiber and drei - one app-level Canvas shared by landing and simulator, breadboard, circuit components, probe, seeded noisy-hand reveal, belief overlays, plumb-line motif, roast cross-section for the thermometer domain, camera rig, on-demand rendering with an animation ref-count, instancing, pointer and keyboard interaction, DOM accessibility mirror, and smoke tests. Use for anything rendered inside the Canvas or when planning the scene architecture.
 argument-hint: "[component or problem, e.g. 'probe landing animation']"
 ---
 
-# Three.js / React Three Fiber for Plumbline
+# Three.js / React Three Fiber for Truehand
 
 Rules live in `.claude/rules/three-r3f.md` (auto-loaded for `apps/web/src/scene/**`). This skill is the how-to. Fresh API docs: `npx ctx7@latest docs /pmndrs/react-three-fiber "<topic>"` and `/pmndrs/drei`. Snapshots fetched 2026-10-25 are in `references/`.
 

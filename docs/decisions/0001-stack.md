@@ -4,7 +4,7 @@ Status: accepted, 2026-10-25
 
 ## Context
 
-Plumbline has two halves that must agree on one set of numbers. The browser experience is the
+Truehand has two halves that must agree on one set of numbers. The browser experience is the
 blind user's main channel (text, keyboard, voice) and also carries a 3D scene for sighted judges.
 The inference engine is a circuit solver plus a Bayesian update over faults. The brief (section 6)
 names the Python modules that exist in the original work: `circuit.py`, `engine.py`,

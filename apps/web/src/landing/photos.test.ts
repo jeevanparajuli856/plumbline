@@ -15,7 +15,7 @@ describe('stock photos', () => {
   it('describes only what is visible, never our users, study or partner', () => {
     for (const p of photos) {
       expect(p.alt.length).toBeGreaterThan(20)
-      expect(p.alt).not.toMatch(/participant|user|Plumbline|Louisiana|our |blind/i)
+      expect(p.alt).not.toMatch(/participant|user|Truehand|Plumbline|Louisiana|our |blind/i)
       expect(p.alt).not.toMatch(/—/)
     }
   })

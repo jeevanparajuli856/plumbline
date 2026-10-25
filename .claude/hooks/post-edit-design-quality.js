@@ -39,7 +39,7 @@ const GENERIC = [
   emitContext('PostToolUse', [
     '[hook] DESIGN CHECK - generic-template signals detected:',
     ...hits.map((h) => `  - ${h}`),
-    '  Plumbline UI must read as a precision instrument, not a SaaS template.',
+    '  Truehand UI must read as a precision instrument, not a SaaS template.',
     '  Use the design tokens in apps/web/src/styles/tokens.css; see .claude/rules/web-design-quality.md.',
   ]);
   process.exit(0);

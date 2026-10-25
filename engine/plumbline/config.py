@@ -1,4 +1,4 @@
-"""Named constants and configuration for the Plumbline engine.
+"""Named constants and configuration for the Truehand engine.
 
 Every assumed quantity lives here so it can be replaced by a measured one through
 ``EngineConfig`` without touching the math. The three confusion probabilities are the

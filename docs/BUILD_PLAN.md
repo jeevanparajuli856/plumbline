@@ -1,4 +1,4 @@
-# Plumbline build plan
+# Truehand build plan
 
 Status: v1, 2026-10-25. Replaces the v0 slices. Source: approved plan (sprints, lane matrix, verification, user actions). The State column is updated by doc-updater at each lane transition.
 

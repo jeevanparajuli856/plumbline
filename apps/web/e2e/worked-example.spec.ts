@@ -7,7 +7,7 @@ import { expect, test } from './helpers/test'
 import { SimPage } from './pages/SimPage'
 
 // The story (rule 6): true fault R3 ten times too small, told row 3, the hand lands on row 2 and
-// reads 3.671 V, Plumbline warns, the second reading 0.338 V resolves it. Expected values come
+// reads 3.671 V, Truehand warns, the second reading 0.338 V resolves it. Expected values come
 // from the fixture the app replays (helpers/story.ts), never typed from the brief.
 const DIAGNOSIS_FLOOR = 0.95
 const PERCENT = /(\d+(?:\.\d+)?)\s*%/
