@@ -1,7 +1,8 @@
 import { gsap } from '../scroll'
 import {
-  BARS_SCROLL_LENGTH,
+  BARS_END,
   BARS_SCRUB_S,
+  BARS_START,
   BARS_SLAM_DURATION,
   BARS_SPREAD_DURATION,
 } from '../constants'
@@ -13,10 +14,6 @@ interface Bar {
   el: HTMLElement
   stages: Stages
   isPublished: boolean
-}
-
-interface BarsOptions {
-  pin: boolean
 }
 
 function readBars(container: HTMLElement): Bar[] | null {
@@ -48,9 +45,10 @@ function swapLabels(tl: gsap.core.Timeline, labels: readonly HTMLElement[]): voi
 
 /**
  * The technology race: the published bar slams to its stage-1 value, ours spreads, then the second
- * reading lands and ours resolves. Scrubbed by scroll; pinned on wide screens. Bad stages: no motion.
+ * reading lands and ours resolves. Scrubbed as section#play crosses the viewport, never pinned, so
+ * the page keeps scrolling. Bad stages: no motion.
  */
-export function bars(root: HTMLElement, { pin }: BarsOptions): Cleanup {
+export function bars(root: HTMLElement): Cleanup {
   const container = root.querySelector<HTMLElement>('[data-motion="bars"]')
   const parsed = container ? readBars(container) : null
   if (!container || !parsed) return () => {}
@@ -62,10 +60,9 @@ export function bars(root: HTMLElement, { pin }: BarsOptions): Cleanup {
     defaults: { transformOrigin: 'left center' },
     scrollTrigger: {
       trigger: section,
-      start: pin ? 'top top' : 'top 75%',
-      end: pin ? BARS_SCROLL_LENGTH : 'bottom 25%',
+      start: BARS_START,
+      end: BARS_END,
       scrub: BARS_SCRUB_S,
-      pin: pin ? section : false,
     },
   })
   parsed.forEach(({ el, stages: [p0, p1, p2], isPublished }) => {

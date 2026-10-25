@@ -1,4 +1,13 @@
-import { BARS_STAGE_COUNT, LINE_TOLERANCE_PX, STAT_MAX_DECIMALS } from './constants'
+import {
+  BARS_STAGE_COUNT,
+  DEVICE_POINTER_TILT_DEG,
+  DEVICE_SCROLL_TILT_DEG,
+  LATE_LOAD_MS,
+  LINE_TOLERANCE_PX,
+  PARALLAX_MAX_DEPTH,
+  PARALLAX_MIN_DEPTH,
+  STAT_MAX_DECIMALS,
+} from './constants'
 
 export type Stages = readonly [number, number, number]
 
@@ -75,4 +84,60 @@ export function groupByLine(tops: readonly number[]): number[] {
     }
     return line
   })
+}
+
+export type RevealVariant = 'up' | 'mask' | 'stagger'
+
+/** `data-motion-reveal`; anything missing or unknown is the default rise. */
+export function revealVariant(raw: string | null): RevealVariant {
+  const value = raw?.trim()
+  return value === 'mask' || value === 'stagger' ? value : 'up'
+}
+
+/** `data-motion-depth`, clamped to the contract's 0.05 to 0.3; null when not a positive number. */
+export function parseDepth(raw: string | null): number | null {
+  if (raw === null) return null
+  const depth = strictNumber(raw)
+  if (!Number.isFinite(depth) || depth <= 0) return null
+  return Math.min(PARALLAX_MAX_DEPTH, Math.max(PARALLAX_MIN_DEPTH, depth))
+}
+
+/** Keeps a count between 0 and its target, so an overshooting ease never shows a larger number. */
+export function clampCount(current: number, target: number): number {
+  return Math.min(Math.max(current, Math.min(0, target)), Math.max(0, target))
+}
+
+/** Pointer position relative to the device centre, each axis -1..1. */
+export interface PointerOffset {
+  x: number
+  y: number
+}
+
+export interface Tilt {
+  rotationX: number
+  rotationY: number
+}
+
+function clampUnit(value: number): number {
+  return Math.min(1, Math.max(-1, value))
+}
+
+/**
+ * Device tilt: tipped back at the top of its section, forward at the bottom, plus a lean toward
+ * the pointer. The combined tilt never passes the scroll limit.
+ */
+export function deviceTilt(sectionProgress: number, pointer: PointerOffset | null): Tilt {
+  const fromScroll = (1 - 2 * clamp01(sectionProgress)) * DEVICE_SCROLL_TILT_DEG
+  const lean = pointer ?? { x: 0, y: 0 }
+  const rotationX = fromScroll - clampUnit(lean.y) * DEVICE_POINTER_TILT_DEG
+  // `+ 0` turns -0 into 0, so a level device reads as exactly 0.
+  return {
+    rotationX: Math.min(DEVICE_SCROLL_TILT_DEG, Math.max(-DEVICE_SCROLL_TILT_DEG, rotationX)) + 0,
+    rotationY: clampUnit(lean.x) * DEVICE_POINTER_TILT_DEG + 0,
+  }
+}
+
+/** True when the motion chunk ran after above-the-fold content had been painted for a while. */
+export function arrivedLate(now: number = performance.now()): boolean {
+  return now > LATE_LOAD_MS
 }
