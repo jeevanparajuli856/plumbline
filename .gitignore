@@ -22,8 +22,7 @@ coverage/
 # tests and recordings
 playwright-report/
 test-results/
-recordings/*.webm
-recordings/*.mp4
+**/recordings/
 
 # env and secrets
 .env
