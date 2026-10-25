@@ -12,7 +12,7 @@ services:
       - key: PYTHON_VERSION
         value: 3.13.7
       - key: TRUEHAND_CORS_ORIGINS
-        value: https://plumbline-web-lxxc.onrender.com,http://localhost:5173
+        value: https://truehand.tech,https://www.truehand.tech,https://plumbline-web-lxxc.onrender.com
       # Contact form (ADR-0014 decision 6). Set in the Render dashboard; never in the repo.
       - key: TRUEHAND_RESEND_API_KEY
         sync: false
