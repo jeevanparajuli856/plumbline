@@ -163,6 +163,12 @@ export class ReplayClient implements EngineClient {
 
   async reset(_sessionId: string): Promise<SessionViewT> {
     if (!this.fixture) throw new EngineError('session_lost', 'No recording is loaded.')
-    return this.start({ domain: this.fixture.domain, mode: 'replay', fixture: this.fixture.name })
+    return this.start({
+      domain: this.fixture.domain,
+      mode: 'replay',
+      seed: 0,
+      reveal: 'after_step',
+      fixture: this.fixture.name,
+    })
   }
 }

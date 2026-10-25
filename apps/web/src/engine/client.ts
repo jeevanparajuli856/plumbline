@@ -1,10 +1,14 @@
 import type { ApiHealth, EngineSource, Mode } from '@/state/types'
 import type { SessionViewT, StepViewT } from './schemas'
 
+export type RevealPolicy = 'after_step' | 'never'
+
 export interface StartRequest {
   domain: 'circuit' | 'thermometer'
   mode: Mode
-  seed?: number
+  /** Required by the API (docs/API_CONTRACT.md 3.1); drives the seeded hand in simulate. */
+  seed: number
+  reveal: RevealPolicy
   true_hypothesis?: string
   fixture?: string
 }
