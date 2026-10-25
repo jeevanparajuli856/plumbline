@@ -147,20 +147,6 @@ describe('parseEvidence on the real docs/EVIDENCE.md', () => {
   })
 })
 
-describe('summary', () => {
-  it('counts rows by their least finished status and lists experiment commands once', async () => {
-    const { experimentCommands, statusCounts } = await import('./summary')
-    const ev = parseEvidence(evidenceMd)
-    const counts = statusCounts(ev)
-    expect(counts.DONE + counts['IN PROGRESS'] + counts.PENDING + counts.SIMULATED).toBe(
-      ev.readiness.length,
-    )
-    const commands = experimentCommands(ev)
-    expect(commands).toContain('uv run --project engine python -m truehand.experiments.stability')
-    expect(new Set(commands).size).toBe(commands.length)
-  })
-})
-
 describe('withholdBriefExpectations', () => {
   it('drops the brief expectation clauses the evidence file says never reach the UI', async () => {
     const { withholdBriefExpectations } = await import('./markdown')

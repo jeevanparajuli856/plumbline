@@ -46,26 +46,16 @@ describe('provenance', () => {
 })
 
 describe('ProvenanceLine', () => {
-  it('adds the seed when the fixture records one, including seed 0', () => {
-    const { rerender } = render(<ProvenanceLine fixture={withSeed(recorded, 0)} />)
-    expect(screen.getByTestId('caption')).toHaveTextContent('2026-10-26, seed 0. Preliminary.')
-    rerender(<ProvenanceLine fixture={withSeed(recorded, null)} />)
-    expect(screen.getByTestId('caption')).not.toHaveTextContent('seed')
-  })
-
   it('renders nothing for a provisional fixture', () => {
     const { container } = render(<ProvenanceLine fixture={provisional} />)
     expect(container).toBeEmptyDOMElement()
   })
 
-  it('renders a static mono caption with the command, 7-character SHA, date and honesty note', () => {
-    render(<ProvenanceLine fixture={withSeed(recorded, null)} />)
+  it('renders a short static label: recorded, simulated hand, month; no command, hash or seed', () => {
+    render(<ProvenanceLine fixture={withSeed(recorded, 0)} />)
     const caption = screen.getByTestId('caption')
-    expect(caption).toHaveTextContent(
-      'Recorded by python -m truehand.record_fixtures --fixture worked_example, commit 0123456, 2026-10-26. Preliminary. Not peer reviewed.',
-    )
-    expect(caption.querySelectorAll('code')).toHaveLength(2)
+    expect(caption).toHaveTextContent('Recorded run, simulated hand, October 2026.')
+    expect(caption.textContent).not.toMatch(/python|truehand\.|0123456|seed|--/)
     expect(caption).not.toHaveAttribute('aria-live')
-    expect(caption.closest('[aria-live]')).toBeNull()
   })
 })

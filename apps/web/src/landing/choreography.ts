@@ -3,7 +3,11 @@
  * The scene's CameraRig reads `useLanding.getState().progress` inside useFrame and damps toward
  * `poseAt(progress)`. Pure function, no React, unit-tested at its keyframes.
  *
- * Progress model: the page is ten equal bands, one per section in SECTION_ORDER. Inside a band,
+ * The scene runs only on How it works (ADR-0014). Its four sections (intro, play, refusal, domains)
+ * write progress under the scroll keys in HOW_IT_WORKS_SCENE_KEYS, which reuse four LandingSection
+ * values until `state/landing.ts` gets the new names.
+ *
+ * Progress model: the page is equal bands, one per section in SECTION_ORDER. Inside a band,
  * the fraction is how far that section (or its sticky track) has scrolled, so the bands do not
  * depend on pixel heights. Section `i` spans progress [i / 10, (i + 1) / 10].
  */
@@ -41,21 +45,17 @@ export const SIM_POSE: ScenePose = {
   plumbOpacity: 1,
 }
 
-export const SECTION_ORDER: readonly LandingSection[] = [
-  'mast',
-  'research',
-  'problem',
-  'play',
-  'how',
-  'generalize',
-  'product',
-  'ladder',
-  'evidence',
-  'close',
-]
+export const SECTION_ORDER: readonly LandingSection[] = ['mast', 'play', 'how', 'generalize']
+
+/** How it works section id -> the scroll key it writes progress under (data-landing-section). */
+export const HOW_IT_WORKS_SCENE_KEYS = {
+  intro: 'mast',
+  play: 'play',
+  refusal: 'how',
+  domains: 'generalize',
+} as const satisfies Record<string, LandingSection>
 
 export const BAND = 1 / SECTION_ORDER.length
-export const MATH_LINE_COUNT = 6
 
 export type StickySection = 'play' | 'how' | 'generalize'
 
@@ -74,11 +74,9 @@ export const STICKY_STATES: Record<StickySection, readonly NamedState[]> = {
     { name: 'resolved', at: 1 },
   ],
   how: [
-    { name: 'hand', at: 1 / 12 },
-    { name: 'update', at: 5 / 12 },
-    { name: 'choose', at: 7 / 12 },
-    { name: 'layers', at: 9 / 12 },
-    { name: 'refuse', at: 11 / 12 },
+    { name: 'above', at: 0 },
+    { name: 'oblique', at: 0.5 },
+    { name: 'layers', at: 0.75 },
   ],
   generalize: [
     { name: 'bench', at: 0 },
@@ -164,40 +162,29 @@ const HOW_TARGET: Vec3 = [-0.15, 0, 0]
 const LAYERS_TARGET: Vec3 = [-0.17, 0.03, 0]
 const ROAST_TARGET: Vec3 = [-0.09, 0, 0]
 
-/** Rest pose for mast and close: three-quarter view, board right of the text. */
+/** Rest pose for the intro: three-quarter view, board right of the text. */
 const REST = look(RIGHT, [0.05, 0.26, 0.5], 32)
-const PROBLEM = look([-0.17, 0, 0], [0.04, 0.22, 0.52], 32)
-const RECEDED = look(LEFT, [0.18, 0.3, 0.46], 34)
 
 /**
- * Keyframes in ascending progress. Explode is non-zero only inside `how`; roastMix only inside
- * `generalize`. Every named sticky state sits on a keyframe so a snapped scene rests on one.
+ * Keyframes in ascending progress. Explode is non-zero only inside the refusal band; roastMix only
+ * inside domains. Every named sticky state that moves the camera sits on a keyframe.
  */
 export const KEYFRAMES: readonly Keyframe[] = [
   { at: p('mast', 0), pose: REST },
-  { at: p('research', 0), pose: look(RIGHT, [0.05, 0.3, 0.52], 32) },
-  { at: p('problem', 0), pose: PROBLEM },
-  // Hold while problem is read; flow sections cross their band as they scroll past the center line.
-  { at: p('problem', 0.85), pose: PROBLEM },
+  { at: p('mast', 0.6), pose: REST },
   // Play: board on the left half, the panel on the right. Distance stays near 0.4 m.
   { at: p('play', 0), pose: look(LEFT, [0.07, 0.31, 0.32], 30) },
   { at: p('play', 1 / 3), pose: look(LEFT, [0.06, 0.29, 0.33], 30) },
   { at: p('play', 2 / 3), pose: look(LEFT, [0.05, 0.28, 0.34], 30) },
   { at: p('play', 1), pose: look(LEFT, [0.07, 0.31, 0.32], 30) },
-  // How: from above for the first lines, then a low oblique view so the lifted planes separate.
-  { at: p('how', 1 / 12), pose: look(HOW_TARGET, [0, 0.45, 0.03], 30) },
-  { at: p('how', 5 / 12), pose: look(HOW_TARGET, [0, 0.42, 0.08], 30) },
-  { at: p('how', 1 / 2), pose: look(HOW_TARGET, [-0.03, 0.34, 0.2], 30) },
-  { at: p('how', 3 / 4), pose: look(LAYERS_TARGET, [-0.04, 0.17, 0.52], 32, { explode: 1 }) },
+  // Refusal: from above, then a low oblique view so the lifted planes separate.
+  { at: p('how', 0.25), pose: look(HOW_TARGET, [0, 0.45, 0.03], 30) },
+  { at: p('how', 0.5), pose: look(HOW_TARGET, [-0.03, 0.34, 0.2], 30) },
+  { at: p('how', 0.75), pose: look(LAYERS_TARGET, [-0.04, 0.17, 0.52], 32, { explode: 1 }) },
   { at: p('generalize', 0), pose: look([-0.15, 0, 0], [0.06, 0.18, 0.34], 32) },
   { at: p('generalize', 0.4), pose: look(ROAST_TARGET, [0.05, 0.12, 0.42], 30, { roastMix: 1 }) },
   { at: p('generalize', 0.75), pose: look(ROAST_TARGET, [0.04, 0.08, 0.38], 30, { roastMix: 1 }) },
-  { at: p('generalize', 0.85), pose: look(ROAST_TARGET, [0.04, 0.08, 0.38], 30, { roastMix: 1 }) },
-  { at: p('product', 0), pose: RECEDED },
-  { at: p('ladder', 0), pose: RECEDED },
-  { at: p('evidence', 0), pose: { ...RECEDED, plumbOpacity: 0 } },
-  { at: p('close', 0), pose: { ...REST, plumbOpacity: 0 } },
-  { at: p('close', 1), pose: REST },
+  { at: p('generalize', 1), pose: look(ROAST_TARGET, [0.04, 0.08, 0.38], 30, { roastMix: 1 }) },
 ]
 
 function clamp01(x: number): number {
@@ -216,12 +203,6 @@ function mix(a: number, b: number, t: number): number {
 
 function mixVec(a: Vec3, b: Vec3, t: number): Vec3 {
   return [mix(a[0], b[0], t), mix(a[1], b[1], t), mix(a[2], b[2], t)]
-}
-
-function mathLineAt(progress: number): number {
-  const { section, f } = locate(progress)
-  if (section !== 'how') return -1
-  return Math.min(MATH_LINE_COUNT - 1, Math.floor(f * MATH_LINE_COUNT))
 }
 
 function segmentAt(progress: number): { from: Keyframe; to: Keyframe; t: number } {
@@ -247,7 +228,8 @@ export function poseAt(progress: number): ScenePose {
     scene: roastMix >= 0.5 ? 'roast' : 'circuit',
     roastMix,
     explode: mix(a.explode, b.explode, t),
-    mathLine: mathLineAt(clamped),
+    // The math section is gone from the site (ADR-0014); the scene never lights a line.
+    mathLine: -1,
     plumbOpacity: mix(a.plumbOpacity, b.plumbOpacity, t),
   }
 }

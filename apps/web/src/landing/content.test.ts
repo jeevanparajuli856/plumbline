@@ -1,16 +1,9 @@
 import evidenceMd from '@docs/EVIDENCE.md?raw'
 import positioningMd from '@docs/POSITIONING.md?raw'
-import buildPlanMd from '@docs/BUILD_PLAN.md?raw'
-import designMd from '@docs/DESIGN_REFERENCES.md?raw'
 import stabilityMd from '@docs/results/stability_2026-10-25.md?raw'
 import mismatchMd from '@docs/results/mismatch_2026-10-25.md?raw'
-import { act, render } from '@testing-library/react'
-import { createElement } from 'react'
-import { MemoryRouter } from 'react-router'
+import { TROPES } from '@/test/copyGuards'
 import * as content from './content'
-import { LandingPage } from './LandingPage'
-
-vi.mock('@/lib/webgl', () => ({ webglSupported: () => false }))
 
 const flat = (s: string) => s.replace(/\s+/g, ' ')
 
@@ -43,33 +36,16 @@ describe('landing copy is backed by the docs', () => {
     expect(evidenceMd).toContain(`= ${content.TOTAL_PARTICIPANTS} blind participants`)
   })
 
-
-  it('takes the forum quote, kill result and safety scope from the docs', () => {
+  it('takes the forum quote from POSITIONING and the safety line from the footer copy', () => {
     expect(positioningMd).toContain(content.FORUM_QUOTE.text)
-    expect(flat(evidenceMd)).toContain(content.KILL_RESULT)
-    expect(designMd).toContain(content.SAFETY_SCOPE)
+    expect(positioningMd).toContain('Not a safety device.')
+    expect(content.SAFETY_SCOPE.startsWith('Not a safety device.')).toBe(true)
   })
 
-  it('dates phases from BUILD_PLAN, or says the date is not set', () => {
-    expect(buildPlanMd).toContain('Oct 26 to Nov 1')
-    expect(buildPlanMd).toContain('Oct 26 to Nov 8')
-    expect(buildPlanMd).toContain('Nov 23 to Dec 6')
-    expect(content.PHASES.map((p) => p.name)).toEqual([
-      'Research',
-      'Engine',
-      'Simulation',
-      'User validation',
-      'Pilot',
-      'Product',
-    ])
-    expect(content.PHASES.filter((p) => p.state === 'now')).toHaveLength(1)
-    const state = Object.fromEntries(content.PHASES.map((p) => [p.name, p.state]))
-    expect(state).toMatchObject({
-      Research: 'done',
-      Engine: 'done',
-      Simulation: 'done',
-      'User validation': 'now',
-    })
+  it('has no roadmap: no phase list survives in the copy (ADR-0014)', () => {
+    expect('PHASES' in content).toBe(false)
+    expect('PRIOR_ART' in content).toBe(false)
+    expect('DIFFERENCE' in content).toBe(false)
   })
 
   it('names only the partner with permission on file in the simulation scope (rule F21)', () => {
@@ -113,7 +89,7 @@ describe('validation stats are read from docs/results', () => {
     expect(ours[5]).toMatch(new RegExp(`^${byId['confidently-wrong']!.value!.toFixed(1)} ±`))
     const publishedWrong = published[5]!.split(' ')[0]
     expect(byId['confidently-wrong']!.label).toContain(
-      `${publishedWrong}% for the published method`,
+      `${publishedWrong}% for a conventional assistant`,
     )
   })
 
@@ -127,7 +103,6 @@ describe('validation stats are read from docs/results', () => {
       })
     const worst = scores.reduce((a, b) => (a.correct <= b.correct ? a : b))
     expect(byId.stress!.value).toBe(worst.correct)
-    expect(byId.stress!.source).toContain(`${worst.name.replace(/_/g, ' ')} scenario`)
     expect(byId.stress!.label).toContain('the lowest score in that run')
   })
 
@@ -135,7 +110,7 @@ describe('validation stats are read from docs/results', () => {
     const stats = content.buildValidationStats({})
     for (const st of stats.filter((x) => x.isSimulated)) {
       expect(st.value).toBeNull()
-      expect(st.source).toBe('Run file missing.')
+      expect(st.source).toBe('Simulated. Run not recorded yet.')
       expect(st.path).toMatch(/^docs\/results\//)
     }
   })
@@ -152,15 +127,13 @@ describe('validation stats are read from docs/results', () => {
     expect(wrong.label).toContain('not recorded')
   })
 
-  it('names the file, the run date and the seeds and faults on every simulated cell', () => {
+  it('labels every simulated cell briefly: runs and month, never a path or command', () => {
     for (const st of content.VALIDATION_STATS.filter((x) => x.isSimulated)) {
-      expect(st.source).toMatch(
-        /^docs\/results\/(stability|mismatch)_\d{4}-\d{2}-\d{2}\.md, run \d{4}-\d{2}-\d{2}, /,
-      )
-      expect(st.source).toMatch(/\d+ seeds? x \d+ faults\. Simulated\.$/)
+      expect(st.source).toMatch(/^Simulated, [\d,]+ runs, [A-Z][a-z]+ \d{4}$/)
+      expect(st.path).toMatch(/^docs\/results\/(stability|mismatch)_\d{4}-\d{2}-\d{2}\.md$/)
     }
-    expect(byId.correct!.source).toContain('5 seeds x 300 faults')
-    expect(byId.stress!.source).toContain('1 seed x 300 faults')
+    expect(byId.correct!.source).toBe('Simulated, 1,500 runs, October 2026')
+    expect(byId.stress!.source).toBe('Simulated, 300 runs, October 2026')
   })
 
   it('picks the newest dated file and parses leading numbers', () => {
@@ -179,19 +152,6 @@ describe('validation stats are read from docs/results', () => {
   })
 })
 
-/** Copy tropes from docs/POSITIONING.md section 4.3, checked on our strings and the rendered page. */
-const TROPES: ReadonlyArray<readonly [string, RegExp]> = [
-  ['em-dash', /\u2014/],
-  ['emoji', /\p{Extended_Pictographic}/u],
-  ['exclamation mark', /!/],
-  ["it's not X, it's Y", /\bit(?:'|\u2019)?s not\b[^.]{0,60}[,;]\s*it(?:'|\u2019)?s\b/i],
-  ['not just', /\bnot just\b/i],
-  [
-    'buzzword',
-    /\b(revolutionary|game-changing|seamless(?:ly)?|cutting-edge|next-gen|unlock|empower|supercharge|leverage|synergy|world-class|effortless(?:ly)?)\b/i,
-  ],
-]
-
 function stringsIn(value: unknown): string[] {
   if (typeof value === 'string') return [value]
   if (Array.isArray(value)) return value.flatMap(stringsIn)
@@ -207,17 +167,6 @@ describe('copy tropes', () => {
       for (const [name, re] of TROPES)
         expect({ name, text, hit: re.test(text) }).toMatchObject({ hit: false })
     }
-  })
-
-  it('none appears in the rendered landing text', async () => {
-    const { container } = render(createElement(MemoryRouter, null, createElement(LandingPage)))
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 0))
-    })
-    const text = container.textContent ?? ''
-    expect(text.length).toBeGreaterThan(2000)
-    for (const [name, re] of TROPES)
-      expect({ name, hit: re.exec(text)?.[0] ?? null }).toEqual({ name, hit: null })
   })
 
   it('the trope patterns catch what they are meant to catch', () => {

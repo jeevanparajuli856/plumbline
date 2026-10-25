@@ -4,23 +4,13 @@ import s from '../landing.module.css'
 import pp from '../playPanel.module.css'
 import { cx } from '../cx'
 import { WarningGlyph } from '../parts'
-import type { PlayFrame, RankedHypothesis } from '../workedExample'
-
-/** Entropy ratios below these read as low / medium uncertainty in words. */
-const LOW_UNCERTAINTY = 0.1
-const MEDIUM_UNCERTAINTY = 0.5
+import { uncertaintyWord, type PlayFrame, type RankedHypothesis } from '../workedExample'
 
 interface PlayPanelProps {
   frame: PlayFrame
   siteLabels: readonly string[]
   trueHypothesis: string
   isTravelling: boolean
-}
-
-function uncertaintyWord(ratio: number): string {
-  if (ratio < LOW_UNCERTAINTY) return 'low'
-  if (ratio < MEDIUM_UNCERTAINTY) return 'medium'
-  return 'high'
 }
 
 function scale(p: number): CSSProperties {
@@ -55,10 +45,7 @@ export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: P
         </div>
         <div>
           <div className="flex flex-wrap justify-between gap-x-4 text-base">
-            <span className="whitespace-nowrap">Uncertainty: {uncertaintyWord(ratio)}</span>
-            <span className={cx(s.mono, 'whitespace-nowrap')}>
-              {frame.entropyBits.toFixed(2)} of {frame.maxEntropyBits.toFixed(2)} bits
-            </span>
+            <span className="whitespace-nowrap">Uncertainty: {uncertaintyWord(frame)}</span>
           </div>
           <div className={cx(pp.entropy, 'mt-2')} aria-hidden="true">
             <div className={pp.entropyFill} style={scale(ratio)} />
@@ -98,7 +85,7 @@ export function PlayPanel({ frame, siteLabels, trueHypothesis, isTravelling }: P
           />
         )}
         <BarList
-          title="Published method"
+          title="Conventional assistant"
           items={frame.published ? [frame.published] : []}
           tone="published"
           trueHypothesis={frame.isResolved ? trueHypothesis : null}

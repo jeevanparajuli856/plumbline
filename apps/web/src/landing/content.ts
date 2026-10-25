@@ -68,97 +68,77 @@ export const STUDIES: readonly Study[] = [
 
 export const TOTAL_PARTICIPANTS = STUDIES.reduce((sum, s) => sum + s.participants, 0)
 
-export interface PriorArt {
-  name: string
-  what: string
-  gap: string
-}
-
-/** POSITIONING section 2 and PITCH section 6. */
-export const PRIOR_ART: readonly PriorArt[] = [
-  {
-    name: 'Gao et al., 2014',
-    what: 'Picks the next test point by information gain over a fault dictionary.',
-    gap: 'Assumes the test point you asked for is the one measured.',
-  },
-  {
-    name: 'Sequential diagnosis with unreliable tests, IEEE 2019',
-    what: 'Treats each test as a black box with false positive and false negative rates.',
-    gap: 'The noise is on the outcome; which test ran is never in doubt.',
-  },
-  {
-    name: 'de Kleer and Williams, 1987',
-    what: 'Diagnoses from a model of correct behavior and observed discrepancies.',
-    gap: 'Observations are attributed to the intended probe location.',
-  },
-]
-
-export const DIFFERENCE =
-  'Those model sensor noise. We model actuator noise with a recoverable hidden state.'
-
 export const FORUM_QUOTE = {
   text: "He can't see the probes",
   source: 'EEVblog forum, 2014, thread on a talking multimeter for a blind engineer',
 }
 
-/** EVIDENCE.md section 4: the result that would end the project, stated before anyone asks. */
+/** EVIDENCE.md section 4, in plain words (no threshold on the site): the result that would change our minds. */
 export const KILL_RESULT =
-  'if measured placement accuracy is above 0.95, the published method is already sufficient.'
+  'if real hands almost always land where they are told, a conventional assistant is already enough, and we will say so.'
 
 /** Scope of every result on the page. Names no partner (rule F21) until permission is on file. */
 export const SIMULATION_SCOPE =
   'Results on this page come from simulated faults and a simulated hand. We have not yet measured how real hands miss. That measurement is being scheduled with the Louisiana Center for the Blind.'
 
 export const SAFETY_SCOPE =
-  'Research preview. Not a safety device. Do not use it to work on mains voltage or anything that can hurt you.'
+  'Not a safety device. Do not use it to work on mains voltage or anything that can hurt you.'
 
-export type PhaseState = 'done' | 'in-progress' | 'now' | 'next'
-
-export interface Phase {
-  name: string
-  when: string
-  state: PhaseState
-}
-
-/** Phase chips (POSITIONING section 2). Dates from docs/BUILD_PLAN.md; undated phases say so. */
-export const PHASES: readonly Phase[] = [
-  { name: 'Research', when: 'Oct 25', state: 'done' },
-  { name: 'Engine', when: 'Oct 26 to Nov 1', state: 'done' },
-  { name: 'Simulation', when: 'Oct 26 to Nov 8', state: 'done' },
-  { name: 'User validation', when: 'date to be booked', state: 'now' },
-  { name: 'Pilot', when: 'date to be set', state: 'next' },
-  { name: 'Product', when: 'Nov 23 to Dec 6', state: 'next' },
-]
-
-export interface TeamMember {
-  name: string
-  role: string
-}
-
-export const TEAM: readonly TeamMember[] = [
-  { name: 'Jeevan Parajuli', role: 'Engine rebuild and the web simulator' },
-  { name: 'Pankaj Bhatta', role: 'The original inference engine and experiments' },
-]
-export const UNIVERSITY = 'University of Louisiana Monroe'
-
-/** The three products, in the order they ship. Status words follow docs/EVIDENCE.md. */
-export const PRODUCTS: readonly { name: string; sentence: string; status: string }[] = [
+/** What changes for the user (Home, outcomes). Says what Truehand does, never how. */
+export const OUTCOMES: readonly { name: string; sentence: string }[] = [
   {
-    name: 'Web simulator',
-    sentence:
-      'The whole instrument in a browser: the circuit, the simulated thermometer and recorded replays.',
-    status: 'Open now',
+    name: 'Told where to probe',
+    sentence: 'Truehand names the next row to measure, in words, and waits for your reading.',
   },
   {
-    name: 'Voice channel',
+    name: 'Warned when the probe slipped',
     sentence:
-      'Hear the instruction, say the reading, hear the warning. Speech stays off until you turn it on.',
-    status: 'In progress',
+      'When a reading says the probe touched a different row, you hear it at once, with the row it most likely touched.',
   },
   {
-    name: 'iOS app',
-    sentence: 'The same web app wrapped for the phone, so its screen reader speaks every state.',
-    status: 'Next',
+    name: 'Never handed a guess',
+    sentence:
+      'When two faults read the same everywhere it can measure, it says so and asks for another measurement.',
+  },
+]
+
+/** The app's three modes (POSITIONING section 2, The app). Tags say where the readings come from. */
+export const MODES: readonly { name: string; sentence: string; tag: string }[] = [
+  {
+    name: 'Live meter',
+    sentence:
+      'Use your own talking multimeter. Truehand tells you where to probe, you say or type the reading, and it answers.',
+    tag: 'Your meter',
+  },
+  {
+    name: 'Recorded replays',
+    sentence:
+      'Step through real recorded sessions, one reading at a time, to learn what a warning sounds like before you need one.',
+    tag: 'Recorded runs',
+  },
+  {
+    name: 'Simulation',
+    sentence:
+      'Practice and demonstrate with a simulated circuit and a simulated hand. Every screen in this mode says simulated.',
+    tag: 'Simulated hand',
+  },
+]
+
+/** Who buys Truehand (The app, buyers). Roles only, no organization names. */
+export const BUYERS: readonly { name: string; sentence: string }[] = [
+  {
+    name: 'Schools and training programs',
+    sentence:
+      'Electronics classes for blind and low-vision students, and the agencies that fund their tools.',
+  },
+  {
+    name: 'Employers',
+    sentence: 'Workplaces that need a technician to measure on their own, as a job accommodation.',
+  },
+  {
+    name: 'Pilot partners',
+    sentence:
+      'Blindness organizations and instructors who want to try Truehand with their students first.',
   },
 ]
 
@@ -217,25 +197,50 @@ export interface ValidationStat {
   decimals: number
   suffix: string
   label: string
+  /** Short public provenance label; the file stays in `path` and in docs/EVIDENCE.md. */
   source: string
-  /** The run file the value should come from, for the "Not recorded in" fallback. */
+  /** The run file the value comes from. Tests trace it; the page never prints it. */
   path: string | null
   /** false only for the cell that waits on user validation. */
   isSimulated: boolean
 }
 
-/** "5 seeds x 300 faults" from the run file's "- Seeds: [...]; n per arm per seed: N" line. */
-export function runScope(file: ResultFile | null): string | null {
+const MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
+
+/** "October 2026" from an ISO date, or "undated". */
+export function monthLabel(isoDate: string | null | undefined): string {
+  const [year, month] = (isoDate ?? '').split('-')
+  const name = MONTHS[Number(month) - 1]
+  return year && name ? `${name} ${year}` : 'undated'
+}
+
+/** Runs in a file: seeds x faults per seed, from the "- Seeds" line. */
+export function runCount(file: ResultFile | null): number | null {
   const m = /^- Seeds: \[([^\]]*)\]; n per arm per seed: (\d+)/m.exec(file?.markdown ?? '')
   if (!m) return null
   const seeds = m[1]!.split(',').filter((x) => x.trim() !== '').length
-  return `${seeds} ${seeds === 1 ? 'seed' : 'seeds'} x ${m[2]} faults`
+  return seeds * Number(m[2])
 }
 
-function sourceOf(file: ResultFile | null, scenario = ''): string {
-  if (!file) return 'Run file missing.'
-  const scope = [scenario, runScope(file)].filter(Boolean).join(', ')
-  return `${file.path}, run ${file.generated ?? 'undated'}, ${scope}. Simulated.`
+/** The short public label (POSITIONING section 3): "Simulated, 1,500 runs, October 2026". */
+export function sourceLabel(file: ResultFile | null): string {
+  if (!file) return 'Simulated. Run not recorded yet.'
+  const runs = runCount(file)
+  const when = monthLabel(file.generated)
+  return `Simulated, ${runs === null ? 'unknown' : runs.toLocaleString('en-US')} runs, ${when}`
 }
 
 /** Plain names for the mismatch scenarios; unknown ones show their name from the file. */
@@ -276,7 +281,7 @@ export function buildValidationStats(files: Record<string, string>): ValidationS
       decimals: 1,
       suffix: '%',
       label: 'of simulated faults end on the true fault or an honest refusal, mean over seeds.',
-      source: sourceOf(stability),
+      source: sourceLabel(stability),
       path: stability?.path ?? 'docs/results/stability_<date>.md',
       isSimulated: true,
     },
@@ -287,9 +292,9 @@ export function buildValidationStats(files: Record<string, string>): ValidationS
       suffix: '%',
       label:
         publishedWrong === null
-          ? 'confidently wrong. The published method on the same faults is not recorded in that run.'
-          : `confidently wrong, against ${publishedWrong}% for the published method on the same faults.`,
-      source: sourceOf(stability),
+          ? 'confidently wrong. The conventional assistant on the same faults is not recorded in that run.'
+          : `confidently wrong, against ${publishedWrong}% for a conventional assistant on the same faults.`,
+      source: sourceLabel(stability),
       path: stability?.path ?? 'docs/results/stability_<date>.md',
       isSimulated: true,
     },
@@ -301,7 +306,7 @@ export function buildValidationStats(files: Record<string, string>): ValidationS
       label: worst
         ? `correct in the hardest of our stress tests, ${SCENARIO_PHRASE[worst.scenario] ?? worst.scenario.replace(/_/g, ' ')}: the lowest score in that run.`
         : 'correct in the hardest of our stress tests.',
-      source: sourceOf(mismatch, worst ? `${worst.scenario.replace(/_/g, ' ')} scenario` : ''),
+      source: sourceLabel(mismatch),
       path: mismatch?.path ?? 'docs/results/mismatch_<date>.md',
       isSimulated: true,
     },
@@ -311,8 +316,8 @@ export function buildValidationStats(files: Record<string, string>): ValidationS
       decimals: 0,
       suffix: '',
       label:
-        'How real blind hands miss: the measured placement matrix that replaces the assumed one. No participant results yet.',
-      source: 'docs/EVIDENCE.md, readiness row "Measured confusion matrix". Date to be booked.',
+        'How real blind hands miss, measured with blind participants. No participant results yet.',
+      source: 'Scheduled with the Louisiana Center for the Blind.',
       path: null,
       isSimulated: false,
     },

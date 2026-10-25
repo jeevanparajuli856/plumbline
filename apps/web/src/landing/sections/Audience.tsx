@@ -6,35 +6,29 @@ import l from '../ladder.module.css'
 import { stripEditorNotes, tableUnder, withRolesForNames } from '../markdownTables'
 import { Caption, Eyebrow, Inline, Section } from '../parts'
 import { cx } from '../cx'
-import { countWord } from '../numberWords'
 
 const LADDER = tableUnder(ladderMd, 'Scale ladder')
 const STATS = tableUnder(evidenceMd, '3. Employment')
-/** The trailing parenthetical of the EVIDENCE statistic names its source. */
-const SOURCE_IN_PARENS = /\(([^)]*)\)\s*$/
+/** Columns shown per rung: who uses it and who pays. The engine column stays off the site. */
+const SHOWN_COLUMNS = ['User', 'Who pays']
 
-export function Ladder() {
+/** Who it is for and who buys it, from the scale ladder, as a ruled staircase. Roles, never names. */
+export function Audience() {
   const employment = STATS?.rows[0]
-  const source = SOURCE_IN_PARENS.exec(stripEditorNotes(employment?.[0] ?? ''))?.[1]
+  const columns = SHOWN_COLUMNS.map((h) => LADDER?.headers.indexOf(h) ?? -1).filter((i) => i > 0)
   return (
-    <Section id="ladder" className={cx(s.section, s.band)}>
-      <div className={cx(s.frame, s.grid, 'gap-y-12')}>
+    <Section id="audience" className={cx(s.section, s.sectionTight, s.sheet)}>
+      <div className={cx(s.frame, s.grid, 'gap-y-10')}>
         <header className="col-span-4 md:col-span-8">
           <Eyebrow>Who it is for</Eyebrow>
-          <h2 id="ladder-title" className={cx(s.h2, 'mt-6')}>
-            One engine, {countWord(LADDER?.rows.length ?? 0)} rungs. Electronics is the first
-            because its physics is exact.
+          <h2 id="audience-title" className={cx(s.h2, 'mt-6')}>
+            Built for blind technicians. Bought by the people who equip them.
           </h2>
-          {employment && (
-            <p className={cx(s.lead, 'mt-6')}>
-              <Inline text={stripEditorNotes(employment[0] ?? '')} />.
-            </p>
-          )}
         </header>
         {LADDER && (
-          <ol className={cx(l.stairs, 'col-span-4 md:col-span-12')} aria-label="Scale ladder">
+          <ol className={cx(l.stairs, 'col-span-4 md:col-span-12')} aria-label="Who uses Truehand">
             {LADDER.rows.map((row, i) => {
-              const [stage = '', ...facts] = row
+              const stage = row[0] ?? ''
               return (
                 <li
                   key={stage}
@@ -45,11 +39,11 @@ export function Ladder() {
                     <Inline text={withRolesForNames(stripEditorNotes(stage))} />
                   </h3>
                   <dl className={l.stairFacts}>
-                    {facts.map((cell, j) => (
-                      <div key={LADDER.headers[j + 1] ?? j}>
-                        <dt className={s.label}>{LADDER.headers[j + 1]}</dt>
+                    {columns.map((j) => (
+                      <div key={j}>
+                        <dt className={s.label}>{LADDER.headers[j]}</dt>
                         <dd>
-                          <Inline text={withRolesForNames(stripEditorNotes(cell))} />
+                          <Inline text={withRolesForNames(stripEditorNotes(row[j] ?? ''))} />
                         </dd>
                       </div>
                     ))}
@@ -60,9 +54,13 @@ export function Ladder() {
           </ol>
         )}
         <Caption className="col-span-4 md:col-span-8">
-          Each step down the staircase is a larger market on the same engine. The filled marker is
-          where we are now.
-          {source && ` Employment figure: ${source}.`}
+          The filled marker is where we start: electronics classrooms and benches.
+          {employment && (
+            <>
+              {' '}
+              <Inline text={stripEditorNotes(employment[0] ?? '')} />.
+            </>
+          )}
         </Caption>
       </div>
     </Section>

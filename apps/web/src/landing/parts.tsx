@@ -7,20 +7,22 @@ import { inlineSegments, statusTone, type StatusTone } from './markdownTables'
 import type { Photo } from './photos'
 
 interface SectionProps {
-  id: LandingSection
+  id: string
   className?: string | undefined
   /** A motion hook on the section itself (UI_CONTRACT 5.3), e.g. "bars" on section#play. */
   motion?: string | undefined
+  /** Scroll key for the scene's progress (How it works only; see HOW_IT_WORKS_SCENE_KEYS). */
+  sceneKey?: LandingSection | undefined
   children: ReactNode
 }
 
-/** Every landing section: a labelled landmark the scroll hook can find. Heading id is `${id}-title`. */
-export function Section({ id, className, motion, children }: SectionProps) {
+/** Every marketing section: a labelled landmark. Heading id is `${id}-title`. */
+export function Section({ id, className, motion, sceneKey, children }: SectionProps) {
   return (
     <section
       id={id}
       aria-labelledby={`${id}-title`}
-      data-landing-section={id}
+      data-landing-section={sceneKey}
       data-motion={motion}
       className={className}
     >

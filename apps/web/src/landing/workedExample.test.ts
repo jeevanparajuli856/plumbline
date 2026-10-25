@@ -37,13 +37,13 @@ describe('transcript', () => {
     expect(readings[0]!.text).toContain(s.reading.toFixed(3))
   })
 
-  it('adds one warning per warned step and names the published method next to every belief', () => {
+  it('adds one warning per warned step and names the conventional assistant next to every belief', () => {
     const items = transcript(fx)
     expect(items.filter((t) => t.kind === 'warning')).toHaveLength(
       fx.steps.filter((s) => s.warning).length,
     )
     for (const t of items.filter((i) => i.kind === 'belief' || i.kind === 'diagnosis')) {
-      expect(t.text).toContain('Published method')
+      expect(t.text).toContain('A conventional assistant')
     }
     for (const t of items) expect(t.text).not.toContain('—')
   })

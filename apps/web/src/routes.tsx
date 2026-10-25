@@ -1,12 +1,11 @@
 import { createBrowserRouter, redirect } from 'react-router'
 import { App } from './App'
-import { AboutPage } from './about/AboutPage'
-import { EvidencePage } from './evidence/EvidencePage'
-import { LandingPage } from './landing/LandingPage'
+import { HomePage } from './pages/HomePage'
 import { SimPage } from './sim/SimPage'
 import { NotFound } from './ui/NotFound'
 import { PreviewGate } from './ui/PreviewGate'
 
+/** Marketing pages other than Home load on demand, so the first paint carries Home only. */
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -19,7 +18,7 @@ export const router = createBrowserRouter([
           if (url.searchParams.get('demo')) return redirect(`/sim${url.search}`)
           return null
         },
-        Component: LandingPage,
+        Component: HomePage,
       },
       {
         path: 'sim',
@@ -29,8 +28,31 @@ export const router = createBrowserRouter([
           </PreviewGate>
         ),
       },
-      { path: 'evidence', Component: EvidencePage },
-      { path: 'about', Component: AboutPage },
+      {
+        path: 'how-it-works',
+        lazy: async () => ({ Component: (await import('./pages/HowItWorksPage')).HowItWorksPage }),
+      },
+      {
+        path: 'evidence',
+        lazy: async () => ({ Component: (await import('./evidence/EvidencePage')).EvidencePage }),
+      },
+      { path: 'app', lazy: async () => ({ Component: (await import('./pages/AppPage')).AppPage }) },
+      {
+        path: 'accessibility',
+        lazy: async () => ({
+          Component: (await import('./pages/AccessibilityPage')).AccessibilityPage,
+        }),
+      },
+      {
+        path: 'contact',
+        lazy: async () => ({
+          Component: (await import('./pages/contact/ContactPage')).ContactPage,
+        }),
+      },
+      {
+        path: 'about',
+        lazy: async () => ({ Component: (await import('./about/AboutPage')).AboutPage }),
+      },
       { path: '*', Component: NotFound },
     ],
   },

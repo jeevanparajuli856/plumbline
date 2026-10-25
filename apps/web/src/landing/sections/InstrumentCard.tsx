@@ -15,6 +15,7 @@ import {
 } from '../heroLoop'
 import { Caption, WarningGlyph } from '../parts'
 import { useFixtures } from '../useFixture'
+import { uncertaintyWord } from '../workedExample'
 
 interface InstrumentCardProps {
   reduced: boolean
@@ -150,9 +151,9 @@ function InstrumentView({ frame, tick }: { frame: HeroFrame; tick: number }) {
           )}
         </div>
         <p className={ic.instMeta}>
-          {frame.entropyBits.toFixed(2)} of {frame.maxEntropyBits.toFixed(2)} bits
+          Uncertainty
           <br />
-          uncertainty
+          {uncertaintyWord(frame)}
         </p>
       </div>
 
@@ -223,7 +224,7 @@ function Belief({ frame }: { frame: HeroFrame }) {
         <li>
           <div className={s.barLabel}>
             <span>
-              Published method{frame.published ? `: ${frame.published.label}` : ', waiting'}
+              Conventional assistant{frame.published ? `: ${frame.published.label}` : ', waiting'}
             </span>
             <span className={s.mono}>{frame.published ? formatPct(frame.published.p) : ''}</span>
           </div>

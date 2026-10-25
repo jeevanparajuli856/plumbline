@@ -1,24 +1,25 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { FixtureT } from '@/engine/schemas'
 import { formatPct } from '@/lib/format'
 import { DOMAINS } from '@/state/domains'
 import { useSession } from '@/state/session'
 import { buttonClass } from '@/ui/button'
-import { PRODUCT_LINE, PRODUCTS } from '../content'
 import s from '../landing.module.css'
 import pr from '../product.module.css'
-import { Caption, Eyebrow, Section, WarningGlyph } from '../parts'
+import { Caption, WarningGlyph } from '../parts'
 import { cx } from '../cx'
 import { heroFrame } from '../heroFrame'
-import { HERO_RECORDING_IDS, PHONE_LAG_STEPS, phonePositionAt, useHeroLoop } from '../heroLoop'
+import {
+  HERO_RECORDING_IDS,
+  PHONE_LAG_STEPS,
+  phonePositionAt,
+  useHeroDriver,
+  useHeroLoop,
+} from '../heroLoop'
+import { useReducedMotion } from '@/a11y/useReducedMotion'
 import { countWord } from '../numberWords'
 import { useFixtures } from '../useFixture'
 import { siteLabel } from '../workedExample'
-
-interface ProductProps {
-  fixture: FixtureT | null
-  onStep(): void
-}
 
 /** What the phone screen shows, whoever drives it. */
 interface PhoneView {
@@ -60,9 +61,16 @@ function PhoneScreen({ view }: { view: PhoneView }) {
   )
 }
 
-/** Until the reader steps it, the phone follows the hero instrument a little behind. */
+/** Until the reader steps it, the phone plays the same recorded runs as the Home instrument, two steps behind. */
 function HeroPhone() {
   const load = useFixtures(HERO_RECORDING_IDS)
+  const reduced = useReducedMotion()
+  const counts = useMemo(
+    () => (load.status === 'ready' ? load.fixtures.map((f) => f.steps.length) : null),
+    [load],
+  )
+  // The phone drives the shared loop itself: no instrument card is mounted on this page.
+  useHeroDriver(counts, reduced)
   const tick = useHeroLoop((st) => st.state.tick)
   if (load.status !== 'ready') {
     return (
@@ -78,8 +86,7 @@ function HeroPhone() {
       />
     )
   }
-  const counts = load.fixtures.map((f) => f.steps.length)
-  const { recording, readings } = phonePositionAt(counts, tick)
+  const { recording, readings } = phonePositionAt(counts ?? [], tick)
   const fx = load.fixtures[recording]!
   const f = heroFrame(fx, HERO_RECORDING_IDS[recording]!, readings)
   const spec = DOMAINS[fx.domain]
@@ -149,54 +156,39 @@ function SessionPhone({ fixture }: { fixture: FixtureT | null }) {
   )
 }
 
-export function Product({ fixture, onStep }: ProductProps) {
+interface PhonePreviewProps {
+  fixture: FixtureT | null
+  onStep(): void
+}
+
+/**
+ * The phone text channel. Until the reader presses the button it follows the Home instrument's
+ * recordings, two steps behind; after that it is the real session store in replay mode.
+ */
+export function PhonePreview({ fixture, onStep }: PhonePreviewProps) {
   const phase = useSession((st) => st.phase)
   const [isStepped, setStepped] = useState(false)
   const isBusy = phase === 'submitting' || phase === 'revealing' || phase === 'starting'
   return (
-    <Section id="product" className={cx(s.section, s.sheet, s.ruleTop)}>
-      <div className={cx(s.frame, s.grid, 'items-start gap-y-12')}>
-        <div className="col-span-4 md:col-span-12 lg:col-span-7">
-          <Eyebrow>The product</Eyebrow>
-          <h2 id="product-title" className={cx(s.h2, 'mt-6')}>
-            {PRODUCT_LINE}
-          </h2>
-          <p className={cx(s.lead, 'mt-6')}>
-            The product is the text and voice channel. A blind user hears the instruction, says the
-            reading, and hears the warning. The 3D view on this page is for people who can see it;
-            everything it shows is also in words.
-          </p>
-          <ul data-motion="rows" className={cx(pr.productRows, 'mt-12')} aria-label="Products">
-            {PRODUCTS.map((p, i) => (
-              <li key={p.name} className={pr.productRow}>
-                <p className={pr.productName}>{p.name}</p>
-                <p className="text-base leading-relaxed text-text-2">{p.sentence}</p>
-                <p className={cx(pr.productStatus, i === 0 && pr.productStatusNow)}>{p.status}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="col-span-4 flex flex-col items-center gap-6 md:col-span-12 lg:col-span-4 lg:col-start-9">
-          {isStepped ? <SessionPhone fixture={fixture} /> : <HeroPhone />}
-          <button
-            type="button"
-            className={buttonClass('secondary')}
-            aria-disabled={isBusy || undefined}
-            onClick={() => {
-              if (isBusy) return
-              setStepped(true)
-              onStep()
-            }}
-          >
-            Next recorded reading
-          </button>
-          <Caption>
-            {isStepped
-              ? 'Phone preview: the same session store the simulator uses, in replay mode, with the recorded worked example. The button steps it one reading at a time.'
-              : `Phone preview: the instrument at the top of the page, ${countWord(PHONE_LAG_STEPS)} steps behind. Press the button to step the recorded worked example yourself.`}
-          </Caption>
-        </div>
-      </div>
-    </Section>
+    <div className="flex flex-col items-center gap-6">
+      {isStepped ? <SessionPhone fixture={fixture} /> : <HeroPhone />}
+      <button
+        type="button"
+        className={buttonClass('secondary')}
+        aria-disabled={isBusy || undefined}
+        onClick={() => {
+          if (isBusy) return
+          setStepped(true)
+          onStep()
+        }}
+      >
+        Next recorded reading
+      </button>
+      <Caption>
+        {isStepped
+          ? 'Phone preview: the recorded worked example, one reading at a time, from a simulated hand.'
+          : `Phone preview: recorded runs from a simulated hand, ${countWord(PHONE_LAG_STEPS)} steps behind the instrument on the home page. Press the button to step the worked example yourself.`}
+      </Caption>
+    </div>
   )
 }

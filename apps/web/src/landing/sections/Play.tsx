@@ -78,7 +78,7 @@ export function Play({ fixture, onPlay, onReplay }: PlayProps) {
         : `Paused after reading ${readingCount} of ${fixture?.steps.length ?? 0}.`
 
   return (
-    <Section id="play" motion="bars" className={s.ink}>
+    <Section id="play" motion="bars" sceneKey="play" className={s.ink}>
       {/* No CSS sticky track: the motion module pins this block and its spacer gives the scroll length. */}
       <div className={s.playStage}>
         <div className="w-full">
@@ -92,7 +92,7 @@ export function Play({ fixture, onPlay, onReplay }: PlayProps) {
                 The reading is right. The row is wrong.
               </h2>
               <p className={cx(s.lead, 'mt-5')}>
-                {fixture ? `${slipSentence(fixture)} ` : ''}The published method trusts the
+                {fixture ? `${slipSentence(fixture)} ` : ''}A conventional assistant trusts the
                 instruction and is certain at once. Truehand keeps the doubt until the next reading
                 settles it.
               </p>
@@ -155,7 +155,7 @@ function Race({ fixture }: { fixture: FixtureT }) {
   const rows = [
     {
       key: 'published',
-      name: 'Published method',
+      name: 'Conventional assistant',
       stages: stages.published,
       top: last ? labelOf(fixture, last.baseline.top) : '',
       isTrue: last?.baseline.top === fixture.true_hypothesis,
@@ -272,13 +272,13 @@ function PlayRecord({ fixture }: { fixture: FixtureT }) {
         <div className={cx(s.tableScroll, 'mt-6')}>
           <table className={s.table}>
             <caption className="sr-only">
-              Truehand and the published method on the same readings
+              Truehand and a conventional assistant on the same readings
             </caption>
             <thead>
               <tr>
                 <th scope="col">Reading</th>
                 <th scope="col">Truehand</th>
-                <th scope="col">Published method</th>
+                <th scope="col">Conventional assistant</th>
               </tr>
             </thead>
             <tbody>
@@ -304,9 +304,9 @@ function PlayRecord({ fixture }: { fixture: FixtureT }) {
           </table>
         </div>
         <p className={cx(s.body, 'mt-6 text-on-ink-muted')}>
-          Published method: entropy-based test selection that assumes the probe is where you were
-          told (Gao et al., 2014). It is our implementation, run in shadow on the identical
-          readings. True fault in this recording: {labelOf(fixture, fixture.true_hypothesis)}.
+          A conventional assistant takes every reading as coming from the row it asked for. On the
+          same readings it names the wrong fault with full confidence. True fault in this recording:{' '}
+          {labelOf(fixture, fixture.true_hypothesis)}.
         </p>
         <ProvenanceLine fixture={fixture} className="mt-4" />
         {isProvisional(fixture) && (

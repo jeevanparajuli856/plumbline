@@ -156,7 +156,7 @@ export function transcript(fx: FixtureT): TranscriptItem[] {
     {
       key: 'start',
       kind: 'start',
-      text: `Start. ${n} possible ${noun.plural}, all equally likely: uncertainty ${maxEntropy(fx).toFixed(2)} bits. Told: ${instructionFor(fx, fx.prior_instruction.site)}.`,
+      text: `Start. ${n} possible ${noun.plural}, all equally likely. Told: ${instructionFor(fx, fx.prior_instruction.site)}.`,
     },
   ]
   fx.steps.forEach((step, i) => {
@@ -175,7 +175,7 @@ export function transcript(fx: FixtureT): TranscriptItem[] {
         text: `Warning. Your probe is not where you think it is. Most likely ${siteLabel(fx, argmax(step.placement))}. Chance it was not ${siteLabel(fx, step.told_site)}: ${formatPct(step.p_off_site)}.`,
       })
     }
-    const published = `Published method: ${labelOf(fx, step.baseline.top)}, ${formatPct(step.baseline.confidence)}`
+    const published = `A conventional assistant: ${labelOf(fx, step.baseline.top)}, ${formatPct(step.baseline.confidence)}`
     if (step.diagnosis) {
       const isTrue = step.diagnosis.hypothesis_id === fx.true_hypothesis
       items.push({
@@ -200,7 +200,7 @@ export function transcript(fx: FixtureT): TranscriptItem[] {
   return items
 }
 
-/** One row per reading: Truehand's top candidate against the published method's, with the truth marked. */
+/** One row per reading: Truehand's top candidate against a conventional assistant's, with the truth marked. */
 export function comparisonRows(fx: FixtureT): ComparisonRow[] {
   return fx.steps.map((step, i) => {
     const top = rank(fx, step.belief, 1)[0]!
@@ -319,7 +319,7 @@ export interface RaceStages {
 /**
  * The two-method race in `play`: each method's top-fault probability before any reading and
  * after each reading. Before a reading both hold the uniform prior; after it, Truehand's top
- * belief and the published method's confidence, as recorded.
+ * belief and the conventional assistant's confidence, as recorded.
  */
 export function raceStages(fx: FixtureT): RaceStages {
   const prior = 1 / Math.max(1, fx.catalog.hypothesis_ids.length)
@@ -327,4 +327,15 @@ export function raceStages(fx: FixtureT): RaceStages {
     published: [prior, ...fx.steps.map((s) => s.baseline.confidence)],
     ours: [prior, ...fx.steps.map((s) => Math.max(...s.belief))],
   }
+}
+
+/** Uncertainty below these fractions of its maximum reads as low / medium in words. */
+const LOW_UNCERTAINTY = 0.1
+const MEDIUM_UNCERTAINTY = 0.5
+
+/** Uncertainty in words for a frame: the site shows the word, never the figure behind it. */
+export function uncertaintyWord(frame: Pick<PlayFrame, 'entropyBits' | 'maxEntropyBits'>): string {
+  const ratio = frame.maxEntropyBits > 0 ? frame.entropyBits / frame.maxEntropyBits : 0
+  if (ratio < LOW_UNCERTAINTY) return 'low'
+  return ratio < MEDIUM_UNCERTAINTY ? 'medium' : 'high'
 }

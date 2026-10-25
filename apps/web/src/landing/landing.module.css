@@ -701,3 +701,63 @@
 .phaseNext {
   color: var(--text-2);
 }
+
+/* ---------- Multi-page rhythm (ADR-0014) ---------- */
+.sectionTight {
+  padding-block: 96px;
+}
+@media (max-width: 767px) {
+  .sectionTight {
+    padding-block: 64px;
+  }
+}
+/* See-through sections on How it works let the 3D scene show behind the text. */
+.sceneSection {
+  background: transparent;
+}
+.introSection {
+  min-height: 86vh;
+  display: flex;
+  align-items: center;
+}
+.refusalCard {
+  margin: 0;
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+}
+.settingsCard {
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+}
+/* A ruled list of short claims: title left, sentence right; offset, never cards. */
+.outcomes {
+  list-style: none;
+  padding: 0;
+  border-top: 1px solid var(--text);
+}
+.outcome {
+  display: grid;
+  grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+  column-gap: var(--space-8);
+  row-gap: var(--space-2);
+  align-items: baseline;
+  padding-block: var(--space-6);
+  border-bottom: 1px solid var(--hairline);
+}
+@media (min-width: 768px) {
+  .outcome:nth-child(2) {
+    margin-left: 6%;
+  }
+  .outcome:nth-child(3) {
+    margin-left: 12%;
+  }
+}
+@media (max-width: 767px) {
+  .outcome {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
