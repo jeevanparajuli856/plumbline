@@ -7,11 +7,41 @@ n*         = argmax_n [H(b) - E_r H(b' | r)]
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+from dataclasses import dataclass
+from typing import NamedTuple
+
 import numpy as np
 
-from plumbline.config import EngineConfig
+from plumbline.config import GAIN_PRUNE_WEIGHT, GAIN_TIE_TOLERANCE_BITS, EngineConfig
 from plumbline.confusion import banded_confusion
 from plumbline.model import FloatArray, InstrumentModel
+
+SQRT_2PI = float(np.sqrt(2.0 * np.pi))
+
+
+class Instruction(NamedTuple):
+    site: int
+    gains: FloatArray
+
+
+@dataclass(frozen=True)
+class PlacementWarning:
+    """Placement warning: active exactly when P(l != told | r) > the warning threshold."""
+
+    active: bool
+    p_off_site: float
+    likely_site: int
+
+
+@dataclass(frozen=True)
+class Resolution:
+    """Outcome of the resolution rule. ``class_index`` is the top class by mass."""
+
+    status: str
+    reason: str | None
+    class_index: int
+    class_mass: float
 
 
 def distinguishability_classes(
@@ -53,3 +83,125 @@ class Engine:
         self.n_hypotheses, self.n_sites = self.expected.shape
         self.confusion = banded_confusion(self.config.confusion, self.n_sites)
         self.classes = distinguishability_classes(self.expected, self.class_tolerance)
+        with np.errstate(divide="ignore"):
+            self._log_confusion = np.log(self.confusion)
+        self._nodes, self._weights = np.polynomial.hermite.hermgauss(self.config.quadrature_points)
+
+    @property
+    def quadrature(self) -> tuple[FloatArray, FloatArray]:
+        """Gauss-Hermite nodes and weights (physicists' form, weights sum to sqrt(pi))."""
+        return self._nodes, self._weights
+
+    def prior(self) -> FloatArray:
+        return np.full(self.n_hypotheses, 1.0 / self.n_hypotheses)
+
+    def log_kernel(self, readings: FloatArray | float) -> FloatArray:
+        """log N(r; V_f(l), sigma) with shape readings.shape + (F, K)."""
+        r = np.asarray(readings, dtype=np.float64)[..., None, None]
+        z = (r - self.expected) / self.sigma
+        return -0.5 * z * z - np.log(self.sigma * SQRT_2PI)
+
+    def log_likelihood(self, reading: float, told: int) -> FloatArray:
+        """log P(r | f, n) for every hypothesis f: the hand may have landed anywhere."""
+        return _logsumexp(self.log_kernel(float(reading)) + self._log_confusion[told], axis=-1)
+
+    def update(self, belief: FloatArray, reading: float, told: int) -> FloatArray:
+        log_posterior = _safe_log(belief) + self.log_likelihood(reading, told)
+        return _normalise_log(log_posterior)
+
+    def placement(self, belief: FloatArray, reading: float, told: int) -> FloatArray:
+        """P(l | r, n) ∝ P(l | n) sum_f b(f) N(r; V_f(l), sigma)."""
+        log_kernel = self.log_kernel(float(reading))
+        log_site = _logsumexp(log_kernel + _safe_log(belief)[:, None], axis=0)
+        return _normalise_log(log_site + self._log_confusion[told])
+
+    def placement_audit(
+        self, belief: FloatArray, history: Sequence[tuple[int, float]]
+    ) -> list[FloatArray]:
+        """Re-ask "where was the probe?" for every past (told, reading) under ``belief``."""
+        return [self.placement(belief, reading, told) for told, reading in history]
+
+    def warning(self, placement: FloatArray, told: int) -> PlacementWarning:
+        p_off_site = float(min(max(1.0 - placement[told], 0.0), 1.0))
+        return PlacementWarning(
+            active=p_off_site > self.config.warning_threshold,
+            p_off_site=p_off_site,
+            likely_site=int(np.argmax(placement)),
+        )
+
+    def entropy_bits(self, belief: FloatArray) -> float:
+        return float(_entropy_bits(belief[None, :])[0])
+
+    def expected_gain(self, belief: FloatArray) -> FloatArray:
+        """H(b) - E_r H(b' | r) per site, the expectation by Gauss-Hermite quadrature."""
+        prior_entropy = self.entropy_bits(belief)
+        return np.array(
+            [
+                prior_entropy - self._expected_posterior_entropy(belief, n)
+                for n in range(self.n_sites)
+            ]
+        )
+
+    def _expected_posterior_entropy(self, belief: FloatArray, told: int) -> float:
+        component_weight = belief[:, None] * self.confusion[told][None, :]
+        keep = component_weight > GAIN_PRUNE_WEIGHT
+        means = self.expected[keep]
+        weights = component_weight[keep]
+        readings = means[:, None] + np.sqrt(2.0) * self.sigma * self._nodes[None, :]
+        reading_weights = weights[:, None] * self._weights[None, :]
+        landed = self.confusion[told] > 0
+        log_kernel = self.log_kernel(readings.ravel())[..., landed]
+        log_lik = _logsumexp(log_kernel + self._log_confusion[told][landed], axis=-1)
+        posterior = _normalise_log(_safe_log(belief)[None, :] + log_lik)
+        entropies = _entropy_bits(posterior)
+        flat_weights = reading_weights.ravel()
+        return float(flat_weights @ entropies / flat_weights.sum())
+
+    def choose_instruction(self, belief: FloatArray) -> Instruction:
+        gains = self.expected_gain(belief)
+        best = float(gains.max())
+        site = int(np.flatnonzero(gains >= best - GAIN_TIE_TOLERANCE_BITS)[0])
+        return Instruction(site=site, gains=gains)
+
+    def class_belief(self, belief: FloatArray) -> FloatArray:
+        return np.array([belief[list(members)].sum() for members in self.classes])
+
+    def resolution(self, belief: FloatArray, gains: FloatArray, n_steps: int) -> Resolution:
+        """API_CONTRACT invariant 9, evaluated in order."""
+        class_mass = self.class_belief(belief)
+        top = int(np.argmax(class_mass))
+        mass = float(class_mass[top])
+        if mass >= self.config.resolve_threshold:
+            if len(self.classes[top]) == 1:
+                return Resolution("resolved", None, top, mass)
+            return Resolution("unresolved", "indistinguishable", top, mass)
+        if float(gains.max()) < self.config.min_gain_bits:
+            return Resolution("unresolved", "no_informative_site", top, mass)
+        if n_steps >= self.config.max_steps:
+            return Resolution("unresolved", "max_steps", top, mass)
+        return Resolution("continue", None, top, mass)
+
+
+def _safe_log(values: FloatArray) -> FloatArray:
+    with np.errstate(divide="ignore"):
+        return np.log(values)
+
+
+def _logsumexp(values: FloatArray, axis: int) -> FloatArray:
+    peak = np.max(values, axis=axis, keepdims=True)
+    peak = np.where(np.isfinite(peak), peak, 0.0)
+    total = np.log(np.sum(np.exp(values - peak), axis=axis, keepdims=True)) + peak
+    return np.squeeze(total, axis=axis)
+
+
+def _normalise_log(log_values: FloatArray) -> FloatArray:
+    """exp and normalise along the last axis; the result is finite and sums to one."""
+    normalised = np.exp(log_values - _logsumexp(log_values, axis=-1)[..., None])
+    assert np.isfinite(normalised).all()
+    return normalised
+
+
+def _entropy_bits(beliefs: FloatArray) -> FloatArray:
+    with np.errstate(divide="ignore", invalid="ignore"):
+        terms = np.where(beliefs > 0, beliefs * np.log2(beliefs), 0.0)
+    return -terms.sum(axis=-1)
