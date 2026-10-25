@@ -314,8 +314,10 @@ class Session:
         return chosen
 
     def truth_visible(self, include_truth: bool) -> bool:
-        """Invariants 6 and 7: never in live, never with reveal = never."""
-        return include_truth and self.mode != "live" and self.reveal == "after_step"
+        """Invariants 6 and 7: never in live, never with reveal = never, and never before
+        the first step has been taken (the truth is revealed after a step, not at creation)."""
+        has_stepped = bool(self._records)
+        return include_truth and has_stepped and self.mode != "live" and self.reveal == "after_step"
 
     def step_view(self, record: StepRecord, include_truth: bool) -> dict[str, Any]:
         return views.step_view(self, record, self.truth_visible(include_truth))

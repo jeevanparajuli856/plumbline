@@ -235,3 +235,13 @@ def test_repeated_misfits_still_stop_at_max_steps() -> None:
     assert session.status == "continue"
     session.step(6.0)
     assert session.status == "unresolved"
+
+
+def test_truth_stays_hidden_until_the_first_step(engine: Engine) -> None:
+    session = simulate(engine, 3)
+    assert session.view(include_truth=True)["true_hypothesis"] is None
+    session.step(None)
+    revealed = session.view(include_truth=True)["true_hypothesis"]
+    assert revealed == engine.model.hypothesis_ids[session.true_index]
+    session.reset()
+    assert session.view(include_truth=True)["true_hypothesis"] is None

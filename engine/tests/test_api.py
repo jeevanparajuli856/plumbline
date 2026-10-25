@@ -120,9 +120,10 @@ async def test_simulate_steps_without_a_reading_and_rejects_one(client: httpx.As
         true_hypothesis="R4_open",
     )
     assert session["instruction"]["site"] == 2
-    assert session["true_hypothesis"] == "R4_open"
+    assert session["true_hypothesis"] is None
     sid = session["session_id"]
     step = (await client.post(f"/v1/sessions/{sid}/step", json={})).json()
+    assert (await client.get(f"/v1/sessions/{sid}")).json()["true_hypothesis"] == "R4_open"
     assert step["step_index"] == 0
     assert step["landed_site"] is not None
     assert len(step["instruction"]["gain_bits"]) == 6
@@ -294,11 +295,13 @@ async def test_reset_returns_to_step_zero_with_the_same_truth(client: httpx.Asyn
     )
     sid = session["session_id"]
     first = (await client.post(f"/v1/sessions/{sid}/step")).json()
+    truth = (await client.get(f"/v1/sessions/{sid}")).json()["true_hypothesis"]
     reset = (await client.post(f"/v1/sessions/{sid}/reset")).json()
     assert reset["steps"] == [] and reset["status"] == "continue"
-    assert reset["true_hypothesis"] == session["true_hypothesis"]
+    assert truth is not None and reset["true_hypothesis"] is None
     again = (await client.post(f"/v1/sessions/{sid}/step")).json()
     assert again["reading"] == first["reading"]
+    assert (await client.get(f"/v1/sessions/{sid}")).json()["true_hypothesis"] == truth
 
 
 async def test_session_view_floats_are_finite_and_probabilities_bounded(
