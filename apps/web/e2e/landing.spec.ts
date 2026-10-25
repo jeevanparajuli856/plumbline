@@ -68,12 +68,13 @@ test.describe('landing sections', () => {
   })
 
   test('reduced motion snaps the example to its final state', async ({ page }) => {
-    needsFullUi('web-shell (app-wide Reduce motion switch in the Display bar)')
+    needsFullUi('web-shell (app-wide Reduce motion switch in the Display popover)')
     const osReduced = await page.evaluate(
       () => matchMedia('(prefers-reduced-motion: reduce)').matches,
     )
     // The switch records the in-page choice; the OS setting is honoured without flipping it.
     if (!osReduced) {
+      await landing.openDisplay()
       await landing.reduceMotion.click()
       await expect(landing.reduceMotion).toHaveAttribute('aria-checked', 'true')
     }

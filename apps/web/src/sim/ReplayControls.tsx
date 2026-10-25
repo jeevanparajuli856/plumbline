@@ -66,7 +66,7 @@ export function ReplayControls({
               className={buttonClass('primary')}
             >
               Next recorded reading{' '}
-              <kbd aria-hidden="true" className="font-mono text-sm opacity-80">
+              <kbd aria-hidden="true" className="font-mono text-sm">
                 ]
               </kbd>
             </button>

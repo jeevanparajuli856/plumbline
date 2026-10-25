@@ -1,14 +1,31 @@
+import { Link } from 'react-router'
+
 /** Team and university live here only (POSITIONING: the competition is never named). */
 export function SiteFooter() {
   return (
-    <footer className="mt-24 border-t-2 border-text bg-bench">
-      <div className="mx-auto grid max-w-[90rem] gap-6 px-4 py-10 sm:px-8 md:grid-cols-12 lg:px-16">
+    <footer className="mt-24 border-t border-hairline bg-bench">
+      <div className="mx-auto grid max-w-[90rem] gap-x-6 gap-y-4 px-4 py-10 sm:px-8 md:grid-cols-12 lg:px-16">
         <p className="md:col-span-5">
-          <span className="font-semibold">Plumbline.</span>{' '}
+          <span className="font-display font-semibold">Truehand.</span>{' '}
           <span className="text-text-2">Research preview. Not a safety device.</span>
         </p>
         <p className="text-text-2 md:col-span-7 md:text-right">
-          Jeevan Parajuli and Pankaj Bhatta, University of Louisiana Monroe.
+          Jeevan Parajuli and Pankaj Bhatta, University of Louisiana Monroe.{' '}
+          <a
+            href="mailto:support@truehand.tech"
+            className="font-medium text-text underline decoration-hairline underline-offset-4 hover:decoration-text"
+          >
+            support@truehand.tech
+          </a>
+          <span aria-hidden="true" className="px-2 text-text-muted">
+            /
+          </span>
+          <Link
+            to="/about"
+            className="font-medium text-text underline decoration-hairline underline-offset-4 hover:decoration-text"
+          >
+            About
+          </Link>
         </p>
       </div>
     </footer>
