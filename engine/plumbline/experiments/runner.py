@@ -153,7 +153,12 @@ def make_policy(name: str, engine: Engine, baseline_engine_source: Engine | None
 
 @dataclass(frozen=True)
 class TrialResult:
+    """``correct``: the run ended resolved on the true class, or refused (indistinguishable)
+    with the truth inside the refused class. ``max_steps`` and ``no_informative_site``
+    endings are never correct. ``resolved_correct``: resolved on the true class only."""
+
     correct: bool
+    resolved_correct: bool
     confidently_wrong: bool
     status: str
     reason: str | None
@@ -184,16 +189,22 @@ def run_trial(
         is_warned = warning is not None and warning.active
         slips += is_slip
         issued += is_warned
-        correct_warnings += is_warned and is_slip
-        slips_warned += is_warned and is_slip
+        if is_warned:
+            correct_warnings += is_slip
+        if is_slip:
+            slips_warned += is_warned
         misfits += policy.is_misfit(site, reading)
         state = policy.observe(state, site, reading)
         resolution, site = policy.decide(state, choice_rng)
     top_class = policy.engine.classes[resolution.class_index]
-    is_correct = truth in top_class
+    is_truth_on_top = truth in top_class
+    is_resolved = resolution.status == "resolved"
+    is_refused = resolution.reason == "indistinguishable"
     return TrialResult(
-        correct=is_correct,
-        confidently_wrong=(not is_correct) and resolution.class_mass >= CONFIDENTLY_WRONG_THRESHOLD,
+        correct=is_truth_on_top and (is_resolved or is_refused),
+        resolved_correct=is_truth_on_top and is_resolved,
+        confidently_wrong=(not is_truth_on_top)
+        and resolution.class_mass >= CONFIDENTLY_WRONG_THRESHOLD,
         status=resolution.status,
         reason=resolution.reason,
         steps=state.n_readings,
@@ -209,7 +220,11 @@ def draw_truths(n_hypotheses: int, n: int, seed: int) -> list[int]:
     return np.random.default_rng(seed).integers(n_hypotheses, size=n).tolist()
 
 
-def summarize(results: Sequence[TrialResult]) -> dict[str, float | int | dict[str, int]]:
+def ratio(numerator: int, denominator: int) -> float | None:
+    return numerator / denominator if denominator else None
+
+
+def summarize(results: Sequence[TrialResult]) -> dict[str, float | int | dict[str, int] | None]:
     n = len(results)
     reasons: dict[str, int] = {}
     for r in results:
@@ -222,6 +237,8 @@ def summarize(results: Sequence[TrialResult]) -> dict[str, float | int | dict[st
         "n": n,
         "correct": sum(r.correct for r in results),
         "correct_pct": 100.0 * sum(r.correct for r in results) / n,
+        "resolved_correct": sum(r.resolved_correct for r in results),
+        "resolved_correct_pct": 100.0 * sum(r.resolved_correct for r in results) / n,
         "confidently_wrong": sum(r.confidently_wrong for r in results),
         "confidently_wrong_pct": 100.0 * sum(r.confidently_wrong for r in results) / n,
         "unresolved": sum(r.status == "unresolved" for r in results),
@@ -232,6 +249,8 @@ def summarize(results: Sequence[TrialResult]) -> dict[str, float | int | dict[st
         "warnings_correct": correct_warnings,
         "slips": slips,
         "slips_warned": sum(r.slips_warned for r in results),
+        "warning_precision": ratio(correct_warnings, issued),
+        "slip_recall": ratio(sum(r.slips_warned for r in results), slips),
         "misfit_readings": sum(r.misfit_readings for r in results),
         "trials_with_misfit": sum(r.misfit_readings > 0 for r in results),
     }
@@ -244,11 +263,11 @@ def run_arms(
     truths: Sequence[int],
     seed: int,
     truth_engine: Engine | None = None,
-) -> dict[str, dict[str, float | int | dict[str, int]]]:
+) -> dict[str, dict[str, float | int | dict[str, int] | None]]:
     """Every arm on the same truths and hand seeds. ``truth_engine`` (default ``engine``)
     generates readings; ``engine`` is what plumbline and the baselines believe."""
     physics = truth_engine or engine
-    output: dict[str, dict[str, float | int | dict[str, int]]] = {}
+    output: dict[str, dict[str, float | int | dict[str, int] | None]] = {}
     for arm in arms:
         policy = make_policy(arm, engine)
         results = [

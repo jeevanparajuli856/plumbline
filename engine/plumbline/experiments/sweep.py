@@ -2,8 +2,7 @@
 
     uv run --project engine python -m plumbline.experiments.sweep [--n N] [--points 0.6,...,1.0]
 
-Off-site mass keeps the default 0.08 : 0.03 split between one and two rows away. Panel
-*matched*: the engine assumes the true p_same. Panel *fixed*: the engine keeps 0.78.
+The method is described, with its parameters, by ``describe_sweep()``.
 """
 
 from __future__ import annotations
@@ -15,7 +14,13 @@ from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
-from plumbline.config import CONFUSION_P_PM1, CONFUSION_P_PM2, ConfusionSpec, EngineConfig
+from plumbline.config import (
+    CONFUSION_P_PM1,
+    CONFUSION_P_PM2,
+    CONFUSION_P_SAME,
+    ConfusionSpec,
+    EngineConfig,
+)
 from plumbline.domains import get_model
 from plumbline.engine import Engine
 from plumbline.experiments.report import (
@@ -40,6 +45,14 @@ def spec_for(p_same: float) -> ConfusionSpec:
     one_row_share = CONFUSION_P_PM1 / (CONFUSION_P_PM1 + CONFUSION_P_PM2)
     return ConfusionSpec(
         p_same=p_same, p_pm1=off_site * one_row_share / 2, p_pm2=off_site * (1 - one_row_share) / 2
+    )
+
+
+def describe_sweep() -> str:
+    return (
+        f"Off-site mass keeps the default {CONFUSION_P_PM1:g} : {CONFUSION_P_PM2:g} split between "
+        "one and two rows away. Panel *matched*: the engine assumes the true p_same. Panel "
+        f"*fixed*: the engine keeps its default p_same of {CONFUSION_P_SAME:g}."
     )
 
 
@@ -76,7 +89,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     md = header_lines(
         payload, f"Sweep over P(lands on told site), {args.n} simulated faults per point"
     )
-    md.append((__doc__ or "").split("\n\n")[-1].strip())
+    md.append(describe_sweep())
     for panel, points in panels.items():
         md += [
             "",

@@ -13,8 +13,10 @@ from pathlib import Path
 from plumbline.domains import DOMAIN_FACTORIES, get_model
 from plumbline.engine import Engine
 from plumbline.experiments.report import (
+    ASSUMED_CONFUSION,
     DEFAULT_RESULTS_DIR,
     DEFINITIONS,
+    MATCHED_MODEL_NOTE,
     arm_table,
     header_lines,
     provenance,
@@ -52,12 +54,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         "seeds": [args.seed],
         "n": args.n,
         "truths": "uniform over the catalog, drawn from the seed",
-        "hand": "engine confusion model (assumed 0.78 / 0.08 / 0.03), sigma noise, meter rounding",
+        "hand": f"engine confusion model ({ASSUMED_CONFUSION}), sigma noise, meter rounding",
         "config": config_view(engine),
         "arms": run(args.n, args.seed, args.domain),
     }
     title = f"Experiment: methods compared on {args.n} simulated faults ({args.domain})"
-    md = [*header_lines(payload, title), *arm_table(payload["arms"]), *DEFINITIONS]
+    md = [
+        *header_lines(payload, title),
+        MATCHED_MODEL_NOTE,
+        "",
+        *arm_table(payload["arms"]),
+        *DEFINITIONS,
+    ]
     write_results("experiment", payload, md, args.out_dir)
     return 0
 

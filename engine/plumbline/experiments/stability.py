@@ -19,6 +19,8 @@ from plumbline.experiments.experiment import run
 from plumbline.experiments.report import (
     DEFAULT_RESULTS_DIR,
     DEFINITIONS,
+    MATCHED_MODEL_NOTE,
+    fraction,
     header_lines,
     pct,
     provenance,
@@ -30,16 +32,25 @@ from plumbline.views import config_view
 MODULE = "plumbline.experiments.stability"
 DEFAULT_N = 300
 DEFAULT_SEEDS = "1,2,3,4,5"
-SPREAD_METRICS = ("correct_pct", "confidently_wrong_pct", "unresolved_pct", "mean_steps")
+SPREAD_METRICS = (
+    "correct_pct",
+    "resolved_correct_pct",
+    "confidently_wrong_pct",
+    "unresolved_pct",
+    "mean_steps",
+)
 POOLED_COUNTS = (
     "n",
     "correct",
+    "resolved_correct",
     "confidently_wrong",
     "unresolved",
     "warnings_issued",
     "warnings_correct",
     "slips",
     "slips_warned",
+    "misfit_readings",
+    "trials_with_misfit",
 )
 
 
@@ -75,28 +86,33 @@ def spread(metrics: dict[str, Any], metric: str) -> str:
 
 def table(arms: dict[str, dict[str, Any]]) -> list[str]:
     lines = [
-        "| Method | Faults (pooled) | Correct % (mean ± sd) | Confidently wrong % (mean ± sd) | "
-        "Unresolved % (mean ± sd) | Mean steps | Warnings correct/issued | Slips warned |",
-        "|---|---|---|---|---|---|---|---|",
+        "| Method | Faults (pooled) | Correct % (mean ± sd) | Resolved correct % (mean ± sd) | "
+        "Confidently wrong % (mean ± sd) | Unresolved % (mean ± sd) | Mean steps | "
+        "Warning precision (correct/issued) | Slip recall (warned/slips) | Out-of-model readings |",
+        "|---|---|---|---|---|---|---|---|---|---|",
     ]
     for arm, m in arms.items():
         pooled = m["pooled"]
         is_plumbline = arm == "plumbline"
-        warnings = (
-            f"{pooled['warnings_correct']}/{pooled['warnings_issued']}" if is_plumbline else "n/a"
-        )
-        slips = (
-            f"{pooled['slips_warned']}/{pooled['slips']}"
+        precision = (
+            fraction(pooled["warnings_correct"], pooled["warnings_issued"])
             if is_plumbline
-            else f"0/{pooled['slips']}"
+            else "n/a"
         )
-        correct, wrong, unresolved = (
+        recall = fraction(pooled["slips_warned"], pooled["slips"])
+        misfits = str(pooled["misfit_readings"]) if is_plumbline else "n/a"
+        correct, resolved, wrong, unresolved = (
             spread(m, metric)
-            for metric in ("correct_pct", "confidently_wrong_pct", "unresolved_pct")
+            for metric in (
+                "correct_pct",
+                "resolved_correct_pct",
+                "confidently_wrong_pct",
+                "unresolved_pct",
+            )
         )
         lines.append(
-            f"| {arm} | {pooled['n']} | {correct} | {wrong} | {unresolved} | "
-            f"{m['mean_steps']['mean']:.2f} | {warnings} | {slips} |"
+            f"| {arm} | {pooled['n']} | {correct} | {resolved} | {wrong} | {unresolved} | "
+            f"{m['mean_steps']['mean']:.2f} | {precision} | {recall} | {misfits} |"
         )
     return lines
 
@@ -116,7 +132,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         "per_seed": dict(zip([str(s) for s in seeds], per_seed, strict=True)),
     }
     title = f"Stability: {len(seeds)} seeds x {args.n} simulated faults per method ({args.domain})"
-    md = [*header_lines(payload, title), *table(payload["arms"]), *DEFINITIONS]
+    md = [
+        *header_lines(payload, title),
+        MATCHED_MODEL_NOTE,
+        "",
+        *table(payload["arms"]),
+        *DEFINITIONS,
+    ]
     write_results("stability", payload, md, args.out_dir)
     return 0
 

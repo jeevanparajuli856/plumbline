@@ -3,10 +3,8 @@ the simulated hand does something else.
 
     uv run --project engine python -m plumbline.experiments.mismatch [--n N] [--seed S]
 
-Scenarios: lopsided slips (0.78 same, 0.14 one row down, 0.02 one row up, 0.03 two rows each
-way); 3-row jumps (0.03 of the mass moved from the told row to +/-3); bridging (p 0.10, the
-probe straddles the told row and a neighbour and reads the midpoint, a stated simplification);
-poor contact (p 0.05, reads 0 V).
+Scenarios (lopsided slips, 3-row jumps, bridging, poor contact) are described with their
+parameters by ``describe_scenarios()``, built from the constants below.
 """
 
 from __future__ import annotations
@@ -23,6 +21,7 @@ from plumbline.confusion import banded_confusion
 from plumbline.domains import get_model
 from plumbline.engine import Engine
 from plumbline.experiments.report import (
+    ASSUMED_CONFUSION,
     DEFAULT_RESULTS_DIR,
     DEFINITIONS,
     arm_table,
@@ -30,7 +29,13 @@ from plumbline.experiments.report import (
     provenance,
     write_results,
 )
-from plumbline.experiments.runner import ARM_NAMES, HandModel, draw_truths, run_arms
+from plumbline.experiments.runner import (
+    ARM_NAMES,
+    POOR_CONTACT_READING,
+    HandModel,
+    draw_truths,
+    run_arms,
+)
 from plumbline.model import FloatArray
 
 MODULE = "plumbline.experiments.mismatch"
@@ -51,6 +56,25 @@ def offset_confusion(mass_by_offset: dict[int, float], n_sites: int) -> FloatArr
                 matrix[told, told + offset] = mass
         matrix[told] /= matrix[told].sum()
     return matrix
+
+
+def _offset_words(offset: int) -> str:
+    if offset == 0:
+        return "on the told row"
+    return f"{abs(offset)} row{'s' if abs(offset) > 1 else ''} {'down' if offset < 0 else 'up'}"
+
+
+def describe_scenarios() -> str:
+    lopsided = ", ".join(f"{mass:g} {_offset_words(offset)}" for offset, mass in LOPSIDED.items())
+    return (
+        f"*lopsided*: slips skewed one way ({lopsided}); "
+        f"*three_row_jumps*: {THREE_ROW_JUMP_P:g} of the mass moved from the told row to three "
+        f"rows away ({THREE_ROW_JUMP_P / 2:g} each side); "
+        f"*bridging*: with probability {BRIDGE_P:g} the probe straddles the told row and a "
+        "neighbour and reads their midpoint (a stated simplification); "
+        f"*poor_contact*: with probability {POOR_CONTACT_P:g} the probe makes no contact and "
+        f"reads {POOR_CONTACT_READING:g} V plus noise."
+    )
 
 
 def scenarios(engine: Engine) -> dict[str, HandModel]:
@@ -88,12 +112,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         "domain": "circuit",
         "seeds": [args.seed],
         "n": args.n,
-        "engine_assumes": "default confusion 0.78 / 0.08 / 0.03",
+        "engine_assumes": ASSUMED_CONFUSION,
+        "scenario_descriptions": describe_scenarios(),
         "scenarios": results,
     }
     md = header_lines(payload, f"Model mismatch: {args.n} simulated faults per method per scenario")
-    scenario_text = (__doc__ or "").split("Scenarios:")[1].strip()
-    md.append(f"The engine always assumes the default confusion model. Scenarios: {scenario_text}")
+    md.append(f"The engine always assumes the default confusion model ({ASSUMED_CONFUSION}).")
+    md.append("")
+    md.append(f"Scenarios: {describe_scenarios()}")
     for name, arms in results.items():
         md += ["", f"## {name}", "", *arm_table(arms)]
     md += DEFINITIONS

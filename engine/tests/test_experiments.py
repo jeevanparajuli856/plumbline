@@ -120,3 +120,69 @@ def test_summary_counts_misfit_readings() -> None:
     result = run_trial(make_policy("plumbline", engine), hand, engine, truth=12, seed=(1, 0))
     summary = summarize([result])
     assert summary["misfit_readings"] == 0 and summary["trials_with_misfit"] == 0
+
+
+def test_indistinguishable_pair_counts_as_correct_but_not_resolved_correct() -> None:
+    engine = Engine(get_model("circuit"))
+    truth = engine.model.hypothesis_index("LED_reversed")
+    hand = HandModel(confusion=np.eye(6))
+    result = run_trial(make_policy("plumbline", engine), hand, engine, truth=truth, seed=(1, 0))
+    assert result.status == "unresolved" and result.reason == "indistinguishable"
+    assert result.correct and not result.resolved_correct
+
+
+def test_max_steps_ending_is_not_correct_even_with_the_truth_on_top() -> None:
+    from plumbline.config import EngineConfig
+
+    engine = Engine(get_model("circuit"), EngineConfig(max_steps=1))
+    truth = engine.model.hypothesis_index("R3_10x_low")
+    hand = HandModel(confusion=np.eye(6))
+    result = run_trial(make_policy("plumbline", engine), hand, engine, truth=truth, seed=(1, 0))
+    assert result.reason == "max_steps"
+    assert not result.correct and not result.resolved_correct
+
+
+def test_summary_reports_resolved_correct_precision_and_recall_separately() -> None:
+    from plumbline.experiments.runner import TrialResult, summarize
+
+    base = dict(confidently_wrong=False, status="resolved", reason=None, steps=2, misfit_readings=0)
+    results = [
+        TrialResult(
+            correct=True,
+            resolved_correct=True,
+            warnings_issued=2,
+            warnings_correct=1,
+            slips=3,
+            slips_warned=1,
+            **base,
+        ),
+        TrialResult(
+            correct=True,
+            resolved_correct=True,
+            warnings_issued=0,
+            warnings_correct=0,
+            slips=1,
+            slips_warned=0,
+            **base,
+        ),
+    ]
+    summary = summarize(results)
+    assert summary["resolved_correct_pct"] == 100.0
+    assert summary["warning_precision"] == pytest.approx(0.5)
+    assert summary["slip_recall"] == pytest.approx(0.25)
+
+
+def test_results_text_is_built_from_the_named_constants() -> None:
+    from plumbline.config import MAX_STEPS, OUT_OF_MODEL_SIGMAS
+    from plumbline.experiments import mismatch as mismatch_module
+    from plumbline.experiments.report import DEFINITIONS
+    from plumbline.experiments.runner import CONFIDENTLY_WRONG_THRESHOLD
+
+    text = " ".join(DEFINITIONS)
+    assert f"{CONFIDENTLY_WRONG_THRESHOLD:g}" in text
+    assert f"{MAX_STEPS} readings" in text
+    assert f"{OUT_OF_MODEL_SIGMAS:g} sigma" in text
+    described = mismatch_module.describe_scenarios()
+    assert f"{mismatch_module.BRIDGE_P:g}" in described
+    assert f"{mismatch_module.POOR_CONTACT_P:g}" in described
+    assert f"{mismatch_module.LOPSIDED[-1]:g}" in described
