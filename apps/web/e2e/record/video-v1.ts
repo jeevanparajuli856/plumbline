@@ -289,8 +289,6 @@ function round(seconds: number): number {
 test('video-v1: nine storyboard shots', async ({ browser, baseURL }) => {
   if (!baseURL) throw new Error('baseURL is not set in playwright.config.ts')
   mkdirSync(OUT_DIR, { recursive: true })
-  // The repo .gitignore only covers recordings/ at the root; keep these WebMs out of git.
-  writeFileSync(`${OUT_DIR}.gitignore`, '*\n')
 
   const { shots, notes } = plan()
   for (const note of notes) console.log(`note: ${note}`)

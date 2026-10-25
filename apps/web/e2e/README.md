@@ -71,6 +71,7 @@ Traces: `on-first-retry`. Retries: 1 in CI, 0 locally. Screenshots: on failure o
 | `offline-replay` | With the API aborted, `/sim?demo=worked-example` completes, opens no engine session, and api-status says "waking up". Chromium only: after the service worker controls the page, the network goes off, the page reloads, and the replay still completes                                                                                                                                                                                                                                                    |
 | `thermometer`    | `thermometer_demo` replay: SIMULATED badge visible at the start, after every step and at the end, and a MutationObserver sees no gap; the Thermometer radio is checked and the Celsius input is present                                                                                                                                                                                                                                                                                                    |
 | `no-webgl`       | `getContext('webgl'/'webgl2')` returns null: no canvas, every text panel present, the replay completes; the landing reads fully. `view=text`: Text only on, no scene, the replay completes                                                                                                                                                                                                                                                                                                                 |
+| `refusal`        | `unresolved_pair` replay (skipped until the fixture is recorded): steps to the end; the `unresolved` region ("Unresolved") says "will not guess" and names both labels from the fixture; no diagnosis; the belief verdict says Unresolved with no percentage                                                                                                                                                                                                                                               |
 | `landing`        | Mast H1 and simulator link; ten labelled sections with static, non-live captions; transcript in the DOM before Play; scrolling never starts the example; Play runs it to the end ("Pause", then "Replay"); reduced motion (OS setting or the switch) snaps to the final state                                                                                                                                                                                                                              |
 | `smoke`          | Sprint 0 smoke (landing and a worked-example replay against the placeholder)                                                                                                                                                                                                                                                                                                                                                                                                                               |
 
@@ -84,6 +85,15 @@ Traces: `on-first-retry`. Retries: 1 in CI, 0 locally. Screenshots: on failure o
 - **Voice stub.** `__plumblineFakeRecognition` is installed asynchronously; the voice spec waits for
   it, and for `aria-pressed="true"` on Listen, before `say()`.
 - **Health probe.** The API is always aborted, so the probe ends in a known state (not ok).
+- **Stale service worker.** `serviceWorkers: 'block'` for every test; only the offline-after-install
+  test allows one, so a cached build never answers in place of the server under test.
+- **Reveal leaks.** `helpers/landedLog.ts` records every value a Landed cell shows. With an animated
+  reveal the sequence must be exactly `hidden`, then the landed row; with reduced motion or no scene
+  the store finishes the reveal in the same update, so the landed row alone is also accepted.
+- **Absence checks.** "Nothing happened" assertions follow a positive observable: the refusal
+  sentence for an unexpected replay reading, or one key that must step exactly once after keys
+  that must not.
+- **Story values.** Readings, rows and labels come from the fixture (`helpers/story.ts`).
 
 No spec uses a retry as a fix today.
 
@@ -101,8 +111,8 @@ PLUMBLINE_RECORD=1 pnpm exec playwright test --project=record
 PLUMBLINE_RECORD=1 PLUMBLINE_E2E_BASE_URL=<deployed web URL> pnpm exec playwright test --project=record
 ```
 
-Output in `apps/web/recordings/video-v1/`: `shot-<n>.webm` and `shots.json`. The script writes a
-`.gitignore` containing `*` there, so nothing in that folder can be committed. Each WebM starts at
+Output in `apps/web/recordings/video-v1/`: `shot-<n>.webm` and `shots.json`. The repo `.gitignore`
+ignores `**/recordings/`, so nothing in that folder can be committed. Each WebM starts at
 page load; `shots.json` gives `start` and `end` (seconds into that file) for the part that belongs to
 the shot, plus the storyboard slot and notes (provisional fixture, dropped shots, no scene, no
 presentation mode). Trim before the storyboard's concat step, for example:
