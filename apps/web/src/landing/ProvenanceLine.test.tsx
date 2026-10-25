@@ -4,24 +4,23 @@ import { loadFixture } from '@/state/replay'
 import { ProvenanceLine } from './ProvenanceLine'
 import { SHORT_SHA_LENGTH, provenance } from './workedExample'
 
-let provisional: FixtureT
 let recorded: FixtureT
+let provisional: FixtureT
 
 beforeAll(async () => {
-  provisional = await loadFixture('worked_example')
+  const fx = await loadFixture('worked_example')
   recorded = {
-    ...provisional,
-    provisional: false,
+    ...fx,
     generated_by: 'python -m plumbline.record_fixtures --fixture worked_example',
     git_sha: '0123456789abcdef0123',
     generated_at: '2026-10-26T12:00:00Z',
   }
+  provisional = { ...recorded, provisional: true }
 })
 
 describe('provenance', () => {
   it('is null while the fixture is provisional', () => {
     expect(provenance(provisional)).toBeNull()
-    expect(provenance({ ...recorded, provisional: true })).toBeNull()
     expect(provenance({ ...recorded, generated_by: null })).toBeNull()
   })
 

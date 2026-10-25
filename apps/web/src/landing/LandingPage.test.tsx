@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { useLanding } from '@/state/landing'
+import { loadFixture } from '@/state/replay'
 import { useSession } from '@/state/session'
 import { SECTION_ORDER } from './choreography'
 import { LandingPage, PLAY_PACE_MS } from './LandingPage'
@@ -60,14 +61,31 @@ describe('LandingPage', () => {
     }
   })
 
-  it('always renders the step-by-step list from the fixture, with the provisional badge', async () => {
+  it('always renders the step-by-step list from the recorded fixture, with no provisional badge', async () => {
     renderLanding()
     await settle()
     const list = screen.getByRole('list', { name: 'Worked example, step by step' })
     expect(within(list).getAllByRole('listitem').length).toBeGreaterThanOrEqual(5)
     expect(list).toHaveTextContent('3.671 volts')
-    expect(screen.getAllByTestId('badge').some((b) => b.textContent === 'PROVISIONAL')).toBe(true)
-    expect(screen.getAllByTestId('badge').some((b) => b.textContent === 'SIMULATED')).toBe(true)
+    const badges = screen.getAllByTestId('badge').map((b) => b.textContent)
+    expect(badges).not.toContain('PROVISIONAL')
+    expect(badges).toContain('SIMULATED')
+  })
+
+  it('puts the recorded provenance under the play record: command, short SHA, date, honesty note', async () => {
+    const fx = await loadFixture('worked_example')
+    const { container } = renderLanding()
+    await settle()
+    const captions = within(container.querySelector<HTMLElement>('section#play')!)
+      .getAllByTestId('caption')
+      .map((c) => c.textContent ?? '')
+    const line = captions.find((c) => c.startsWith('Recorded by'))
+    expect(line).toBeDefined()
+    expect(line).toContain(fx.generated_by!)
+    expect(line).toContain(fx.git_sha!.slice(0, 7))
+    expect(line).not.toContain(fx.git_sha!.slice(0, 8))
+    expect(line).toContain(fx.generated_at!.slice(0, 10))
+    expect(line).toContain('Preliminary. Not peer reviewed.')
   })
 
   it('does not start the replay on render; Play starts it in replay mode and plays', async () => {
