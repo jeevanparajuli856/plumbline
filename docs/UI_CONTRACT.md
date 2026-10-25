@@ -12,7 +12,7 @@ Why: `e2e` writes specs while `web-shell`, `scene`, `landing` and `voice` build 
 | Instruction       | `data-testid="instruction"`; contains the site label ("row 3")                                                                          |
 | Reading input     | `getByLabel('Meter reading in volts')` (circuit) / `getByLabel('Thermometer reading in degrees Celsius')` (thermometer); `T` focuses it |
 | Submit            | `getByRole('button', { name: 'Submit reading' })`; `Enter` in the input submits                                                         |
-| Warning           | `getByRole('alert')` with `data-testid="warning-banner"`; text starts with "Warning." and names the likely row                          |
+| Warning | `getByTestId('warning-banner')`: `role="region"`, accessible name "Placement warning", `tabIndex=-1`, receives focus when a warning arrives. NOT a live region: the announcer's assertive message is the only spoken copy. Visible text starts with "Warning." and names the likely row |
 | Diagnosis         | `data-testid="diagnosis"`, `role="region"`, accessible name "Diagnosis"; receives focus on `resolved`                                   |
 | Refusal           | `data-testid="unresolved"`, `role="region"`, accessible name "Unresolved"; contains "will not guess"                                    |
 | Belief chart      | `role="figure"` name "Belief over faults"; a table twin `getByRole('table', { name: 'Belief over faults' })`                            |
@@ -72,7 +72,7 @@ Recorded fixtures must parse with `Fixture` in `apps/web/src/engine/schemas.ts` 
 | # | Decision |
 |---|---|
 | 1 | Live regions: `#live-polite` and `#live-assertive` (from `a11y/LiveRegion.tsx`) are contract selectors. |
-| 2 | The warning banner is selected by `data-testid="warning-banner"`, never by `getByRole('alert')` alone (the assertive live region may also carry an alert role until the a11y audit settles it). |
+| 2 | Superseded 2026-10-25 by the web-shell review (M5): no element on `/sim` carries `role="alert"` for engine events. `#live-assertive` is `aria-live="assertive"` (no role), the banner is a focusable region (section 1 "Warning"). Specs select the banner by test id and the spoken copy via `#live-assertive`. Form validation may still use `role="alert"`. |
 | 3 | Landing play controls inside `section#play`: buttons "Play the 20-second example", "Pause" and "Replay" (exact names). |
 | 4 | Aiming: the placement-strip `listitem` for `aimedSite` carries `aria-current="true"` and the visible word "aimed". At integration the announcer also says "Aiming at row n." politely. |
 | 5 | `/sim?view=text` turns the "Text only" switch on (no `#scene-slot`, no canvas). `view=scene` and `view=both` are the other values; `both` is the default. |
