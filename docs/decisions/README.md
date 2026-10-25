@@ -24,3 +24,4 @@ Source for the decisions: the approved plan `/Users/jeevaparajuli/.claude/plans/
 Numbers in these records follow the labeling rule in ADR-0004. Figures from the brief are called
 "the brief's expectation, not our run". Figures from the plan's scratch computations are called
 "scratch reconstruction on 2026-10-25, to be re-run inside `engine/`".
+| 0012 | [A grounded language-model explainer, never inside the inference](0012-grounded-explainer-llm.md) | accepted | 2026-10-25 |

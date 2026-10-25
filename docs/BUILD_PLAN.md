@@ -134,3 +134,7 @@ These were requested by the web lanes. Each one is already in the v1 contract, s
 | Unresolved classes and reason in responses | `docs/API_CONTRACT.md` section 3.7 (`UnresolvedView`) | in v1 contract |
 | Fixtures `worked_example`, `unresolved_pair`, `thermometer_demo` | `docs/API_CONTRACT.md` section 8; Sprint 1 engine acceptance D4 | in v1 contract |
 | CORS origin for the Vite dev server and the Render static site | `docs/API_CONTRACT.md` section 6 | in v1 contract |
+
+Additional lane `explainer` (engine-scientist + tdd-guide, feature-flagged, ADR-0012): `POST /v1/sessions/{id}/explain` with a provider adapter (Vertex AI or Anthropic API, `PLUMBLINE_EXPLAIN_PROVIDER=off` by default), context built only from session state, numeric-leak validation with fallback to engine phrases, "Ask" field and spoken "explain" command, on-screen label "Explanation by a language model. Numbers come from the engine." Not on the demo critical path.
+
+
