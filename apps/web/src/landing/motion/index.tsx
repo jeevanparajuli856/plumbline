@@ -5,7 +5,7 @@ import { useHtmlReduceMotion } from './useHtmlReduceMotion'
 import { headline, quotes } from './effects/text'
 import { bars } from './effects/bars'
 import { rows, stats } from './effects/reveal'
-import { plumb } from './effects/plumb'
+import { column } from './effects/column'
 import { refreshOnLoad } from './effects/refresh'
 import type { Cleanup } from './effects/types'
 
@@ -37,7 +37,7 @@ export default function LandingMotion({ rootRef }: LandingMotionProps) {
           quotes(root),
           rows(root),
           stats(root),
-          plumb(root),
+          column(root),
           refreshOnLoad(root),
         ]),
       )

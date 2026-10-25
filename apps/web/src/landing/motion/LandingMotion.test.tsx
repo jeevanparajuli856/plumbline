@@ -2,7 +2,6 @@ import { act, render } from '@testing-library/react'
 import { useRef } from 'react'
 import { gsap, ScrollTrigger } from './scroll'
 import LandingMotion from './index'
-import { MAX_SWING_DEG } from './constants'
 import { useLanding } from '@/state/landing'
 
 const HEADLINE = 'Measurement you can trust without looking.'
@@ -47,7 +46,7 @@ interface FixtureProps {
   withMotion?: boolean
 }
 
-/** Every hook from UI_CONTRACT 5.3. The plumb line sits outside <main>, fixed to the page edge as on the page. */
+/** Every hook from UI_CONTRACT 5.3. The edge cell column sits outside <main>, fixed to the page edge as on the page. */
 function Fixture({ stages = '0.031,1,0.42', withMotion = true }: FixtureProps) {
   const rootRef = useRef<HTMLElement | null>(null)
   return (
@@ -92,7 +91,12 @@ function Fixture({ stages = '0.031,1,0.42', withMotion = true }: FixtureProps) {
         <img alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" width={1} height={1} />
       </main>
       <div data-motion="plumb" aria-hidden="true">
-        <span data-motion-string />
+        <span data-motion-string>
+          <span />
+          <span />
+          <span />
+          <span />
+        </span>
         <span data-motion-bob />
       </div>
       {withMotion && <LandingMotion rootRef={rootRef} />}
@@ -190,7 +194,7 @@ describe('LandingMotion', () => {
     expect(liveTweens().length).toBeGreaterThan(0)
     expect(ScrollTrigger.getAll().length).toBeGreaterThan(0)
     const main = container.querySelector('main')!
-    const plumbLine = container.querySelector<HTMLElement>('[data-motion="plumb"]')!
+    const column = container.querySelector<HTMLElement>('[data-motion="plumb"]')!
     expect(main.querySelector('[data-motion="headline"]')!.querySelectorAll('span')).toHaveLength(6)
 
     // The detached nodes keep whatever revert left on them; they must match the static page exactly.
@@ -198,7 +202,7 @@ describe('LandingMotion', () => {
     expect(liveTweens()).toHaveLength(0)
     expect(ScrollTrigger.getAll()).toHaveLength(0)
     expect(before).toContain(main.outerHTML)
-    expect(before).toContain(plumbLine.outerHTML)
+    expect(before).toContain(column.outerHTML)
   })
 
   it('reverts_to_the_final_state_at_once_when_the_switch_is_turned_on', async () => {
@@ -281,23 +285,67 @@ describe('LandingMotion', () => {
     ).toBe(0)
   })
 
-  it('swings_the_plumb_line_about_its_top_within_the_amplitude', () => {
+  it('wobbles_the_ringed_dot_and_never_moves_the_column', () => {
     const { container } = render(<Fixture />)
-    const line = container.querySelector<HTMLElement>('[data-motion="plumb"]')!
-    expect(line.style.transformOrigin).toBe('50% 0%')
-    const rotation = Math.abs(Number(gsap.getProperty(line, 'rotation')))
-    expect(rotation).toBeLessThanOrEqual(MAX_SWING_DEG + 1e-6)
+    const column = container.querySelector<HTMLElement>('[data-motion="plumb"]')!
+    const dot = container.querySelector<HTMLElement>('[data-motion-bob]')!
+    const wobbles = topLevelAnimations().filter(
+      (t) => t instanceof gsap.core.Tween && t.targets()[0] === dot && t.repeat() === -1,
+    )
+    expect(wobbles).toHaveLength(2)
+    wobbles.forEach((t) => t.progress(1))
+    expect(Math.abs(Number(gsap.getProperty(dot, 'xPercent')))).toBeGreaterThan(0)
+    expect(Math.abs(Number(gsap.getProperty(dot, 'yPercent')))).toBeGreaterThan(0)
+    expect(column.getAttribute('style')).toBeNull()
   })
 
-  it('settles_the_swing_as_landing_progress_rises', () => {
+  it('wobbles_slower_than_once_every_two_and_a_half_seconds', () => {
     const { container } = render(<Fixture />)
-    const line = container.querySelector<HTMLElement>('[data-motion="plumb"]')!
-    const swing = topLevelAnimations().find(
-      (t) => t instanceof gsap.core.Tween && t.targets()[0] === line,
+    const dot = container.querySelector<HTMLElement>('[data-motion-bob]')!
+    const wobbles = topLevelAnimations().filter(
+      (t) => t instanceof gsap.core.Tween && t.targets()[0] === dot && t.repeat() === -1,
+    )
+    // Each wobble is a yoyo, so one full period is two legs.
+    wobbles.forEach((t) => expect(t.duration() * 2).toBeGreaterThanOrEqual(2.5))
+  })
+
+  it('remeasures_the_holes_on_refresh_and_glides_the_dot_to_the_nearest_one', () => {
+    const { container } = render(<Fixture />)
+    const dot = container.querySelector<HTMLElement>('[data-motion-bob]')!
+    const holes = Array.from(container.querySelector('[data-motion-string]')!.children)
+    const box = (top: number) => ({ top, height: 10 }) as DOMRect
+    holes.forEach((hole, i) =>
+      vi.spyOn(hole, 'getBoundingClientRect').mockReturnValue(box(5 + 20 * i)),
+    )
+    vi.spyOn(dot, 'getBoundingClientRect').mockReturnValue(box(25))
+    act(() => ScrollTrigger.refresh())
+    const slide = topLevelAnimations().find(
+      (t) => t instanceof gsap.core.Tween && t.targets()[0] === dot && t.repeat() !== -1,
     )!
+    slide.progress(1)
+    // Page top: the first hole (centre 10), measured from where the dot rests (centre 30).
+    expect(Number(gsap.getProperty(dot, 'y'))).toBeCloseTo(-20, 6)
+  })
+
+  it('settles_the_wobble_as_landing_progress_rises', () => {
+    const { container } = render(<Fixture />)
+    const dot = container.querySelector<HTMLElement>('[data-motion-bob]')!
     act(() => useLanding.getState().setProgress(1, 'close'))
-    for (let frame = 0; frame < 400; frame += 1) swing.progress(frame % 2 === 0 ? 0 : 1)
-    expect(Math.abs(Number(gsap.getProperty(line, 'rotation')))).toBeLessThan(0.01)
+    // Finish the amplitude ease first, then render the wobble at its widest point.
+    topLevelAnimations().forEach((t) => t.progress(1))
+    topLevelAnimations().forEach((t) => t.progress(1))
+    expect(Math.abs(Number(gsap.getProperty(dot, 'xPercent')))).toBeLessThan(1e-6)
+    expect(Math.abs(Number(gsap.getProperty(dot, 'yPercent')))).toBeLessThan(1e-6)
+    act(() => useLanding.getState().setProgress(0, 'mast'))
+  })
+
+  it('stops_listening_to_landing_progress_after_unmount', () => {
+    const { container, unmount } = render(<Fixture />)
+    const dot = container.querySelector<HTMLElement>('[data-motion-bob]')!
+    unmount()
+    act(() => useLanding.getState().setProgress(0.5, 'how'))
+    expect(liveTweens()).toHaveLength(0)
+    expect(dot.getAttribute('style')).toBeNull()
     act(() => useLanding.getState().setProgress(0, 'mast'))
   })
 

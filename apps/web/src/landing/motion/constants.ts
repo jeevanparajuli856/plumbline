@@ -38,9 +38,15 @@ export const ROWS_STAGGER_S = 0.12
 export const STAT_DURATION_S = 1.4
 export const STAT_MAX_DECIMALS = 6
 
-// Plumb: bob follows the page, the line swings and settles as belief converges.
-/** Full swing period. 0.3 Hz, far from the 3 Hz flash threshold. */
-export const SWING_PERIOD_S = 3.2
-export const MAX_SWING_DEG = 2.5
-/** Fraction of the gap to the target amplitude closed on each ticker frame. */
-export const SWING_EASE_PER_FRAME = 0.06
+// Edge cell column: the ringed dot follows the page and wobbles between neighbouring holes until
+// the reading settles. Two incommensurate periods so the path never repeats as a visible loop;
+// both are far below the 3 Hz flash threshold.
+export const WOBBLE_X_PERIOD_S = 3.7
+export const WOBBLE_Y_PERIOD_S = 2.9
+/** Widest wobble, as a percent of the dot's own size (y reaches toward the neighbouring hole). */
+export const WOBBLE_X_PERCENT = 18
+export const WOBBLE_Y_PERCENT = 55
+/** How quickly the wobble amplitude follows a change in landing progress. */
+export const WOBBLE_SETTLE_S = 0.8
+/** How quickly the dot glides to the hole that matches the scroll position. */
+export const SLIDE_S = 0.35

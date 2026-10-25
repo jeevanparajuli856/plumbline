@@ -1,4 +1,4 @@
-import { BARS_STAGE_COUNT, LINE_TOLERANCE_PX, MAX_SWING_DEG, STAT_MAX_DECIMALS } from './constants'
+import { BARS_STAGE_COUNT, LINE_TOLERANCE_PX, STAT_MAX_DECIMALS } from './constants'
 
 export type Stages = readonly [number, number, number]
 
@@ -40,10 +40,28 @@ export function formatStat(current: number, spec: StatSpec): string {
   return `${current.toFixed(spec.decimals)}${spec.suffix}`
 }
 
-/** Swing half-angle in degrees: widest at progress 0, settled at 1. */
-export function swingAmplitude(progress: number): number {
-  const p = Number.isFinite(progress) ? Math.min(1, Math.max(0, progress)) : 0
-  return MAX_SWING_DEG * (1 - p)
+function clamp01(value: number): number {
+  return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0
+}
+
+/** Wobble amplitude as a fraction of its widest: 1 at progress 0, settled (0) at 1. */
+export function wobbleAmplitude(progress: number): number {
+  return 1 - clamp01(progress)
+}
+
+/**
+ * Offset that moves the dot from where it rests to the hole nearest the page position. `holes` are
+ * hole centres along the column in reading order; `rest` is the dot's centre with no offset.
+ */
+export function slideOffset(progress: number, holes: readonly number[], rest: number): number {
+  const first = holes[0]
+  const last = holes[holes.length - 1]
+  if (first === undefined || last === undefined) return 0
+  const wanted = first + clamp01(progress) * (last - first)
+  const nearest = holes.reduce((best, hole) =>
+    Math.abs(hole - wanted) < Math.abs(best - wanted) ? hole : best,
+  )
+  return nearest - rest
 }
 
 /** Line index for each word, from the words' offsetTop in reading order. */

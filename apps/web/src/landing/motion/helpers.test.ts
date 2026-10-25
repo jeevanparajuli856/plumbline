@@ -1,5 +1,11 @@
-import { formatStat, groupByLine, parseStages, parseStat, swingAmplitude } from './helpers'
-import { MAX_SWING_DEG } from './constants'
+import {
+  formatStat,
+  groupByLine,
+  parseStages,
+  parseStat,
+  slideOffset,
+  wobbleAmplitude,
+} from './helpers'
 
 describe('parseStages', () => {
   it('parses_three_probabilities_in_order', () => {
@@ -58,23 +64,52 @@ describe('formatStat', () => {
   })
 })
 
-describe('swingAmplitude', () => {
-  it('is_widest_before_any_progress_and_settles_to_zero', () => {
-    expect(swingAmplitude(0)).toBeCloseTo(MAX_SWING_DEG, 6)
-    expect(swingAmplitude(1)).toBe(0)
+describe('wobbleAmplitude', () => {
+  it('is_full_before_any_progress_and_settles_to_zero', () => {
+    expect(wobbleAmplitude(0)).toBe(1)
+    expect(wobbleAmplitude(1)).toBe(0)
   })
 
   it('falls_monotonically_with_progress', () => {
-    const values = [0, 0.25, 0.5, 0.75, 1].map(swingAmplitude)
+    const values = [0, 0.25, 0.5, 0.75, 1].map(wobbleAmplitude)
     values
       .slice(1)
       .forEach((value, i) => expect(value).toBeLessThan(values[i] ?? Number.POSITIVE_INFINITY))
   })
 
   it('clamps_out_of_range_and_non_finite_progress', () => {
-    expect(swingAmplitude(-2)).toBeCloseTo(MAX_SWING_DEG, 6)
-    expect(swingAmplitude(3)).toBe(0)
-    expect(swingAmplitude(Number.NaN)).toBeCloseTo(MAX_SWING_DEG, 6)
+    expect(wobbleAmplitude(-2)).toBe(1)
+    expect(wobbleAmplitude(3)).toBe(0)
+    expect(wobbleAmplitude(Number.NaN)).toBe(1)
+  })
+})
+
+describe('slideOffset', () => {
+  const holes = [10, 30, 50, 70]
+
+  it('rests_on_the_first_hole_at_the_top_of_the_page', () => {
+    expect(slideOffset(0, holes, 10)).toBe(0)
+  })
+
+  it('reaches_the_last_hole_at_the_bottom_of_the_page', () => {
+    expect(slideOffset(1, holes, 10)).toBe(60)
+  })
+
+  it('snaps_to_the_nearest_hole_centre_between_holes', () => {
+    // 0.4 of the way is centre 34, nearest hole 30.
+    expect(slideOffset(0.4, holes, 10)).toBe(20)
+    // 0.6 of the way is centre 46, nearest hole 50.
+    expect(slideOffset(0.6, holes, 10)).toBe(40)
+  })
+
+  it('measures_from_where_the_dot_rests', () => {
+    expect(slideOffset(0, holes, 30)).toBe(-20)
+  })
+
+  it('clamps_progress_and_stays_put_without_holes', () => {
+    expect(slideOffset(2, holes, 10)).toBe(60)
+    expect(slideOffset(-1, holes, 10)).toBe(0)
+    expect(slideOffset(0.5, [], 10)).toBe(0)
   })
 })
 
