@@ -44,7 +44,10 @@ describe('SceneHost mounting seam', () => {
     render(<SceneHost />)
     const scene = await screen.findByTestId('scene')
     expect(scene).toHaveAttribute('role', 'img')
-    expect(scene.closest('.fixed')).not.toBeNull()
+    const layer = scene.closest('.fixed')
+    expect(layer).not.toBeNull()
+    expect(layer).toHaveAttribute('aria-hidden', 'true')
+    expect(layer).toHaveClass('pointer-events-none')
   })
 
   it('moves into #scene-slot in sim mode without remounting the canvas', async () => {
@@ -60,6 +63,7 @@ describe('SceneHost mounting seam', () => {
     act(() => useLanding.setState({ sceneMode: 'sim' }))
     const slot = screen.getByTestId('slot')
     expect(slot.contains(screen.getByTestId('scene'))).toBe(true)
+    expect(screen.getByTestId('scene').closest('[aria-hidden]')).toBeNull()
     expect(mounts.count).toBe(1)
   })
 
