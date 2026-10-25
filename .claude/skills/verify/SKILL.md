@@ -7,6 +7,8 @@ allowed-tools: Bash, Read, Grep, Glob
 
 # /verify
 
+Shell setup first: `eval "$(fnm env --shell zsh)" && fnm use 22` (Node 22 is required). Health path is `/v1/health`.
+
 Adapted from ECC `verification-loop` for this repo. Run every phase that applies; stop early only on a build failure. Paste the last lines of each command; never summarize a failure as "some tests failed".
 
 | # | Phase | Command | Pass condition |
@@ -15,7 +17,7 @@ Adapted from ECC `verification-loop` for this repo. Run every phase that applies
 | 2 | Typecheck | `pnpm -r typecheck` | 0 errors |
 | 3 | Lint | `pnpm -r lint` | 0 errors (warnings listed) |
 | 4 | Unit (web) | `pnpm --filter web test -- --run --coverage` | all pass; coverage per `.claude/rules/testing.md` |
-| 5 | Python | `uv run --project engine ruff check . && uv run --project engine pyright plumbline && uv run --project engine pytest -q --cov=plumbline` | all pass |
+| 5 | Python | `uv run --project engine ruff check engine && uv run --project engine pyright engine/plumbline engine/plumbline_api && uv run --project engine pytest -q --cov=plumbline --rootdir engine engine/tests` | all pass |
 | 6 | Parity | `pnpm --filter web test -- --run src/engine/__tests__/parity.test.ts` (if the TS port exists) | max abs error < 1e-6 |
 | 7 | Build | `pnpm --filter web build` | exit 0; report gzip sizes of main and three chunks vs budget |
 | 8 | E2E | `pnpm test:e2e` (only with --e2e) | worked-example, slip-warning, keyboard-only, a11y specs pass |

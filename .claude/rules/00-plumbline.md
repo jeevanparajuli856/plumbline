@@ -13,7 +13,7 @@ Nexus Technology Cup 2026, College Track. Team: Jeevan Parajuli, Pankaj Bhatta (
    The TypeScript port in `apps/web/src/engine/` must pass the parity suite against recorded Python outputs before it drives the demo.
 3. **Refusal is a feature.** When fault classes are electrically indistinguishable, the UI says "unresolved" and asks for another reading. Never force a single answer.
 4. **Accessibility first.** The primary user cannot see the screen. Every 3D state has a DOM/`aria-live` mirror and a spoken equivalent. Keyboard and voice must drive the whole demo flow. The 3D scene is for sighted judges; the text/voice channel is the product.
-5. **Scope discipline.** Do not build: user accounts, a database, analytics dashboards, mobile apps, cloud infra, auth. Every hour there is an hour not spent on the one novel thing.
+5. **Scope discipline.** Do not build: user accounts, a database, analytics dashboards, a separate native mobile codebase, cloud state, auth. Allowed: a Capacitor wrapper of the same web app for iOS at the finals (ADR-0009) and an env-flag passphrase gate for private previews (ADR-0007). Every hour there is an hour not spent on the one novel thing.
 6. **Demo reliability over features.** The worked example (true fault R3 10x too small, told row 3, hand lands row 2, reads 3.671 V, then 0.338 V) must replay deterministically from a fixture at all times.
 
 ## The math (six lines, keep it visible)
@@ -26,7 +26,7 @@ n*          = argmax_n [ H(b) - E_r[ H(b' | r) ] ]                 expected info
 P(l != n | r) > 0.5  ->  say "your probe is not where you think it is"
 ```
 
-Reference nominal node voltages (rows 1..6): 9.000, 3.871, 1.733, 2.499, 0.416, 0.866 V. 33 faults collapse to 31 distinguishable classes.
+Reference nominal node voltages (rows 1..6): 9.000, 3.871, 1.733, 2.499, 0.416, 0.866 V. The brief says 33 faults collapse to 31 distinguishable classes; our scratch reconstruction (2026-10-25) gives 32 with the pair LED_open/LED_reversed. Report whatever the engine computes.
 
 ## Where things live
 
@@ -37,7 +37,7 @@ Reference nominal node voltages (rows 1..6): 9.000, 3.871, 1.733, 2.499, 0.416, 
 | `apps/web/src/scene/` | 3D breadboard, probe, noisy-hand, belief overlays |
 | `apps/web/src/engine/` | TypeScript port of the inference math + parity fixtures |
 | `apps/web/src/voice/` | Web Speech API loop |
-| `docs/` | ARCHITECTURE.md, BUILD_PLAN.md, CLAUDE_SETUP.md |
+| `docs/` | ARCHITECTURE.md, API_CONTRACT.md, BUILD_PLAN.md, POSITIONING.md, DESIGN_REFERENCES.md, PITCH.md, VIDEO_STORYBOARD.md, EVIDENCE.md, CLAUDE_SETUP.md, decisions/ |
 | `docs/brief/` | Original briefs, PDFs, Nexus dossier (read-only reference) |
 
 ## Working style for this repo

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Plumbline">
+  <rect width="64" height="64" rx="6" fill="#0B0D10"/>
+  <line x1="32" y1="8" x2="32" y2="40" stroke="#5FD3E8" stroke-width="3" stroke-linecap="round"/>
+  <path d="M32 40 L24 52 L40 52 Z" fill="#F2A93B"/>
+  <line x1="14" y1="56" x2="50" y2="56" stroke="#ECE9E2" stroke-width="3" stroke-linecap="round"/>
+</svg>

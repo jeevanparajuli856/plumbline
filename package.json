@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "An assistant for blind hands that cannot tell you something it has not measured.",
   "packageManager": "pnpm@9.15.0",
-  "engines": { "node": ">=20" },
+  "engines": { "node": ">=22.12" },
   "scripts": {
     "dev": "pnpm --filter web dev",
     "api": "uv run --project engine uvicorn plumbline_api.main:app --reload --port 8000",
@@ -14,6 +14,10 @@
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint",
     "format": "prettier --write .",
-    "verify": "pnpm typecheck && pnpm lint && pnpm test && uv run --project engine pytest -q"
+    "verify": "pnpm typecheck && pnpm lint && pnpm test && uv run --project engine ruff check engine && uv run --project engine pytest -q"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.0",
+    "concurrently": "^10.0.0"
   }
 }

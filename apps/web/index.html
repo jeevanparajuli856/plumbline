@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Plumbline: an assistant for blind hands that cannot tell you something it has not measured." />
+    <meta name="theme-color" content="#0B0D10" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F6F3EC" media="(prefers-color-scheme: light)" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png" />
+    <title>Plumbline</title>
+    <script>
+      // Theme pre-script: apply the saved theme before CSS paints to avoid a flash.
+      try {
+        var t = localStorage.getItem('plumbline.theme')
+        if (t === 'dark' || t === 'light' || t === 'hc') document.documentElement.dataset.theme = t
+      } catch (e) {
+        /* storage unavailable: follow the OS */
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
