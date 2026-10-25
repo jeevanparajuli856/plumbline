@@ -4,6 +4,7 @@ import {
   inlineSegments,
   parseTables,
   splitRow,
+  withRolesForNames,
   statusTone,
   stripEditorNotes,
   tableUnder,
@@ -94,6 +95,30 @@ describe('stripEditorNotes', () => {
     const t = tableUnder(ladderMd, 'Scale ladder')!
     for (const cell of t.rows.flat().map(stripEditorNotes)) {
       expect(cell).not.toMatch(/[[\]—]/)
+    }
+  })
+})
+
+describe('withRolesForNames', () => {
+  const NAMED = /Louisiana|American Printing House|APH\b|Fluke|Snap-on|\bGE\b/
+
+  it('swaps organization names from the brief for generic roles', () => {
+    expect(
+      withRolesForNames(
+        'Vocational rehabilitation agencies (Louisiana Rehabilitation Services), schools; APH (American Printing House for the Blind) as distributor',
+      ),
+    ).toBe(
+      'The state vocational rehabilitation agency, schools; a braille and tactile tools publisher as distributor',
+    )
+    expect(withRolesForNames('Tool makers (Fluke, Snap-on-class), schools')).toBe(
+      'Tool makers, schools',
+    )
+  })
+
+  it('leaves no organization name in any rendered ladder cell', () => {
+    const t = tableUnder(ladderMd, 'Scale ladder')!
+    for (const cell of t.rows.flat().map((c) => withRolesForNames(stripEditorNotes(c)))) {
+      expect(cell).not.toMatch(NAMED)
     }
   })
 })

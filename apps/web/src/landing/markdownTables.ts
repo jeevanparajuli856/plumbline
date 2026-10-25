@@ -98,6 +98,23 @@ export function stripEditorNotes(text: string): string {
     .trim()
 }
 
+/**
+ * Organization names the brief uses, and the generic role shown instead. Rule F21: no partner or
+ * organization is named on the site without written permission on file.
+ */
+const NAME_TO_ROLE: readonly (readonly [RegExp, string])[] = [
+  [
+    /Vocational rehabilitation agencies \(Louisiana Rehabilitation Services\)/g,
+    'The state vocational rehabilitation agency',
+  ],
+  [/APH \(American Printing House for the Blind\)/g, 'a braille and tactile tools publisher'],
+  [/\s*\(Fluke, Snap-on-class\)/g, ''],
+]
+
+export function withRolesForNames(text: string): string {
+  return NAME_TO_ROLE.reduce((out, [name, role]) => out.replace(name, role), text)
+}
+
 export type StatusTone = 'done' | 'progress' | 'pending' | 'simulated'
 
 /** Visual tone for an evidence status. Mixed statuses ("scratch DONE, engine PENDING") read as pending. */

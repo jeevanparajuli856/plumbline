@@ -152,6 +152,14 @@ describe('LandingPage', () => {
     expect(useLanding.getState().sceneMode).toBe('hidden')
   })
 
+  it('never renders a partner or organization name from the brief (rule F21)', async () => {
+    const { container } = renderLanding()
+    await settle()
+    expect(container.textContent ?? '').not.toMatch(
+      /Louisiana Center|Louisiana Rehabilitation|American Printing House|APH\b|Fluke|Snap-on/,
+    )
+  })
+
   it('has no em-dashes or banned phrases in the rendered copy', async () => {
     const { container } = renderLanding()
     await settle()

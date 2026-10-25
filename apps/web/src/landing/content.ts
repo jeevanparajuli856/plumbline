@@ -97,9 +97,9 @@ export const FORUM_QUOTE = {
 export const KILL_RESULT =
   'if measured placement accuracy is above 0.95, the published method is already sufficient.'
 
-/** DESIGN_REFERENCES C2, true while the Ruston session is being scheduled. */
+/** Scope of every result on the page. Names no partner (rule F21) until permission is on file. */
 export const SIMULATION_SCOPE =
-  'Results on this page come from simulated faults and a simulated hand. We have not yet measured how real hands miss. That measurement is scheduled with the Louisiana Center for the Blind.'
+  'Results on this page come from simulated faults and a simulated hand. We have not yet measured how real hands miss. That measurement is the next phase.'
 
 export const SAFETY_SCOPE =
   'Research preview. Not a safety device. Do not use it to work on mains voltage or anything that can hurt you.'

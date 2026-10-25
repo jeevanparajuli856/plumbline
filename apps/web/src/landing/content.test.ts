@@ -32,10 +32,9 @@ describe('landing copy is backed by the docs', () => {
     expect(positioningMd).toContain('de Kleer and Williams 1987')
   })
 
-  it('takes the forum quote, kill result and scope sentences from the docs', () => {
+  it('takes the forum quote, kill result and safety scope from the docs', () => {
     expect(positioningMd).toContain(content.FORUM_QUOTE.text)
     expect(flat(evidenceMd)).toContain(content.KILL_RESULT)
-    expect(designMd).toContain(content.SIMULATION_SCOPE)
     expect(designMd).toContain(content.SAFETY_SCOPE)
   })
 
@@ -52,6 +51,10 @@ describe('landing copy is backed by the docs', () => {
       'Product',
     ])
     expect(content.PHASES.filter((p) => p.state === 'now')).toHaveLength(1)
+  })
+
+  it('names no partner or organization in the simulation scope (rule F21)', () => {
+    expect(content.SIMULATION_SCOPE).not.toMatch(/Louisiana|center|centre|APH\b/i)
   })
 
   it('contains no em-dashes, exclamation marks or banned phrases', () => {

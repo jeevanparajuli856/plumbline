@@ -1,7 +1,7 @@
 import evidenceMd from '@docs/EVIDENCE.md?raw'
 import ladderMd from '@docs/brief/Plumbline_Scale_and_Build.md?raw'
 import s from '../landing.module.css'
-import { stripEditorNotes, tableUnder } from '../markdownTables'
+import { stripEditorNotes, tableUnder, withRolesForNames } from '../markdownTables'
 import { Caption, Eyebrow, Inline, ScrollRegion, Section } from '../parts'
 import { cx } from '../cx'
 
@@ -46,11 +46,11 @@ export function Ladder() {
                       {row.map((cell, j) =>
                         j === 0 ? (
                           <th key={j} scope="row" className="relative font-semibold">
-                            <Inline text={stripEditorNotes(cell)} />
+                            <Inline text={withRolesForNames(stripEditorNotes(cell))} />
                           </th>
                         ) : (
                           <td key={j}>
-                            <Inline text={stripEditorNotes(cell)} />
+                            <Inline text={withRolesForNames(stripEditorNotes(cell))} />
                           </td>
                         ),
                       )}
