@@ -5,16 +5,20 @@ import { useLanding } from '@/state/landing'
 import { usePrefs } from '@/state/prefs'
 import { useSession } from '@/state/session'
 import { SceneUnavailable } from './SceneUnavailable'
+import { sceneLabel } from './sceneLabel'
 import { useSceneSlot } from './useSceneSlot'
 
 const SceneRoot = lazy(() => import('./SceneRoot'))
 
 function SceneFrame() {
-  const domain = useSession((s) => s.domain)
-  const label =
-    domain === 'thermometer'
-      ? '3D cross-section of the simulated roast and thermometer. All information is also in the text channel.'
-      : '3D view of the breadboard and probe. All information is also in the text channel.'
+  const label = useSession((s) =>
+    sceneLabel({
+      domain: s.domain,
+      sites: s.catalog?.sites ?? [],
+      aimedSite: s.aimedSite,
+      readings: s.readings,
+    }),
+  )
   return (
     <div role="img" aria-label={label} data-testid="scene" className="h-full w-full">
       <Suspense fallback={null}>
@@ -46,6 +50,12 @@ export function SceneHost() {
 
   const enabled = !textOnly && sceneMode !== 'hidden'
   const container = !enabled ? null : sceneMode === 'sim' ? slot : layer
+  // Once the Canvas has mounted it stays mounted (off the page while no container shows it), so
+  // React never deletes the portal mid route change and the WebGL context survives navigation.
+  const [hasMounted, setHasMounted] = useState(false)
+  // Remembering that a container existed is state derived from render, set during render.
+  if (container !== null && !hasMounted) setHasMounted(true)
+  const keepCanvas = hasWebgl && !textOnly && (hasMounted || container !== null)
 
   useLayoutEffect(() => {
     if (!container || !host) return
@@ -53,16 +63,21 @@ export function SceneHost() {
     return () => host.remove()
   }, [container, host])
 
-  if (!enabled || !host) return null
+  if (!host || (!enabled && !keepCanvas)) return null
   const content = hasWebgl ? <SceneFrame /> : sceneMode === 'sim' ? <SceneUnavailable /> : null
+  const showPortal = hasWebgl ? keepCanvas : container !== null
   return (
     <>
-      {sceneMode === 'landing' && (
+      {sceneMode === 'landing' && !textOnly && (
         // Decorative backdrop on the landing: its captions carry the content, and a labelled
         // image outside any landmark would trip axe's region rule.
-        <div ref={setLayer} aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden" />
+        <div
+          ref={setLayer}
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+        />
       )}
-      {container && content && createPortal(content, host)}
+      {showPortal && content && createPortal(content, host)}
     </>
   )
 }

@@ -67,6 +67,30 @@ describe('SceneHost mounting seam', () => {
     expect(mounts.count).toBe(1)
   })
 
+  it('keeps the canvas mounted off the page when the sim leaves, and reuses it on return', async () => {
+    function App({ showSlot }: { showSlot: boolean }) {
+      return (
+        <>
+          <SceneHost />
+          {showSlot ? <Slot /> : null}
+        </>
+      )
+    }
+    act(() => useLanding.setState({ sceneMode: 'landing' }))
+    const { rerender } = render(<App showSlot />)
+    await screen.findByTestId('fake-canvas')
+    act(() => useLanding.setState({ sceneMode: 'sim' }))
+    // Leaving /sim: the page removes its slot, then the scene mode goes hidden.
+    rerender(<App showSlot={false} />)
+    act(() => useLanding.setState({ sceneMode: 'hidden' }))
+    expect(screen.queryByTestId('scene')).toBeNull()
+    expect(mounts.count).toBe(1)
+    rerender(<App showSlot />)
+    act(() => useLanding.setState({ sceneMode: 'sim' }))
+    expect(screen.getByTestId('slot').contains(await screen.findByTestId('scene'))).toBe(true)
+    expect(mounts.count).toBe(1)
+  })
+
   it('finds a slot that renders after the scene', async () => {
     act(() => useLanding.setState({ sceneMode: 'sim' }))
     const { rerender } = render(<SceneHost />)
