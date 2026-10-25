@@ -1,9 +1,12 @@
 import type { RefObject } from 'react'
 import { gsap, useGSAP } from './scroll'
-import { MOTION_ALLOWED, MOTION_NARROW, MOTION_WIDE } from './constants'
+import { MOTION_ALLOWED } from './constants'
 import { useHtmlReduceMotion } from './useHtmlReduceMotion'
 import { headline, quotes } from './effects/text'
 import { bars } from './effects/bars'
+import { devices } from './effects/device'
+import { reveals } from './effects/entrance'
+import { parallax } from './effects/parallax'
 import { rows, stats } from './effects/reveal'
 import { column } from './effects/column'
 import { refreshOnLoad } from './effects/refresh'
@@ -38,11 +41,13 @@ export default function LandingMotion({ rootRef }: LandingMotionProps) {
           rows(root),
           stats(root),
           column(root),
+          bars(root),
+          reveals(root),
+          devices(root),
+          parallax(root),
           refreshOnLoad(root),
         ]),
       )
-      mm.add(MOTION_WIDE, () => bars(root, { pin: true }))
-      mm.add(MOTION_NARROW, () => bars(root, { pin: false }))
       return () => mm.revert()
     },
     { scope: rootRef, dependencies: [isReduced], revertOnUpdate: true },

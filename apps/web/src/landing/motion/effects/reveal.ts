@@ -5,12 +5,14 @@ import {
   ROWS_OFFSET_PX,
   ROWS_STAGGER_S,
   STAT_DURATION_S,
+  STAT_EASE,
 } from '../constants'
-import { formatStat, parseStat } from '../helpers'
+import { clampCount, formatStat, parseStat } from '../helpers'
+import { showOnFocus } from './focus'
 import { keepStyles } from './styles'
 import type { Cleanup } from './types'
 
-/** Direct li children of each product list slide in from the left, once. */
+/** Direct li children of each product list slide and fade in from the left, once, in sequence. */
 export function rows(root: HTMLElement): Cleanup {
   const lists = Array.from(root.querySelectorAll<HTMLElement>('[data-motion="rows"]')).map(
     (list) => ({
@@ -19,21 +21,28 @@ export function rows(root: HTMLElement): Cleanup {
     }),
   )
   const restore = keepStyles(lists.flatMap(({ items }) => items))
-  lists.forEach(({ list, items }) => {
-    if (items.length === 0) return
-    gsap.from(items, {
+  const unfocus = lists.map(({ list, items }) => {
+    if (items.length === 0) return () => {}
+    const tween = gsap.from(items, {
       x: -ROWS_OFFSET_PX,
-      autoAlpha: 0,
+      opacity: 0,
       duration: ROWS_DURATION_S,
       stagger: ROWS_STAGGER_S,
       ease: 'power2.out',
       scrollTrigger: { trigger: list, start: REVEAL_START, once: true },
     })
+    return showOnFocus(list, tween)
   })
-  return restore
+  return () => {
+    unfocus.forEach((cleanup) => cleanup())
+    restore()
+  }
 }
 
-/** One stat counts from 0 to its value and ends on exactly its original text. */
+/**
+ * One stat counts from 0 to its value and ends on exactly its original text. The ease overshoots
+ * for life, but the shown number is clamped: it never claims more than was measured.
+ */
 function countUp(el: HTMLElement): Cleanup {
   const spec = parseStat(
     el.dataset.motionValue ?? null,
@@ -47,9 +56,9 @@ function countUp(el: HTMLElement): Cleanup {
   gsap.to(counter, {
     value: spec.value,
     duration: STAT_DURATION_S,
-    ease: 'power2.out',
+    ease: STAT_EASE,
     onUpdate: () => {
-      el.textContent = formatStat(counter.value, spec)
+      el.textContent = formatStat(clampCount(counter.value, spec.value), spec)
     },
     onComplete: () => {
       el.textContent = original
