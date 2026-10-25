@@ -36,17 +36,17 @@ const TABLE: Row[] = [
   ['off', { type: 'TOGGLE_LISTEN' }, 'off', ['announce', 'focusTyped']],
   ['off', { type: 'SAY', text: 'Row 3.', priority: 'polite' }, 'off', ['speak']],
 
-  ['idle', { type: 'TOGGLE_LISTEN' }, 'listening', ['listen']],
+  ['idle', { type: 'TOGGLE_LISTEN' }, 'listening', ['speak', 'listen']],
   ['idle', { type: 'SPEECH_START' }, 'speaking', []],
   ['idle', { type: 'SAY', text: 'Row 3.', priority: 'polite' }, 'idle', ['speak']],
   ['idle', { type: 'STOP' }, 'off', ['stopListening', 'cancelSpeech']],
 
   ['speaking', { type: 'SPEECH_END' }, 'idle', []],
-  ['speaking', { type: 'TOGGLE_LISTEN' }, 'listening', ['cancelSpeech', 'listen']],
+  ['speaking', { type: 'TOGGLE_LISTEN' }, 'listening', ['cancelSpeech', 'speak', 'listen']],
   ['speaking', { type: 'SAY', text: 'Row 3.', priority: 'polite' }, 'speaking', ['speak']],
   ['speaking', { type: 'STOP' }, 'off', ['stopListening', 'cancelSpeech']],
 
-  ['listening', { type: 'TOGGLE_LISTEN' }, 'idle', ['stopListening']],
+  ['listening', { type: 'TOGGLE_LISTEN' }, 'idle', ['stopListening', 'announce']],
   ['listening', { type: 'CANCEL' }, 'idle', ['stopListening', 'announce']],
   ['listening', { type: 'AUDIO_END' }, 'parsing', []],
   ['listening', result('3.671'), 'submitting', ['submit']],
@@ -56,7 +56,7 @@ const TABLE: Row[] = [
 
   ['parsing', result('3.671'), 'submitting', ['submit']],
   ['parsing', { type: 'CANCEL' }, 'idle', ['stopListening', 'announce']],
-  ['parsing', { type: 'TOGGLE_LISTEN' }, 'idle', ['stopListening']],
+  ['parsing', { type: 'TOGGLE_LISTEN' }, 'idle', ['stopListening', 'announce']],
   ['parsing', { type: 'LISTEN_ERROR', code: 'network' }, 'idle', ['announce']],
   ['parsing', { type: 'SAY', text: 'Row 3.', priority: 'polite' }, 'parsing', ['speak']],
   ['parsing', { type: 'STOP' }, 'off', ['stopListening', 'cancelSpeech']],
@@ -170,6 +170,22 @@ describe('voiceMachine reading results', () => {
     const opened = { ...listening, status: 'listening' as const }
     expect(voiceReducer(opened, result('3.671')).state.status).toBe('submitting')
     expect(voiceReducer(opened, { type: 'CANCEL' }).state.status).toBe('speaking')
+  })
+})
+
+describe('voiceMachine listening cues', () => {
+  it('speaks a short cue before the microphone opens, speech only so the live region stays quiet', () => {
+    expect(voiceReducer(at('idle'), { type: 'TOGGLE_LISTEN' }).effects).toEqual([
+      { type: 'speak', text: voicePhrases.listening, priority: 'polite' },
+      { type: 'listen' },
+    ])
+  })
+
+  it('says it stopped when the microphone key closes the microphone', () => {
+    expect(voiceReducer(at('listening'), { type: 'TOGGLE_LISTEN' }).effects).toEqual([
+      { type: 'stopListening' },
+      { type: 'announce', text: voicePhrases.stopped, priority: 'polite' },
+    ])
   })
 })
 

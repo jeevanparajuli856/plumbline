@@ -81,6 +81,9 @@ const COMMANDS: Record<string, 'typeInstead' | 'stop' | 'repeat'> = {
 const MIC_UNUSABLE: readonly ListenErrorCode[] = ['not-allowed', 'service-not-allowed', 'audio-capture']
 const LISTENING: readonly VoiceStatus[] = ['listening', 'parsing', 'confirming']
 
+/** Speech only: a live-region cue would be read by the screen reader into the open microphone. */
+const LISTENING_CUE: VoiceEffect = { type: 'speak', text: voicePhrases.listening, priority: 'polite' }
+
 const announce = (text: string, priority: SpeechPriority = 'polite'): VoiceEffect => ({
   type: 'announce',
   text,
@@ -147,12 +150,15 @@ function toggle(state: VoiceState): Transition {
     case 'off':
       return { state, effects: [announce(voicePhrases.unsupported), { type: 'focusTyped' }] }
     case 'idle':
-      return { state: { ...state, status: 'listening' }, effects: [{ type: 'listen' }] }
+      return { state: { ...state, status: 'listening' }, effects: [LISTENING_CUE, { type: 'listen' }] }
     case 'speaking':
-      return { state: { ...state, status: 'listening' }, effects: [{ type: 'cancelSpeech' }, { type: 'listen' }] }
+      return {
+        state: { ...state, status: 'listening' },
+        effects: [{ type: 'cancelSpeech' }, LISTENING_CUE, { type: 'listen' }],
+      }
     case 'listening':
     case 'parsing':
-      return rest(state, [{ type: 'stopListening' }])
+      return rest(state, [{ type: 'stopListening' }, announce(voicePhrases.stopped)])
     case 'confirming':
       return rest(state, [{ type: 'stopListening' }, announce(voicePhrases.notSent)])
     case 'submitting':

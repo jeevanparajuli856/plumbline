@@ -60,6 +60,7 @@ export const voicePhrases = {
     }
   },
   unsupported: `This browser cannot listen. ${TYPE_INSTEAD}`,
+  listening: 'Listening.',
   stopped: 'Stopped listening.',
   notSent: 'Not sent. Press M to say it again, or T to type it.',
   typeInstead: 'Type the reading and press Enter.',
