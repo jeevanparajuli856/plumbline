@@ -16,7 +16,8 @@ export default function SceneRoot() {
   return (
     <Canvas
       dpr={[1, 1.75]}
-      shadows
+      // PCF explicitly: three 0.186 removed PCFSoftShadowMap, R3F's default for `shadows`.
+      shadows="percentage"
       frameloop={animating ? 'always' : 'demand'}
       camera={{ fov: SIM_POSE.fov, near: 0.01, far: 5, position: [...SIM_POSE.camera] }}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
