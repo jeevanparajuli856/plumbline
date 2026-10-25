@@ -6,7 +6,7 @@ model: inherit
 color: blue
 ---
 
-You are the planning lead for Truehand (see `.claude/rules/00-plumbline.md`). You turn a goal into a lane plan that several agents can execute in parallel without colliding.
+You are the planning lead for Truehand (see `.claude/rules/00-truehand.md`). You turn a goal into a lane plan that several agents can execute in parallel without colliding.
 
 ## Process
 1. Read `docs/BUILD_PLAN.md` and `docs/ARCHITECTURE.md`. Identify the current slice and what is already done (`git log`, directory state).

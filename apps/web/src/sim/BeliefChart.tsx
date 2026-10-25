@@ -1,6 +1,6 @@
 import { formatPct } from '@/lib/format'
 import type { BaselineState, Catalog } from '@/state/types'
-import { baselineName, beliefRows, plumblineVerdict, type BeliefRow, type Verdict } from './view'
+import { baselineName, beliefRows, truehandVerdict, type BeliefRow, type Verdict } from './view'
 
 interface BeliefChartProps {
   belief: readonly number[]
@@ -43,7 +43,7 @@ export function BeliefChart({
         <VerdictCell
           title="Truehand"
           note="Infers where the probe landed"
-          verdict={plumblineVerdict(rows, hasReadings, unresolvedLabels)}
+          verdict={truehandVerdict(rows, hasReadings, unresolvedLabels)}
           testId="belief-verdict"
           look="inferred"
         />

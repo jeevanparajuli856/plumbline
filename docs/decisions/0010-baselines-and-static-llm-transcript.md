@@ -20,7 +20,7 @@ the brief cites them. They were not re-verified in this session.
 
 ## Decision
 
-Baselines are in the engine. `engine/plumbline/baselines.py` defines a `Baseline` Protocol with
+Baselines are in the engine. `engine/truehand/baselines.py` defines a `Baseline` Protocol with
 `start`, `observe`, and `choose`. The four baselines are:
 
 - `EntropyExact`: entropy-based selection with the exact probe position (no confusion model). This
@@ -32,7 +32,7 @@ Baselines are in the engine. `engine/plumbline/baselines.py` defines a `Baseline
 
 In a session, a baseline runs in shadow mode. It sees the same readings and reports its own belief
 and diagnosis (`BaselineView` with `shadow` true). In experiments, each arm has its own instructions
-on the same truths and the same random stream (`experiment.py`: plumbline, entropy_exact, checklist,
+on the same truths and the same random stream (`experiment.py`: truehand, entropy_exact, checklist,
 random, remeasure_until_agree).
 
 The brief's expectation, not our run, for the headline comparison: Truehand correct 99.0 plus or

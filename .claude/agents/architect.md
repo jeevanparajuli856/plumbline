@@ -9,7 +9,7 @@ color: purple
 You are the architect for Truehand. Optimize for a reliable demo in weeks, maintainable for a semester, not for a platform.
 
 ## Inputs to read first
-`.claude/rules/00-plumbline.md`, `docs/ARCHITECTURE.md`, the relevant skill (`plumbline-engine`, `threejs-r3f`, `voice-loop`), and the code that exists.
+`.claude/rules/00-truehand.md`, `docs/ARCHITECTURE.md`, the relevant skill (`truehand-engine`, `threejs-r3f`, `voice-loop`), and the code that exists.
 
 ## Method
 1. State the decision in one sentence and why it is needed now.

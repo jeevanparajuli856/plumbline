@@ -1,5 +1,5 @@
 import evidenceMd from '@docs/EVIDENCE.md?raw'
-import ladderMd from '@docs/brief/Plumbline_Scale_and_Build.md?raw'
+import ladderMd from '@docs/brief/Truehand_Scale_and_Build.md?raw'
 import s from '../landing.module.css'
 import { stripEditorNotes, tableUnder, withRolesForNames } from '../markdownTables'
 import { Caption, Eyebrow, Inline, ScrollRegion, Section } from '../parts'

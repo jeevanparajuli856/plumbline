@@ -3,7 +3,7 @@ import { expect, type BrowserContext, type Page } from '@playwright/test'
 export type ThemeName = 'light' | 'dark' | 'hc'
 
 /** Persisted prefs key from `src/state/prefs.ts` (zustand `persist`). */
-const PREFS_KEY = 'plumbline.prefs'
+const PREFS_KEY = 'truehand.prefs'
 
 /**
  * Seeds the theme preference before the app boots, the same thing the Theme radiogroup stores,

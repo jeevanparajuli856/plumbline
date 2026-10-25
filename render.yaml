@@ -6,12 +6,12 @@ services:
     plan: free # switch to starter for the semifinal review window and finals week (cold starts)
     rootDir: engine
     buildCommand: pip install uv && uv sync --frozen --no-dev
-    startCommand: uv run --no-sync uvicorn plumbline_api.main:app --host 0.0.0.0 --port $PORT --limit-concurrency 64
+    startCommand: uv run --no-sync uvicorn truehand_api.main:app --host 0.0.0.0 --port $PORT --limit-concurrency 64
     healthCheckPath: /v1/health
     envVars:
       - key: PYTHON_VERSION
         value: 3.13.7
-      - key: PLUMBLINE_CORS_ORIGINS
+      - key: TRUEHAND_CORS_ORIGINS
         value: https://plumbline-web-lxxc.onrender.com,http://localhost:5173
   - type: web
     name: plumbline-web

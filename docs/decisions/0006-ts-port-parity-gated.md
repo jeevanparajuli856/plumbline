@@ -7,7 +7,7 @@ Status: accepted, 2026-10-25
 The brief's demo must "replay deterministically from a fixture at all times" (rule 6). The PWA
 must work offline (ADR-0009), and the deployed site must complete the worked example even when the
 API is asleep (ADR-0005). Those needs argue for running the inference in the browser. Rule 2 of
-`00-plumbline.md` makes the Python engine the source of truth, and `CLAUDE.md` says the TypeScript
+`00-truehand.md` makes the Python engine the source of truth, and `CLAUDE.md` says the TypeScript
 port in `apps/web/src/engine` may drive the demo only after the parity suite passes.
 
 A port is a second implementation of the same math. Without a gate, two implementations drift

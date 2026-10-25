@@ -18,14 +18,14 @@ test('the spoken phrase matches the fixture reading', () => {
 
 declare global {
   interface Window {
-    __plumblineFakeRecognition?: { say(transcript: string, alternatives?: string[]): void }
+    __truehandFakeRecognition?: { say(transcript: string, alternatives?: string[]): void }
     __e2eSpoken?: string[]
   }
 }
 
 test.describe('voice loop', () => {
   test.skip(
-    Boolean(process.env.PLUMBLINE_E2E_BASE_URL),
+    Boolean(process.env.TRUEHAND_E2E_BASE_URL),
     'a deployed production build has no fake recognition stub',
   )
   needsFullUi('voice (fake recognition stub) and the integration step (Listen button, M key)')
@@ -46,7 +46,7 @@ test.describe('voice loop', () => {
     await expect(sim.heading).toContainText(STORY.toldLabel)
     // The stub is installed asynchronously; saying anything before it exists is the voice race.
     await page.waitForFunction(
-      () => typeof window.__plumblineFakeRecognition?.say === 'function',
+      () => typeof window.__truehandFakeRecognition?.say === 'function',
       undefined,
       {
         timeout: STUB_TIMEOUT_MS,
@@ -79,7 +79,7 @@ test.describe('voice loop', () => {
     await page.keyboard.press('m')
     await expect(sim.listen).toHaveAttribute('aria-pressed', 'true')
     await page.evaluate(
-      (transcript) => window.__plumblineFakeRecognition!.say(transcript),
+      (transcript) => window.__truehandFakeRecognition!.say(transcript),
       SPOKEN_FIRST_READING,
     )
     await sim.waitForStep(1)
@@ -89,7 +89,7 @@ test.describe('voice loop', () => {
 
   test('a phrase said before the mic opens is held until the next listen', async ({ page }) => {
     await page.evaluate(
-      (transcript) => window.__plumblineFakeRecognition!.say(transcript),
+      (transcript) => window.__truehandFakeRecognition!.say(transcript),
       SPOKEN_FIRST_READING,
     )
     await expect(sim.logRows()).toHaveCount(0)
@@ -110,7 +110,7 @@ test.describe('voice loop', () => {
     await page.keyboard.press('m')
     await expect(sim.listen).toHaveAttribute('aria-pressed', 'true')
     await page.evaluate(() =>
-      window.__plumblineFakeRecognition!.say('<img src=x onerror="alert(1)"> three'),
+      window.__truehandFakeRecognition!.say('<img src=x onerror="alert(1)"> three'),
     )
     await page.waitForTimeout(1_000)
     expect(dialogs).toBe(0)

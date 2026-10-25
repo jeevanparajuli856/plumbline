@@ -26,5 +26,5 @@ const { readStdinJson } = require('./lib/hook-input');
     : null);
   if (used != null) ctx = ` | ctx ${used}%`;
   const parts = [`${model}`, branch ? `${branch}${lane ? ` (${lane})` : ''}` : path.basename(cwd)];
-  process.stdout.write(`plumbline ⟂ ${parts.join(' | ')}${ctx}`);
+  process.stdout.write(`truehand ⟂ ${parts.join(' | ')}${ctx}`);
 })();

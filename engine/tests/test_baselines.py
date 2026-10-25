@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from plumbline.baselines import Checklist, EntropyExact, RandomOrder, RemeasureUntilAgree
-from plumbline.domains.circuit import CircuitModel
+from truehand.baselines import Checklist, EntropyExact, RandomOrder, RemeasureUntilAgree
+from truehand.domains.circuit import CircuitModel
 
 TOLD_ROW_3 = 2
 

@@ -13,7 +13,7 @@ export const TREMOR_FREQS_HZ = [1.3, 2.1] as const
  * scene neither draws it nor keeps the frame loop running for it.
  */
 export const TREMOR_VISIBLE_M = 0.00025
-/** P(l = n | n) of the default confusion model (0.78 / 0.08 / 0.03, `.claude/rules/00-plumbline.md`). */
+/** P(l = n | n) of the default confusion model (0.78 / 0.08 / 0.03, `.claude/rules/00-truehand.md`). */
 export const DEFAULT_P_SAME = 0.78
 export const MAX_PENDULUM_RAD = (18 * Math.PI) / 180
 /** One swing per state change; maps to `--motion-pendulum-settle` (1000 ms). */

@@ -9,10 +9,10 @@ from typing import Any
 import httpx
 import pytest
 
-from plumbline.domains import get_model
-from plumbline_api.main import app
-from plumbline_api.settings import Settings, get_settings
-from plumbline_api.store import SessionStore, get_store
+from truehand.domains import get_model
+from truehand_api.main import app
+from truehand_api.settings import Settings, get_settings
+from truehand_api.store import SessionStore, get_store
 
 pytestmark = pytest.mark.anyio
 ALLOWED_ORIGIN = "http://localhost:5173"
@@ -370,7 +370,7 @@ async def test_cors_ignores_an_unlisted_origin(client: httpx.AsyncClient) -> Non
 async def test_unhandled_errors_become_internal_error_without_a_trace() -> None:
     from starlette.requests import Request
 
-    from plumbline_api.errors import internal_error
+    from truehand_api.errors import internal_error
 
     response = await internal_error(
         Request({"type": "http", "method": "GET", "path": "/"}), RuntimeError("boom")
@@ -416,7 +416,7 @@ async def test_unknown_routes_and_methods_get_human_sentences(client: httpx.Asyn
 async def test_oversized_body_with_content_length_is_413_with_cors(
     client: httpx.AsyncClient,
 ) -> None:
-    from plumbline_api.guard import MAX_BODY_BYTES
+    from truehand_api.guard import MAX_BODY_BYTES
 
     body = b'{"reading": 1.0, "pad": "' + b"x" * MAX_BODY_BYTES + b'"}'
     response = await client.post(
@@ -430,7 +430,7 @@ async def test_oversized_body_with_content_length_is_413_with_cors(
 
 
 async def test_oversized_chunked_body_is_413(client: httpx.AsyncClient) -> None:
-    from plumbline_api.guard import MAX_BODY_BYTES
+    from truehand_api.guard import MAX_BODY_BYTES
 
     async def chunks() -> AsyncIterator[bytes]:
         for _ in range(4):
@@ -464,8 +464,8 @@ async def test_sigma_below_the_floor_is_a_validation_error(
 async def test_numerically_degenerate_sessions_map_to_422() -> None:
     from starlette.requests import Request
 
-    from plumbline.engine import NonFiniteBelief
-    from plumbline_api.errors import SESSION_ERROR_STATUS
+    from truehand.engine import NonFiniteBelief
+    from truehand_api.errors import SESSION_ERROR_STATUS
 
     assert SESSION_ERROR_STATUS[NonFiniteBelief.code] == 422
     handler = app.exception_handlers[NonFiniteBelief.__mro__[1]]

@@ -23,7 +23,7 @@ export const usePrefs = create<PrefsState>()(
       setVoiceEnabled: (voiceEnabled) => set({ voiceEnabled }),
       setTextOnly: (textOnly) => set({ textOnly }),
     }),
-    { name: 'plumbline.prefs' },
+    { name: 'truehand.prefs' },
   ),
 )
 
@@ -32,7 +32,7 @@ export function applyTheme(theme: Theme): void {
   if (theme === 'system') {
     delete root.dataset.theme
     try {
-      localStorage.removeItem('plumbline.theme')
+      localStorage.removeItem('truehand.theme')
     } catch {
       /* storage unavailable */
     }
@@ -40,7 +40,7 @@ export function applyTheme(theme: Theme): void {
   }
   root.dataset.theme = theme
   try {
-    localStorage.setItem('plumbline.theme', theme)
+    localStorage.setItem('truehand.theme', theme)
   } catch {
     /* storage unavailable */
   }

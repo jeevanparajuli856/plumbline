@@ -77,7 +77,7 @@ test.describe('worked example replay', () => {
       await page
         .waitForFunction(
           () =>
-            ((window as { __plumblineScene?: { frames: number } }).__plumblineScene?.frames ?? 0) >
+            ((window as { __truehandScene?: { frames: number } }).__truehandScene?.frames ?? 0) >
             0,
           undefined,
           { timeout: SCENE_FRAME_TIMEOUT_MS },

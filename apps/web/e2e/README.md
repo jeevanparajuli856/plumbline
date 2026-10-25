@@ -10,15 +10,15 @@ Playwright specs for the critical flows, written against the binding selector co
 cd apps/web
 pnpm exec playwright install chromium webkit   # once
 pnpm test:e2e                                  # default run (from the root: pnpm --filter web test:e2e)
-PLUMBLINE_E2E_FULL=1 pnpm test:e2e             # full run, after the Sprint 1 lanes merge
+TRUEHAND_E2E_FULL=1 pnpm test:e2e             # full run, after the Sprint 1 lanes merge
 pnpm exec playwright test e2e/worked-example.spec.ts --project=chromium
 ```
 
-### The `PLUMBLINE_E2E_FULL` flag
+### The `TRUEHAND_E2E_FULL` flag
 
 The Sprint 1 UI lanes (web-shell, scene, landing, voice) built in parallel with these specs. A test
 that needs UI not yet on the branch calls `needsFullUi('<lane>')` (`helpers/full.ts`), which marks
-it `fixme` unless `PLUMBLINE_E2E_FULL=1`. So:
+it `fixme` unless `TRUEHAND_E2E_FULL=1`. So:
 
 - **Default run**: everything that runs against the UI on the branch, and it must be green. Tests
   that need missing UI show up as skipped, with the lane they wait for in the reason.
@@ -35,15 +35,15 @@ landing mast and simulator link, and axe on `/`, `/evidence` and `/about` in all
 - `webServer` runs `pnpm exec tsc -b && pnpm exec vite build --mode test && pnpm exec vite preview
 --port 4173 --strictPort`: the production bundle Render publishes, built in `test` mode so the
   dev-and-test-only hooks exist (the fake recognition stub on `?fakeVoice=1`, which installs only
-  when `import.meta.env.DEV || MODE === 'test'`, and `window.__plumblineScene`). It keeps the service
+  when `import.meta.env.DEV || MODE === 'test'`, and `window.__truehandScene`). It keeps the service
   worker (needed by the offline spec) and has no HMR timing noise. A plain `pnpm build` has no voice
-  stub, so the voice spec skips itself under `PLUMBLINE_E2E_BASE_URL` (a deployed production site).
+  stub, so the voice spec skips itself under `TRUEHAND_E2E_BASE_URL` (a deployed production site).
   `VITE_PREVIEW_GATE=0` is forced so a local `.env.local` cannot lock `/sim`.
 - Every test aborts `**/v1/**` (`helpers/test.ts`), so no spec depends on an engine another lane may
   be running on :8000. Replay never needs it. `engineTraffic.requests` lists what the page tried.
-- `PLUMBLINE_E2E_PORT` changes the port. `PLUMBLINE_E2E_REUSE=1` reuses a server already on it (off by
+- `TRUEHAND_E2E_PORT` changes the port. `TRUEHAND_E2E_REUSE=1` reuses a server already on it (off by
   default: in parallel worktrees, a preview on 4173 may be another lane's code).
-  `PLUMBLINE_E2E_BASE_URL=https://...` runs against a deployed site and starts no server.
+  `TRUEHAND_E2E_BASE_URL=https://...` runs against a deployed site and starts no server.
 - Expected numbers come from the fixture the app replays (`helpers/fixture.ts`: the recorded
   `engine/fixtures/parity/<name>.json`, else `src/fixtures/provisional/<name>.json`), never from the
   brief.
@@ -55,7 +55,7 @@ landing mast and simulator link, and axe on `/`, `/evidence` and `/about` in all
 | `chromium`                | all                                        | main run, 1280x800, dpr 1                        |
 | `chromium-reduced-motion` | worked-example, slip-warning, landing      | `reducedMotion: 'reduce'` (DESIGN_REFERENCES F8) |
 | `webkit`                  | a11y, keyboard-only, worked-example, smoke | Safari engine for a11y and keyboard              |
-| `record`                  | `record/video-v1.ts`                       | only when `PLUMBLINE_RECORD=1`; 1920x1080 video  |
+| `record`                  | `record/video-v1.ts`                       | only when `TRUEHAND_RECORD=1`; 1920x1080 video  |
 
 Traces: `on-first-retry`. Retries: 1 in CI, 0 locally. Screenshots: on failure only.
 
@@ -82,7 +82,7 @@ Traces: `on-first-retry`. Retries: 1 in CI, 0 locally. Screenshots: on failure o
   Landed cell is no longer "hidden" (or the session ended) before the next step.
 - **Input focus.** The reading input takes focus in `awaiting_reading`, and the keyboard guard ignores
   shortcuts there. Keyboard specs blur or Tab out before a shortcut.
-- **Voice stub.** `__plumblineFakeRecognition` is installed asynchronously; the voice spec waits for
+- **Voice stub.** `__truehandFakeRecognition` is installed asynchronously; the voice spec waits for
   it, and for `aria-pressed="true"` on Listen, before `say()`.
 - **Health probe.** The API is always aborted, so the probe ends in a known state (not ok).
 - **Stale service worker.** `serviceWorkers: 'block'` for every test; only the offline-after-install
@@ -106,9 +106,9 @@ waits; the storyboard fallbacks (section 3) apply automatically when the `unreso
 
 ```
 cd apps/web
-PLUMBLINE_RECORD=1 pnpm exec playwright test --project=record
+TRUEHAND_RECORD=1 pnpm exec playwright test --project=record
 # against a deployed site:
-PLUMBLINE_RECORD=1 PLUMBLINE_E2E_BASE_URL=<deployed web URL> pnpm exec playwright test --project=record
+TRUEHAND_RECORD=1 TRUEHAND_E2E_BASE_URL=<deployed web URL> pnpm exec playwright test --project=record
 ```
 
 Output in `apps/web/recordings/video-v1/`: `shot-<n>.webm` and `shots.json`. The repo `.gitignore`

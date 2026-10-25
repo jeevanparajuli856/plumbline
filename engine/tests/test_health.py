@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from plumbline_api.main import app
+from truehand_api.main import app
 
 
 def test_health_reports_ok_and_version() -> None:

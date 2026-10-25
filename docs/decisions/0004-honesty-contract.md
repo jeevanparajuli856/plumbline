@@ -4,7 +4,7 @@ Status: accepted, 2026-10-25
 
 ## Context
 
-Rule 1 of `.claude/rules/00-plumbline.md` requires that every figure shown in the UI, docs, or
+Rule 1 of `.claude/rules/00-truehand.md` requires that every figure shown in the UI, docs, or
 pitch trace to a file in `engine/` or a DOI. Rule 6 of `CLAUDE.md` says the same in other words.
 The plan's reality check adds what the judges punish: "first ever" claims without a search,
 invented interviews, AI wrappers, and hidden simulations. The same check says the Nexus rubric is

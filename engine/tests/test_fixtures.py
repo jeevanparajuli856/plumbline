@@ -5,10 +5,10 @@ from typing import Any
 import numpy as np
 import pytest
 
-from plumbline.domains import get_model
-from plumbline.fixture_io import SCHEMA_VERSION, fixture_from_session, session_from_fixture
-from plumbline.record_fixtures import build_session
 from tests.conftest import FIXTURE_NAMES, load_fixture
+from truehand.domains import get_model
+from truehand.fixture_io import SCHEMA_VERSION, fixture_from_session, session_from_fixture
+from truehand.record_fixtures import build_session
 
 PARITY_TOLERANCE = 1e-6
 TOP_LEVEL_KEYS = {
@@ -56,7 +56,7 @@ def test_fixture_has_the_web_zod_shape(name: str) -> None:
     assert fixture["schema_version"] == SCHEMA_VERSION
     assert fixture["mode"] == "replay" and fixture["name"] == name
     assert fixture["generated_by"].startswith(
-        "uv run --project engine python -m plumbline.record_fixtures"
+        "uv run --project engine python -m truehand.record_fixtures"
     )
     assert fixture["git_sha"] and fixture["generated_at"]
     catalog = fixture["catalog"]

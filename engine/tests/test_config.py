@@ -1,4 +1,4 @@
-from plumbline.config import ConfusionSpec, EngineConfig
+from truehand.config import ConfusionSpec, EngineConfig
 
 
 def test_default_confusion_mass_sums_to_one() -> None:

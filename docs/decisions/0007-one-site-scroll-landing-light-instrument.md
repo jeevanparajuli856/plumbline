@@ -8,7 +8,7 @@ The judges see one story in one place. The brief's ten-minute outline (section 1
 recorded AI error and moves to the circuit, the blindfold run, and the sweep figure. The plan's
 Impact and Feasibility criteria need one deployed URL that a judge can open cold. A separate
 marketing site would be a second deploy and a second write surface, and rule 5 of
-`00-plumbline.md` forbids extra scope.
+`00-truehand.md` forbids extra scope.
 
 The 3D scene is for sighted judges. The text channel is the product for the primary user
 (ADR-0008). A landing page that takes over the page scroll would break the native scroll that

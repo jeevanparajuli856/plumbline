@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-from plumbline.config import MAX_STEPS, ConfusionSpec, EngineConfig
-from plumbline.domains.circuit import CircuitModel
-from plumbline.engine import Engine
+from truehand.config import MAX_STEPS, ConfusionSpec, EngineConfig
+from truehand.domains.circuit import CircuitModel
+from truehand.engine import Engine
 
 GAIN_FLOOR = -1e-9
 TOLD_ROW_3 = 2
@@ -226,7 +226,7 @@ def test_custom_sigma_and_class_tolerance_override_the_model(model: CircuitModel
 
 
 def test_normalising_a_non_finite_log_belief_raises_instead_of_asserting() -> None:
-    from plumbline.engine import NonFiniteBelief, _normalise_log
+    from truehand.engine import NonFiniteBelief, _normalise_log
 
     with pytest.raises(NonFiniteBelief) as error:
         _normalise_log(np.array([np.nan, 0.0]))
@@ -235,8 +235,8 @@ def test_normalising_a_non_finite_log_belief_raises_instead_of_asserting() -> No
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_a_vanishing_sigma_is_reported_as_numerically_degenerate(model: CircuitModel) -> None:
-    from plumbline.errors import SessionError
-    from plumbline.session import Session
+    from truehand.errors import SessionError
+    from truehand.session import Session
 
     tiny = Engine(model, EngineConfig(sigma=1e-300))
     with pytest.raises(SessionError) as error:
@@ -245,7 +245,7 @@ def test_a_vanishing_sigma_is_reported_as_numerically_degenerate(model: CircuitM
 
 
 def test_out_of_model_threshold_is_a_named_constant() -> None:
-    from plumbline.config import OUT_OF_MODEL_SIGMAS
+    from truehand.config import OUT_OF_MODEL_SIGMAS
 
     assert OUT_OF_MODEL_SIGMAS == 5.0
     assert EngineConfig().out_of_model_sigmas == OUT_OF_MODEL_SIGMAS

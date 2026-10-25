@@ -156,7 +156,7 @@ describe('summary', () => {
       ev.readiness.length,
     )
     const commands = experimentCommands(ev)
-    expect(commands).toContain('uv run --project engine python -m plumbline.experiments.stability')
+    expect(commands).toContain('uv run --project engine python -m truehand.experiments.stability')
     expect(new Set(commands).size).toBe(commands.length)
   })
 })

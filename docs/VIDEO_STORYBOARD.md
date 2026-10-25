@@ -30,23 +30,23 @@ Total narration is roughly 380 words, which fits 2:45 at a calm pace. Trim shot 
 
 ### 2.1 Capture (Playwright)
 
-Script: `apps/web/e2e/record/video-v1.ts` (lane `e2e`). It is not a test. It is run by the `record` project, which is only added when `PLUMBLINE_RECORD=1`, and it drives the nine shots with `recordVideo` at 1920x1080 and writes one WebM per shot plus `shots.json`.
+Script: `apps/web/e2e/record/video-v1.ts` (lane `e2e`). It is not a test. It is run by the `record` project, which is only added when `TRUEHAND_RECORD=1`, and it drives the nine shots with `recordVideo` at 1920x1080 and writes one WebM per shot plus `shots.json`.
 
 ```
 cd apps/web
-PLUMBLINE_RECORD=1 pnpm exec playwright test --project=record
+TRUEHAND_RECORD=1 pnpm exec playwright test --project=record
 # against a deployed site (no local preview server is started):
-PLUMBLINE_RECORD=1 PLUMBLINE_E2E_BASE_URL=<deployed web URL> pnpm exec playwright test --project=record
+TRUEHAND_RECORD=1 TRUEHAND_E2E_BASE_URL=<deployed web URL> pnpm exec playwright test --project=record
 ```
 
-Without `PLUMBLINE_E2E_BASE_URL`, Playwright builds and serves the app itself (`vite preview`).
+Without `TRUEHAND_E2E_BASE_URL`, Playwright builds and serves the app itself (`vite preview`).
 
 Output: `apps/web/recordings/video-v1/shot-<n>.webm` and `shots.json`. Each WebM starts at page load, so `shots.json` gives `start` and `end` (seconds into that file) for the part that belongs to the shot. Trim with those values before concatenating (section 2.2). The `**/recordings/` folder is gitignored.
 
 Settings the script uses:
 - `viewport: { width: 1920, height: 1080 }`, `deviceScaleFactor: 1`, `recordVideo` at the same size.
 - `colorScheme: 'dark'`, `reducedMotion: 'no-preference'`.
-- Each shot navigates to its URL with `&script=video-v1&shot=<n>`. Readiness is the scene frame counter: the script waits up to 10 s for `window.__plumblineScene.frames > 0` (set by `scene/perfProbe.ts`; there is no scene-ready element id). If the scene never reports, the shot continues on the text channel.
+- Each shot navigates to its URL with `&script=video-v1&shot=<n>`. Readiness is the scene frame counter: the script waits up to 10 s for `window.__truehandScene.frames > 0` (set by `scene/perfProbe.ts`; there is no scene-ready element id). If the scene never reports, the shot continues on the text channel.
 - Landing sections are scrolled to by id (`mast`, `problem`, `close`, and so on), never by index.
 - Replay pacing is driven through the store (`replayPlay()` at the default 1800 ms pace, `DEFAULT_PACE_MS`), never by wall-clock sleeps inside the app. Key presses (`P` to play, `]` to step) use fixed waits so timings are reproducible.
 
@@ -100,7 +100,7 @@ Priority is a video that exists on time with nothing fake in it.
 
 | Missing | Fallback |
 |---|---|
-| `worked_example` fixture not yet recorded by `record_fixtures.py` | No fallback. The provisional fixture was retired at main 9a997a5, and shots 3 to 5 need the recording. Run `uv run --project engine python -m plumbline.record_fixtures` first. |
+| `worked_example` fixture not yet recorded by `record_fixtures.py` | No fallback. The provisional fixture was retired at main 9a997a5, and shots 3 to 5 need the recording. Run `uv run --project engine python -m truehand.record_fixtures` first. |
 | `unresolved_pair` fixture missing | Drop shot 6; extend shot 5 by five seconds and add one sentence: "When two faults are electrically identical it reports unresolved instead of guessing." |
 | `thermometer_demo` fixture or roast scene missing | Drop shot 7; extend shot 8 by ten seconds and show the Evidence row "Second instrument (simulated): IN PROGRESS." Do not show a static image of a thermometer. |
 | `/evidence` page not built | Show `docs/EVIDENCE.md` rendered in the browser at the same URL slot; the PENDING row must still be visible. |

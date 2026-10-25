@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-const STORAGE_KEY = 'plumbline.singleKeyShortcuts'
+const STORAGE_KEY = 'truehand.singleKeyShortcuts'
 
 function readStored(): boolean {
   try {

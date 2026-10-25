@@ -11,7 +11,7 @@ All are free photos under the [Unsplash License](https://unsplash.com/license): 
 | braille-rows          | Marcus Lenk    | https://unsplash.com/photos/ypChyZRAR_U | raised braille dots in numbered rows                     |
 | breadboard-empty      | Vishnu Mohanan | https://unsplash.com/photos/AcTlEUJJEIg | empty breadboard beside a microcontroller board          |
 
-Rules (from `.claude/rules/00-plumbline.md`, honesty of numbers and claims):
+Rules (from `.claude/rules/00-truehand.md`, honesty of numbers and claims):
 
 - Stock photos never stand in for our users, our study participants, our partner or our hardware. Each one carries a visible "Stock photo: <name> on Unsplash" credit and alt text that describes only what is visible.
 - No staged portraits of blind people. Photos show hands, tools and tactile materials.

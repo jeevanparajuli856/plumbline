@@ -7,7 +7,7 @@ import { LandingPage } from '../pages/LandingPage'
 import { SimPage } from '../pages/SimPage'
 
 // Records the nine shots of docs/VIDEO_STORYBOARD.md, one WebM per shot plus shots.json.
-// Not a test: run with `PLUMBLINE_RECORD=1 pnpm exec playwright test --project=record`.
+// Not a test: run with `TRUEHAND_RECORD=1 pnpm exec playwright test --project=record`.
 // Every selector comes from docs/UI_CONTRACT.md through the page objects.
 
 const OUT_DIR = fileURLToPath(new URL('../../recordings/video-v1/', import.meta.url))
@@ -51,13 +51,13 @@ async function blur(page: Page): Promise<void> {
   await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
 }
 
-/** Scene frames from `window.__plumblineScene` (UI_CONTRACT section 3), or the text channel. */
+/** Scene frames from `window.__truehandScene` (UI_CONTRACT section 3), or the text channel. */
 async function waitForSceneOrText(page: Page): Promise<boolean> {
   await page.getByRole('heading', { level: 1 }).waitFor()
   try {
     await page.waitForFunction(
       () =>
-        ((window as { __plumblineScene?: { frames: number } }).__plumblineScene?.frames ?? 0) > 0,
+        ((window as { __truehandScene?: { frames: number } }).__truehandScene?.frames ?? 0) > 0,
       undefined,
       { timeout: SCENE_READY_TIMEOUT_MS },
     )

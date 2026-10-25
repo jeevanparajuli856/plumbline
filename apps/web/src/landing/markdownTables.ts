@@ -1,6 +1,6 @@
 /**
  * A small GitHub-flavored-markdown table reader for the docs the landing renders at build time
- * (docs/EVIDENCE.md and the ladder in docs/brief/Plumbline_Scale_and_Build.md). It reads tables
+ * (docs/EVIDENCE.md and the ladder in docs/brief/Truehand_Scale_and_Build.md). It reads tables
  * and inline code, links and bold; anything else stays plain text. Never produces HTML strings.
  */
 
