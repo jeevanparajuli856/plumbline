@@ -12,13 +12,14 @@ export type ParseErrorCode =
   | 'ambiguous'
   | 'wrong_unit'
   | 'out_of_range'
-export type ParseResult = { value: number; unit?: ReadingUnit } | { error: ParseErrorCode }
+/** `needsConfirm`: a run of single digits ("one two") may hide a dropped "point"; never submit it unasked. */
+export type ParseResult = { value: number; unit?: ReadingUnit; needsConfirm?: true } | { error: ParseErrorCode }
 export type ParseSpec = Pick<DomainSpec, 'unit' | 'readingRange'>
 
 const MILLI = 1000
 
 const ONES: Record<string, number> = {
-  zero: 0, oh: 0, o: 0, nought: 0, one: 1, two: 2, three: 3, four: 4,
+  zero: 0, nought: 0, one: 1, two: 2, three: 3, four: 4,
   five: 5, six: 6, seven: 7, eight: 8, nine: 9,
 }
 const TEENS: Record<string, number> = {
@@ -29,7 +30,7 @@ const TENS: Record<string, number> = {
   twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90,
 }
 /** Common mis-hearings, trusted only next to another number token. */
-const HOMOPHONES: Record<string, string> = { to: 'two', too: 'two', for: 'four' }
+const HOMOPHONES: Record<string, string> = { to: 'two', too: 'two', for: 'four', oh: 'zero', o: 'zero' }
 const UNITS: Record<string, ReadingUnit> = {
   v: 'V', volt: 'V', volts: 'V',
   mv: 'mV', millivolt: 'mV', millivolts: 'mV',
@@ -72,7 +73,8 @@ export function parseReading(transcript: string, spec: ParseSpec): ParseResult {
   const value = scaled === 0 ? 0 : scaled
   const [lo, hi] = spec.readingRange
   if (!Number.isFinite(value) || value < lo || value > hi) return { error: 'out_of_range' }
-  return unit ? { value, unit } : { value }
+  const needsConfirm = parsed.isDigitRun && unit !== 'mV'
+  return { value, ...(unit ? { unit } : {}), ...(needsConfirm ? { needsConfirm: true as const } : {}) }
 }
 
 function normalize(transcript: string): string[] {
@@ -140,7 +142,7 @@ function splitGroups(tokens: Token[]): Token[][] {
   return groups
 }
 
-function parseGroup(group: Token[]): { value: number } | { error: ParseErrorCode } {
+function parseGroup(group: Token[]): { value: number; isDigitRun: boolean } | { error: ParseErrorCode } {
   const negative = group[0]?.kind === 'sign'
   const body = negative ? group.slice(1) : group
   if (body.some((t) => t.kind === 'sign')) return { error: 'ambiguous' }
@@ -152,11 +154,11 @@ function parseGroup(group: Token[]): { value: number } | { error: ParseErrorCode
   const fracTokens = at === -1 ? [] : expanded.slice(at + 1)
   if (at !== -1 && fracTokens.length === 0) return { error: 'no_number' }
   if (intTokens.length === 0 && fracTokens.length === 0) return { error: 'no_number' }
-  const intDigits = intTokens.length === 0 ? '0' : integerDigits(intTokens)
+  const int = intTokens.length === 0 ? { digits: '0', isDigitRun: false } : integerDigits(intTokens)
   const fracDigits = fractionDigits(fracTokens)
-  if (intDigits === null || fracDigits === null) return { error: 'ambiguous' }
-  const magnitude = Number(fracDigits ? `${intDigits}.${fracDigits}` : intDigits)
-  return { value: negative ? -magnitude : magnitude }
+  if (int === null || fracDigits === null) return { error: 'ambiguous' }
+  const magnitude = Number(fracDigits ? `${int.digits}.${fracDigits}` : int.digits)
+  return { value: negative ? -magnitude : magnitude, isDigitRun: int.isDigitRun }
 }
 
 function splitDecimal(token: Token): Token[] {
@@ -169,12 +171,14 @@ function splitDecimal(token: Token): Token[] {
 type WordKind = 'none' | 'ones' | 'teens' | 'tens' | 'hundred' | 'thousand'
 
 /** "three hundred thirty eight" -> "338"; "three three eight" -> "338"; invalid order -> null. */
-function integerDigits(tokens: Token[]): string | null {
+function integerDigits(tokens: Token[]): { digits: string; isDigitRun: boolean } | null {
   const [first] = tokens
-  if (tokens.length === 1 && first?.kind === 'digits') return first.text
+  if (tokens.length === 1 && first?.kind === 'digits') return { digits: first.text, isDigitRun: false }
   if (tokens.some((t) => t.kind !== 'word')) return null
   const words = tokens.map((t) => (t.kind === 'word' ? t.text : ''))
-  if (words.length > 1 && words.every((w) => w in ONES)) return words.map((w) => String(ONES[w])).join('')
+  if (words.length > 1 && words.every((w) => w in ONES)) {
+    return { digits: words.map((w) => String(ONES[w])).join(''), isDigitRun: true }
+  }
   let total = 0
   let current = 0
   let last: WordKind = 'none'
@@ -199,7 +203,7 @@ function integerDigits(tokens: Token[]): string | null {
       last = 'thousand'
     }
   }
-  return String(total + current)
+  return { digits: String(total + current), isDigitRun: false }
 }
 
 /** Fraction digits are read one by one; "sixty seven" after the point reads as "67". */

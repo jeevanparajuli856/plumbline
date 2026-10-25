@@ -72,6 +72,16 @@ const circuitErrors: ErrorRow[] = [
   ['3.6 volts millivolts', 'ambiguous'],
   ['three point', 'no_number'],
   ['three minus', 'ambiguous'],
+  ['oh', 'no_number'],
+]
+
+/** A run of single digits may be a dropped "point"; the value is returned but must be confirmed. */
+const needsConfirmCircuit: Array<[transcript: string, value: number]> = [
+  ['one two', 12],
+  ['zero five', 5],
+  ['oh five', 5],
+  ['one zero', 10],
+  ['one one volts', 11],
 ]
 
 const thermometerErrors: ErrorRow[] = [
@@ -88,6 +98,17 @@ describe('parseReading for the circuit (volts)', () => {
 
   it.each(circuitErrors)('rejects %j with %s', (transcript, error) => {
     expect(parseReading(transcript, circuit)).toEqual({ error })
+  })
+})
+
+describe('parseReading digit runs', () => {
+  it.each(needsConfirmCircuit)('flags %j (%d) as needing confirmation', (transcript, value) => {
+    const result = parseReading(transcript, circuit)
+    expect(result).toMatchObject({ value: expect.closeTo(value, 9), needsConfirm: true })
+  })
+
+  it('trusts a digit run with an explicit millivolt unit', () => {
+    expect(parseReading('three three eight millivolts', circuit)).toEqual({ value: 0.338, unit: 'mV' })
   })
 })
 

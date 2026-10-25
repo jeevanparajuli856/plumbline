@@ -139,6 +139,17 @@ describe('voiceMachine reading results', () => {
     expect(next.state).toMatchObject({ status: 'confirming', candidate: 0.338 })
   })
 
+  it.each([
+    ['one two', 12],
+    ['zero five', 5],
+    ['oh five', 5],
+    ['one zero', 10],
+  ])('never submits a digit run like %j without a yes', (phrase, value) => {
+    const next = voiceReducer(at('listening'), result(phrase))
+    expect(next.state).toMatchObject({ status: 'confirming', candidate: value })
+    expect(kinds(next.effects)).toEqual(['announce', 'listen'])
+  })
+
   it('refuses with the reason when nothing parses', () => {
     const next = voiceReducer(at('listening'), result('fifty volts'))
     expect(next.state.status).toBe('idle')

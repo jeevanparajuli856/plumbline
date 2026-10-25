@@ -201,8 +201,8 @@ function onReading(state: VoiceState, alternatives: string[], spec: VoiceSpec): 
     return rest(state, [announce(voicePhrases.parseError(code, spec))])
   }
   const distinct = new Set(values.map((v) => v.toFixed(spec.readingDecimals)))
-  const topParsed = first !== undefined && 'value' in first
-  if (topParsed && distinct.size === 1) return submit(state, candidate)
+  const topIsCertain = first !== undefined && 'value' in first && !first.needsConfirm
+  if (topIsCertain && distinct.size === 1) return submit(state, candidate)
   return {
     state: { ...state, status: 'confirming', candidate, spec },
     effects: [announce(voicePhrases.heardConfirm(candidate, spec)), { type: 'listen' }],
