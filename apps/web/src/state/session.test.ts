@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useSession } from './session'
 
 describe('session store with the provisional worked example', () => {
@@ -45,5 +45,39 @@ describe('session store with the provisional worked example', () => {
     expect(s.phase).toBe('resolved')
     expect(s.diagnosis?.hypothesisId).toBe('R3_10x_low')
     expect(s.diagnosis?.confidence).toBeGreaterThan(0.95)
+  })
+})
+
+describe('reveal when the scene is mounted but never finishes', () => {
+  it('finishes the reveal itself after REVEAL_TIMEOUT_MS so the session cannot stall', async () => {
+    const { setSceneMounted, REVEAL_TIMEOUT_MS } = await import('./session')
+    const webgl = await import('@/lib/webgl')
+    const spy = vi.spyOn(webgl, 'webglSupported').mockReturnValue(true)
+    vi.useFakeTimers()
+    try {
+      setSceneMounted(true)
+      await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+      await useSession.getState().submitReading(3.671, 'typed')
+      expect(useSession.getState().phase).toBe('revealing')
+      vi.advanceTimersByTime(REVEAL_TIMEOUT_MS + 1)
+      expect(useSession.getState().phase).toBe('awaiting_reading')
+      expect(useSession.getState().readings[0]?.landedSite).toBe(1)
+    } finally {
+      setSceneMounted(false)
+      vi.useRealTimers()
+      spy.mockRestore()
+    }
+  })
+
+  it('does not wait for a reveal animation when no scene is mounted', async () => {
+    const webgl = await import('@/lib/webgl')
+    const spy = vi.spyOn(webgl, 'webglSupported').mockReturnValue(true)
+    try {
+      await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+      await useSession.getState().submitReading(3.671, 'typed')
+      expect(useSession.getState().phase).toBe('awaiting_reading')
+    } finally {
+      spy.mockRestore()
+    }
   })
 })

@@ -6,6 +6,7 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@fixtures': fileURLToPath(new URL('../../engine/fixtures', import.meta.url)),
+      '@docs': fileURLToPath(new URL('../../docs', import.meta.url)),
     },
   },
   test: {

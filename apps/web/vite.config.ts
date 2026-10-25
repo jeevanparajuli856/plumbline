@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 const fixturesDir = fileURLToPath(new URL('../../engine/fixtures', import.meta.url))
+const docsDir = fileURLToPath(new URL('../../docs', import.meta.url))
 
 export default defineConfig({
   plugins: [
@@ -44,9 +45,10 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@fixtures': fixturesDir,
+      '@docs': docsDir,
     },
   },
-  server: { fs: { allow: ['.', fixturesDir] } },
+  server: { fs: { allow: ['.', fixturesDir, docsDir] } },
   build: {
     target: 'es2022',
     rollupOptions: {

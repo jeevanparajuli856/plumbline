@@ -49,6 +49,10 @@ Keyboard guard: no single-key shortcut fires when focus is in an input, textarea
 
 ## 3. Scene (scene)
 
+- Mounting: `SceneHost` (scene lane) renders the one Canvas. In `sceneMode === 'landing'` it is a fixed full-viewport layer behind the landing content (`pointer-events: none` except while a section asks for interaction). In `sceneMode === 'sim'` it portals into `document.getElementById('scene-slot')`, an empty element the web-shell `/sim` layout renders where the 3D panel goes; if the slot is absent (text-only view), nothing mounts.
+- The scene calls `setSceneMounted(true)` from `@/state/session` on Canvas mount and `false` on unmount. Without it the store does not wait for a reveal animation; with it the store still finishes the reveal itself after `REVEAL_TIMEOUT_MS` (3000) if the scene never calls `finishReveal(token)`.
+- Landing camera: `poseAt(progress)` and `ScenePose` from `@/landing/choreography` (signature frozen on `main`; landing owns the body, scene consumes the type).
+
 - Canvas wrapper `role="img"` with an `aria-label` (from `SceneHost`); `data-testid="scene"`.
 - `window.__plumblineScene` is set in dev and test builds only to `{ drawCalls: number, frames: number }`, updated after each rendered frame, so e2e and perf can read `renderer.info.render.calls` without a GPU profiler.
 - No informational text is only in the scene.

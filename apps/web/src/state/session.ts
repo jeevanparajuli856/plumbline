@@ -99,8 +99,17 @@ export function currentClient(): EngineClient {
   return client
 }
 
+/** Longest the store waits for the scene to call finishReveal before finishing it itself. */
+export const REVEAL_TIMEOUT_MS = 3000
+let sceneMounted = false
+
+/** The scene calls this on mount and unmount; without a mounted scene nobody animates the reveal. */
+export function setSceneMounted(mounted: boolean): void {
+  sceneMounted = mounted
+}
+
 function canAnimateReveal(): boolean {
-  return webglSupported() && !prefersReducedMotion()
+  return sceneMounted && webglSupported() && !prefersReducedMotion()
 }
 
 export const useSession = create<SessionState>((set, get) => {
@@ -195,7 +204,10 @@ export const useSession = create<SessionState>((set, get) => {
     if (step.landed_site !== null) {
       revealToken += 1
       set({ phase: 'revealing', reveal: { landedSite: step.landed_site, token: revealToken, next } })
-      if (!canAnimateReveal()) get().finishReveal(revealToken)
+      const token = revealToken
+      if (!canAnimateReveal()) get().finishReveal(token)
+      // Stale tokens are ignored, so this only matters if the scene never answers.
+      else setTimeout(() => get().finishReveal(token), REVEAL_TIMEOUT_MS)
     } else {
       set({ phase: next, reveal: null })
     }
