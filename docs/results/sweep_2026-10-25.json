@@ -1,8 +1,8 @@
 {
  "name": "sweep",
- "command": "uv run --project engine python -m plumbline.experiments.sweep",
- "git_sha": "d4731fcec20e27998e4db258971a04b43da98a73",
- "generated_at": "2026-10-25T17:21:50+00:00",
+ "command": "uv run --project engine python -m truehand.experiments.sweep",
+ "git_sha": "840267f60182798f57d0613dd67c78b298e737a0",
+ "generated_at": "2026-10-25T19:55:20+00:00",
  "simulated": true,
  "label": "Preliminary. Not peer reviewed.",
  "note": "All results are simulated: a simulated hand on our own circuit model, not people.",
@@ -16,7 +16,7 @@
    {
     "p_same": 0.6,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 199,
       "correct_pct": 99.5,
@@ -67,7 +67,7 @@
    {
     "p_same": 0.65,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 198,
       "correct_pct": 99.0,
@@ -118,7 +118,7 @@
    {
     "p_same": 0.7,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 198,
       "correct_pct": 99.0,
@@ -169,7 +169,7 @@
    {
     "p_same": 0.75,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 198,
       "correct_pct": 99.0,
@@ -220,7 +220,7 @@
    {
     "p_same": 0.8,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 198,
       "correct_pct": 99.0,
@@ -271,7 +271,7 @@
    {
     "p_same": 0.85,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 199,
       "correct_pct": 99.5,
@@ -322,7 +322,7 @@
    {
     "p_same": 0.9,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 200,
       "correct_pct": 100.0,
@@ -373,7 +373,7 @@
    {
     "p_same": 0.95,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 198,
       "correct_pct": 99.0,
@@ -424,7 +424,7 @@
    {
     "p_same": 1.0,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 200,
       "correct_pct": 100.0,
@@ -477,7 +477,7 @@
    {
     "p_same": 0.6,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 197,
       "correct_pct": 98.5,
@@ -528,7 +528,7 @@
    {
     "p_same": 0.65,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 198,
       "correct_pct": 99.0,
@@ -579,7 +579,7 @@
    {
     "p_same": 0.7,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 198,
       "correct_pct": 99.0,
@@ -630,7 +630,7 @@
    {
     "p_same": 0.75,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 198,
       "correct_pct": 99.0,
@@ -681,7 +681,7 @@
    {
     "p_same": 0.8,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 198,
       "correct_pct": 99.0,
@@ -732,7 +732,7 @@
    {
     "p_same": 0.85,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 199,
       "correct_pct": 99.5,
@@ -783,7 +783,7 @@
    {
     "p_same": 0.9,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 200,
       "correct_pct": 100.0,
@@ -834,7 +834,7 @@
    {
     "p_same": 0.95,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 199,
       "correct_pct": 99.5,
@@ -885,7 +885,7 @@
    {
     "p_same": 1.0,
     "arms": {
-     "plumbline": {
+     "truehand": {
       "n": 200,
       "correct": 200,
       "correct_pct": 100.0,

@@ -1,8 +1,8 @@
 {
  "name": "experiment",
- "command": "uv run --project engine python -m plumbline.experiments.experiment 400",
- "git_sha": "d4731fcec20e27998e4db258971a04b43da98a73",
- "generated_at": "2026-10-25T17:20:15+00:00",
+ "command": "uv run --project engine python -m truehand.experiments.experiment 400",
+ "git_sha": "840267f60182798f57d0613dd67c78b298e737a0",
+ "generated_at": "2026-10-25T19:56:08+00:00",
  "simulated": true,
  "label": "Preliminary. Not peer reviewed.",
  "note": "All results are simulated: a simulated hand on our own circuit model, not people.",
@@ -75,7 +75,7 @@
   }
  },
  "arms": {
-  "plumbline": {
+  "truehand": {
    "n": 400,
    "correct": 397,
    "correct_pct": 99.25,

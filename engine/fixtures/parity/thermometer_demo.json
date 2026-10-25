@@ -6,9 +6,9 @@
  "source_mode": "replay",
  "seed": 0,
  "simulated": true,
- "generated_by": "uv run --project engine python -m plumbline.record_fixtures --force",
- "git_sha": "d4731fcec20e27998e4db258971a04b43da98a73",
- "generated_at": "2026-10-25T17:20:15+00:00",
+ "generated_by": "uv run --project engine python -m truehand.record_fixtures --force",
+ "git_sha": "840267f60182798f57d0613dd67c78b298e737a0",
+ "generated_at": "2026-10-25T19:53:07+00:00",
  "config": {
   "sigma": 0.5,
   "confusion": [
