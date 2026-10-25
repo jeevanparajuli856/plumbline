@@ -1,16 +1,24 @@
-/** Button looks. Ink-filled primary (paper and ink), ruled secondary, quiet tertiary. */
-export type ButtonVariant = 'primary' | 'secondary' | 'quiet'
+/**
+ * Button looks. Amber primary (the one action per view), ink for the way into the simulator,
+ * a 1.5px line for everything secondary, quiet for tertiary. Hover shifts the background only.
+ */
+export type ButtonVariant = 'primary' | 'ink' | 'line' | 'secondary' | 'quiet'
 
 const BASE =
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded-hard px-4 py-2 font-medium transition-[background-color,border-color,transform] duration-[var(--motion-fast)] ease-[var(--ease-smooth)] active:translate-y-px disabled:cursor-not-allowed disabled:active:translate-y-0'
+  'inline-flex min-h-11 items-center justify-center gap-2 rounded-button border-[1.5px] px-4 py-2 font-medium transition-[background-color,border-color,color] duration-[var(--motion-fast)] ease-[var(--ease-smooth)] disabled:cursor-not-allowed disabled:border-dashed'
 
+const LINE =
+  'border-border-strong bg-transparent text-text hover:bg-surface-2 disabled:text-muted disabled:hover:bg-transparent'
+
+// No ink-hover token yet: mix a little on-ink into ink so the shift reads in every theme.
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    'border-2 border-text bg-text text-bench hover:bg-text-2 hover:border-text-2 disabled:border-border-strong disabled:border-dashed disabled:bg-surface-2 disabled:text-muted',
-  secondary:
-    'border-2 border-border-strong bg-surface-1 text-text hover:bg-surface-2 hover:border-text disabled:border-dashed disabled:text-muted disabled:hover:bg-surface-1 disabled:hover:border-border-strong',
+    'border-action bg-action text-on-action hover:border-action-hover hover:bg-action-hover disabled:border-border-strong disabled:bg-surface-2 disabled:text-muted',
+  ink: 'border-border-strong bg-ink text-on-ink hover:bg-[color-mix(in_srgb,var(--ink)_84%,var(--on-ink))] disabled:bg-surface-2 disabled:text-muted',
+  line: LINE,
+  secondary: LINE,
   quiet:
-    'border-2 border-transparent text-text underline decoration-hairline underline-offset-4 hover:decoration-text disabled:text-muted',
+    'border-transparent text-text underline decoration-hairline underline-offset-4 hover:bg-surface-2 hover:decoration-text disabled:border-border-strong disabled:text-muted',
 }
 
 export function buttonClass(variant: ButtonVariant = 'secondary', extra = ''): string {
