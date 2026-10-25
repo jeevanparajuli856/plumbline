@@ -214,6 +214,22 @@ describe('voice output', () => {
     expect(startSpy).toHaveBeenCalledTimes(2)
   })
 
+  it('re-speaks the last spoken phrase on the repeat command when speech is on', async () => {
+    usePrefs.setState({ voiceEnabled: true })
+    start()
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+    window.dispatchEvent(new Event('pointerdown'))
+    port.finish()
+    port.finish()
+    toggleListen()
+    await flush()
+    port.finish()
+    adapter.say('repeat')
+    await flush()
+    expect(repeat).toHaveBeenCalledOnce()
+    expect(port.spoken.at(-1)).toBe(instruction())
+  })
+
   it('stops speaking when speech is turned off', async () => {
     usePrefs.setState({ voiceEnabled: true })
     const cancel = vi.spyOn(port, 'cancel')

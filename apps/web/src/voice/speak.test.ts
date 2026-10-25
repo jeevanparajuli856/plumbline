@@ -135,16 +135,6 @@ describe('createSpeaker', () => {
     await expect(speaker.whenIdle()).resolves.toBeUndefined()
   })
 
-  it('repeats the last spoken message', () => {
-    const speaker = createSpeaker({ port })
-    speaker.unlock()
-    port.finish()
-    speaker.say('Row 3.')
-    port.finish()
-    speaker.repeatLast()
-    expect(port.spoken).toEqual(['', 'Row 3.', 'Row 3.'])
-  })
-
   it('cancel stops speech, clears the queue and reports idle', () => {
     const speaker = createSpeaker({ port })
     speaker.unlock()

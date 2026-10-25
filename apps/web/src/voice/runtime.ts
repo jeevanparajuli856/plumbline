@@ -11,7 +11,7 @@ import {
   type ListenErrorCode,
   type ListenOptions,
 } from './listen'
-import { createEventPhraser } from './phrases'
+import { createEventPhraser, type Utterance } from './phrases'
 import { createSpeaker, type Speaker, type SpeechPort } from './speak'
 import { initialVoiceState, voiceReducer, type VoiceEffect, type VoiceEvent, type VoiceState } from './voiceMachine'
 
@@ -69,6 +69,8 @@ export function startVoiceRuntime(deps: VoiceDeps): () => void {
   const speaker = createSpeaker({ port })
   const listenOptions = deps.listenOptions ?? DEFAULT_LISTEN_OPTIONS
   let listenToken = 0
+  /** What "repeat" re-speaks: the last engine phrase, never a loop cue like "Listening.". */
+  let lastEngineUtterance: Utterance | null = null
 
   const dispatch = (event: VoiceEvent) => {
     const { state, effects } = voiceReducer(useVoiceStore.getState().voice, event)
@@ -121,13 +123,18 @@ export function startVoiceRuntime(deps: VoiceDeps): () => void {
       case 'focusTyped':
         return deps.focusTyped()
       case 'repeat':
-        return deps.repeat()
+        deps.repeat()
+        if (lastEngineUtterance) speaker.say(lastEngineUtterance.text, lastEngineUtterance.priority)
+        return
     }
   }
 
   const cleanups = [
     speaker.subscribe((speaking) => dispatch({ type: speaking ? 'SPEECH_START' : 'SPEECH_END' })),
-    subscribeEngineEvents(dispatch),
+    subscribeEngineEvents((u) => {
+      lastEngineUtterance = u
+      dispatch({ type: 'SAY', text: u.text, priority: u.priority })
+    }),
     subscribeSpeechPreference(speaker),
     unlockOnFirstGesture(win, speaker),
   ]
@@ -143,11 +150,9 @@ export function startVoiceRuntime(deps: VoiceDeps): () => void {
   }
 }
 
-function subscribeEngineEvents(dispatch: (event: VoiceEvent) => void): () => void {
+function subscribeEngineEvents(onUtterance: (u: Utterance) => void): () => void {
   const phrase = createEventPhraser(useSession.getState())
-  return useSession.subscribe((state) => {
-    phrase(state).forEach((u) => dispatch({ type: 'SAY', text: u.text, priority: u.priority }))
-  })
+  return useSession.subscribe((state) => phrase(state).forEach(onUtterance))
 }
 
 function subscribeSpeechPreference(speaker: Speaker): () => void {

@@ -21,7 +21,6 @@ export interface Speaker {
   /** Call inside the first user gesture; iOS and Chrome refuse speech before one. */
   unlock(): void
   cancel(): void
-  repeatLast(): void
   isSpeaking(): boolean
   whenIdle(): Promise<void>
   subscribe(listener: (speaking: boolean) => void): () => void
@@ -67,7 +66,6 @@ export function createSpeaker({
   let current: string | null = null
   let unlocked = false
   let generation = 0
-  let lastText: string | null = null
   const listeners = new Set<(speaking: boolean) => void>()
   let idleWaiters: Array<() => void> = []
 
@@ -114,7 +112,6 @@ export function createSpeaker({
       if (!isEnabled()) return
       const chunks = chunkText(text)
       if (chunks.length === 0) return
-      lastText = text
       if (priority === 'assertive') cancel()
       queue = [...queue, ...chunks]
       pump()
@@ -126,9 +123,6 @@ export function createSpeaker({
       pump()
     },
     cancel,
-    repeatLast() {
-      if (lastText !== null) this.say(lastText)
-    },
     isSpeaking: () => current !== null,
     whenIdle() {
       if (current === null) return Promise.resolve()
