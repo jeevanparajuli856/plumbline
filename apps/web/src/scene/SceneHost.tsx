@@ -60,7 +60,7 @@ export function SceneHost() {
       {sceneMode === 'landing' && (
         // Decorative backdrop on the landing: its captions carry the content, and a labelled
         // image outside any landmark would trip axe's region rule.
-        <div ref={setLayer} aria-hidden="true" className="pointer-events-none fixed inset-0 z-0" />
+        <div ref={setLayer} aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden" />
       )}
       {container && content && createPortal(content, host)}
     </>

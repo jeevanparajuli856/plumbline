@@ -142,6 +142,7 @@ export const Fixture = z.object({
     classes: z.array(z.array(z.string())),
   }),
   true_hypothesis: z.string(),
+  seed: z.number().int().nullish(),
   prior_instruction: z.object({ site: z.number().int(), gain_bits: z.array(finite) }),
   steps: z.array(FixtureStep).min(1).max(32),
 })
