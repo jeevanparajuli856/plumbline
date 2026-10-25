@@ -4,6 +4,8 @@ Changes the scene lane needs outside `apps/web/src/scene/**`. Nothing here was e
 
 ## 1. `apps/web/vite.config.ts`: the 3D chunk is preloaded on `/` (owner: integration / config)
 
+**Resolved** by main 91186b4 (manualChunks removed, size-limit measures SceneRoot), merged into lane/scene.
+
 `manualChunks` sends React's runtime and `zustand` / `use-sync-external-store` into the `r3f` chunk, because R3F depends on them too. The entry chunk then imports from `r3f`, and `dist/index.html` gets `<link rel="modulepreload" href="/assets/r3f-*.js">`. Result: 315 kB gz of three + R3F + drei downloads on `/` before the scene ever mounts, which breaks the "not loaded on `/` until the scene mounts" budget.
 
 Measured with `vite build` in this worktree on 2026-10-25:
@@ -17,6 +19,8 @@ Measured with `vite build` in this worktree on 2026-10-25:
 Request: remove `build.rollupOptions.output.manualChunks` and point the `size-limit` entry "three + r3f chunk" at `dist/assets/SceneRoot-*.js` (limit 700 kB stays). App JS stays under 300 kB.
 
 ## 2. `apps/web/vite.config.ts`: fonts 403 in dev (owner: integration / config)
+
+**Resolved** by main 91186b4 (`server.fs.allow` includes the workspace root).
 
 `server.fs.allow` lists `'.'`, fixtures and docs but not the workspace root, so Vite refuses the fontsource files in the pnpm store (`/@fs/.../node_modules/.pnpm/@fontsource+ibm-plex-sans@5.3.0/.../*.woff2` returns 403). The dev server falls back to system fonts. Request: add `searchForWorkspaceRoot(process.cwd())` from `vite` to `server.fs.allow`.
 
@@ -36,15 +40,15 @@ Resistor colour-code bands stay as fixed physical hues in `scene/resistorBands.t
 
 The scene never announces. Each state below needs a text twin in the DOM panels (most already exist in the UI contract):
 
-| Scene state            | Shape and colour                                                                                                 | DOM twin                                                     |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| Told row               | dashed cyan frame around the row                                                                                 | instruction heading "Touch the red probe to row N"           |
-| Warning                | solid, heavier vermilion frame on the told row plus "! Warning: probe not here" tag, shown only after the reveal | `role="alert"` warning banner                                |
-| Landed row             | amber fill, only after `finishReveal`                                                                            | reading log "Landed" column                                  |
-| Placement posterior    | cyan glow strip per row on the f-j half, intensity sqrt(p) scaled by `--scene-glow-max`                          | placement list "Where the probe landed" with percentages     |
-| Plumb line             | one swing per entropy change, amplitude entropy / max entropy up to 18 deg; rests over the diagnosed part        | "Uncertainty: high/low" caption and the diagnosis region     |
-| Reduced motion bracket | static cyan bracket over told row +/- 2 (awaiting) or over the unresolved parts' rows                            | "The probe may be on rows A to B." and the unresolved region |
-| Roast                  | SIMULATED badge in scene                                                                                         | SIMULATED badge in the DOM for the whole session             |
+| Scene state            | Shape and colour                                                                                                 | DOM twin                                                               |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Told row               | dashed cyan frame around the row                                                                                 | instruction heading "Touch the red probe to row N"                     |
+| Warning                | solid, heavier vermilion frame on the told row plus "! Warning: probe not here" tag, shown only after the reveal | focusable `role="region"` named "Placement warning", not a live region |
+| Landed row             | amber fill, only after `finishReveal`                                                                            | reading log "Landed" column                                            |
+| Placement posterior    | cyan glow strip per row on the f-j half, intensity sqrt(p) scaled by `--scene-glow-max`                          | placement list "Where the probe landed" with percentages               |
+| Plumb line             | one swing per entropy change, amplitude entropy / max entropy up to 18 deg; rests over the diagnosed part        | "Uncertainty: high/low" caption and the diagnosis region               |
+| Reduced motion bracket | static cyan bracket over told row +/- 2 (awaiting) or over the unresolved parts' rows                            | "The probe may be on rows A to B." and the unresolved region           |
+| Roast                  | SIMULATED badge in scene                                                                                         | SIMULATED badge in the DOM for the whole session                       |
 
 ## 6. Landing choreography (owner: landing)
 
