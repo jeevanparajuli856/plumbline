@@ -126,7 +126,7 @@ describe('framing', () => {
       if (section === 'play' && k.at > progressOf('play', 0))
         expect(pose.target[0]).toBe(BOARD_LEFT_X)
       if (['mast', 'research', 'problem', 'close'].includes(section)) {
-        expect(pose.target[0]).toBe(BOARD_RIGHT_X)
+        expect(pose.target[0]).toBeLessThanOrEqual(BOARD_RIGHT_X)
       }
       // The keyframe at how f = 0 is play's resolved pose; the move starts there.
       if ((section === 'how' || section === 'generalize') && k.at > progressOf('how', 0)) {

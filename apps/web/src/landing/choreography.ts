@@ -131,13 +131,13 @@ interface Keyframe {
 const p = progressOf
 
 /**
- * Framing. The board is 0.165 m wide; at about 0.4 m it fills roughly a third of a wide frame.
+ * Framing. The board is 0.165 m wide and the battery pack sits off its left end; at about 0.4 m it fills roughly a third of a wide frame.
  * Text sits in the left seven columns everywhere except `play`, so the look-at target is pushed
  * left of the board (negative x) to put the board in the right part of the viewport, and right of
  * it (positive x) in `play`, where the panel is on the right.
  */
-export const BOARD_RIGHT_X = -0.12
-export const BOARD_LEFT_X = 0.09
+export const BOARD_RIGHT_X = -0.16
+export const BOARD_LEFT_X = 0.1
 
 /** Camera placed at `target + offset`, so a pose reads as "look at this, from there". */
 function look(
@@ -159,13 +159,14 @@ function look(
 
 const RIGHT: Vec3 = [BOARD_RIGHT_X, 0, 0]
 const LEFT: Vec3 = [BOARD_LEFT_X, 0, 0]
-const HOW_TARGET: Vec3 = [-0.1, 0, 0]
+const HOW_TARGET: Vec3 = [-0.15, 0, 0]
 /** Raised 30 mm so the hand plane (+25 mm) and belief plane (+50 mm) stay in frame when exploded. */
-const LAYERS_TARGET: Vec3 = [-0.1, 0.03, 0]
-const ROAST_TARGET: Vec3 = [-0.07, 0, 0]
+const LAYERS_TARGET: Vec3 = [-0.17, 0.03, 0]
+const ROAST_TARGET: Vec3 = [-0.09, 0, 0]
 
 /** Rest pose for mast and close: three-quarter view, board right of the text. */
-const REST = look(RIGHT, [0.27, 0.17, 0.3], 34)
+const REST = look(RIGHT, [0.05, 0.26, 0.5], 32)
+const PROBLEM = look([-0.17, 0, 0], [0.04, 0.22, 0.52], 32)
 const RECEDED = look(LEFT, [0.18, 0.3, 0.46], 34)
 
 /**
@@ -174,23 +175,24 @@ const RECEDED = look(LEFT, [0.18, 0.3, 0.46], 34)
  */
 export const KEYFRAMES: readonly Keyframe[] = [
   { at: p('mast', 0), pose: REST },
-  { at: p('research', 0), pose: look(RIGHT, [0.27, 0.24, 0.36], 34) },
-  // Problem: lower and closer over the told row, still clear of the text column.
-  { at: p('problem', 0), pose: look(RIGHT, [0.14, 0.16, 0.3], 32) },
+  { at: p('research', 0), pose: look(RIGHT, [0.05, 0.3, 0.52], 32) },
+  { at: p('problem', 0), pose: PROBLEM },
+  // Hold while problem is read; flow sections cross their band as they scroll past the center line.
+  { at: p('problem', 0.85), pose: PROBLEM },
   // Play: board on the left half, the panel on the right. Distance stays near 0.4 m.
-  { at: p('play', 0), pose: look(LEFT, [0.06, 0.28, 0.29], 30) },
-  { at: p('play', 1 / 3), pose: look(LEFT, [0.05, 0.26, 0.3], 30) },
-  { at: p('play', 2 / 3), pose: look(LEFT, [0.04, 0.25, 0.31], 30) },
-  { at: p('play', 1), pose: look(LEFT, [0.06, 0.28, 0.29], 30) },
+  { at: p('play', 0), pose: look(LEFT, [0.07, 0.31, 0.32], 30) },
+  { at: p('play', 1 / 3), pose: look(LEFT, [0.06, 0.29, 0.33], 30) },
+  { at: p('play', 2 / 3), pose: look(LEFT, [0.05, 0.28, 0.34], 30) },
+  { at: p('play', 1), pose: look(LEFT, [0.07, 0.31, 0.32], 30) },
   // How: from above for the first lines, then a low oblique view so the lifted planes separate.
   { at: p('how', 1 / 12), pose: look(HOW_TARGET, [0, 0.45, 0.03], 30) },
   { at: p('how', 5 / 12), pose: look(HOW_TARGET, [0, 0.42, 0.08], 30) },
   { at: p('how', 1 / 2), pose: look(HOW_TARGET, [-0.03, 0.34, 0.2], 30) },
-  { at: p('how', 3 / 4), pose: look(LAYERS_TARGET, [-0.09, 0.15, 0.38], 32, { explode: 1 }) },
-  { at: p('generalize', 0), pose: look([-0.1, 0, 0], [0.06, 0.18, 0.32], 32) },
-  { at: p('generalize', 0.4), pose: look(ROAST_TARGET, [0.05, 0.1, 0.28], 30, { roastMix: 1 }) },
-  { at: p('generalize', 0.75), pose: look(ROAST_TARGET, [0.04, 0.07, 0.27], 30, { roastMix: 1 }) },
-  { at: p('generalize', 0.85), pose: look(ROAST_TARGET, [0.04, 0.07, 0.27], 30, { roastMix: 1 }) },
+  { at: p('how', 3 / 4), pose: look(LAYERS_TARGET, [-0.04, 0.17, 0.52], 32, { explode: 1 }) },
+  { at: p('generalize', 0), pose: look([-0.15, 0, 0], [0.06, 0.18, 0.34], 32) },
+  { at: p('generalize', 0.4), pose: look(ROAST_TARGET, [0.05, 0.12, 0.42], 30, { roastMix: 1 }) },
+  { at: p('generalize', 0.75), pose: look(ROAST_TARGET, [0.04, 0.08, 0.38], 30, { roastMix: 1 }) },
+  { at: p('generalize', 0.85), pose: look(ROAST_TARGET, [0.04, 0.08, 0.38], 30, { roastMix: 1 }) },
   { at: p('product', 0), pose: RECEDED },
   { at: p('ladder', 0), pose: RECEDED },
   { at: p('evidence', 0), pose: { ...RECEDED, plumbOpacity: 0 } },
