@@ -40,4 +40,6 @@ Rules you enforce on every lane:
 - Conventional commits, atomic, each passing `pnpm verify`. Never `--no-verify`.
 - Report what works, what does not, and what was simulated. If a lane blocks for more than a day, write the owner of the next action into docs/BUILD_PLAN.md.
 
+Out of scope for Sprint 1 (do not start it): the grounded language-model explainer in ADR-0012 (Vertex AI or Anthropic provider, server-side, flagged off). It is a Sprint 2 lane; leave a clean seam at engine/plumbline_api/explain/ only if it costs nothing.
+
 Deliver at the end of the sprint: the Render URLs, the `/verify` table from main, perf and a11y numbers, the list of fixtures with git_sha, the docs/results/ files produced, the video file path, and the updated docs/BUILD_PLAN.md and docs/EVIDENCE.md.
