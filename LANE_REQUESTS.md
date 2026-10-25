@@ -2,6 +2,8 @@
 
 Changes this lane needs on frozen surfaces, or decisions for the integration step on `main`. Each item says what we did meanwhile.
 
+Status after the review merge (2026-10-25): 2, 5 and 8 are resolved on `main` (LiveRegion without `role="alert"`, the banner is a region, one app-wide Reduce motion switch in UI_CONTRACT, EVIDENCE.md row 17 reworded). 3 is decided in UI_CONTRACT 6.4 (announcer side pending on `main`). 4 stays open: `stepBack` now has an in-flight guard, but intermediate steps are still announced because `silent` is start-only; the lead is adding `replayPrevious` on `main`. New: a "Single-key shortcuts" switch (WCAG 2.1.4) lives in the shortcuts dialog, state in `a11y/shortcutPref.ts` (`localStorage['plumbline.singleKeyShortcuts']`, `'0'` when off); contract name `getByRole('switch', { name: 'Single-key shortcuts' })`.
+
 ## 1. `vite.config.ts`: fonts are 403 in `pnpm dev`
 
 `server.fs.allow` is `['.', fixturesDir, docsDir]`. The fontsource files resolve to the workspace root `node_modules/.pnpm/...`, outside the allow list, so the dev server answers 403 and the page falls back to system fonts. Production builds are fine (fonts are bundled).
