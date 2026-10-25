@@ -83,7 +83,7 @@ export function DisplayMenu() {
         role="dialog"
         aria-labelledby={titleId}
         hidden={!open}
-        className="absolute inset-x-4 top-[calc(var(--header-height)-0.5rem)] z-30 rounded-card border border-hairline bg-surface-1 p-5 text-text sm:inset-x-auto sm:right-0 sm:top-[calc(100%+0.75rem)] sm:w-[21rem]"
+        className="absolute inset-x-4 top-[calc(var(--header-height)-0.5rem)] z-30 rounded-card border-[1.5px] border-border-strong bg-surface-1 p-5 text-text sm:inset-x-auto sm:right-0 sm:top-[calc(100%+0.75rem)] sm:w-[21rem]"
       >
         <div className="mb-4 flex items-baseline justify-between gap-4">
           <h2 id={titleId} className="font-display text-h3 font-semibold leading-none">

@@ -145,6 +145,35 @@ describe('App shell', () => {
     expect(screen.getByRole('contentinfo')).toBeInTheDocument()
   })
 
+  it('below xl puts the nav after the theme button and simulator link, matching the visual rows', () => {
+    const { mm } = fakeMatchMedia({ '(min-width: 80rem)': false })
+    vi.stubGlobal('matchMedia', mm)
+    renderApp('/')
+    const banner = screen.getByRole('banner')
+    const order = [...banner.querySelectorAll<HTMLElement>('a[href], button')]
+      .filter((el) => !el.closest('[hidden]'))
+      .map((el) => el.textContent?.trim())
+    expect(order).toEqual([
+      'Truehand research preview',
+      expect.stringMatching(/Theme: /),
+      'Open the simulator',
+      'Research',
+      'Technology',
+      'Validation',
+      'Product',
+    ])
+    expect(screen.getAllByRole('navigation', { name: 'Primary' })).toHaveLength(1)
+  })
+
+  it('draws the popover boundary with the strong control border, not the hairline', () => {
+    renderApp('/')
+    fireEvent.click(themeButton())
+    const dialog = screen.getByRole('dialog', { name: 'Display' })
+    expect(dialog.className).toContain('border-border-strong')
+    expect(dialog.className).toContain('border-[1.5px]')
+    expect(dialog.className).not.toContain('border-hairline')
+  })
+
   it('has one banner with the wordmark, the four primary links and the simulator link, no university', () => {
     renderApp('/evidence')
     const banner = screen.getByRole('banner')
