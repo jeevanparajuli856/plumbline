@@ -14,6 +14,7 @@ from typing import Any
 
 import numpy as np
 
+from plumbline.config import CONFUSION_P_SAME
 from plumbline.domains import get_model
 from plumbline.domains.thermometer import DEPTHS_CM
 from plumbline.experiments import svg
@@ -62,7 +63,9 @@ def fig2_sweep(sweep: dict[str, Any] | None) -> str:
         xs,
         {
             "plumbline (matched model)": [p["arms"]["plumbline"]["correct_pct"] for p in matched],
-            "plumbline (fixed 0.78)": [p["arms"]["plumbline"]["correct_pct"] for p in fixed],
+            f"plumbline (fixed {CONFUSION_P_SAME:g})": [
+                p["arms"]["plumbline"]["correct_pct"] for p in fixed
+            ],
             "published method": [p["arms"]["entropy_exact"]["correct_pct"] for p in matched],
         },
         "P(probe lands on the told row)",
