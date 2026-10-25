@@ -1,4 +1,5 @@
 import { needsFullUi } from './helpers/full'
+import { STORY } from './helpers/story'
 import { expect, test } from './helpers/test'
 import { SimPage } from './pages/SimPage'
 
@@ -8,6 +9,12 @@ import { SimPage } from './pages/SimPage'
 // nothing plays aloud.
 
 const STUB_TIMEOUT_MS = 10_000
+/** Spoken form of the worked example's first reading; the test below pins it to the fixture. */
+const SPOKEN_FIRST_READING = 'three point six seven one'
+
+test('the spoken phrase matches the fixture reading', () => {
+  expect(STORY.firstReading).toBe('3.671')
+})
 
 declare global {
   interface Window {
@@ -36,7 +43,7 @@ test.describe('voice loop', () => {
     })
     sim = new SimPage(page)
     await sim.goto({ demo: 'worked-example', fakeVoice: '1' })
-    await expect(sim.heading).toContainText('row 3')
+    await expect(sim.heading).toContainText(STORY.toldLabel)
     // The stub is installed asynchronously; saying anything before it exists is the voice race.
     await page.waitForFunction(
       () => typeof window.__plumblineFakeRecognition?.say === 'function',
@@ -62,27 +69,33 @@ test.describe('voice loop', () => {
     await sim.waitForStep(1)
     await expect
       .poll(async () => (await page.evaluate(() => window.__e2eSpoken ?? [])).join(' '))
-      .toContain('row 2')
+      .toContain(STORY.landedLabel)
   })
 
   test('a spoken reading is parsed and submitted through the voice channel', async ({ page }) => {
     await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
     await page.keyboard.press('m')
     await expect(sim.listen).toHaveAttribute('aria-pressed', 'true')
-    await page.evaluate(() => window.__plumblineFakeRecognition!.say('three point six seven one'))
+    await page.evaluate(
+      (transcript) => window.__plumblineFakeRecognition!.say(transcript),
+      SPOKEN_FIRST_READING,
+    )
     await sim.waitForStep(1)
-    await expect(sim.logCell(1, 'reading')).toContainText('3.671')
-    await expect(sim.warning).toContainText('row 2')
+    await expect(sim.logCell(1, 'reading')).toContainText(STORY.firstReading)
+    await expect(sim.warning).toContainText(STORY.landedLabel)
   })
 
   test('a phrase said before the mic opens is held until the next listen', async ({ page }) => {
-    await page.evaluate(() => window.__plumblineFakeRecognition!.say('three point six seven one'))
+    await page.evaluate(
+      (transcript) => window.__plumblineFakeRecognition!.say(transcript),
+      SPOKEN_FIRST_READING,
+    )
     await expect(sim.logRows()).toHaveCount(0)
     await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
     await page.keyboard.press('m')
     await expect(sim.listen).toHaveAttribute('aria-pressed', 'true')
     await sim.waitForStep(1)
-    await expect(sim.logCell(1, 'reading')).toContainText('3.671')
+    await expect(sim.logCell(1, 'reading')).toContainText(STORY.firstReading)
   })
 
   test('a transcript is data: markup is never rendered or evaluated', async ({ page }) => {

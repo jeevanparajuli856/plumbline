@@ -58,6 +58,9 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     viewport: TEST_VIEWPORT,
     deviceScaleFactor: 1,
+    // A service worker left from an earlier page could serve a stale build; only the offline
+    // spec allows one.
+    serviceWorkers: 'block',
   },
   projects: [
     {

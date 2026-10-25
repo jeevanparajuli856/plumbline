@@ -1,16 +1,18 @@
 import { needsFullUi } from './helpers/full'
-import { readFixture, siteLabel, type FixtureFile } from './helpers/fixture'
 import { readLiveLog, recordLiveRegions } from './helpers/liveLog'
+import { STORY } from './helpers/story'
 import { stepReplay } from './helpers/stepReplay'
 import { expect, test } from './helpers/test'
 import { SimPage } from './pages/SimPage'
 
 // "Your probe is not where you think it is": one event, one banner, one assertive announcement.
 // Runs in `chromium` and `chromium-reduced-motion` (DESIGN_REFERENCES F8, F10).
-const fixture = readFixture('worked_example') as FixtureFile
-const slip = fixture.steps[0]!
-const told = siteLabel(fixture, slip.told_site)
-const likely = siteLabel(fixture, slip.landed_site!)
+const told = STORY.toldLabel
+const likely = STORY.landedLabel
+
+function warningsIn(messages: string[]): string[] {
+  return messages.filter((t) => t.includes('Warning.'))
+}
 
 test.describe('slip warning', () => {
   let sim: SimPage
@@ -31,12 +33,10 @@ test.describe('slip warning', () => {
     await expect(sim.liveAssertive).toContainText(likely)
     await expect(sim.next).toBeEnabled()
     await sim.next.click()
-    await expect(sim.liveAssertive).toBeAttached()
     await expect
       .poll(async () => (await readLiveLog(page)).polite.join(' '))
-      .toContain('ten times too small')
-    const log = await readLiveLog(page)
-    expect(log.assertive.filter((t) => t.startsWith('Warning.'))).toHaveLength(1)
+      .toContain(STORY.diagnosisLabel)
+    expect(warningsIn((await readLiveLog(page)).assertive)).toHaveLength(1)
   })
 
   // UI_CONTRACT section 1 "Warning" and section 6 decision 2: the banner is a focusable labelled
@@ -64,7 +64,7 @@ test.describe('slip warning', () => {
     await expect(sim.diagnosis).toBeVisible()
     const log = await readLiveLog(page)
     expect(log.warningBannerMounts).toBe(1)
-    expect(log.assertive.filter((t) => t.startsWith('Warning.'))).toHaveLength(1)
+    expect(warningsIn(log.assertive)).toHaveLength(1)
   })
 
   test('the log marks only the slipped step', async () => {

@@ -64,6 +64,7 @@ test.describe('landing sections', () => {
   })
 
   test('reduced motion snaps the example to its final state', async ({ page }) => {
+    needsFullUi('web-shell (app-wide Reduce motion switch in the Display bar)')
     const osReduced = await page.evaluate(
       () => matchMedia('(prefers-reduced-motion: reduce)').matches,
     )

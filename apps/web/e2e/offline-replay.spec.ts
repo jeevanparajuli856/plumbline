@@ -1,4 +1,5 @@
 import { needsFullUi } from './helpers/full'
+import { STORY } from './helpers/story'
 import { stepReplay } from './helpers/stepReplay'
 import { expect, test } from './helpers/test'
 import { SimPage } from './pages/SimPage'
@@ -18,7 +19,7 @@ test.describe('API asleep', () => {
     await sim.goto({ demo: 'worked-example' })
     await expect(sim.apiStatus).toContainText('waking up')
     await stepReplay(sim, 2)
-    await expect(sim.diagnosis).toContainText('R3 is ten times too small')
+    await expect(sim.diagnosis).toContainText(STORY.diagnosisLabel)
     expect(engineTraffic.requests.map((r) => r.url()).filter((u) => SESSION_PATH.test(u))).toEqual(
       [],
     )
@@ -26,6 +27,9 @@ test.describe('API asleep', () => {
 })
 
 test.describe('offline after install', () => {
+  // Service workers are blocked everywhere else (playwright.config.ts) so a cached build never
+  // answers in place of the server under test.
+  test.use({ serviceWorkers: 'allow' })
   // WebKit's service worker support under Playwright's offline emulation is unreliable; the PWA
   // path is checked in Chromium, and on iOS by hand (ADR-0009).
   test.skip(
@@ -51,8 +55,8 @@ test.describe('offline after install', () => {
 
     await context.setOffline(true)
     await page.reload()
-    await expect(sim.heading).toContainText('row 3')
+    await expect(sim.heading).toContainText(STORY.toldLabel)
     await stepReplay(sim, 2)
-    await expect(sim.diagnosis).toContainText('R3 is ten times too small')
+    await expect(sim.diagnosis).toContainText(STORY.diagnosisLabel)
   })
 })
