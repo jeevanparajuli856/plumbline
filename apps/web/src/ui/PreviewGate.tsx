@@ -51,7 +51,10 @@ export function PreviewGate({ children }: { children: ReactNode }) {
             That code did not match.
           </p>
         )}
-        <button type="submit" className="rounded-hard bg-inferred px-4 py-3 font-semibold text-white">
+        <button
+          type="submit"
+          className="rounded-hard bg-inferred px-4 py-3 font-semibold text-white"
+        >
           Open the preview
         </button>
       </form>

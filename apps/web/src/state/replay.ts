@@ -7,17 +7,14 @@ import {
   type SessionViewT,
   type StepViewT,
 } from '@/engine/schemas'
-import provisionalWorkedExample from '@/fixtures/provisional/worked_example.json'
 
 export const READING_MATCH_TOLERANCE = 1e-3
 
-const PROVISIONAL: Record<string, unknown> = { worked_example: provisionalWorkedExample }
-
-/** Loads a recorded fixture by id. Provisional hand-typed fixtures are the fallback until the engine records real ones. */
+/** Loads an engine recording by id from engine/fixtures/parity. There is no hand-typed fallback. */
 export async function loadFixture(id: string): Promise<FixtureT> {
   const recorded = import.meta.glob('@fixtures/parity/*.json', { import: 'default' })
   const key = Object.keys(recorded).find((path) => path.endsWith(`/${id}.json`))
-  const raw = key ? await recorded[key]!() : PROVISIONAL[id]
+  const raw = key ? await recorded[key]!() : undefined
   if (raw === undefined) throw new EngineError('fixture_missing', `No recording named ${id}.`)
   const parsed = Fixture.safeParse(raw)
   if (!parsed.success) throw new EngineError('fixture_missing', `The recording ${id} is malformed.`)
@@ -57,8 +54,9 @@ export function stepViewFromFixture(fx: FixtureT, index: number): StepViewT {
   const catalog = catalogFromFixture(fx)
   const step = fx.steps[index]
   if (!step) throw new EngineError('session_lost', 'The recording has no more steps.')
+  // Gains are per site and computed from the belief before this step, whichever site was told.
   const prior = index === 0 ? fx.prior_instruction : fx.steps[index - 1]!.engine_choice
-  const toldGain = prior.site === step.told_site ? prior.gain_bits : step.engine_choice.gain_bits
+  const toldGain = prior.gain_bits
   const likely = step.placement.indexOf(Math.max(...step.placement))
   const next = fx.steps[index + 1]
   const diagnosis = step.diagnosis
@@ -162,6 +160,12 @@ export class ReplayClient implements EngineClient {
 
   async reset(_sessionId: string): Promise<SessionViewT> {
     if (!this.fixture) throw new EngineError('session_lost', 'No recording is loaded.')
-    return this.start({ domain: this.fixture.domain, mode: 'replay', fixture: this.fixture.name })
+    return this.start({
+      domain: this.fixture.domain,
+      mode: 'replay',
+      seed: 0,
+      reveal: 'after_step',
+      fixture: this.fixture.name,
+    })
   }
 }

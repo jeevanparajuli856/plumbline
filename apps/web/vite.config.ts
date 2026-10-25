@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from 'vite'
+import { defineConfig, searchForWorkspaceRoot } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -48,17 +48,10 @@ export default defineConfig({
       '@docs': docsDir,
     },
   },
-  server: { fs: { allow: ['.', fixturesDir, docsDir] } },
+  server: { fs: { allow: [searchForWorkspaceRoot(process.cwd()), fixturesDir, docsDir] } },
   build: {
     target: 'es2022',
-    rollupOptions: {
-      output: {
-        manualChunks(id: string) {
-          if (id.includes('node_modules/three/')) return 'three'
-          if (id.includes('node_modules/@react-three/')) return 'r3f'
-          return undefined
-        },
-      },
-    },
+    // No manualChunks: splitting three/R3F by hand pulled React and zustand into that chunk,
+    // so it was preloaded on `/`. Rolldown keeps the 3D code inside the lazy SceneRoot chunk.
   },
 })

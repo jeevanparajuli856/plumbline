@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { ApiClient } from '@/engine/api'
-import { chooseClient, EngineError, type EngineClient } from '@/engine/client'
+import { chooseClient, EngineError, type EngineClient, type StartRequest } from '@/engine/client'
 import type { CatalogViewT, SessionViewT, StepViewT } from '@/engine/schemas'
 import { prefersReducedMotion } from '@/a11y/useReducedMotion'
 import { webglSupported } from '@/lib/webgl'
@@ -20,6 +20,8 @@ import type {
 
 export const TOP_K = 3
 const DEFAULT_PACE_MS = 1800
+/** Seed used when the caller does not choose one, so a simulate run is reproducible. */
+export const DEFAULT_SEED = 1
 
 const initialData: SessionData = {
   domain: 'circuit',
@@ -65,7 +67,12 @@ export function toWarning(step: StepViewT, catalog: Catalog): Warning | null {
   const likely = catalog.sites[w.likely_site]
   const text =
     w.text || (told && likely ? spec.phrases.warning(told, likely, w.p_off_site) : 'Warning.')
-  return { toldSite: step.instruction.site, likelySite: w.likely_site, pOffSite: w.p_off_site, text }
+  return {
+    toldSite: step.instruction.site,
+    likelySite: w.likely_site,
+    pOffSite: w.p_off_site,
+    text,
+  }
 }
 
 export function topK(belief: number[], catalog: Catalog, k = TOP_K): ReadingEntry['top'] {
@@ -83,7 +90,8 @@ function errorFor(code: SessionError['code'], resumePhase: Phase): SessionError 
       'The engine is waking up; free hosting sleeps after 15 minutes and takes about a minute to answer. The recorded worked example runs right now.',
     api_error: 'The engine answered with an error. You can retry.',
     bad_reading: 'That reading is outside the range this instrument can show. Check the number.',
-    not_next_in_replay: 'The recording expects a different reading next. Press Next to let it play.',
+    not_next_in_replay:
+      'The recording expects a different reading next. Press Next to let it play.',
     fixture_missing: 'That recording is not available here.',
     session_lost: 'The session ended. Start again to continue.',
     webgl_lost: 'The 3D view stopped. The text channel has everything.',
@@ -92,6 +100,8 @@ function errorFor(code: SessionError['code'], resumePhase: Phase): SessionError 
 }
 
 let client: EngineClient = new ReplayClient()
+/** The request that created the current session, kept so an evicted API session can be re-created. */
+let lastStartRequest: StartRequest | null = null
 let revealToken = 0
 let autoplayTimer: number | undefined
 
@@ -108,12 +118,20 @@ export function setSceneMounted(mounted: boolean): void {
   sceneMounted = mounted
 }
 
+function isEvicted(error: unknown): boolean {
+  return error instanceof EngineError && error.code === 'session_not_found' && client.kind === 'api'
+}
+
 function canAnimateReveal(): boolean {
   return sceneMounted && webglSupported() && !prefersReducedMotion()
 }
 
 export const useSession = create<SessionState>((set, get) => {
-  const applyStart = (view: SessionViewT, opts: StartOptions, source: SessionData['engineSource']) => {
+  const applyStart = (
+    view: SessionViewT,
+    opts: StartOptions,
+    source: SessionData['engineSource'],
+  ) => {
     const catalog = toCatalog(view.catalog)
     const n = catalog.hypotheses.length
     set({
@@ -203,7 +221,10 @@ export const useSession = create<SessionState>((set, get) => {
     })
     if (step.landed_site !== null) {
       revealToken += 1
-      set({ phase: 'revealing', reveal: { landedSite: step.landed_site, token: revealToken, next } })
+      set({
+        phase: 'revealing',
+        reveal: { landedSite: step.landed_site, token: revealToken, next },
+      })
       const token = revealToken
       if (!canAnimateReveal()) get().finishReveal(token)
       // Stale tokens are ignored, so this only matters if the scene never answers.
@@ -211,6 +232,19 @@ export const useSession = create<SessionState>((set, get) => {
     } else {
       set({ phase: next, reveal: null })
     }
+  }
+
+  /**
+   * The API keeps sessions in memory with an LRU cap, so another client can evict ours. Live and
+   * simulate are deterministic for the same seed and readings, so re-creating the session and
+   * replaying the accepted readings restores the same belief without bothering the user.
+   */
+  const recreateSession = async (readings: ReadingEntry[], mode: SessionData['mode']) => {
+    if (!lastStartRequest) throw new EngineError('session_lost', 'The session was lost.')
+    const view = await client.start(lastStartRequest)
+    for (const entry of readings)
+      await client.step(view.session_id, mode === 'simulate' ? null : entry.value)
+    return view.session_id
   }
 
   const fail = (error: unknown, resumePhase: Phase) => {
@@ -238,16 +272,30 @@ export const useSession = create<SessionState>((set, get) => {
       set({ ...initialData, apiHealth: get().apiHealth, phase: 'starting', mode: opts.mode })
       const domain = opts.domain ?? 'circuit'
       try {
-        const view = await client.start({
+        const mode = choice.kind === 'replay' ? 'replay' : opts.mode
+        const request: StartRequest = {
           domain,
-          mode: choice.kind === 'replay' ? 'replay' : opts.mode,
-          ...(opts.seed !== undefined ? { seed: opts.seed } : {}),
+          mode,
+          seed: opts.seed ?? DEFAULT_SEED,
+          // Live never reveals the landed site; simulate and replay reveal it after each step.
+          reveal: mode === 'live' ? 'never' : 'after_step',
           ...(opts.trueHypothesis ? { true_hypothesis: opts.trueHypothesis } : {}),
           ...(opts.fixture ? { fixture: opts.fixture } : {}),
-        })
-        applyStart(view, { ...opts, mode: choice.kind === 'replay' ? 'replay' : opts.mode }, choice.kind)
+        }
+        lastStartRequest = request
+        const view = await client.start(request)
+        applyStart(
+          view,
+          { ...opts, mode: choice.kind === 'replay' ? 'replay' : opts.mode },
+          choice.kind,
+        )
         if (choice.reason === 'api_unavailable') {
-          set({ error: errorFor(get().apiHealth === 'waking' ? 'api_waking' : 'api_unreachable', 'awaiting_reading') })
+          set({
+            error: errorFor(
+              get().apiHealth === 'waking' ? 'api_waking' : 'api_unreachable',
+              'awaiting_reading',
+            ),
+          })
         }
       } catch (error) {
         fail(error, 'idle')
@@ -269,11 +317,19 @@ export const useSession = create<SessionState>((set, get) => {
         return
       }
       set({ phase: 'submitting', error: null })
+      const reading = state.mode === 'simulate' ? null : value
       try {
-        const step = await client.step(state.sessionId, state.mode === 'simulate' ? null : value)
+        const step = await client.step(state.sessionId, reading)
         applyStep(step, source)
       } catch (error) {
-        fail(error, 'awaiting_reading')
+        if (!isEvicted(error)) return fail(error, 'awaiting_reading')
+        try {
+          const sessionId = await recreateSession(state.readings, state.mode)
+          set({ sessionId })
+          applyStep(await client.step(sessionId, reading), source)
+        } catch (retryError) {
+          fail(retryError, 'awaiting_reading')
+        }
       }
     },
 
@@ -281,19 +337,61 @@ export const useSession = create<SessionState>((set, get) => {
       const { reveal, readings } = get()
       if (!reveal || reveal.token !== token) return
       const last = readings[readings.length - 1]
-      const updated = last ? [...readings.slice(0, -1), { ...last, landedSite: reveal.landedSite }] : readings
+      const updated = last
+        ? [...readings.slice(0, -1), { ...last, landedSite: reveal.landedSite }]
+        : readings
       set({ readings: updated, phase: reveal.next, reveal: null })
     },
 
     async replayNext() {
       const state = get()
-      if (!(client instanceof ReplayClient) || state.phase !== 'awaiting_reading' || !state.sessionId) return
+      if (
+        !(client instanceof ReplayClient) ||
+        state.phase !== 'awaiting_reading' ||
+        !state.sessionId
+      )
+        return
       const expected = client.expectedReading()
       if (expected === null) return
       set({ phase: 'submitting', error: null })
       try {
         const step = await client.step(state.sessionId, expected)
         applyStep(step, 'replay')
+      } catch (error) {
+        fail(error, 'awaiting_reading')
+      }
+    },
+
+    async replayPrevious() {
+      const state = get()
+      const replay = state.replay
+      if (
+        !(client instanceof ReplayClient) ||
+        !replay ||
+        replay.stepIndex === 0 ||
+        !state.sessionId
+      )
+        return
+      get().replayPause()
+      const target = replay.stepIndex - 1
+      try {
+        const view = await client.reset(state.sessionId)
+        applyStart(
+          view,
+          { mode: 'replay', domain: state.domain, fixture: replay.fixtureId, silent: true },
+          client.kind,
+        )
+        for (let i = 0; i < target; i += 1) {
+          const expected = client.expectedReading()
+          const sessionId = get().sessionId
+          if (expected === null || !sessionId) break
+          applyStep(await client.step(sessionId, expected), 'replay')
+          const reveal = get().reveal
+          if (reveal) get().finishReveal(reveal.token)
+        }
+        // Clearing `silent` is what tells the announcer to say where the rewind landed, once.
+        const after = get().replay
+        if (after) set({ replay: { ...after, silent: replay.silent } })
       } catch (error) {
         fail(error, 'awaiting_reading')
       }
@@ -334,7 +432,11 @@ export const useSession = create<SessionState>((set, get) => {
       if (!sessionId) return
       try {
         const view = await client.reset(sessionId)
-        applyStart(view, { mode, domain, ...(replay ? { fixture: replay.fixtureId } : {}) }, client.kind)
+        applyStart(
+          view,
+          { mode, domain, ...(replay ? { fixture: replay.fixtureId } : {}) },
+          client.kind,
+        )
       } catch (error) {
         fail(error, 'idle')
       }

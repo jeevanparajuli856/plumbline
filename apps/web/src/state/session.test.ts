@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useSession } from './session'
 
-describe('session store with the provisional worked example', () => {
+describe('session store with the recorded worked example', () => {
   beforeEach(async () => {
     await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
   })
@@ -11,7 +11,8 @@ describe('session store with the provisional worked example', () => {
     expect(s.phase).toBe('awaiting_reading')
     expect(s.instruction?.site).toBe(2)
     expect(s.catalog?.hypotheses).toHaveLength(33)
-    expect(s.replay?.provisional).toBe(true)
+    // The engine-recorded fixture (engine/fixtures/parity) replaces the provisional one.
+    expect(s.replay?.provisional).toBe(false)
   })
 
   it('warns after 3.671 V and publishes the landed row only once the reveal finishes', async () => {

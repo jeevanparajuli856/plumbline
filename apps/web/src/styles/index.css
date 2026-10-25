@@ -30,6 +30,61 @@
   --radius-soft: var(--radius-soft);
   --ease-smooth: var(--ease-smooth);
   --ease-sharp: var(--ease-sharp);
+  --text-md: var(--text-md);
+  --text-md--line-height: 1.55;
+  --text-reading: 1.625rem;
+  --text-reading--line-height: 1.2;
+  --text-xl--line-height: 1.15;
+  --text-lg--line-height: 1.35;
+}
+
+/* In-page Reduce motion switch: same snap as the OS setting (a11y/motionPref.ts). */
+:root[data-reduce-motion='true'] {
+  --motion-instant: 0ms;
+  --motion-fast: 0ms;
+  --motion-normal: 0ms;
+  --motion-slow: 0ms;
+  --motion-crawl: 0ms;
+}
+
+/* Small-caps instrument label: the lab-notebook voice for panel names. Never below 16px. */
+@utility label-caps {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+
+/* Graph-paper ruling for the bench frame that holds the 3D view. Hairline only, decorative. */
+@utility ruled {
+  background-color: var(--surface-1);
+  background-image:
+    linear-gradient(var(--surface-raised) 1px, transparent 1px),
+    linear-gradient(90deg, var(--surface-raised) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: -1px -1px;
+}
+
+/* The warning rule draws in once, top to bottom (--motion-warning-strike). Never repeats or shakes. */
+@keyframes warning-strike {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* A newly accepted reading row arrives with a measured-amber wash that fades once. */
+@keyframes reading-accepted {
+  from {
+    background-color: color-mix(in srgb, var(--measured-fill) 28%, transparent);
+  }
+  to {
+    background-color: transparent;
+  }
 }
 
 @utility focus-ring {
@@ -43,6 +98,8 @@
 }
 
 html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   background: var(--bench);
   color: var(--text);
   font-family: var(--font-sans);
@@ -59,9 +116,26 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--focus);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
   box-shadow: 0 0 0 2px var(--focus-gap);
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p,
+li,
+figcaption {
+  text-wrap: pretty;
+}
+
+/* Presentation mode (?present=1): chrome is not rendered; keep the page edge-to-edge. */
+:root[data-present='true'] body {
+  overflow-x: hidden;
 }
 
 .sr-only {

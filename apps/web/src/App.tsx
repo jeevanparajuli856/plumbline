@@ -1,36 +1,53 @@
 import { useEffect } from 'react'
-import { Link, Outlet } from 'react-router'
+import { Outlet, useLocation } from 'react-router'
 import { LiveRegion } from './a11y/LiveRegion'
 import { startAnnouncer } from './a11y/announcer'
+import { applyReduceMotion, useMotionPref } from './a11y/motionPref'
+import { SkipLinks } from './a11y/SkipLinks'
+import { useRouteFocus } from './a11y/useRouteFocus'
+import { isPresentation } from './lib/env'
 import { SceneHost } from './scene/SceneHost'
 import { applyTheme, usePrefs } from './state/prefs'
+import { PrefsBar } from './ui/PrefsBar'
+import { SiteFooter } from './ui/SiteFooter'
+import { SiteHeader } from './ui/SiteHeader'
+import { useSystemTheme } from './ui/useSystemTheme'
 
 export function App() {
   const theme = usePrefs((s) => s.theme)
+  const reduceMotion = useMotionPref((s) => s.reduceMotion)
+  const location = useLocation()
+  const present = isPresentation(location.search)
+
   useEffect(() => applyTheme(theme), [theme])
+  useSystemTheme(theme)
+  useEffect(() => applyReduceMotion(reduceMotion), [reduceMotion])
   useEffect(() => startAnnouncer(), [])
+  useRouteFocus(location.pathname)
+  useEffect(() => {
+    const root = document.documentElement
+    if (present) root.dataset.present = 'true'
+    else delete root.dataset.present
+  }, [present])
+
   return (
-    <div className="relative min-h-dvh">
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-surface-1 focus:px-3 focus:py-2"
-      >
-        Skip to main content
-      </a>
-      <header className="relative z-10 flex items-center justify-between border-b border-hairline bg-surface-1 px-4 py-3">
-        <Link to="/" className="font-semibold">
-          Plumbline
-        </Link>
-        <nav aria-label="Primary" className="flex gap-5 text-sm font-medium">
-          <Link to="/sim">Simulator</Link>
-          <Link to="/evidence">Validation</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
+    <div className="relative flex min-h-dvh flex-col">
+      <SkipLinks />
+      {present ? null : (
+        <div className="relative z-10">
+          <PrefsBar />
+          <SiteHeader />
+        </div>
+      )}
       <SceneHost />
-      <div className="relative z-10">
+      <div className="relative z-10 flex-1">
         <Outlet />
       </div>
+      {present ? null : (
+        <div className="relative z-10">
+          <SiteFooter />
+        </div>
+      )}
       <LiveRegion />
     </div>
   )
