@@ -1,7 +1,8 @@
 /* Landing-only styles. Colors, durations and easings come from tokens.css custom properties. */
 
-/* In-page "Reduce motion" switch: same effect as the OS query in tokens.css, scoped to the landing. */
-.root[data-reduced='true'] {
+/* Reduced motion from useReducedMotion (OS, or the app-wide switch once web-shell extends the hook). */
+.root[data-reduced='true'],
+:global(html[data-reduce-motion='true']) .root {
   --motion-instant: 0ms;
   --motion-fast: 0ms;
   --motion-normal: 0ms;

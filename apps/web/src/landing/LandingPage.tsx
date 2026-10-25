@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useRef } from 'react'
+import { useReducedMotion } from '@/a11y/useReducedMotion'
 import { webglSupported } from '@/lib/webgl'
 import { useLanding } from '@/state/landing'
 import { usePrefs } from '@/state/prefs'
 import { useSession } from '@/state/session'
 import s from './landing.module.css'
-import { useLandingReducedMotion } from './motionPref'
 import { cx } from './cx'
-import { ReduceMotionSwitch } from './ReduceMotionSwitch'
 import { Close } from './sections/Close'
 import { Evidence } from './sections/Evidence'
 import { Generalize } from './sections/Generalize'
@@ -36,7 +35,7 @@ function isReplayOfExample(): boolean {
 /** Container: owns scroll progress, the scene mode and the replay actions. Sections are presentational. */
 export function LandingPage() {
   const rootRef = useRef<HTMLElement>(null)
-  const reduced = useLandingReducedMotion()
+  const reduced = useReducedMotion()
   const setSceneMode = useLanding((st) => st.setSceneMode)
   const textOnly = usePrefs((st) => st.textOnly)
   const load = useFixture(FIXTURE_ID)
@@ -86,9 +85,6 @@ export function LandingPage() {
 
   return (
     <main id="main" ref={rootRef} className={s.root} data-reduced={reduced ? 'true' : 'false'}>
-      <div className={cx(s.frame, 'flex justify-end pt-4')}>
-        <ReduceMotionSwitch />
-      </div>
       <Mast fixture={fixture} hasScene={hasScene} onPlay={() => void playFromMast()} />
       <Research />
       <Problem fixture={fixture} />

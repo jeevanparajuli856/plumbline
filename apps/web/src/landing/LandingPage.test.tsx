@@ -4,7 +4,6 @@ import { useLanding } from '@/state/landing'
 import { useSession } from '@/state/session'
 import { SECTION_ORDER } from './choreography'
 import { LandingPage, PLAY_PACE_MS } from './LandingPage'
-import { useMotionPref } from './motionPref'
 
 vi.mock('@/lib/webgl', () => ({ webglSupported: () => false }))
 
@@ -25,7 +24,7 @@ async function settle() {
 describe('LandingPage', () => {
   afterEach(() => {
     useSession.getState().replayPause()
-    useMotionPref.getState().setUserReduced(false)
+    vi.unstubAllGlobals()
   })
 
   it('renders the H1, the simulator link and the ten labelled sections in order', async () => {
@@ -85,16 +84,31 @@ describe('LandingPage', () => {
     replayPlay.mockRestore()
   })
 
-  it('offers a Reduce motion switch first in main that toggles and marks the page', async () => {
+  it('renders no Reduce motion switch of its own (the app shell owns the only one)', async () => {
+    renderLanding()
+    await settle()
+    expect(screen.queryByRole('switch', { name: 'Reduce motion' })).toBeNull()
+  })
+
+  it('follows the OS reduced-motion setting through useReducedMotion', async () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: query.includes('prefers-reduced-motion'),
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }))
     const { container } = renderLanding()
     await settle()
-    const sw = screen.getByRole('switch', { name: 'Reduce motion' })
-    const firstFocusable = container.querySelector('main')!.querySelector('button, a, [tabindex]')
-    expect(firstFocusable).toBe(sw)
-    expect(sw).toHaveAttribute('aria-checked', 'false')
-    fireEvent.click(sw)
-    expect(sw).toHaveAttribute('aria-checked', 'true')
     expect(container.querySelector('main')).toHaveAttribute('data-reduced', 'true')
+  })
+
+  it('names the three play controls exactly as the contract binds them', async () => {
+    const { container } = renderLanding()
+    await settle()
+    const play = within(container.querySelector<HTMLElement>('section#play')!)
+    for (const name of ['Play the 20-second example', 'Pause', 'Replay']) {
+      expect(play.getByRole('button', { name })).toBeInTheDocument()
+    }
   })
 
   it('puts the scene into landing mode while mounted', async () => {
