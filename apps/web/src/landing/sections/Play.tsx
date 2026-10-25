@@ -14,6 +14,7 @@ import {
   transcript,
   type PlayFrame,
 } from '../workedExample'
+import { ProvenanceLine } from '../ProvenanceLine'
 import { PlayPanel } from './PlayPanel'
 
 export const PLAY_BUTTON_ID = 'play-start'
@@ -219,6 +220,7 @@ function PlayRecord({ fixture }: { fixture: FixtureT }) {
             told (Gao et al., 2014). It is our implementation, run in shadow on the identical
             readings. True fault in this recording: {labelOf(fixture, fixture.true_hypothesis)}.
           </p>
+          <ProvenanceLine fixture={fixture} className="mt-4" />
           {isProvisional(fixture) && (
             <p className={cx(s.body, 'mt-4')}>
               <Badge kind="PROVISIONAL" /> These numbers come from a hand-typed reconstruction. They

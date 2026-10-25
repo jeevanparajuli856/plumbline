@@ -1,6 +1,7 @@
 import s from '../landing.module.css'
 import { Badge, Caption, Eyebrow, Section } from '../parts'
 import { cx } from '../cx'
+import { ProvenanceLine } from '../ProvenanceLine'
 import { useFixture } from '../useFixture'
 import { transcript } from '../workedExample'
 
@@ -63,6 +64,9 @@ export function Generalize() {
                   </>
                 )}
               </ol>
+              {demo.status === 'ready' && (
+                <ProvenanceLine fixture={demo.fixture} className="mt-4" />
+              )}
               <Caption className="mt-6">
                 SIMULATED. Scene: a sliced roast with a temperature gradient. The tip depth is
                 uncertain and drawn as a band, not a point.

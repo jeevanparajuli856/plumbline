@@ -29,7 +29,13 @@ export function Eyebrow({ children }: { children: ReactNode }) {
 }
 
 /** The static DOM twin of the scene. Never a live region. */
-export function Caption({ children, className }: { children: ReactNode; className?: string }) {
+export function Caption({
+  children,
+  className,
+}: {
+  children: ReactNode
+  className?: string | undefined
+}) {
   return (
     <p data-testid="caption" className={cx(s.caption, className)}>
       {children}

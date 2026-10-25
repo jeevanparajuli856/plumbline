@@ -248,3 +248,25 @@ export function unresolvedGroups(fx: FixtureT): RankedHypothesis[][] {
     .filter((c) => c.length > 1)
     .map((c) => c.map((id) => ({ id, label: labelOf(fx, id), p: 1 / c.length })))
 }
+
+/** Length of the commit hash shown to readers; the full one stays in the fixture. */
+export const SHORT_SHA_LENGTH = 7
+
+export interface Provenance {
+  command: string
+  sha: string | null
+  date: string | null
+}
+
+/**
+ * Who recorded a fixture, from which commit, on which day (rule F19). Read only from the
+ * fixture's own fields; null while it is provisional, where the PROVISIONAL badge says so instead.
+ */
+export function provenance(fx: FixtureT): Provenance | null {
+  if (isProvisional(fx) || !fx.generated_by) return null
+  return {
+    command: fx.generated_by,
+    sha: fx.git_sha ? fx.git_sha.slice(0, SHORT_SHA_LENGTH) : null,
+    date: fx.generated_at ? fx.generated_at.slice(0, 10) : null,
+  }
+}
