@@ -36,6 +36,8 @@ export function ReadingLog({ rows, open, onToggle }: ReadingLogProps) {
         hidden={!open}
         role="region"
         aria-label="Reading log table"
+        // A scrollable region must be keyboard-focusable (axe scrollable-region-focusable, WCAG 2.1.1).
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
         tabIndex={0}
         className="overflow-x-auto rounded-hard focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
       >
