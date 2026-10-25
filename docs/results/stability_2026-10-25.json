@@ -1,8 +1,8 @@
 {
  "name": "stability",
  "command": "uv run --project engine python -m plumbline.experiments.stability",
- "git_sha": "6dde58a12302c3c2c9cbbf7af42c9e2560c21d95",
- "generated_at": "2026-10-25T16:56:41+00:00",
+ "git_sha": "9e98ddfc532023551e65940e05e51d1c3e68f84d",
+ "generated_at": "2026-10-25T17:12:30+00:00",
  "simulated": true,
  "label": "Preliminary. Not peer reviewed.",
  "note": "All results are simulated: a simulated hand on our own circuit model, not people.",
@@ -72,7 +72,8 @@
    "placement_warning": 0.5,
    "min_gain_bits": 0.001,
    "class_tolerance": 0.001,
-   "max_steps": 12
+   "max_steps": 12,
+   "out_of_model_sigmas": 5.0
   }
  },
  "arms": {
@@ -86,6 +87,17 @@
      99.33333333333333,
      99.33333333333333,
      99.66666666666667
+    ]
+   },
+   "resolved_correct_pct": {
+    "mean": 93.0,
+    "std": 1.1785113019775795,
+    "per_seed": [
+     93.33333333333333,
+     93.0,
+     93.66666666666667,
+     91.0,
+     94.0
     ]
    },
    "confidently_wrong_pct": {
@@ -124,12 +136,15 @@
    "pooled": {
     "n": 1500,
     "correct": 1492,
+    "resolved_correct": 1395,
     "confidently_wrong": 8,
     "unresolved": 97,
     "warnings_issued": 531,
     "warnings_correct": 526,
     "slips": 615,
-    "slips_warned": 526
+    "slips_warned": 526,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    }
   },
   "entropy_exact": {
@@ -142,6 +157,17 @@
      76.66666666666667,
      70.66666666666667,
      72.66666666666667
+    ]
+   },
+   "resolved_correct_pct": {
+    "mean": 68.26666666666667,
+    "std": 2.8713140623144033,
+    "per_seed": [
+     68.0,
+     66.33333333333333,
+     72.33333333333333,
+     65.0,
+     69.66666666666667
     ]
    },
    "confidently_wrong_pct": {
@@ -180,12 +206,15 @@
    "pooled": {
     "n": 1500,
     "correct": 1085,
+    "resolved_correct": 1024,
     "confidently_wrong": 415,
     "unresolved": 65,
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 483,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    }
   },
   "checklist": {
@@ -198,6 +227,17 @@
      62.666666666666664,
      60.333333333333336,
      53.666666666666664
+    ]
+   },
+   "resolved_correct_pct": {
+    "mean": 55.466666666666676,
+    "std": 3.0785999704050195,
+    "per_seed": [
+     56.333333333333336,
+     52.666666666666664,
+     59.333333333333336,
+     57.0,
+     52.0
     ]
    },
    "confidently_wrong_pct": {
@@ -236,24 +276,38 @@
    "pooled": {
     "n": 1500,
     "correct": 879,
+    "resolved_correct": 832,
     "confidently_wrong": 621,
     "unresolved": 51,
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 738,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    }
   },
   "random": {
    "correct_pct": {
-    "mean": 58.13333333333334,
-    "std": 2.2435091560618448,
+    "mean": 56.6,
+    "std": 2.742666990763228,
     "per_seed": [
-     61.0,
-     56.333333333333336,
      60.0,
+     54.0,
+     59.0,
+     55.666666666666664,
+     54.333333333333336
+    ]
+   },
+   "resolved_correct_pct": {
+    "mean": 53.86666666666666,
+    "std": 2.501110864307211,
+    "per_seed": [
      57.333333333333336,
-     56.0
+     51.666666666666664,
+     55.666666666666664,
+     52.666666666666664,
+     52.0
     ]
    },
    "confidently_wrong_pct": {
@@ -291,25 +345,39 @@
    },
    "pooled": {
     "n": 1500,
-    "correct": 872,
+    "correct": 849,
+    "resolved_correct": 808,
     "confidently_wrong": 613,
     "unresolved": 84,
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 825,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    }
   },
   "remeasure_until_agree": {
    "correct_pct": {
-    "mean": 94.46666666666667,
-    "std": 1.016530045465128,
+    "mean": 92.6,
+    "std": 0.8944271909999159,
     "per_seed": [
-     95.33333333333333,
-     94.33333333333333,
-     93.66666666666667,
-     93.33333333333333,
-     95.66666666666667
+     94.0,
+     92.0,
+     92.0,
+     92.0,
+     93.0
+    ]
+   },
+   "resolved_correct_pct": {
+    "mean": 87.4,
+    "std": 1.140175425099138,
+    "per_seed": [
+     89.0,
+     87.0,
+     87.0,
+     86.0,
+     88.0
     ]
    },
    "confidently_wrong_pct": {
@@ -347,13 +415,16 @@
    },
    "pooled": {
     "n": 1500,
-    "correct": 1417,
+    "correct": 1389,
+    "resolved_correct": 1311,
     "confidently_wrong": 67,
     "unresolved": 122,
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 1504,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    }
   }
  },
@@ -363,6 +434,8 @@
     "n": 300,
     "correct": 297,
     "correct_pct": 99.0,
+    "resolved_correct": 280,
+    "resolved_correct_pct": 93.33333333333333,
     "confidently_wrong": 3,
     "confidently_wrong_pct": 1.0,
     "unresolved": 17,
@@ -374,12 +447,18 @@
     "warnings_issued": 116,
     "warnings_correct": 115,
     "slips": 129,
-    "slips_warned": 115
+    "slips_warned": 115,
+    "warning_precision": 0.9913793103448276,
+    "slip_recall": 0.8914728682170543,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "entropy_exact": {
     "n": 300,
     "correct": 211,
     "correct_pct": 70.33333333333333,
+    "resolved_correct": 204,
+    "resolved_correct_pct": 68.0,
     "confidently_wrong": 89,
     "confidently_wrong_pct": 29.666666666666668,
     "unresolved": 8,
@@ -391,12 +470,18 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 103,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "checklist": {
     "n": 300,
     "correct": 181,
     "correct_pct": 60.333333333333336,
+    "resolved_correct": 169,
+    "resolved_correct_pct": 56.333333333333336,
     "confidently_wrong": 119,
     "confidently_wrong_pct": 39.666666666666664,
     "unresolved": 13,
@@ -408,12 +493,18 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 144,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "random": {
     "n": 300,
-    "correct": 183,
-    "correct_pct": 61.0,
+    "correct": 180,
+    "correct_pct": 60.0,
+    "resolved_correct": 172,
+    "resolved_correct_pct": 57.333333333333336,
     "confidently_wrong": 112,
     "confidently_wrong_pct": 37.333333333333336,
     "unresolved": 16,
@@ -426,12 +517,18 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 152,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "remeasure_until_agree": {
     "n": 300,
-    "correct": 286,
-    "correct_pct": 95.33333333333333,
+    "correct": 282,
+    "correct_pct": 94.0,
+    "resolved_correct": 267,
+    "resolved_correct_pct": 89.0,
     "confidently_wrong": 9,
     "confidently_wrong_pct": 3.0,
     "unresolved": 24,
@@ -444,7 +541,11 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 301,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    }
   },
   "2": {
@@ -452,6 +553,8 @@
     "n": 300,
     "correct": 300,
     "correct_pct": 100.0,
+    "resolved_correct": 279,
+    "resolved_correct_pct": 93.0,
     "confidently_wrong": 0,
     "confidently_wrong_pct": 0.0,
     "unresolved": 21,
@@ -463,12 +566,18 @@
     "warnings_issued": 107,
     "warnings_correct": 106,
     "slips": 126,
-    "slips_warned": 106
+    "slips_warned": 106,
+    "warning_precision": 0.9906542056074766,
+    "slip_recall": 0.8412698412698413,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "entropy_exact": {
     "n": 300,
     "correct": 214,
     "correct_pct": 71.33333333333333,
+    "resolved_correct": 199,
+    "resolved_correct_pct": 66.33333333333333,
     "confidently_wrong": 86,
     "confidently_wrong_pct": 28.666666666666668,
     "unresolved": 15,
@@ -480,12 +589,18 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 97,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "checklist": {
     "n": 300,
     "correct": 168,
     "correct_pct": 56.0,
+    "resolved_correct": 158,
+    "resolved_correct_pct": 52.666666666666664,
     "confidently_wrong": 132,
     "confidently_wrong_pct": 44.0,
     "unresolved": 12,
@@ -497,12 +612,18 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 159,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "random": {
     "n": 300,
-    "correct": 169,
-    "correct_pct": 56.333333333333336,
+    "correct": 162,
+    "correct_pct": 54.0,
+    "resolved_correct": 155,
+    "resolved_correct_pct": 51.666666666666664,
     "confidently_wrong": 126,
     "confidently_wrong_pct": 42.0,
     "unresolved": 20,
@@ -515,12 +636,18 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 181,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "remeasure_until_agree": {
     "n": 300,
-    "correct": 283,
-    "correct_pct": 94.33333333333333,
+    "correct": 276,
+    "correct_pct": 92.0,
+    "resolved_correct": 261,
+    "resolved_correct_pct": 87.0,
     "confidently_wrong": 15,
     "confidently_wrong_pct": 5.0,
     "unresolved": 24,
@@ -533,7 +660,11 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 289,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    }
   },
   "3": {
@@ -541,6 +672,8 @@
     "n": 300,
     "correct": 298,
     "correct_pct": 99.33333333333333,
+    "resolved_correct": 281,
+    "resolved_correct_pct": 93.66666666666667,
     "confidently_wrong": 2,
     "confidently_wrong_pct": 0.6666666666666666,
     "unresolved": 17,
@@ -552,12 +685,18 @@
     "warnings_issued": 103,
     "warnings_correct": 102,
     "slips": 121,
-    "slips_warned": 102
+    "slips_warned": 102,
+    "warning_precision": 0.9902912621359223,
+    "slip_recall": 0.8429752066115702,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "entropy_exact": {
     "n": 300,
     "correct": 230,
     "correct_pct": 76.66666666666667,
+    "resolved_correct": 217,
+    "resolved_correct_pct": 72.33333333333333,
     "confidently_wrong": 70,
     "confidently_wrong_pct": 23.333333333333332,
     "unresolved": 14,
@@ -569,12 +708,18 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 89,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "checklist": {
     "n": 300,
     "correct": 188,
     "correct_pct": 62.666666666666664,
+    "resolved_correct": 178,
+    "resolved_correct_pct": 59.333333333333336,
     "confidently_wrong": 112,
     "confidently_wrong_pct": 37.333333333333336,
     "unresolved": 10,
@@ -586,12 +731,18 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 130,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "random": {
     "n": 300,
-    "correct": 180,
-    "correct_pct": 60.0,
+    "correct": 177,
+    "correct_pct": 59.0,
+    "resolved_correct": 167,
+    "resolved_correct_pct": 55.666666666666664,
     "confidently_wrong": 116,
     "confidently_wrong_pct": 38.666666666666664,
     "unresolved": 18,
@@ -604,12 +755,18 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 156,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "remeasure_until_agree": {
     "n": 300,
-    "correct": 281,
-    "correct_pct": 93.66666666666667,
+    "correct": 276,
+    "correct_pct": 92.0,
+    "resolved_correct": 261,
+    "resolved_correct_pct": 87.0,
     "confidently_wrong": 13,
     "confidently_wrong_pct": 4.333333333333333,
     "unresolved": 26,
@@ -622,7 +779,11 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 309,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    }
   },
   "4": {
@@ -630,6 +791,8 @@
     "n": 300,
     "correct": 298,
     "correct_pct": 99.33333333333333,
+    "resolved_correct": 273,
+    "resolved_correct_pct": 91.0,
     "confidently_wrong": 2,
     "confidently_wrong_pct": 0.6666666666666666,
     "unresolved": 25,
@@ -641,12 +804,18 @@
     "warnings_issued": 116,
     "warnings_correct": 114,
     "slips": 133,
-    "slips_warned": 114
+    "slips_warned": 114,
+    "warning_precision": 0.9827586206896551,
+    "slip_recall": 0.8571428571428571,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "entropy_exact": {
     "n": 300,
     "correct": 212,
     "correct_pct": 70.66666666666667,
+    "resolved_correct": 195,
+    "resolved_correct_pct": 65.0,
     "confidently_wrong": 88,
     "confidently_wrong_pct": 29.333333333333332,
     "unresolved": 18,
@@ -658,12 +827,18 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 99,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "checklist": {
     "n": 300,
     "correct": 181,
     "correct_pct": 60.333333333333336,
+    "resolved_correct": 171,
+    "resolved_correct_pct": 57.0,
     "confidently_wrong": 119,
     "confidently_wrong_pct": 39.666666666666664,
     "unresolved": 11,
@@ -675,12 +850,18 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 144,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "random": {
     "n": 300,
-    "correct": 172,
-    "correct_pct": 57.333333333333336,
+    "correct": 167,
+    "correct_pct": 55.666666666666664,
+    "resolved_correct": 158,
+    "resolved_correct_pct": 52.666666666666664,
     "confidently_wrong": 128,
     "confidently_wrong_pct": 42.666666666666664,
     "unresolved": 17,
@@ -693,12 +874,18 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 164,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "remeasure_until_agree": {
     "n": 300,
-    "correct": 280,
-    "correct_pct": 93.33333333333333,
+    "correct": 276,
+    "correct_pct": 92.0,
+    "resolved_correct": 258,
+    "resolved_correct_pct": 86.0,
     "confidently_wrong": 17,
     "confidently_wrong_pct": 5.666666666666667,
     "unresolved": 25,
@@ -711,7 +898,11 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 306,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    }
   },
   "5": {
@@ -719,6 +910,8 @@
     "n": 300,
     "correct": 299,
     "correct_pct": 99.66666666666667,
+    "resolved_correct": 282,
+    "resolved_correct_pct": 94.0,
     "confidently_wrong": 1,
     "confidently_wrong_pct": 0.3333333333333333,
     "unresolved": 17,
@@ -730,12 +923,18 @@
     "warnings_issued": 89,
     "warnings_correct": 89,
     "slips": 106,
-    "slips_warned": 89
+    "slips_warned": 89,
+    "warning_precision": 1.0,
+    "slip_recall": 0.839622641509434,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "entropy_exact": {
     "n": 300,
     "correct": 218,
     "correct_pct": 72.66666666666667,
+    "resolved_correct": 209,
+    "resolved_correct_pct": 69.66666666666667,
     "confidently_wrong": 82,
     "confidently_wrong_pct": 27.333333333333332,
     "unresolved": 10,
@@ -747,12 +946,18 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 95,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "checklist": {
     "n": 300,
     "correct": 161,
     "correct_pct": 53.666666666666664,
+    "resolved_correct": 156,
+    "resolved_correct_pct": 52.0,
     "confidently_wrong": 139,
     "confidently_wrong_pct": 46.333333333333336,
     "unresolved": 5,
@@ -764,12 +969,18 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 161,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "random": {
     "n": 300,
-    "correct": 168,
-    "correct_pct": 56.0,
+    "correct": 163,
+    "correct_pct": 54.333333333333336,
+    "resolved_correct": 156,
+    "resolved_correct_pct": 52.0,
     "confidently_wrong": 131,
     "confidently_wrong_pct": 43.666666666666664,
     "unresolved": 13,
@@ -782,12 +993,18 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 172,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    },
    "remeasure_until_agree": {
     "n": 300,
-    "correct": 287,
-    "correct_pct": 95.66666666666667,
+    "correct": 279,
+    "correct_pct": 93.0,
+    "resolved_correct": 264,
+    "resolved_correct_pct": 88.0,
     "confidently_wrong": 13,
     "confidently_wrong_pct": 4.333333333333333,
     "unresolved": 23,
@@ -800,7 +1017,11 @@
     "warnings_issued": 0,
     "warnings_correct": 0,
     "slips": 299,
-    "slips_warned": 0
+    "slips_warned": 0,
+    "warning_precision": null,
+    "slip_recall": 0.0,
+    "misfit_readings": 0,
+    "trials_with_misfit": 0
    }
   }
  }

@@ -1,8 +1,8 @@
 {
  "name": "experiment",
  "command": "uv run --project engine python -m plumbline.experiments.experiment 400",
- "git_sha": "6dde58a12302c3c2c9cbbf7af42c9e2560c21d95",
- "generated_at": "2026-10-25T16:55:45+00:00",
+ "git_sha": "9e98ddfc532023551e65940e05e51d1c3e68f84d",
+ "generated_at": "2026-10-25T17:11:49+00:00",
  "simulated": true,
  "label": "Preliminary. Not peer reviewed.",
  "note": "All results are simulated: a simulated hand on our own circuit model, not people.",
@@ -12,7 +12,7 @@
  ],
  "n": 400,
  "truths": "uniform over the catalog, drawn from the seed",
- "hand": "engine confusion model (assumed 0.78 / 0.08 / 0.03), sigma noise, meter rounding",
+ "hand": "engine confusion model (P(lands on told site) 0.78, P(one site away) 0.08 each side, P(two sites away) 0.03 each side, clipped at the edges), sigma noise, meter rounding",
  "config": {
   "sigma": 0.02,
   "confusion": [
@@ -70,7 +70,8 @@
    "placement_warning": 0.5,
    "min_gain_bits": 0.001,
    "class_tolerance": 0.001,
-   "max_steps": 12
+   "max_steps": 12,
+   "out_of_model_sigmas": 5.0
   }
  },
  "arms": {
@@ -78,6 +79,8 @@
    "n": 400,
    "correct": 397,
    "correct_pct": 99.25,
+   "resolved_correct": 372,
+   "resolved_correct_pct": 93.0,
    "confidently_wrong": 3,
    "confidently_wrong_pct": 0.75,
    "unresolved": 25,
@@ -89,12 +92,18 @@
    "warnings_issued": 168,
    "warnings_correct": 166,
    "slips": 183,
-   "slips_warned": 166
+   "slips_warned": 166,
+   "warning_precision": 0.9880952380952381,
+   "slip_recall": 0.907103825136612,
+   "misfit_readings": 0,
+   "trials_with_misfit": 0
   },
   "entropy_exact": {
    "n": 400,
    "correct": 273,
    "correct_pct": 68.25,
+   "resolved_correct": 262,
+   "resolved_correct_pct": 65.5,
    "confidently_wrong": 127,
    "confidently_wrong_pct": 31.75,
    "unresolved": 12,
@@ -106,12 +115,18 @@
    "warnings_issued": 0,
    "warnings_correct": 0,
    "slips": 143,
-   "slips_warned": 0
+   "slips_warned": 0,
+   "warning_precision": null,
+   "slip_recall": 0.0,
+   "misfit_readings": 0,
+   "trials_with_misfit": 0
   },
   "checklist": {
    "n": 400,
    "correct": 236,
    "correct_pct": 59.0,
+   "resolved_correct": 220,
+   "resolved_correct_pct": 55.0,
    "confidently_wrong": 164,
    "confidently_wrong_pct": 41.0,
    "unresolved": 18,
@@ -123,12 +138,18 @@
    "warnings_issued": 0,
    "warnings_correct": 0,
    "slips": 201,
-   "slips_warned": 0
+   "slips_warned": 0,
+   "warning_precision": null,
+   "slip_recall": 0.0,
+   "misfit_readings": 0,
+   "trials_with_misfit": 0
   },
   "random": {
    "n": 400,
-   "correct": 235,
-   "correct_pct": 58.75,
+   "correct": 232,
+   "correct_pct": 58.0,
+   "resolved_correct": 221,
+   "resolved_correct_pct": 55.25,
    "confidently_wrong": 158,
    "confidently_wrong_pct": 39.5,
    "unresolved": 21,
@@ -141,12 +162,18 @@
    "warnings_issued": 0,
    "warnings_correct": 0,
    "slips": 207,
-   "slips_warned": 0
+   "slips_warned": 0,
+   "warning_precision": null,
+   "slip_recall": 0.0,
+   "misfit_readings": 0,
+   "trials_with_misfit": 0
   },
   "remeasure_until_agree": {
    "n": 400,
-   "correct": 378,
-   "correct_pct": 94.5,
+   "correct": 371,
+   "correct_pct": 92.75,
+   "resolved_correct": 351,
+   "resolved_correct_pct": 87.75,
    "confidently_wrong": 15,
    "confidently_wrong_pct": 3.75,
    "unresolved": 34,
@@ -159,7 +186,11 @@
    "warnings_issued": 0,
    "warnings_correct": 0,
    "slips": 422,
-   "slips_warned": 0
+   "slips_warned": 0,
+   "warning_precision": null,
+   "slip_recall": 0.0,
+   "misfit_readings": 0,
+   "trials_with_misfit": 0
   }
  }
 }
