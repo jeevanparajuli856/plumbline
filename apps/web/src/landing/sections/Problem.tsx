@@ -33,7 +33,7 @@ export function Problem({ fixture }: { fixture: FixtureT | null }) {
           <Caption className="mt-10">
             Scene: the probe hovers over {told ?? 'the instructed row'}.
             {c && c.pSame !== null && c.pPm1 !== null && c.pPm2 !== null
-              ? ` Assumed hand model: lands on the told row ${formatPct(c.pSame, 0)} of the time, one row off ${formatPct(c.pPm1, 0)} each side, two rows off ${formatPct(c.pPm2, 0)}. These are assumptions until we measure real hands.`
+              ? ` Assumed hand model: lands on the told row ${formatPct(c.pSame, 0)} of the time, one row off ${formatPct(c.pPm1, 0)} each side, two rows off ${formatPct(c.pPm2, 0)}. These are assumptions until we measure real hands with the Louisiana Center for the Blind.`
               : ' Where it lands is uncertain by up to two rows either side.'}
           </Caption>
         </div>
