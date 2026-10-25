@@ -39,16 +39,9 @@ export function Mast({ fixture, hasScene, onPlay }: MastProps) {
             <dd className="text-lg">{UNIVERSITY}</dd>
           </dl>
           <div className="mt-8 flex flex-wrap gap-4">
-            <a
-              href="#play"
-              className={cx(s.button, s.primary)}
-              onClick={(e) => {
-                e.preventDefault()
-                onPlay()
-              }}
-            >
-              Play the 20-second example
-            </a>
+            <button type="button" className={cx(s.button, s.primary)} onClick={onPlay}>
+              Go to the worked example and play it
+            </button>
             <Link to="/sim" className={s.button}>
               Open the simulator
             </Link>

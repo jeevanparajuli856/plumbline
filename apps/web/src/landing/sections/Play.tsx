@@ -90,7 +90,7 @@ export function Play({ fixture, onPlay, onReplay }: PlayProps) {
                   isUnavailable={!fixture || (isSession && autoplay)}
                   onPress={onPlay}
                 >
-                  Play the 20-second example
+                  Play the worked example
                 </ControlButton>
                 <ControlButton
                   id={PAUSE_BUTTON_ID}

@@ -120,10 +120,11 @@ describe('LandingPage', () => {
     renderLanding()
     await settle()
     expect(start).not.toHaveBeenCalled()
-    fireEvent.click(screen.getByRole('button', { name: 'Play the 20-second example' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Play the worked example' }))
     await settle()
     expect(start).toHaveBeenCalledWith({ mode: 'replay', fixture: 'worked_example', silent: false })
-    expect(replayPlay).toHaveBeenCalledWith(PLAY_PACE_MS)
+    expect(replayPlay).toHaveBeenCalledWith(4000)
+    expect(PLAY_PACE_MS).toBe(4000)
     start.mockRestore()
     replayPlay.mockRestore()
   })
@@ -150,9 +151,24 @@ describe('LandingPage', () => {
     const { container } = renderLanding()
     await settle()
     const play = within(container.querySelector<HTMLElement>('section#play')!)
-    for (const name of ['Play the 20-second example', 'Pause', 'Replay']) {
+    for (const name of ['Play the worked example', 'Pause', 'Replay']) {
       expect(play.getByRole('button', { name })).toBeInTheDocument()
     }
+    expect(screen.getAllByRole('button', { name: 'Play the worked example' })).toHaveLength(1)
+  })
+
+  it('gives the mast its own uniquely named control that goes to the example and plays it', async () => {
+    const replayPlay = vi.spyOn(useSession.getState(), 'replayPlay')
+    const scrollIntoView = vi.fn()
+    Element.prototype.scrollIntoView = scrollIntoView
+    const { container } = renderLanding()
+    await settle()
+    const mast = within(container.querySelector<HTMLElement>('section#mast')!)
+    fireEvent.click(mast.getByRole('button', { name: 'Go to the worked example and play it' }))
+    await settle()
+    expect(scrollIntoView).toHaveBeenCalled()
+    expect(replayPlay).toHaveBeenCalledWith(PLAY_PACE_MS)
+    replayPlay.mockRestore()
   })
 
   it('puts the scene into landing mode while mounted', async () => {
@@ -176,5 +192,6 @@ describe('LandingPage', () => {
     await settle()
     const text = container.textContent ?? ''
     expect(text).not.toMatch(/—|Get Started|first ever|Nexus|Read more|Learn more/i)
+    expect(text).not.toMatch(/20-second|\b\d+ s\b|\b\d+ seconds?\b/)
   })
 })
