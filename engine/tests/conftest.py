@@ -29,3 +29,12 @@ def worked_example() -> dict[str, Any]:
 
 def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "slow: experiment smoke tests")
+
+
+@pytest.fixture(autouse=True)
+def _ignore_developer_env_files(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Tests never read a developer's .env.local (it may hold a real Resend key)."""
+    from truehand_api.settings import Settings
+
+    monkeypatch.setitem(Settings.model_config, "env_file", None)
+    monkeypatch.delenv("TRUEHAND_RESEND_API_KEY", raising=False)

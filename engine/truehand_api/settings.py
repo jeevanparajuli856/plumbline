@@ -12,6 +12,12 @@ from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 # re-synced, so the old name is read as a fallback; the new name wins when both are set.
 CORS_ENV_NAMES = AliasChoices("TRUEHAND_CORS_ORIGINS", "PLUMBLINE_CORS_ORIGINS")
 
+# Local secrets (gitignored) are read from .env.local at the repo root or in engine/, so a developer
+# can run the API with the Resend key without exporting it. Real environment variables win; Render
+# sets them in the dashboard. Missing files are ignored.
+_ENGINE_DIR = Path(__file__).resolve().parent.parent
+LOCAL_ENV_FILES = (_ENGINE_DIR.parent / ".env.local", _ENGINE_DIR / ".env.local")
+
 DEFAULT_CORS_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
@@ -22,7 +28,9 @@ DEFAULT_CONTACT_FROM = "Truehand <contact@truehand.tech>"
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="TRUEHAND_", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_prefix="TRUEHAND_", extra="ignore", env_file=LOCAL_ENV_FILES, env_file_encoding="utf-8"
+    )
 
     # NoDecode: the env var is a comma-separated list, not JSON (render.yaml sets it that way).
     cors_origins: Annotated[list[str], NoDecode] = Field(
