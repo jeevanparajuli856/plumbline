@@ -63,13 +63,13 @@ Still open: 10 (web-shell contrast, checked in the full run), 11 and 12 (storybo
 
 ## For web-shell (new)
 
-14. **Aim button names.** Placement cells become buttons that aim, but their accessible names are
+14. **RESOLVED (decision 13: "Aim at <site label>").** **Aim button names.** Placement cells become buttons that aim, but their accessible names are
     not in the contract. The keyboard spec finds them inside the placement list by the site label
     (`/\brow 4\b/`). Please bind a name that contains the site label.
 
 ## New from the review fixes (2026-10-25)
 
-15. **Belief verdict selector.** refusal.spec expects the belief figure to show a verdict line
+15. **RESOLVED (decision 14: `data-testid="belief-verdict"`).** **Belief verdict selector.** refusal.spec expects the belief figure to show a verdict line
     starting "Unresolved" with no percentage. It finds it as text inside the figure
     `Belief over faults`. A named element (for example `data-testid="belief-verdict"`) would make
     it exact.

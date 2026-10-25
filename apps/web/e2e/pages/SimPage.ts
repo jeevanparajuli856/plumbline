@@ -118,9 +118,14 @@ export class SimPage {
     await expect(this.aimedItem()).toHaveCount(1)
   }
 
-  /** Aim button inside a placement-strip item, matched by its site label ("row 4"). */
+  /** Aim button inside a placement-strip item, named exactly "Aim at <site label>" (decision 13). */
   aimButton(siteLabel: string): Locator {
-    return this.placementStrip.getByRole('button', { name: new RegExp(`\\b${siteLabel}\\b`) })
+    return this.placementStrip.getByRole('button', { name: `Aim at ${siteLabel}`, exact: true })
+  }
+
+  /** The one-line Plumbline verdict inside the belief figure (decision 14). */
+  beliefVerdict(): Locator {
+    return this.beliefFigure.getByTestId('belief-verdict')
   }
 
   badge(text: 'PROVISIONAL' | 'SIMULATED' | 'PENDING'): Locator {

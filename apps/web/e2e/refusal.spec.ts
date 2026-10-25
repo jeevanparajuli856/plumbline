@@ -36,9 +36,10 @@ test.describe('refusal on an indistinguishable pair', () => {
     for (const label of pairLabels) await expect(sim.unresolved).toContainText(label)
     await expect(sim.diagnosis).toHaveCount(0)
 
-    // The belief verdict says Unresolved and carries no single winning fault with a percentage.
-    const verdict = sim.beliefFigure.getByText(/^\s*Unresolved/).first()
-    await expect(verdict).toBeVisible()
+    // Decision 14: the verdict starts "Unresolved", names the class members, and has no percentage.
+    const verdict = sim.beliefVerdict()
+    await expect(verdict).toHaveText(/^\s*Unresolved/)
+    for (const label of pairLabels) await expect(verdict).toContainText(label)
     await expect(verdict).not.toHaveText(PERCENT)
   })
 })
