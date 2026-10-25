@@ -40,7 +40,7 @@ describe('landing copy is backed by the docs', () => {
 
   it('dates phases from BUILD_PLAN, or says the date is not set', () => {
     expect(buildPlanMd).toContain('Oct 26 to Nov 1')
-    expect(buildPlanMd).toContain('Nov 2 to 8')
+    expect(buildPlanMd).toContain('Oct 26 to Nov 8')
     expect(buildPlanMd).toContain('Nov 23 to Dec 6')
     expect(content.PHASES.map((p) => p.name)).toEqual([
       'Research',

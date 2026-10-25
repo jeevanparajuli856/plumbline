@@ -87,12 +87,44 @@ Recorded fixtures must parse with `Fixture` in `apps/web/src/engine/schemas.ts` 
 | 13 | Aim buttons: each placement-strip item contains a button named "Aim at <site label>" (e.g. "Aim at row 4"; thermometer "Aim at 3.5 cm"), which calls `aimProbe`. Single-key shortcuts switch: `getByRole('switch', { name: 'Single-key shortcuts' })`, on by default, in the site Display bar or the shortcuts dialog. |
 | 14 | Belief verdict: the one-line Plumbline verdict inside the belief figure is `data-testid="belief-verdict"`. Resolved or continuing: the top fault and its percentage. Unresolved: text starting "Unresolved" naming the class members, with no percentage. |
 
-## 5. Header after the UI revamp (2026-10-25 evening)
+## 5. Header and landing motion after the UI revamp (2026-10-25 evening)
+
+Agreed on `main` before the revamp lanes (shell, landing-revamp, motion, e2e-update) launched. Names here are contracts; copy around them may change.
+
+### 5.1 Header (shell lane)
 
 | Element | Selector contract |
 | --- | --- |
-| Theme button | `getByRole('button', { name: /^Theme: (System|Light|Dark|High contrast)\./ })`, `aria-haspopup="dialog"`, `aria-expanded`; on small screens its accessible name still starts with "Display settings" |
-| Display popover | `getByRole('dialog', { name: 'Display' })`; contains the radiogroup "Theme" (radios System, Light, Dark, High contrast), switch "Text only", switch "Reduce motion"; Esc closes and returns focus to the button |
-| Primary nav | unchanged: `nav` "Primary" with links Research, Technology, Validation (aria-current on /evidence), Product; "Open the simulator" link |
-| Motion hooks | `data-motion="headline|quote|bars|rows|stat|plumb"` on the landing elements the motion lane animates; the motion module never queries by class |
-| Hero instrument card | `role="group"` named "Live instrument"; button "Pause" / "Play" inside; caption twin states the current fixture and step |
+| Header | one `banner` landmark, 72px (`--header-height`): wordmark link "Plumbline" (Fraunces) with a mono "research preview" tag, `nav` "Primary", the theme button, the ink "Open the simulator" link. No university name in the banner |
+| Primary nav | `nav` "Primary" with links Research (`/#research`), Technology (`/#play`), Validation (`/evidence`, `aria-current="page"` there), Product (`/#product`) |
+| Open simulator | `getByRole('banner').getByRole('link', { name: 'Open the simulator' })` to `/sim`. Landing specs scope their own "Open the simulator" to `main` |
+| Theme button | `getByRole('button', { name: /^Theme: (System|Light|Dark|High contrast)\./ })`, full name e.g. "Theme: Light. Open display settings"; `aria-haspopup="dialog"`, `aria-expanded`, `aria-controls` the popover. Icon: inline SVG sun (light) or moon (dark, high contrast), `aria-hidden`. Below the `sm` breakpoint the same button's accessible name starts with "Display settings" |
+| Display popover | `getByRole('dialog', { name: 'Display' })`, non-modal popover anchored to the button; contains the radiogroup "Theme" (radios System, Light, Dark, High contrast), switch "Text only", switch "Reduce motion". Opening moves focus to the checked Theme radio; Tab cycles inside; Esc and the button close it and return focus to the button; clicking outside closes it without moving focus |
+| Skip link | link "Skip to main content" stays the first focusable element; the theme button is the first header control after the wordmark and nav |
+| Speech, Single-key shortcuts | stay on `/sim` (toolbar and shortcuts dialog), not in the popover |
+| Present mode | unchanged: `?present=1` renders no banner and no footer |
+
+### 5.2 Landing hero instrument card (landing-revamp lane)
+
+| Element | Selector contract |
+| --- | --- |
+| Card | `getByRole('group', { name: 'Live instrument' })` inside `section#mast` |
+| Pause/Play | one button inside the card, name "Pause" while the loop runs and "Play" while paused or under reduced motion. Hovering or focusing inside the card also pauses; leaving resumes unless the button paused it |
+| Twin | a `data-testid="caption"` inside the card states the current recording and step, e.g. "Recording worked example, reading 1 of 2: told row 3, read 3.671 volts." Not a live region |
+| Source | the card plays recorded engine output from `engine/fixtures/parity/*.json` (worked_example, seed_1 to seed_5, unresolved_pair) through `landing/workedExample.ts`. It does NOT drive the global `useSession` store: that store feeds the announcer and the Play section, and a looping hero must never speak or fight the reader's replay |
+| Reduced motion | the card shows the final state of worked_example and the button reads "Play" |
+
+### 5.3 Motion hooks (landing-revamp renders them, motion lane animates them)
+
+The motion module (`landing/motion/**`) selects only by these attributes, never by class. The static DOM always renders the FINAL state; motion tweens from an earlier state to it and reverts on unmount. Under reduced motion (OS setting or `html[data-reduce-motion]`) nothing tweens and the final state stays.
+
+| Hook | Element | Data the landing provides |
+| --- | --- | --- |
+| `data-motion="headline"` | the H1 | plain text only. The motion splitter wraps words at runtime (and sets `aria-label` on the H1 with the full text, `aria-hidden` on the word spans), and restores the original text on revert. The landing reserves the line height so splitting causes no layout shift |
+| `data-motion="quote"` | each research quote element (`blockquote` or `p`) | plain text; revealed line by line once on enter |
+| `data-motion="bars"` | the technology race container (`section#play`) | children `data-motion-bar="published"` and `data-motion-bar="ours"`, each an element drawn with `transform: scaleX(final)` from the left, with `data-motion-stages="p0,p1,p2"`: the top-fault probability (0 to 1) before any reading, after reading 1, after reading 2, from worked_example.json. Optional `data-motion-stage-label` children are swapped by the scrub |
+| `data-motion="rows"` | the product list (`ul` or `ol`) | its direct `li` children stagger in from the left |
+| `data-motion="stat"` | the visible number in a validation stat cell, `aria-hidden="true"` next to an `sr-only` twin with the same text | `data-motion-value` (number), `data-motion-decimals` (int), optional `data-motion-suffix`. Counts up once from 0. The pending cell carries no hook |
+| `data-motion="plumb"` | the fixed edge plumb line (`aria-hidden="true"`) | child `data-motion-bob` (the bob, slides with page scroll) and `data-motion-string`; amplitude follows `useLanding.progress`. Its caption twin is a visible `data-testid="caption"` in the page, not inside the hook |
+
+Status lines under the hero lead and the hero card's own animations (probe travel, digit tick, bar settle, warning strike) belong to the landing lane and use CSS transitions on the motion tokens, so they snap when the tokens are zero.

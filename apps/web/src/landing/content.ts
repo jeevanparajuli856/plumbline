@@ -116,7 +116,7 @@ export interface Phase {
 export const PHASES: readonly Phase[] = [
   { name: 'Research', when: 'Oct 25', state: 'done' },
   { name: 'Engine', when: 'Oct 26 to Nov 1', state: 'done' },
-  { name: 'Simulation', when: 'Nov 2 to 8', state: 'done' },
+  { name: 'Simulation', when: 'Oct 26 to Nov 8', state: 'done' },
   { name: 'User validation', when: 'date to be booked', state: 'now' },
   { name: 'Pilot', when: 'date to be set', state: 'next' },
   { name: 'Product', when: 'Nov 23 to Dec 6', state: 'next' },

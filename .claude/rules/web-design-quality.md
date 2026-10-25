@@ -11,8 +11,8 @@ Condensed from ECC `rules/web/design-quality.md` and `rules/web/performance.md`.
 ## Design direction for Plumbline (decided, do not drift)
 - **Tone:** precision instrument meets accessible lab notebook. Calm, exact, high-contrast. Light theme is the default (paper and ink, low-vision friendly); dark and high-contrast derive from the same tokens. Positioning and copy rules: `docs/POSITIONING.md` (read it before any landing or simulator work). Not a SaaS dashboard, not a game.
 - **Memorable detail:** the plumb line itself: a vertical reference line / pendulum motif that settles as belief converges, and the breadboard row the probe actually landed on glows while the instructed row is outlined. Uncertainty is always drawn as spread, never hidden.
-- **Palette:** tokens in `apps/web/src/styles/tokens.css`, generated from `tokens.json` by `scripts/build-tokens.mjs`. One warm accent for "measured", one cool accent for "inferred", a warning hue reserved for placement warnings. Light (default), dark and high-contrast themes are all intentional; `<html data-theme=dark|light|hc>`, absent means follow the OS.
-- **Type:** Atkinson Hyperlegible Next (400/500/600) for UI plus JetBrains Mono Variable with tabular figures for readings and probabilities. Self-hosted via fontsource. Max two families.
+- **Palette:** tokens in `apps/web/src/styles/tokens.css`, generated from `src/styles/tokens.json` by `scripts/build-tokens.mjs` (`pnpm --filter web tokens`; the script fails the build if a listed text pair drops below its contrast minimum in any theme). Warm beige light default (POSITIONING section 4.1). One warm accent for "measured", one cool accent for "inferred", a warning hue reserved for placement warnings. Light (default), dark and high-contrast themes are all intentional; `<html data-theme=dark|light|hc>`, absent means follow the OS.
+- **Type:** Fraunces Variable (display, optical sizes, 500/600) for headlines and big numbers; Atkinson Hyperlegible Next (400/500/700) for everything else; JetBrains Mono Variable with tabular figures for readings, probabilities, captions and status tags. Self-hosted via fontsource (`styles/fonts.css`). Three families, each with one job. Scale tokens: `--text-display` 84, `--text-h2` 48 to 52, `--text-h3` 24 to 26, `--text-lead` 21, `--text-body` 17, `--text-caption` 14. Nothing below 13px.
 
 ## Token names (the design hook greps for hard-coded hex values; use these instead)
 Colors are referenced only through these custom properties (or their Tailwind `@theme inline` aliases). A literal `#rrggbb` anywhere outside `tokens.css` / `tokens.json` is a defect.
@@ -20,17 +20,22 @@ Colors are referenced only through these custom properties (or their Tailwind `@
 --bench  --surface-1  --surface-2  --surface-raised
 --hairline (decorative only)  --border-strong (control boundaries, >= 3:1)
 --text  --text-2  --text-muted
---measured  --inferred  --warning  --warning-text  --baseline
+--measured  --measured-fill  --inferred  --inferred-fill  --warning  --warning-text  --warning-surface  --baseline
+--action  --action-hover  --on-action          (primary button: amber fill, light text)
+--ink  --on-ink  --on-ink-muted  --ink-divider  --ink-measured  --ink-inferred  --ink-warning   (ink sections)
 --on-measured  --on-inferred  --on-warning
 --focus  --focus-gap
+--font-display  --font-sans  --font-mono
+--text-caption  --text-body  --text-lead  --text-h3  --text-h2  --text-display
+--shadow-instrument (hero instrument card and phone only)  --shadow-panel (none)
 --scene-bg  --scene-hole  --scene-board  --scene-glow-max
---radius-hard  --radius-soft
+--radius-section (0)  --radius-hard  --radius-button (8)  --radius-card (12)  --radius-soft (12)  --radius-phone (24)  --header-height (72)
 --motion-instant  --motion-fast  --motion-normal  --motion-slow  --motion-crawl  --ease-smooth
 ```
 Semantics: measured = amber + filled + label; inferred = cyan + outlined; warning = vermilion + left rule + glyph + the word. Accents are never the only cue. Light theme splits each accent into a text value and a fill value; use `--measured` for fills and the text-safe variant the token file provides for text. Focus is a double ring: `--focus` outside `--focus-gap`.
 
 ## Banned (hook nudges on these)
-Default card grids, centered hero + gradient blob, stock "Get Started" copy, uniform radius/shadow everywhere, gray-on-white with one accent, unmodified Tailwind/shadcn defaults, dark mode by reflex, hard-coded hex colors, em-dashes in UI copy.
+Shadows on anything but the hero instrument card and the phone, default card grids, centered hero + gradient blob, stock "Get Started" copy, uniform radius/shadow everywhere, gray-on-white with one accent, unmodified Tailwind/shadcn defaults, dark mode by reflex, hard-coded hex colors, em-dashes in UI copy.
 
 ## Required on every surface (at least four)
 Scale contrast, intentional spacing rhythm, depth or layering, typography with character, semantic color, designed hover/focus/active, editorial or bento composition where it helps, motion that clarifies state.
