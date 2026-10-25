@@ -44,7 +44,11 @@ export function LandingPage() {
 
   useEffect(() => {
     setSceneMode('landing')
-    return () => setSceneMode('hidden')
+    return () => {
+      setSceneMode('hidden')
+      // A replay started here must not keep stepping once the reader moves to /sim.
+      useSession.getState().replayPause()
+    }
   }, [setSceneMode])
   useScrollProgress(rootRef, reduced)
 

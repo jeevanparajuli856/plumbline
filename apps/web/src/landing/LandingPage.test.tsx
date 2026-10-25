@@ -171,6 +171,19 @@ describe('LandingPage', () => {
     replayPlay.mockRestore()
   })
 
+  it('pauses a replay started on the landing when the landing unmounts', async () => {
+    const { unmount } = renderLanding()
+    await settle()
+    fireEvent.click(screen.getByRole('button', { name: 'Play the worked example' }))
+    await settle()
+    expect(useSession.getState().replay?.autoplay).toBe(true)
+    const replayPause = vi.spyOn(useSession.getState(), 'replayPause')
+    unmount()
+    expect(replayPause).toHaveBeenCalled()
+    expect(useSession.getState().replay?.autoplay).toBe(false)
+    replayPause.mockRestore()
+  })
+
   it('puts the scene into landing mode while mounted', async () => {
     const { unmount } = renderLanding()
     await settle()
