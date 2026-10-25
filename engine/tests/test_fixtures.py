@@ -41,6 +41,7 @@ STEP_KEYS = {
     "next_told_site",
     "baseline",
     "diagnosis",
+    "misfit",
 }
 
 

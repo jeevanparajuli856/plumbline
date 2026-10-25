@@ -10,13 +10,13 @@ from typing import Any
 
 import numpy as np
 
-from plumbline.config import ConfusionSpec, EngineConfig
+from plumbline.config import OUT_OF_MODEL_SIGMAS, ConfusionSpec, EngineConfig
 from plumbline.domains import circuit, get_model
 from plumbline.engine import Engine
 from plumbline.session import ReplayScript, Session, StepRecord
-from plumbline.views import config_view, floats, probs
+from plumbline.views import config_view, floats, misfit_view, probs
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 
 def domain_parameters(domain: str) -> dict[str, float]:
@@ -68,6 +68,7 @@ def _step_json(session: Session, record: StepRecord) -> dict[str, Any]:
             else None
         ),
         "unresolved": None,
+        "misfit": misfit_view(session.model, record),
     }
     if record.resolution.status == "unresolved":
         classes = session.unresolved_classes(record)
@@ -134,6 +135,7 @@ def engine_from_fixture(fixture: Mapping[str, Any]) -> Engine:
         class_tolerance=float(thresholds["class_tolerance"]),
         quadrature_points=len(config["quadrature"]["x"]),
         max_steps=int(thresholds["max_steps"]),
+        out_of_model_sigmas=float(thresholds.get("out_of_model_sigmas", OUT_OF_MODEL_SIGMAS)),
     )
     return Engine(get_model(str(fixture["domain"])), engine_config)
 

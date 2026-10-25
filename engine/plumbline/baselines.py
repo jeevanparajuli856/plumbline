@@ -25,6 +25,7 @@ class BaselineState:
     n_readings: int = 0
     last_site: int | None = None
     pending: float | None = None
+    remeasure: bool = False
 
 
 class Baseline(Protocol):

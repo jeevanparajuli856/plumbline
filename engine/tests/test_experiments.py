@@ -96,3 +96,27 @@ def test_mkfigs_writes_svg_figures(tmp_path: Path) -> None:
     svgs = sorted(p.name for p in (tmp_path / "figures").glob("*.svg"))
     assert len(svgs) == 6
     assert all("Simulated" in (tmp_path / "figures" / s).read_text() for s in svgs)
+
+
+def test_plumbline_policy_remeasures_after_an_out_of_model_reading() -> None:
+    engine = Engine(get_model("circuit"))
+    policy = make_policy("plumbline", engine)
+    rng = np.random.default_rng(0)
+    state = policy.start()
+    _, site = policy.decide(state, rng)
+    assert policy.is_misfit(site, 6.0)
+    after = policy.observe(state, site, 6.0)
+    np.testing.assert_array_equal(after.belief, state.belief)
+    resolution, again = policy.decide(after, rng)
+    assert again == site and resolution.status == "continue"
+    assert not make_policy("entropy_exact", engine).is_misfit(site, 6.0)
+
+
+def test_summary_counts_misfit_readings() -> None:
+    from plumbline.experiments.runner import summarize
+
+    engine = Engine(get_model("circuit"))
+    hand = HandModel(confusion=engine.confusion)
+    result = run_trial(make_policy("plumbline", engine), hand, engine, truth=12, seed=(1, 0))
+    summary = summarize([result])
+    assert summary["misfit_readings"] == 0 and summary["trials_with_misfit"] == 0

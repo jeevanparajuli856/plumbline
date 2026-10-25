@@ -86,6 +86,14 @@ class ReplayScript:
 
 
 @dataclass(frozen=True)
+class Misfit:
+    """The reading matched no hypothesis within ``out_of_model_sigmas``; belief was kept."""
+
+    active: bool
+    sigmas: float
+
+
+@dataclass(frozen=True)
 class StepRecord:
     index: int
     told_site: int
@@ -101,6 +109,7 @@ class StepRecord:
     engine_choice: Instruction
     next_told_site: int | None
     baseline: BaselineState
+    misfit: Misfit
 
 
 class Session:
@@ -237,10 +246,20 @@ class Session:
         self, told: int, landed: int | None, reading: float, scripted_next: int | None
     ) -> StepRecord:
         engine = self.engine
-        placement = engine.placement(self._belief, reading, told)
-        belief = engine.update(self._belief, reading, told)
+        misfit = Misfit(
+            active=engine.is_misfit(reading, told), sigmas=engine.misfit_sigmas(reading, told)
+        )
+        if misfit.active:
+            placement = engine.confusion[told].copy()
+            belief = self._belief
+            warning = PlacementWarning(False, float(1.0 - placement[told]), told)
+            choice = Instruction(site=told, gains=self._instruction_gains)
+        else:
+            placement = engine.placement(self._belief, reading, told)
+            belief = engine.update(self._belief, reading, told)
+            warning = engine.warning(placement, told)
+            choice = engine.choose_instruction(belief)
         history = [(r.told_site, r.reading) for r in self._records] + [(told, reading)]
-        choice = engine.choose_instruction(belief)
         resolution = engine.resolution(belief, choice.gains, len(history))
         is_continue = resolution.status == "continue"
         next_site = (
@@ -256,12 +275,13 @@ class Session:
             belief=belief,
             entropy_bits=engine.entropy_bits(belief),
             placement=placement,
-            warning=engine.warning(placement, told),
+            warning=warning,
             placement_audit=tuple(engine.placement_audit(belief, history)),
             resolution=resolution,
             engine_choice=choice,
             next_told_site=next_site,
             baseline=self._baseline_state,
+            misfit=misfit,
         )
         self._records.append(record)
         self._belief = belief

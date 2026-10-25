@@ -1,14 +1,14 @@
 {
- "schema_version": 1,
+ "schema_version": 2,
  "name": "seed_3",
  "domain": "circuit",
  "mode": "replay",
  "source_mode": "simulate",
  "seed": 3,
  "simulated": false,
- "generated_by": "uv run --project engine python -m plumbline.record_fixtures",
- "git_sha": "afd9507b0ed1301e2ea7529ad8ed3ca3a04afee4",
- "generated_at": "2026-10-25T16:47:51+00:00",
+ "generated_by": "uv run --project engine python -m plumbline.record_fixtures --force",
+ "git_sha": "cdc4420017bdc6bf1464864c18b6289e69ffca7d-dirty",
+ "generated_at": "2026-10-25T17:08:37+00:00",
  "config": {
   "sigma": 0.02,
   "confusion": [
@@ -66,7 +66,8 @@
    "placement_warning": 0.5,
    "min_gain_bits": 0.001,
    "class_tolerance": 0.001,
-   "max_steps": 12
+   "max_steps": 12,
+   "out_of_model_sigmas": 5.0
   },
   "quadrature": {
    "x": [
@@ -747,7 +748,12 @@
     "confidence": 1.0
    },
    "diagnosis": null,
-   "unresolved": null
+   "unresolved": null,
+   "misfit": {
+    "active": false,
+    "sigmas": 0.5281727062703467,
+    "text": ""
+   }
   },
   {
    "index": 1,
@@ -876,7 +882,12 @@
     "hypothesis_id": "R1_short",
     "confidence": 0.9999999998745701
    },
-   "unresolved": null
+   "unresolved": null,
+   "misfit": {
+    "active": false,
+    "sigmas": 0.4603240548401333,
+    "text": ""
+   }
   }
  ]
 }

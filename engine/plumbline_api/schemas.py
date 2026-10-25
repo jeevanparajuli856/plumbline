@@ -139,6 +139,14 @@ class BaselineView(BaseModel):
     diagnosis: DiagnosisView | None
 
 
+class MisfitView(BaseModel):
+    """Additive in v1: the reading matched no hypothesis; belief unchanged, measure again."""
+
+    active: bool
+    sigmas: Annotated[float, Field(ge=0.0, allow_inf_nan=False)]
+    text: str
+
+
 class StepView(BaseModel):
     step_index: int = Field(ge=0)
     instruction: InstructionView
@@ -154,6 +162,7 @@ class StepView(BaseModel):
     unresolved: UnresolvedView | None
     next_instruction: InstructionView | None
     baseline: BaselineView
+    misfit: MisfitView
 
 
 class ThresholdsView(BaseModel):
@@ -162,6 +171,7 @@ class ThresholdsView(BaseModel):
     min_gain_bits: Finite
     class_tolerance: Finite
     max_steps: int
+    out_of_model_sigmas: Finite
 
 
 class ConfigView(BaseModel):

@@ -251,3 +251,9 @@ class CircuitModel:
     def unresolved_phrase(self, class_ids: Sequence[str], reason: str) -> str:
         labels = [self.hypotheses[self._index[i]].label for i in class_ids]
         return phrases.unresolved(labels, reason, "voltage")
+
+    def misfit_phrase(self, told_site: int) -> str:
+        return (
+            "That reading does not match this circuit at any nearby row. Check that the probe "
+            f"is touching metal, then measure {self.sites[told_site].label} again."
+        )

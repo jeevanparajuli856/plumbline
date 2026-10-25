@@ -152,6 +152,7 @@ async def test_live_requires_a_finite_in_range_reading(client: httpx.AsyncClient
     assert_error(nan, 422, "validation_error")
     ok = (await client.post(f"/v1/sessions/{sid}/step", json={"reading": 1.733})).json()
     assert ok["reading"] == 1.733 and ok["landed_site"] is None
+    assert ok["misfit"]["active"] is False
     view = (await client.get(f"/v1/sessions/{sid}")).json()
     assert view["true_hypothesis"] is None and len(view["steps"]) == 1
 
@@ -341,3 +342,15 @@ async def test_unhandled_errors_become_internal_error_without_a_trace() -> None:
     assert response.status_code == 500
     assert body["error"]["code"] == "internal_error"
     assert "boom" not in response.body.decode()
+
+
+async def test_out_of_model_live_reading_returns_a_misfit_and_the_same_instruction(
+    client: httpx.AsyncClient,
+) -> None:
+    session = await create(client, domain="circuit", mode="live", seed=0, reveal="after_step")
+    sid = session["session_id"]
+    step = (await client.post(f"/v1/sessions/{sid}/step", json={"reading": 6.0})).json()
+    assert step["misfit"]["active"] is True and step["misfit"]["sigmas"] > 5.0
+    assert step["status"] == "continue"
+    assert step["next_instruction"]["site"] == 2
+    assert step["belief"] == session["belief"]

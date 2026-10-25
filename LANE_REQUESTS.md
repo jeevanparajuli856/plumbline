@@ -20,6 +20,12 @@ schemas.py is the source of truth (contract section 12). The divergences:
 - `placement_audit` has one entry per step up to and including the current step. The contract says "one entry per earlier step".
 - `UnresolvedView.classes` is a list of lists of ids, matching the Zod mirror. It holds the single indistinguishable class for `indistinguishable`. For `no_informative_site` and `max_steps` it holds the top classes until 0.95 of the mass is covered, with at most 5 classes (`UNRESOLVED_MAX_CLASSES`).
 - `WarningView.text` is `""` when the warning is inactive.
+- **Additive** `StepView.misfit: {active, sigmas, text}`, always present. `active` is true when the reading is more than `OUT_OF_MODEL_SIGMAS` = 5 sigma from every V_f(l) with P(l|n) > 0. When it is active:
+  - belief and placement are not updated;
+  - placement is the landing prior P(l|n), and the warning is inactive;
+  - status stays `continue` unless the step limit is reached (12 readings, `max_steps`), and the next instruction is the same site;
+  - `text` is a domain sentence asking the user to check contact and measure again.
+  No new status or reason was added. The fixture step carries the same `misfit` object, `config.thresholds.out_of_model_sigmas` was added, and the fixture `schema_version` is now 2. `ThresholdsView` gains `out_of_model_sigmas`.
 - `BaselineView.diagnosis` is present when the published method's top class holds at least 0.95 of the mass. Otherwise it is `null`.
 - `SessionView.true_hypothesis` and `StepView.landed_site` are always present as keys and are `null` when hidden (invariants 6 and 7).
 - `SessionView.config` is `{sigma, confusion (K x K matrix), thresholds {resolve, placement_warning, min_gain_bits, class_tolerance, max_steps}}`.

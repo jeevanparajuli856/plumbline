@@ -127,8 +127,26 @@ class Engine:
     def placement_audit(
         self, belief: FloatArray, history: Sequence[tuple[int, float]]
     ) -> list[FloatArray]:
-        """Re-ask "where was the probe?" for every past (told, reading) under ``belief``."""
-        return [self.placement(belief, reading, told) for told, reading in history]
+        """Re-ask "where was the probe?" for every past (told, reading) under ``belief``.
+
+        An out-of-model reading says nothing about placement, so its entry is the landing
+        prior P(l | n).
+        """
+        return [
+            self.confusion[told].copy()
+            if self.is_misfit(reading, told)
+            else self.placement(belief, reading, told)
+            for told, reading in history
+        ]
+
+    def misfit_sigmas(self, reading: float, told: int) -> float:
+        """Distance, in sigmas, from ``reading`` to the nearest V_f(l) with P(l | n) > 0."""
+        reachable = self.confusion[told] > 0
+        return float(np.min(np.abs(reading - self.expected[:, reachable])) / self.sigma)
+
+    def is_misfit(self, reading: float, told: int) -> bool:
+        """True when no hypothesis explains the reading at any reachable site."""
+        return self.misfit_sigmas(reading, told) > self.config.out_of_model_sigmas
 
     def warning(self, placement: FloatArray, told: int) -> PlacementWarning:
         p_off_site = float(min(max(1.0 - placement[told], 0.0), 1.0))

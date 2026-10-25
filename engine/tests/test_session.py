@@ -198,3 +198,40 @@ def test_max_steps_lists_the_top_classes_instead_of_forcing_one() -> None:
     assert last["unresolved"]["classes"][:2] == [["R3_short"], ["R3_10x_low"]]
     assert 2 <= len(last["unresolved"]["classes"]) <= 5
     assert last["diagnosis"] is None and "Most likely" in last["unresolved"]["text"]
+
+
+def test_out_of_model_live_reading_leaves_belief_alone_and_asks_again(engine: Engine) -> None:
+    session = Session(engine, mode="live", seed=0)
+    prior = session.belief.copy()
+    record = session.step(6.0)
+    assert record.misfit.active and record.misfit.sigmas > 5.0
+    np.testing.assert_array_equal(record.belief, prior)
+    np.testing.assert_allclose(record.placement, engine.confusion[2])
+    assert not record.warning.active
+    assert record.resolution.status == "continue"
+    assert session.instruction == 2 and record.next_told_site == 2
+    view = session.step_view(record, include_truth=False)
+    assert view["misfit"]["active"] is True
+    assert "row 3" in view["misfit"]["text"]
+    assert view["next_instruction"]["site"] == 2
+
+
+def test_worked_example_steps_have_no_misfit(engine: Engine) -> None:
+    session = Session(
+        engine, mode="replay", seed=0, fixture=ReplayScript.from_mapping(WORKED_SCRIPT)
+    )
+    for _ in range(2):
+        view = session.step_view(session.step(None), include_truth=True)
+        assert view["misfit"] == {"active": False, "sigmas": view["misfit"]["sigmas"], "text": ""}
+        assert view["misfit"]["sigmas"] < 5.0
+
+
+def test_repeated_misfits_still_stop_at_max_steps() -> None:
+    from plumbline.config import EngineConfig
+
+    capped = Engine(CircuitModel(), EngineConfig(max_steps=2))
+    session = Session(capped, mode="live", seed=0)
+    session.step(6.0)
+    assert session.status == "continue"
+    session.step(6.0)
+    assert session.status == "unresolved"

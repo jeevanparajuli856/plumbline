@@ -67,33 +67,44 @@ class Policy(Protocol):
         self, state: BaselineState, told: int, reading: float
     ) -> PlacementWarning | None: ...
 
+    def is_misfit(self, told: int, reading: float) -> bool: ...
+
 
 class PlumblinePolicy:
-    """Joint inference: confusion-aware likelihood, gain-maximising site, placement warning."""
+    """Joint inference: confusion-aware likelihood, gain-maximising site, placement warning.
+    An out-of-model reading leaves the belief alone and asks for the same site again."""
 
     name = "plumbline"
 
     def __init__(self, engine: Engine) -> None:
         self.engine = engine
-        self._prior_choice = engine.choose_instruction(engine.prior())
+        self._prior = engine.prior()
+        self._prior_choice = engine.choose_instruction(self._prior)
 
     def start(self) -> BaselineState:
-        return BaselineState(belief=self.engine.prior())
+        return BaselineState(belief=self._prior)
 
     def observe(self, state: BaselineState, told: int, reading: float) -> BaselineState:
+        n_readings = state.n_readings + 1
+        if self.is_misfit(told, reading):
+            return BaselineState(state.belief, n_readings, last_site=told, remeasure=True)
         belief = self.engine.update(state.belief, reading, told)
-        return BaselineState(belief=belief, n_readings=state.n_readings + 1, last_site=told)
+        return BaselineState(belief=belief, n_readings=n_readings, last_site=told)
 
     def decide(self, state: BaselineState, rng: np.random.Generator) -> tuple[Resolution, int]:
-        choice = (
-            self._prior_choice
-            if state.n_readings == 0
-            else self.engine.choose_instruction(state.belief)
-        )
-        return self.engine.resolution(state.belief, choice.gains, state.n_readings), choice.site
+        is_prior = state.belief is self._prior
+        choice = self._prior_choice if is_prior else self.engine.choose_instruction(state.belief)
+        resolution = self.engine.resolution(state.belief, choice.gains, state.n_readings)
+        site = state.last_site if state.remeasure and state.last_site is not None else choice.site
+        return resolution, site
 
     def warning(self, state: BaselineState, told: int, reading: float) -> PlacementWarning | None:
+        if self.is_misfit(told, reading):
+            return None
         return self.engine.warning(self.engine.placement(state.belief, reading, told), told)
+
+    def is_misfit(self, told: int, reading: float) -> bool:
+        return self.engine.is_misfit(reading, told)
 
 
 class BaselinePolicy:
@@ -122,6 +133,9 @@ class BaselinePolicy:
     def warning(self, state: BaselineState, told: int, reading: float) -> PlacementWarning | None:
         return None
 
+    def is_misfit(self, told: int, reading: float) -> bool:
+        return False
+
 
 def make_policy(name: str, engine: Engine, baseline_engine_source: Engine | None = None) -> Policy:
     """``engine`` drives plumbline; baselines use the same model, sigma and thresholds."""
@@ -148,6 +162,7 @@ class TrialResult:
     warnings_correct: int
     slips: int
     slips_warned: int
+    misfit_readings: int
 
 
 def run_trial(
@@ -160,7 +175,7 @@ def run_trial(
     decimals = engine.model.reading.decimals
     state = policy.start()
     resolution, site = policy.decide(state, choice_rng)
-    issued = correct_warnings = slips = slips_warned = 0
+    issued = correct_warnings = slips = slips_warned = misfits = 0
     while resolution.status == "continue":
         landed, raw = hand.touch(hand_rng, true_row, site, engine.sigma)
         reading = round(raw, decimals)
@@ -171,6 +186,7 @@ def run_trial(
         issued += is_warned
         correct_warnings += is_warned and is_slip
         slips_warned += is_warned and is_slip
+        misfits += policy.is_misfit(site, reading)
         state = policy.observe(state, site, reading)
         resolution, site = policy.decide(state, choice_rng)
     top_class = policy.engine.classes[resolution.class_index]
@@ -185,6 +201,7 @@ def run_trial(
         warnings_correct=correct_warnings,
         slips=slips,
         slips_warned=slips_warned,
+        misfit_readings=misfits,
     )
 
 
@@ -215,6 +232,8 @@ def summarize(results: Sequence[TrialResult]) -> dict[str, float | int | dict[st
         "warnings_correct": correct_warnings,
         "slips": slips,
         "slips_warned": sum(r.slips_warned for r in results),
+        "misfit_readings": sum(r.misfit_readings for r in results),
+        "trials_with_misfit": sum(r.misfit_readings > 0 for r in results),
     }
 
 

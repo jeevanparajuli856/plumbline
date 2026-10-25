@@ -153,3 +153,9 @@ class ThermometerModel:
     def unresolved_phrase(self, class_ids: Sequence[str], reason: str) -> str:
         labels = [self.hypotheses[self._index[i]].label for i in class_ids]
         return phrases.unresolved(labels, reason, "temperature")
+
+    def misfit_phrase(self, told_site: int) -> str:
+        return (
+            "That reading does not match this roast at any nearby depth. Check that the probe "
+            f"is fully inserted, then measure at {self.sites[told_site].label} again."
+        )

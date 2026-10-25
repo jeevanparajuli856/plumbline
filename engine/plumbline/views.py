@@ -51,6 +51,7 @@ def thresholds_view(engine: Engine) -> dict[str, float | int]:
         "min_gain_bits": config.min_gain_bits,
         "class_tolerance": engine.class_tolerance,
         "max_steps": config.max_steps,
+        "out_of_model_sigmas": config.out_of_model_sigmas,
     }
 
 
@@ -78,6 +79,15 @@ def diagnosis_view(model: InstrumentModel, hypothesis: int, confidence: float) -
         "label": model.hypotheses[hypothesis].label,
         "confidence": confidence,
         "spoken": model.diagnosis_phrase(hypothesis, confidence),
+    }
+
+
+def misfit_view(model: InstrumentModel, record: StepRecord) -> dict[str, Any]:
+    active = record.misfit.active
+    return {
+        "active": active,
+        "sigmas": record.misfit.sigmas,
+        "text": model.misfit_phrase(record.told_site) if active else "",
     }
 
 
@@ -148,6 +158,7 @@ def step_view(session: Session, record: StepRecord, truth_visible: bool) -> dict
             else None
         ),
         "baseline": _baseline_view(session, record),
+        "misfit": misfit_view(model, record),
     }
 
 

@@ -230,3 +230,25 @@ def test_normalising_a_non_finite_log_belief_raises_instead_of_asserting() -> No
 
     with pytest.raises(NonFiniteBelief):
         _normalise_log(np.array([np.nan, 0.0]))
+
+
+def test_out_of_model_threshold_is_a_named_constant() -> None:
+    from plumbline.config import OUT_OF_MODEL_SIGMAS
+
+    assert OUT_OF_MODEL_SIGMAS == 5.0
+    assert EngineConfig().out_of_model_sigmas == OUT_OF_MODEL_SIGMAS
+
+
+def test_six_volts_on_row_3_is_out_of_model(engine: Engine) -> None:
+    assert engine.misfit_sigmas(6.0, TOLD_ROW_3) > 10.0
+    assert engine.is_misfit(6.0, TOLD_ROW_3)
+
+
+def test_worked_example_readings_are_in_model(engine: Engine) -> None:
+    assert not engine.is_misfit(3.671, TOLD_ROW_3)
+    assert not engine.is_misfit(0.338, TOLD_ROW_3)
+
+
+def test_audit_of_a_misfit_reading_is_the_landing_prior(engine: Engine) -> None:
+    audit = engine.placement_audit(engine.prior(), [(TOLD_ROW_3, 6.0)])
+    np.testing.assert_allclose(audit[0], engine.confusion[TOLD_ROW_3])
