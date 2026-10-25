@@ -20,8 +20,8 @@ Source for the decisions: the approved plan `/Users/jeevaparajuli/.claude/plans/
 | [0009](0009-pwa-then-capacitor.md) | PWA now, Capacitor wrapper for iOS at finals; no native rewrite | accepted | 2026-10-25 |
 | [0010](0010-baselines-and-static-llm-transcript.md) | Baselines: published entropy-exact method live in-engine; LLM comparison as a static, dated, recorded transcript (no API keys in app) | accepted | 2026-10-25 |
 | [0011](0011-worktree-lanes-and-verify-gate.md) | Worktree lanes with disjoint write surfaces; `/verify` gate; conventional commits | accepted | 2026-10-25 |
+| [0012](0012-grounded-explainer-llm.md) | Grounded language-model explainer (Vertex AI or Anthropic, server-side, flagged off); never inside the inference | accepted | 2026-10-25 |
 
 Numbers in these records follow the labeling rule in ADR-0004. Figures from the brief are called
 "the brief's expectation, not our run". Figures from the plan's scratch computations are called
 "scratch reconstruction on 2026-10-25, to be re-run inside `engine/`".
-| 0012 | [A grounded language-model explainer, never inside the inference](0012-grounded-explainer-llm.md) | accepted | 2026-10-25 |
