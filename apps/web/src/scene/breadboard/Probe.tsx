@@ -18,7 +18,7 @@ const SETTLED_M = 1e-5
 const DEFAULT_SITE = 2
 const TREMOR_SEED = 0x5eed
 /** Handle leans up and toward the camera, as a right hand holds it. */
-const AXIS = new THREE.Vector3(0.25, 1, 0.45).normalize()
+const AXIS = new THREE.Vector3(0.3, 0.75, 0.6).normalize()
 const scratch: Vec3 = [0, 0, 0]
 
 function along(distance: number): Vec3 {
@@ -32,8 +32,8 @@ function useProbeGeometry(): THREE.BufferGeometry {
     const red = new THREE.Color(t.probe)
     return mergeAll([
       segment([0, 0, 0], along(0.011), 0.00045, metal),
-      segment(along(0.011), along(0.0135), 0.0042, red),
-      segment(along(0.0135), along(0.07), 0.0032, red),
+      segment(along(0.011), along(0.013), 0.0034, red),
+      segment(along(0.013), along(0.06), 0.0025, red),
     ])
   }, [t.metal, t.probe])
   useEffect(() => () => geometry.dispose(), [geometry])

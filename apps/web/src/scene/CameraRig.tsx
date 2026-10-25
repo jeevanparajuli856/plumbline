@@ -7,6 +7,7 @@ import { SIM_POSE, poseAt } from '@/landing/choreography'
 import { useLanding } from '@/state/landing'
 import { useSession } from '@/state/session'
 import { clampDelta, damp } from './easing'
+import { CIRCUIT_FRAME, ROAST_FRAME, framedCamera } from './framing'
 import { livePose } from './livePose'
 import { onViewReset } from './viewControl'
 
@@ -18,7 +19,7 @@ const SETTLED_MIX = 1e-3
 const MIN_POLAR = 0.2
 /** Stops short of edge-on so the board never flips or hides its rows. */
 const MAX_POLAR = 1.3
-const MIN_DISTANCE = 0.15
+const MIN_DISTANCE = 0.08
 const MAX_DISTANCE = 0.7
 
 function dampTo(current: number, target: number, lambda: number, dt: number, eps: number): number {
@@ -33,13 +34,22 @@ interface CameraRigProps {
 
 /**
  * Landing: damps the camera toward poseAt(progress) and writes explode / plumbOpacity /
- * roastMix into livePose. Sim: flies to SIM_POSE once (controls disabled while scripted), then
- * hands over to OrbitControls (no pan, polar clamped). Runs before everything else each frame.
+ * roastMix into livePose. Sim: flies to SIM_POSE's direction, distance fitted to the slot and the
+ * instrument (controls disabled while scripted), then hands over to OrbitControls (no pan, polar
+ * clamped). Runs before everything else each frame.
  */
 export function CameraRig({ controls = true }: CameraRigProps) {
   const sceneMode = useLanding((s) => s.sceneMode)
   const reduced = useReducedMotion()
   const invalidate = useThree((s) => s.invalidate)
+  const aspect = useThree((s) => (s.size.height > 0 ? s.size.width / s.size.height : 1))
+  const isRoast = useSession((s) => s.domain === 'thermometer')
+  const frame = isRoast ? ROAST_FRAME : CIRCUIT_FRAME
+  const simCamera = useMemo(
+    () => framedCamera(frame, SIM_POSE, SIM_POSE.fov, aspect),
+    [frame, aspect],
+  )
+  const sim = useRef({ camera: simCamera, target: frame.target })
   const orbit = useRef<ComponentRef<typeof OrbitControls>>(null)
   const look = useMemo(() => new THREE.Vector3(...SIM_POSE.target), [])
   const goal = useMemo(() => new THREE.Vector3(), [])
@@ -53,9 +63,10 @@ export function CameraRig({ controls = true }: CameraRigProps) {
   }, [reduced])
   useEffect(() => useLanding.subscribe(() => invalidate()), [invalidate])
   useEffect(() => {
+    sim.current = { camera: simCamera, target: frame.target }
     flying.current = true
     invalidate()
-  }, [sceneMode, invalidate])
+  }, [sceneMode, simCamera, frame, invalidate])
   useEffect(
     () =>
       onViewReset(() => {
@@ -100,8 +111,8 @@ export function CameraRig({ controls = true }: CameraRigProps) {
       livePose.plumbOpacity !== (isLanding ? pose.plumbOpacity : 1)
 
     if (isLanding || flying.current) {
-      goal.set(...pose.camera)
-      goalLook.set(...pose.target)
+      goal.set(...(isLanding ? pose.camera : sim.current.camera))
+      goalLook.set(...(isLanding ? pose.target : sim.current.target))
       const k = 1 - Math.exp(-CAMERA_LAMBDA * dt)
       camera.position.lerp(goal, k)
       look.lerp(goalLook, k)
@@ -132,7 +143,7 @@ export function CameraRig({ controls = true }: CameraRigProps) {
       maxPolarAngle={MAX_POLAR}
       minDistance={MIN_DISTANCE}
       maxDistance={MAX_DISTANCE}
-      target={SIM_POSE.target}
+      target={frame.target}
     />
   )
 }
