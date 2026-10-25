@@ -106,8 +106,8 @@
     line-height: 2.5rem;
   }
   .h3 {
-    font-size: 1.5rem;
-    line-height: 2rem;
+    font-size: 1.375rem;
+    line-height: 1.875rem;
   }
   .lead {
     font-size: 1.25rem;
@@ -409,8 +409,8 @@
 .reading {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  font-size: 2.125rem;
-  line-height: 2.5rem;
+  font-size: 1.75rem;
+  line-height: 2.25rem;
   font-weight: 600;
   color: var(--measured);
 }
@@ -726,8 +726,8 @@
   overflow: hidden;
 }
 .phoneInstruction {
-  font-size: 1.625rem;
-  line-height: 2rem;
+  font-size: 1.75rem;
+  line-height: 2.25rem;
   font-weight: 600;
   text-wrap: balance;
 }
