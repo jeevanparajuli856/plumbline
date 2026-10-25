@@ -8,7 +8,7 @@ interface ProvenanceLineProps {
   className?: string | undefined
 }
 
-/** Static caption under our own numbers: command, short commit and date, then the honesty note. */
+/** Static caption under our own numbers: command, short commit, date and seed, then the honesty note. */
 export function ProvenanceLine({ fixture, className }: ProvenanceLineProps) {
   const p = provenance(fixture)
   if (!p) return null
@@ -20,7 +20,8 @@ export function ProvenanceLine({ fixture, className }: ProvenanceLineProps) {
           , commit <code className={s.code}>{p.sha}</code>
         </>
       )}
-      {p.date && `, ${p.date}`}. Preliminary. Not peer reviewed.
+      {p.date && `, ${p.date}`}
+      {p.seed !== null && `, seed ${p.seed}`}. Preliminary. Not peer reviewed.
     </Caption>
   )
 }

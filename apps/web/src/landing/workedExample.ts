@@ -277,6 +277,15 @@ export function unresolvedGroups(fx: FixtureT): RankedHypothesis[][] {
     .map((c) => c.map((id) => ({ id, label: labelOf(fx, id), p: 1 / c.length })))
 }
 
+/**
+ * The recording's seed. The shared Fixture schema does not declare `seed` yet (LANE_REQUESTS 11),
+ * so read it defensively; it shows up here as soon as the schema keeps it.
+ */
+function recordedSeed(fx: FixtureT): number | null {
+  const seed: unknown = (fx as FixtureT & { seed?: unknown }).seed
+  return typeof seed === 'number' && Number.isInteger(seed) ? seed : null
+}
+
 /** Length of the commit hash shown to readers; the full one stays in the fixture. */
 export const SHORT_SHA_LENGTH = 7
 
@@ -284,10 +293,11 @@ export interface Provenance {
   command: string
   sha: string | null
   date: string | null
+  seed: number | null
 }
 
 /**
- * Who recorded a fixture, from which commit, on which day (rule F19). Read only from the
+ * Who recorded a fixture, from which commit, on which day, with which seed (rule F19). Read only from the
  * fixture's own fields; null while it is provisional, where the PROVISIONAL badge says so instead.
  */
 export function provenance(fx: FixtureT): Provenance | null {
@@ -296,5 +306,6 @@ export function provenance(fx: FixtureT): Provenance | null {
     command: fx.generated_by,
     sha: fx.git_sha ? fx.git_sha.slice(0, SHORT_SHA_LENGTH) : null,
     date: fx.generated_at ? fx.generated_at.slice(0, 10) : null,
+    seed: recordedSeed(fx),
   }
 }
