@@ -1,11 +1,12 @@
 /**
  * Button looks. Amber primary (the one action per view), ink for the way into the demo,
- * a 1.5px line for everything secondary, quiet for tertiary. Hover shifts the background only.
+ * a 1.5px line for everything secondary, quiet for tertiary. Hover shifts the background; primary
+ * and ink also press in a touch (0.98). No elevation.
  */
 export type ButtonVariant = 'primary' | 'ink' | 'line' | 'secondary' | 'quiet'
 
 const BASE =
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded-button border-[1.5px] px-4 py-2 font-medium transition-[background-color,border-color,color] duration-[var(--motion-fast)] ease-[var(--ease-smooth)] disabled:cursor-not-allowed disabled:border-dashed'
+  'inline-flex min-h-11 items-center justify-center gap-2 rounded-button border-[1.5px] px-4 py-2 font-medium transition-[background-color,border-color,color,scale] duration-[var(--motion-fast)] ease-[var(--ease-smooth)] disabled:cursor-not-allowed disabled:border-dashed disabled:active:scale-100'
 
 const LINE =
   'border-border-strong bg-transparent text-text hover:bg-surface-2 disabled:text-muted disabled:hover:bg-transparent'
@@ -13,8 +14,8 @@ const LINE =
 // No ink-hover token yet: mix a little on-ink into ink so the shift reads in every theme.
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    'border-action bg-action text-on-action hover:border-action-hover hover:bg-action-hover disabled:border-border-strong disabled:bg-surface-2 disabled:text-muted',
-  ink: 'border-border-strong bg-ink text-on-ink hover:bg-[color-mix(in_srgb,var(--ink)_84%,var(--on-ink))] disabled:bg-surface-2 disabled:text-muted',
+    'active:scale-[0.98] border-action bg-action text-on-action hover:border-action-hover hover:bg-action-hover disabled:border-border-strong disabled:bg-surface-2 disabled:text-muted',
+  ink: 'active:scale-[0.98] border-border-strong bg-ink text-on-ink hover:bg-[color-mix(in_srgb,var(--ink)_84%,var(--on-ink))] disabled:bg-surface-2 disabled:text-muted',
   line: LINE,
   secondary: LINE,
   quiet:
