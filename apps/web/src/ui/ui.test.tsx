@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { Badge } from './Badge'
@@ -10,7 +10,7 @@ import { SiteFooter } from './SiteFooter'
 import { SiteHeader } from './SiteHeader'
 import { Switch } from './Switch'
 import { resolvedTheme, systemThemeClass } from './useSystemTheme'
-import { nextTrapIndex } from './focusTrap'
+import { REVEAL_MS, revealRadius, toggleTarget } from './themeReveal'
 import { buttonClass } from './button'
 import { usePrefs } from '@/state/prefs'
 import { useShortcutPref } from '@/a11y/shortcutPref'
@@ -57,15 +57,19 @@ describe('resolvedTheme', () => {
   })
 })
 
-describe('nextTrapIndex', () => {
-  it('wraps forward from the last and backward from the first, and enters at the edges', () => {
-    expect(nextTrapIndex(2, 3, false)).toBe(0)
-    expect(nextTrapIndex(0, 3, true)).toBe(2)
-    expect(nextTrapIndex(0, 3, false)).toBeNull()
-    expect(nextTrapIndex(1, 3, true)).toBeNull()
-    expect(nextTrapIndex(-1, 3, false)).toBe(0)
-    expect(nextTrapIndex(-1, 3, true)).toBe(2)
-    expect(nextTrapIndex(0, 0, false)).toBeNull()
+describe('theme toggle math', () => {
+  it('flips the resolved appearance; high contrast goes to light', () => {
+    expect(toggleTarget('light')).toBe('dark')
+    expect(toggleTarget('dark')).toBe('light')
+    expect(toggleTarget('hc')).toBe('light')
+  })
+
+  it('grows the reveal to the farthest viewport corner', () => {
+    expect(revealRadius(0, 0, 300, 400)).toBe(500)
+    expect(revealRadius(300, 400, 300, 400)).toBe(500)
+    expect(revealRadius(150, 200, 300, 400)).toBe(250)
+    expect(REVEAL_MS).toBeGreaterThanOrEqual(400)
+    expect(REVEAL_MS).toBeLessThanOrEqual(600)
   })
 })
 
@@ -258,8 +262,13 @@ describe('KeyboardMapDialog', () => {
 })
 
 describe('DisplaySettings', () => {
-  it('sets the theme, text only and reduce motion', () => {
+  it('renders the Theme radios and both switches and sets each', () => {
     render(<DisplaySettings />)
+    expect(
+      within(screen.getByRole('radiogroup', { name: 'Theme' }))
+        .getAllByRole('radio')
+        .map((r) => r.textContent),
+    ).toEqual(['System', 'Light', 'Dark', 'High contrast'])
     fireEvent.click(screen.getByRole('radio', { name: 'High contrast' }))
     expect(usePrefs.getState().theme).toBe('hc')
     fireEvent.click(screen.getByRole('switch', { name: 'Text only' }))
@@ -273,22 +282,18 @@ describe('DisplaySettings', () => {
 })
 
 describe('SiteHeader and SiteFooter', () => {
-  it('marks the current page and names the team only in the footer', () => {
+  it('marks the current page and keeps names out of both', () => {
     render(
-      <MemoryRouter initialEntries={['/evidence']}>
+      <MemoryRouter initialEntries={['/accessibility']}>
         <SiteHeader />
         <SiteFooter />
       </MemoryRouter>,
     )
-    expect(screen.getByRole('link', { name: 'Validation' })).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByRole('contentinfo')).toHaveTextContent('University of Louisiana Monroe')
-    expect(screen.getByRole('banner')).not.toHaveTextContent('Louisiana')
-    expect(screen.getByRole('link', { name: /^Truehand/ })).toHaveAttribute('href', '/')
-    expect(screen.getByRole('contentinfo')).toHaveTextContent('Truehand.')
-    expect(screen.getByRole('link', { name: 'support@truehand.tech' })).toHaveAttribute(
-      'href',
-      'mailto:support@truehand.tech',
+    expect(screen.getByRole('link', { name: 'Accessibility' })).toHaveAttribute(
+      'aria-current',
+      'page',
     )
-    expect(document.body).not.toHaveTextContent('Plumbline')
+    expect(screen.getByRole('link', { name: 'Truehand' })).toHaveAttribute('href', '/')
+    expect(document.body).not.toHaveTextContent(/Plumbline|Louisiana|Parajuli/)
   })
 })
