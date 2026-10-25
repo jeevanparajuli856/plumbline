@@ -4,6 +4,7 @@ import { poseAt } from '../choreography'
 import s from '../landing.module.css'
 import { Caption, Eyebrow, Section } from '../parts'
 import { cx } from '../cx'
+import { countWord } from '../numberWords'
 import { fixtureConfig, unresolvedGroups, type FixtureConfig } from '../workedExample'
 
 interface MathLine {
@@ -71,7 +72,7 @@ export function How({ fixture, reduced }: HowProps) {
             <div className={cx('col-span-4 md:col-span-7', s.phonePaper)}>
               <Eyebrow>The method</Eyebrow>
               <h2 id="how-title" className={cx(s.h2, 'mt-4')}>
-                Six lines of math, not a black box.
+                {countWord(lines.length, true)} lines of math, not a black box.
               </h2>
               <ol className={cx(s.math, 'mt-6')} aria-label="The six lines">
                 {lines.map((line, i) => {
@@ -126,7 +127,7 @@ function Refusal({ labels }: { labels: string[] }) {
                   <div className={s.barTrack} aria-hidden="true">
                     <div
                       className={cx(s.barFill, s.barPlumbline)}
-                      style={{ transform: 'scaleX(0.5)' }}
+                      style={{ transform: `scaleX(${1 / labels.length})` }}
                     />
                   </div>
                 </li>
@@ -139,7 +140,7 @@ function Refusal({ labels }: { labels: string[] }) {
           </div>
           <figcaption className="mt-4">
             <Caption>
-              Unresolved. Two faults, “{labels.join('” and “')}”, give the same voltages at every
+              Unresolved. {countWord(labels.length, true)} faults, “{labels.join('” and “')}”, give the same voltages at every
               row. Plumbline asks for a different measurement instead of guessing.
             </Caption>
           </figcaption>

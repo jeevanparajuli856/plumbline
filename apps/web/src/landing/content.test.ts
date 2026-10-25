@@ -51,6 +51,13 @@ describe('landing copy is backed by the docs', () => {
       'Product',
     ])
     expect(content.PHASES.filter((p) => p.state === 'now')).toHaveLength(1)
+    const state = Object.fromEntries(content.PHASES.map((p) => [p.name, p.state]))
+    expect(state).toMatchObject({
+      Research: 'done',
+      Engine: 'done',
+      Simulation: 'done',
+      'User validation': 'now',
+    })
   })
 
   it('names no partner or organization in the simulation scope (rule F21)', () => {

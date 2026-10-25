@@ -14,6 +14,7 @@ import s from '../landing.module.css'
 import { statusTone, tableUnder, withoutBriefExpectations } from '../markdownTables'
 import { Caption, Eyebrow, Inline, ScrollRegion, Section, StatusBadge } from '../parts'
 import { cx } from '../cx'
+import { countWord } from '../numberWords'
 import { fixtureConfig } from '../workedExample'
 
 const READINESS = tableUnder(evidenceMd, '1. Readiness')
@@ -46,7 +47,7 @@ export function Evidence({ fixture }: { fixture: FixtureT | null }) {
           <p className={cx(s.lead, 'mt-6')}>{SIMULATION_SCOPE}</p>
           {assumed && (
             <p className={cx(s.body, 'mt-4')}>
-              The hand model uses three assumed numbers:{' '}
+              The hand model uses {countWord(assumed.length)} assumed numbers:{' '}
               <span className={s.mono}>{assumed.join(', ')}</span>. They will be replaced by a
               measured matrix, and every experiment re-run.
             </p>

@@ -3,7 +3,11 @@ import { MemoryRouter } from 'react-router'
 import { useLanding } from '@/state/landing'
 import { loadFixture } from '@/state/replay'
 import { useSession } from '@/state/session'
+import evidenceMd from '@docs/EVIDENCE.md?raw'
+import ladderMd from '@docs/brief/Plumbline_Scale_and_Build.md?raw'
 import { SECTION_ORDER } from './choreography'
+import { tableUnder } from './markdownTables'
+import { countWord } from './numberWords'
 import { LandingPage, PLAY_PACE_MS } from './LandingPage'
 
 vi.mock('@/lib/webgl', () => ({ webglSupported: () => false }))
@@ -112,6 +116,23 @@ describe('LandingPage', () => {
     expect(list).toHaveTextContent('Insert the probe to 5.5 cm')
     expect(list).toHaveTextContent('degrees Celsius')
     expect(list.textContent).not.toMatch(/fault|volts/i)
+  })
+
+  it('takes counts and the employment source from data, not typed copy', async () => {
+    const fx = await loadFixture('worked_example')
+    const { container } = renderLanding()
+    await settle()
+    const rungs = tableUnder(ladderMd, 'Scale ladder')!.rows.length
+    expect(screen.getByRole('heading', { name: /One engine/ })).toHaveTextContent(
+      `One engine, ${countWord(rungs)} rungs.`,
+    )
+    const pair = fx.catalog.classes.find((c) => c.length > 1)!
+    const how = within(container.querySelector<HTMLElement>('section#how')!)
+    const refusal = how.getAllByTestId('caption').find((c) => c.textContent?.startsWith('Unresolved'))
+    expect(refusal).toHaveTextContent(`Unresolved. ${countWord(pair.length, true)} faults`)
+    const source = /\(([^)]*)\)\s*$/.exec(tableUnder(evidenceMd, '3. Employment')!.rows[0]![0]!)![1]!
+    const ladder = within(container.querySelector<HTMLElement>('section#ladder')!)
+    expect(ladder.getAllByTestId('caption').at(-1)).toHaveTextContent(`Employment figure: ${source}.`)
   })
 
   it('does not start the replay on render; Play starts it in replay mode and plays', async () => {

@@ -4,19 +4,23 @@ import s from '../landing.module.css'
 import { stripEditorNotes, tableUnder, withRolesForNames } from '../markdownTables'
 import { Caption, Eyebrow, Inline, ScrollRegion, Section } from '../parts'
 import { cx } from '../cx'
+import { countWord } from '../numberWords'
 
 const LADDER = tableUnder(ladderMd, 'Scale ladder')
 const STATS = tableUnder(evidenceMd, '3. Employment')
+/** The trailing parenthetical of the EVIDENCE statistic names its source. */
+const SOURCE_IN_PARENS = /\(([^)]*)\)\s*$/
 
 export function Ladder() {
   const employment = STATS?.rows[0]
+  const source = SOURCE_IN_PARENS.exec(stripEditorNotes(employment?.[0] ?? ''))?.[1]
   return (
     <Section id="ladder" className={cx(s.section, s.sheet)}>
       <div className={cx(s.frame, s.grid, 'gap-y-12')}>
         <header className="col-span-4 md:col-span-8">
           <Eyebrow>Who it is for</Eyebrow>
           <h2 id="ladder-title" className={cx(s.h2, 'mt-6')}>
-            One engine, four rungs. Electronics is the first because its physics is exact.
+            One engine, {countWord(LADDER?.rows.length ?? 0)} rungs. Electronics is the first because its physics is exact.
           </h2>
           {employment && (
             <p className={cx(s.lead, 'mt-6')}>
@@ -62,8 +66,8 @@ export function Ladder() {
           </div>
         )}
         <Caption className="col-span-4 md:col-span-8">
-          Scene: the plumb line becomes this rail. The filled rung is where we are now. Employment
-          figure: 2023 American Community Survey, analyzed by NRTC at Mississippi State.
+          Scene: the plumb line becomes this rail. The filled rung is where we are now.
+          {source && ` Employment figure: ${source}.`}
         </Caption>
       </div>
     </Section>

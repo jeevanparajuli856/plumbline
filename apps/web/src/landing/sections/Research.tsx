@@ -2,6 +2,7 @@ import { DIFFERENCE, PRIOR_ART, STUDIES, TOTAL_PARTICIPANTS } from '../content'
 import s from '../landing.module.css'
 import { Caption, Eyebrow, Section } from '../parts'
 import { cx } from '../cx'
+import { countWord } from '../numberWords'
 
 export function Research() {
   const [lead, ...rest] = STUDIES
@@ -11,7 +12,7 @@ export function Research() {
         <header className="col-span-4 md:col-span-8">
           <Eyebrow>The research</Eyebrow>
           <h2 id="research-title" className={cx(s.h2, 'mt-6')}>
-            In three studies with {TOTAL_PARTICIPANTS} blind participants, AI tools added work:
+            In {countWord(STUDIES.length)} studies with {TOTAL_PARTICIPANTS} blind participants, AI tools added work:
             people had to check the answers.
           </h2>
           <p className={cx(s.lead, 'mt-6')}>
