@@ -100,8 +100,34 @@ describe('RadioGroup with explicit commit', () => {
     fireEvent.click(screen.getByRole('radio', { name: 'Simulate' }))
     expect(onChange).toHaveBeenCalledExactlyOnceWith('simulate')
     expect(screen.getByRole('radiogroup', { name: 'Mode' })).toHaveAccessibleDescription(
-      'Arrow keys move, Enter or Space chooses.',
+      'Arrow keys move, Enter or Space chooses, Escape cancels.',
     )
+  })
+
+  it('drops the pending choice on Escape and returns to the committed option', () => {
+    const onChange = vi.fn()
+    render(
+      <RadioGroup
+        label="Mode"
+        value="replay"
+        options={options}
+        onChange={onChange}
+        commit="explicit"
+      />,
+    )
+    fireEvent.keyDown(screen.getByRole('radio', { name: 'Replay' }), { key: 'ArrowLeft' })
+    expect(screen.getByRole('radio', { name: 'Live meter' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
+    fireEvent.keyDown(screen.getByRole('radio', { name: 'Live meter' }), { key: 'Escape' })
+    const replay = screen.getByRole('radio', { name: 'Replay' })
+    expect(replay).toHaveAttribute('aria-checked', 'true')
+    expect(document.activeElement).toBe(replay)
+    fireEvent.blur(screen.getByRole('radiogroup', { name: 'Mode' }), {
+      relatedTarget: document.body,
+    })
+    expect(onChange).not.toHaveBeenCalled()
   })
 
   it('commits the pending choice when focus leaves the group, and not when it stays inside', () => {

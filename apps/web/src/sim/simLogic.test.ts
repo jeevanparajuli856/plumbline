@@ -12,7 +12,7 @@ import {
   probeOnce,
 } from './healthProbe'
 import { isRewinding, stepBack } from './replayNav'
-import { parseSimParams, THERMOMETER_FIXTURE, withChoice } from './simParams'
+import { effectiveTextOnly, parseSimParams, THERMOMETER_FIXTURE, withChoice } from './simParams'
 import {
   argmax,
   baselineName,
@@ -53,7 +53,7 @@ describe('parseSimParams', () => {
       mode: 'replay',
       domain: 'circuit',
       fixture: undefined,
-      textView: false,
+      view: null,
     })
   })
 
@@ -80,13 +80,22 @@ describe('parseSimParams', () => {
       mode: 'replay',
       domain: 'circuit',
       fixture: undefined,
-      textView: false,
+      view: null,
     })
   })
 
   it('reads view=text as the text-only view', () => {
-    expect(parse('view=text').textView).toBe(true)
-    expect(parse('view=both').textView).toBe(false)
+    expect(parse('view=text').view).toBe('text')
+    expect(parse('view=both').view).toBe('both')
+    expect(parse('view=nope').view).toBeNull()
+  })
+
+  it('effectiveTextOnly lets the URL override the pref for this visit only', () => {
+    expect(effectiveTextOnly('text', false)).toBe(true)
+    expect(effectiveTextOnly('scene', true)).toBe(false)
+    expect(effectiveTextOnly('both', true)).toBe(false)
+    expect(effectiveTextOnly(null, true)).toBe(true)
+    expect(effectiveTextOnly(null, false)).toBe(false)
   })
 
   it('withChoice keeps unrelated params and drops demo and fixture', () => {

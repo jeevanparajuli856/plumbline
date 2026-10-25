@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { emptyQueue, readQueue, replaceQueue } from '@/a11y/liveQueue'
@@ -245,11 +245,40 @@ describe('SimPage', () => {
     startSpy.mockRestore()
   })
 
-  it('turns Text only on for ?view=text', async () => {
-    renderSim('/sim?demo=worked-example&view=text')
+  it('applies ?view=text to this visit only and never writes the Text only pref', async () => {
+    const first = renderSim('/sim?demo=worked-example&view=text')
     await ready()
-    await waitFor(() => expect(usePrefs.getState().textOnly).toBe(true))
     expect(document.getElementById('scene-slot')).toBeNull()
+    expect(usePrefs.getState().textOnly).toBe(false)
+    first.dispose()
+    cleanup()
+    renderSim('/sim?demo=worked-example')
+    await ready()
+    expect(document.getElementById('scene-slot')).not.toBeNull()
+    expect(usePrefs.getState().textOnly).toBe(false)
+  })
+
+  it('lets ?view=scene show the bench even when the Text only pref is on', async () => {
+    usePrefs.setState({ textOnly: true })
+    renderSim('/sim?demo=worked-example&view=scene')
+    await ready()
+    expect(document.getElementById('scene-slot')).not.toBeNull()
+    expect(usePrefs.getState().textOnly).toBe(true)
+  })
+
+  it('ignores [ while a step is in flight', async () => {
+    renderSim()
+    await ready()
+    press(']')
+    await screen.findByTestId('warning-banner')
+    useSession.setState({ phase: 'submitting' })
+    const resetSpy = vi.spyOn(useSession.getState(), 'reset')
+    press('[')
+    expect(resetSpy).not.toHaveBeenCalled()
+    useSession.setState({ phase: 'awaiting_reading' })
+    press('[')
+    await waitFor(() => expect(resetSpy).toHaveBeenCalledOnce())
+    resetSpy.mockRestore()
   })
 
   it('omits the scene slot in the text-only view', async () => {

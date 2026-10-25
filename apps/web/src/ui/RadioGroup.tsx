@@ -47,6 +47,13 @@ export function RadioGroup<T extends string>({
   }
 
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (explicit && event.key === 'Escape' && pending !== null) {
+      // Drop the pending choice; focus and aria-checked return to the committed option.
+      event.preventDefault()
+      setPending(null)
+      refs.current[options.findIndex((o) => o.value === value)]?.focus()
+      return
+    }
     const next = nextRadioIndex(selected, event.key, options.length)
     if (next === null) return
     event.preventDefault()
@@ -70,7 +77,7 @@ export function RadioGroup<T extends string>({
       </span>
       {explicit ? (
         <span id={hintId} className="sr-only">
-          Arrow keys move, Enter or Space chooses.
+          Arrow keys move, Enter or Space chooses, Escape cancels.
         </span>
       ) : null}
       <div

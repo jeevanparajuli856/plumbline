@@ -21,7 +21,7 @@ import { ReadingLog } from './ReadingLog'
 import { ReplayControls } from './ReplayControls'
 import { isRewinding, stepBack, useRewinding } from './replayNav'
 import { SimToolbar } from './SimToolbar'
-import { parseSimParams, withChoice } from './simParams'
+import { effectiveTextOnly, parseSimParams, withChoice } from './simParams'
 import { useApiHealthProbe } from './useApiHealthProbe'
 import { requestViewReset } from './viewControlShim'
 import { useSimFocus, type FocusRefs } from './useSimFocus'
@@ -34,7 +34,7 @@ const REWINDABLE: readonly Phase[] = ['awaiting_reading', 'resolved', 'unresolve
 /** The simulator as an instrument (POSITIONING 5). Container: owns params, session start, keys and focus. */
 export function SimPage() {
   const [params, setParams] = useSearchParams()
-  const { mode, domain, fixture, textView } = parseSimParams(params)
+  const { mode, domain, fixture, view } = parseSimParams(params)
   const setSceneMode = useLanding((s) => s.setSceneMode)
   const textOnly = usePrefs((s) => s.textOnly)
   const voiceEnabled = usePrefs((s) => s.voiceEnabled)
@@ -81,12 +81,6 @@ export function SimPage() {
     }),
     [],
   )
-
-  const setTextOnly = usePrefs((st) => st.setTextOnly)
-  // UI_CONTRACT 6.5: ?view=text turns the Text only switch on.
-  useEffect(() => {
-    if (textView) setTextOnly(true)
-  }, [textView, setTextOnly])
 
   useEffect(() => {
     setSceneMode('sim')
@@ -137,7 +131,10 @@ export function SimPage() {
       repeat: () => repeatInstruction(useSession.getState()),
       log: () => setLogOpen((open) => !open),
       playPause,
-      previous: () => void stepBack(useSession),
+      // Never rewind mid-step (submitting or revealing); the Previous button has the same rule.
+      previous: () => {
+        if (REWINDABLE.includes(useSession.getState().phase)) void stepBack(useSession)
+      },
       next,
       help: () => setHelpOpen(true),
       // Only consumed when something (the voice lane's listener) is there to cancel.
@@ -157,7 +154,7 @@ export function SimPage() {
   const settled = s.phase === 'resolved'
   const client = currentClient()
   const expected = s.replay && client instanceof ReplayClient ? client.expectedReading() : null
-  const showScene = !textOnly && !textView
+  const showScene = !effectiveTextOnly(view, textOnly)
   const unresolvedPair = catalog
     ? catalog.hypotheses.filter((h) => (s.unresolved?.classes[0] ?? []).includes(h.id))
     : []
