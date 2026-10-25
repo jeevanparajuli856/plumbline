@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Annotated
 
 from pydantic import field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 DEFAULT_CORS_ORIGINS = [
     "http://localhost:5173",
@@ -17,7 +18,8 @@ DEFAULT_CORS_ORIGINS = [
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="PLUMBLINE_", extra="ignore")
 
-    cors_origins: list[str] = DEFAULT_CORS_ORIGINS
+    # NoDecode: the env var is a comma-separated list, not JSON (render.yaml sets it that way).
+    cors_origins: Annotated[list[str], NoDecode] = DEFAULT_CORS_ORIGINS
     session_max: int = 500
     session_ttl_s: int = 3600
     fixtures_dir: Path = Path(__file__).resolve().parent.parent / "fixtures" / "parity"
@@ -25,9 +27,15 @@ class Settings(BaseSettings):
     @field_validator("cors_origins", mode="before")
     @classmethod
     def _split_csv(cls, value: object) -> object:
-        if isinstance(value, str):
-            return [origin.strip() for origin in value.split(",") if origin.strip()]
-        return value
+        origins = value.split(",") if isinstance(value, str) else value
+        if not isinstance(origins, list):
+            return value
+        cleaned = [str(origin).strip() for origin in origins]
+        if any(not origin for origin in cleaned):
+            raise ValueError("PLUMBLINE_CORS_ORIGINS has an empty entry")
+        if "*" in cleaned:
+            raise ValueError("PLUMBLINE_CORS_ORIGINS must list origins; '*' is not allowed")
+        return cleaned
 
 
 settings = Settings()
