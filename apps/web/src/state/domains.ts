@@ -14,6 +14,7 @@ export const DOMAINS: Record<DomainId, DomainSpec> = {
     readingRange: [-1, 12],
     phrases: {
       instruction: (site) => `Touch the red probe to ${site.spoken}. Say or type the reading.`,
+      aimed: (site) => `Aiming at ${site.spoken}.`,
       accepted: (value) => `${value.toFixed(3)} volts, accepted.`,
       warning: (told, likely, pOff) =>
         `Warning. That reading did not come from ${told.spoken}. It most likely came from ${likely.spoken}, probability ${formatPct(pOff, 0)}. Please try ${told.spoken} again.`,
@@ -34,6 +35,7 @@ export const DOMAINS: Record<DomainId, DomainSpec> = {
     readingRange: [-10, 150],
     phrases: {
       instruction: (site) => `Insert the probe to ${site.spoken}. Say or type the temperature.`,
+      aimed: (site) => `Aiming at ${site.spoken}.`,
       accepted: (value) => `${value.toFixed(1)} degrees Celsius, accepted.`,
       warning: (told, likely, pOff) =>
         `Warning. That reading did not come from ${told.spoken}. It most likely came from ${likely.spoken}, probability ${formatPct(pOff, 0)}. Please try ${told.spoken} again.`,

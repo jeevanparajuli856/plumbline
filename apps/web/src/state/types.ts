@@ -53,6 +53,7 @@ export interface DomainSpec {
   readingRange: [number, number]
   phrases: {
     instruction: (site: SiteSpec) => string
+    aimed: (site: SiteSpec) => string
     accepted: (value: number) => string
     warning: (told: SiteSpec, likely: SiteSpec, pOff: number) => string
     likely: (likely: SiteSpec, p: number) => string
