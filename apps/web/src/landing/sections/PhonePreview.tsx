@@ -21,7 +21,7 @@ import { useFixtures } from '../useFixture'
 import { siteLabel } from '../workedExample'
 
 const LOADING_VIEW: AppScreenView = {
-  mode: 'Simulated run',
+  mode: 'Recorded run',
   step: 'Ready',
   instruction: 'Loading.',
   reading: null,

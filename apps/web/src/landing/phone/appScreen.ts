@@ -5,7 +5,7 @@
 import type { HeroFrame } from '../heroFrame'
 
 export interface AppScreenView {
-  /** Small chip beside the large title, e.g. "Simulated run". */
+  /** Small chip beside the large title, e.g. "Recorded run". */
   mode: string
   /** "Reading 1 of 2" or "Ready". */
   step: string
@@ -21,8 +21,8 @@ export interface AppScreenView {
 
 /** Rows in the screen's belief list. */
 export const SCREEN_BELIEF_ROWS = 3
-/** Chip on every recorded run: the hand in these recordings is simulated. */
-export const SIMULATED_MODE = 'Simulated run'
+/** Chip on every recorded run; the caption beside the phone says the hand is simulated. */
+export const SIMULATED_MODE = 'Recorded run'
 
 /** The first sentence of a domain instruction, without "Say or type the reading." */
 export function firstSentence(text: string): string {
