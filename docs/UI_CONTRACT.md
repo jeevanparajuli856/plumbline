@@ -127,4 +127,6 @@ The motion module (`landing/motion/**`) selects only by these attributes, never 
 | `data-motion="stat"` | the visible number in a validation stat cell, `aria-hidden="true"` next to an `sr-only` twin with the same text | `data-motion-value` (number), `data-motion-decimals` (int), optional `data-motion-suffix`. Counts up once from 0. The pending cell carries no hook |
 | `data-motion="plumb"` | the fixed edge plumb line (`aria-hidden="true"`) | child `data-motion-bob` (the bob, slides with page scroll) and `data-motion-string`; amplitude follows `useLanding.progress`. Its caption twin is a visible `data-testid="caption"` in the page, not inside the hook |
 
+Photos: `<img>` from `PHOTOS` in `landing/photos.ts` with its `alt`, `width`, `height`, `srcSet`, `loading="lazy"`, `decoding="async"`, inside a `figure` whose `figcaption` carries the credit (not a `data-testid="caption"`; those stay the scene twins). Never in `section#mast`.
+
 Status lines under the hero lead and the hero card's own animations (probe travel, digit tick, bar settle, warning strike) belong to the landing lane and use CSS transitions on the motion tokens, so they snap when the tokens are zero.
