@@ -41,3 +41,7 @@ schemas.py is the source of truth (contract section 12). The divergences:
 ## 4. Web fixtures
 
 - `apps/web/src/fixtures/provisional/worked_example.json` can be retired in favour of `engine/fixtures/parity/worked_example.json`, which is recorded and parses with `Fixture`. The provisional step-1 `entropy_bits` of 1.161 is wrong; the recorded value is 1.0995.
+
+## 5. Repo hygiene
+
+- `.coverage` (the root coverage database) is tracked in git, from the commit shown by `git log -- .coverage`. Every coverage run dirties it. Untrack it and add `.coverage` and `.coverage.*` to `.gitignore`. This lane restored it each time and never committed it.
