@@ -67,17 +67,44 @@ export const voicePhrases = {
   notAwaiting: 'Not sent. I am not waiting for a reading right now.',
 } as const
 
-/** Returns a stateful mapper: feed it every store state, it returns what to say for that change. */
-export function createEventPhraser(initial: SessionData): (state: SessionData) => Utterance[] {
+export interface EventPhraserOptions {
+  /** A new session, a new instrument, or a reset that dropped the readings; fires even when silent. */
+  onFreshStart?: () => void
+}
+
+/**
+ * Returns a stateful mapper: feed it every store state, it returns what to say for that change.
+ * Mirrors a11y/announcer.ts rule for rule, including its fresh-start detection.
+ */
+export function createEventPhraser(
+  initial: SessionData,
+  options: EventPhraserOptions = {},
+): (state: SessionData) => Utterance[] {
   let lastPhase: Phase = initial.phase
   let lastReadingCount = initial.readings.length
+  let lastSessionId = initial.sessionId
+  let lastDomain = initial.domain
   return (state) => {
     const out: Utterance[] = []
     const say = (text: string, priority: SpeechPriority = 'polite') => out.push({ text, priority })
     const spec = DOMAINS[state.domain]
     const catalog = state.catalog
-    // A restart empties the log; count from there so its first reading is spoken.
-    if (state.readings.length < lastReadingCount) lastReadingCount = state.readings.length
+    // The phase may not change on a fresh start, so it is detected here (replay keeps its session
+    // id across a reset, which is why a drop in the reading count also counts).
+    const isFreshStart =
+      state.sessionId !== lastSessionId ||
+      state.domain !== lastDomain ||
+      state.readings.length < lastReadingCount
+    if (isFreshStart) {
+      lastSessionId = state.sessionId
+      lastDomain = state.domain
+      lastReadingCount = state.readings.length
+      lastPhase = state.phase
+      options.onFreshStart?.()
+      const site = state.instruction && catalog ? catalog.sites[state.instruction.site] : undefined
+      if (site && !state.replay?.silent && state.phase === 'awaiting_reading') say(spec.phrases.instruction(site))
+      return out
+    }
     if (state.readings.length > lastReadingCount && catalog) {
       lastReadingCount = state.readings.length
       const last = state.readings[state.readings.length - 1]

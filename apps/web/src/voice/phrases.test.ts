@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { startAnnouncer } from '@/a11y/announcer'
 import { readQueue, resetLiveRegion, subscribeLive } from '@/a11y/liveQueue'
 import { DOMAINS } from '@/state/domains'
@@ -8,6 +8,23 @@ import { createEventPhraser, voicePhrases, type Utterance } from './phrases'
 function finishRevealIfAny() {
   const s = useSession.getState()
   if (s.phase === 'revealing' && s.reveal) s.finishReveal(s.reveal.token)
+}
+
+/** No thermometer recording exists yet, so an instrument switch is placed in the store directly. */
+function switchToThermometer(): string {
+  const s = useSession.getState()
+  if (!s.catalog) throw new Error('no catalog')
+  const site = { index: 0, label: 'depth 1', spoken: 'depth one' }
+  useSession.setState({
+    domain: 'thermometer',
+    sessionId: 'thermometer-test',
+    readings: [],
+    phase: 'awaiting_reading',
+    replay: null,
+    catalog: { ...s.catalog, domain: 'thermometer', readingUnit: '°C', sites: [site] },
+    instruction: { site: 0, label: 'depth 1', spoken: 'depth one', gainBits: [0] },
+  })
+  return DOMAINS.thermometer.phrases.instruction(site)
 }
 
 const cleanups: Array<() => void> = []
@@ -42,6 +59,49 @@ describe('createEventPhraser', () => {
     expect(spoken).toEqual(announced)
     expect(spoken.some((u) => u.priority === 'assertive' && u.text.startsWith('Warning.'))).toBe(true)
     expect(spoken.at(-1)?.text).toContain('Confidence')
+  })
+
+  it('matches the announcer across a reset taken while awaiting and an instrument switch', async () => {
+    const announced: Utterance[] = []
+    const spoken: Utterance[] = []
+    cleanups.push(
+      subscribeLive(() => {
+        const last = readQueue().last
+        if (last) announced.push({ text: last.text, priority: last.priority })
+      }),
+    )
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+    cleanups.push(startAnnouncer())
+    const phrase = createEventPhraser(useSession.getState())
+    cleanups.push(useSession.subscribe((state) => spoken.push(...phrase(state))))
+
+    await useSession.getState().replayNext()
+    finishRevealIfAny()
+    const beforeReset = spoken.length
+    await useSession.getState().reset()
+    expect(useSession.getState().phase).toBe('awaiting_reading')
+    expect(spoken.slice(beforeReset).map((u) => u.text)).toEqual([expect.stringMatching(/^Touch the red probe to/)])
+    await useSession.getState().replayNext()
+    finishRevealIfAny()
+    const thermometerInstruction = switchToThermometer()
+
+    expect(spoken).toEqual(announced)
+    expect(spoken.at(-1)).toEqual({ text: thermometerInstruction, priority: 'polite' })
+    expect(spoken.filter((u) => u.text === DOMAINS.circuit.phrases.accepted(3.671))).toHaveLength(2)
+  })
+
+  it('reports fresh starts, including silent ones that say nothing', async () => {
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example' })
+    const onFreshStart = vi.fn()
+    const phrase = createEventPhraser(useSession.getState(), { onFreshStart })
+    const spoken: Utterance[] = []
+    cleanups.push(useSession.subscribe((state) => spoken.push(...phrase(state))))
+    await useSession.getState().replayNext()
+    finishRevealIfAny()
+    spoken.length = 0
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example', silent: true })
+    expect(onFreshStart).toHaveBeenCalled()
+    expect(spoken).toEqual([])
   })
 
   it('says nothing for a silent replay except accepted readings, like the announcer', async () => {

@@ -43,6 +43,23 @@ function instructionText(): string {
   return DOMAINS.circuit.phrases.instruction(site)
 }
 
+/** No thermometer recording exists yet, so an instrument switch is placed in the store directly. */
+function switchToThermometer(): string {
+  const s = useSession.getState()
+  if (!s.catalog) throw new Error('no catalog')
+  const site = { index: 0, label: 'depth 1', spoken: 'depth one' }
+  useSession.setState({
+    domain: 'thermometer',
+    sessionId: 'thermometer-test',
+    readings: [],
+    phase: 'awaiting_reading',
+    replay: null,
+    catalog: { ...s.catalog, domain: 'thermometer', readingUnit: '°C', sites: [site] },
+    instruction: { site: 0, label: 'depth 1', spoken: 'depth one', gainBits: [0] },
+  })
+  return DOMAINS.thermometer.phrases.instruction(site)
+}
+
 function finishRevealIfAny() {
   const s = useSession.getState()
   if (s.phase === 'revealing' && s.reveal) s.finishReveal(s.reveal.token)
@@ -241,6 +258,54 @@ describe('voice loop robustness', () => {
     await flush()
     finishRevealIfAny()
     expect(useSession.getState().readings[0]?.source).toBe('voice')
+  })
+})
+
+describe('repeat after a fresh start', () => {
+  const lastAnnounced = () => announce.mock.calls.at(-1)
+
+  async function sayRepeat() {
+    toggleListen()
+    adapter.say('repeat')
+    await flush()
+  }
+
+  it('speaks the new session instruction after a reset taken while awaiting', async () => {
+    start()
+    await useSession.getState().replayNext()
+    finishRevealIfAny()
+    await useSession.getState().reset()
+    await sayRepeat()
+    expect(lastAnnounced()).toEqual([instructionText(), { priority: 'polite', force: true }])
+  })
+
+  it('never speaks a circuit row after switching to the thermometer', async () => {
+    start()
+    await useSession.getState().replayNext()
+    finishRevealIfAny()
+    const thermometerInstruction = switchToThermometer()
+    await sayRepeat()
+    expect(lastAnnounced()).toEqual([thermometerInstruction, { priority: 'polite', force: true }])
+    expect(lastAnnounced()?.[0]).not.toMatch(/row/)
+  })
+
+  it('does not replay the old diagnosis after a silent replay start', async () => {
+    start()
+    await useSession.getState().replayNext()
+    finishRevealIfAny()
+    await useSession.getState().replayNext()
+    finishRevealIfAny()
+    expect(useSession.getState().phase).toBe('resolved')
+    await useSession.getState().start({ mode: 'replay', fixture: 'worked_example', silent: true })
+    await sayRepeat()
+    expect(lastAnnounced()).toEqual([instructionText(), { priority: 'polite', force: true }])
+  })
+
+  it('says nothing when there is no current instruction and nothing from this session', async () => {
+    start()
+    useSession.setState({ sessionId: 'other', instruction: null, phase: 'awaiting_reading' })
+    await sayRepeat()
+    expect(announce).not.toHaveBeenCalled()
   })
 })
 

@@ -3,6 +3,7 @@ import type { AnnounceOptions } from '@/a11y/liveQueue'
 import { DOMAINS } from '@/state/domains'
 import { usePrefs } from '@/state/prefs'
 import { useSession } from '@/state/session'
+import type { DomainId, SessionData } from '@/state/types'
 import {
   DEFAULT_LISTEN_OPTIONS,
   ListenError,
@@ -69,8 +70,8 @@ export function startVoiceRuntime(deps: VoiceDeps): () => void {
   const speaker = createSpeaker({ port })
   const listenOptions = deps.listenOptions ?? DEFAULT_LISTEN_OPTIONS
   let listenToken = 0
-  /** What "repeat" re-speaks: the last engine phrase, never a loop cue like "Listening.". */
-  let lastEngineUtterance: Utterance | null = null
+  /** What "repeat" re-speaks: the last engine phrase of this session, never a loop cue. */
+  let lastEngine: SpokenInSession | null = null
 
   const dispatch = (event: VoiceEvent) => {
     const { state, effects } = voiceReducer(useVoiceStore.getState().voice, event)
@@ -122,25 +123,31 @@ export function startVoiceRuntime(deps: VoiceDeps): () => void {
         listenToken += 1
         return adapter.abort()
       case 'submit':
-        return void submit(effect.value).catch((error: unknown) => console.error('voice submit failed', error))
+        return void submit(effect.value).catch(reportSubmitFailure)
       case 'focusTyped':
         return deps.focusTyped()
       case 'repeat': {
         // One source for both channels: the live region and speech repeat the same engine phrase.
-        const last = lastEngineUtterance
-        if (!last) return
-        deps.announce(last.text, { priority: last.priority, force: true })
-        return speaker.say(last.text, last.priority)
+        const phrase = repeatablePhrase(lastEngine, useSession.getState())
+        if (!phrase) return
+        deps.announce(phrase.text, { priority: phrase.priority, force: true })
+        return speaker.say(phrase.text, phrase.priority)
       }
     }
   }
 
   const cleanups = [
     speaker.subscribe((speaking) => dispatch({ type: speaking ? 'SPEECH_START' : 'SPEECH_END' })),
-    subscribeEngineEvents((u) => {
-      lastEngineUtterance = u
-      dispatch({ type: 'SAY', text: u.text, priority: u.priority })
-    }),
+    subscribeEngineEvents(
+      (utterance) => {
+        const { sessionId, domain } = useSession.getState()
+        lastEngine = { sessionId, domain, utterance }
+        dispatch({ type: 'SAY', text: utterance.text, priority: utterance.priority })
+      },
+      () => {
+        lastEngine = null
+      },
+    ),
     subscribeSpeechPreference(speaker),
     unlockOnFirstGesture(win, speaker),
   ]
@@ -163,9 +170,27 @@ export function startVoiceRuntime(deps: VoiceDeps): () => void {
   return stop
 }
 
-function subscribeEngineEvents(onUtterance: (u: Utterance) => void): () => void {
-  const phrase = createEventPhraser(useSession.getState())
+function subscribeEngineEvents(onUtterance: (u: Utterance) => void, onFreshStart: () => void): () => void {
+  const phrase = createEventPhraser(useSession.getState(), { onFreshStart })
   return useSession.subscribe((state) => phrase(state).forEach(onUtterance))
+}
+
+interface SpokenInSession {
+  sessionId: string | null
+  domain: DomainId
+  utterance: Utterance
+}
+
+/** The last engine phrase if it belongs to the current session and instrument, else the current instruction. */
+function repeatablePhrase(last: SpokenInSession | null, session: SessionData): Utterance | null {
+  if (last && last.sessionId === session.sessionId && last.domain === session.domain) return last.utterance
+  const site = session.instruction && session.catalog?.sites[session.instruction.site]
+  return site ? { text: DOMAINS[session.domain].phrases.instruction(site), priority: 'polite' } : null
+}
+
+/** The store handles its own errors, so this is unexpected; visible in dev, never swallowed silently. */
+function reportSubmitFailure(error: unknown): void {
+  if (import.meta.env.DEV) console.error('voice submit failed', error)
 }
 
 function subscribeSpeechPreference(speaker: Speaker): () => void {
