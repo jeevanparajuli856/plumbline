@@ -86,3 +86,13 @@ Recorded fixtures must parse with `Fixture` in `apps/web/src/engine/schemas.ts` 
 | 12 | Full e2e run: after the Sprint 1 integration, `PLUMBLINE_E2E_FULL` gating becomes opt-out (all specs run by default). |
 | 13 | Aim buttons: each placement-strip item contains a button named "Aim at <site label>" (e.g. "Aim at row 4"; thermometer "Aim at 3.5 cm"), which calls `aimProbe`. Single-key shortcuts switch: `getByRole('switch', { name: 'Single-key shortcuts' })`, on by default, in the site Display bar or the shortcuts dialog. |
 | 14 | Belief verdict: the one-line Plumbline verdict inside the belief figure is `data-testid="belief-verdict"`. Resolved or continuing: the top fault and its percentage. Unresolved: text starting "Unresolved" naming the class members, with no percentage. |
+
+## 5. Header after the UI revamp (2026-10-25 evening)
+
+| Element | Selector contract |
+| --- | --- |
+| Theme button | `getByRole('button', { name: /^Theme: (System|Light|Dark|High contrast)\./ })`, `aria-haspopup="dialog"`, `aria-expanded`; on small screens its accessible name still starts with "Display settings" |
+| Display popover | `getByRole('dialog', { name: 'Display' })`; contains the radiogroup "Theme" (radios System, Light, Dark, High contrast), switch "Text only", switch "Reduce motion"; Esc closes and returns focus to the button |
+| Primary nav | unchanged: `nav` "Primary" with links Research, Technology, Validation (aria-current on /evidence), Product; "Open the simulator" link |
+| Motion hooks | `data-motion="headline|quote|bars|rows|stat|plumb"` on the landing elements the motion lane animates; the motion module never queries by class |
+| Hero instrument card | `role="group"` named "Live instrument"; button "Pause" / "Play" inside; caption twin states the current fixture and step |

@@ -12,7 +12,7 @@ Condensed from ECC `rules/web/design-quality.md` and `rules/web/performance.md`.
 - **Tone:** precision instrument meets accessible lab notebook. Calm, exact, high-contrast. Light theme is the default (paper and ink, low-vision friendly); dark and high-contrast derive from the same tokens. Positioning and copy rules: `docs/POSITIONING.md` (read it before any landing or simulator work). Not a SaaS dashboard, not a game.
 - **Memorable detail:** the plumb line itself: a vertical reference line / pendulum motif that settles as belief converges, and the breadboard row the probe actually landed on glows while the instructed row is outlined. Uncertainty is always drawn as spread, never hidden.
 - **Palette:** tokens in `apps/web/src/styles/tokens.css`, generated from `tokens.json` by `scripts/build-tokens.mjs`. One warm accent for "measured", one cool accent for "inferred", a warning hue reserved for placement warnings. Light (default), dark and high-contrast themes are all intentional; `<html data-theme=dark|light|hc>`, absent means follow the OS.
-- **Type:** IBM Plex Sans (400/500/600) for UI plus JetBrains Mono Variable with tabular figures for readings and probabilities. Self-hosted via fontsource. Max two families.
+- **Type:** Atkinson Hyperlegible Next (400/500/600) for UI plus JetBrains Mono Variable with tabular figures for readings and probabilities. Self-hosted via fontsource. Max two families.
 
 ## Token names (the design hook greps for hard-coded hex values; use these instead)
 Colors are referenced only through these custom properties (or their Tailwind `@theme inline` aliases). A literal `#rrggbb` anywhere outside `tokens.css` / `tokens.json` is a defect.
@@ -48,3 +48,6 @@ Scale contrast, intentional spacing rhythm, depth or layering, typography with c
 | Scene | 60 fps on an integrated GPU laptop, < 150 draw calls (target about 27), dpr clamped `[1, 1.75]`, demand frameloop idles at 0 fps |
 
 Fonts: `font-display: swap`, preload only the primary weight. Images: explicit dimensions, lazy below the fold. Animate transform/opacity only; durations from the motion tokens; `prefers-reduced-motion` snaps.
+
+## Anti-slop list (2026-10-25)
+The twenty tropes in docs/POSITIONING.md section 4.3 are banned on every surface. Reviewers grep for: icon libraries, emoji, backdrop-filter, em-dashes, three equal cards, bento, glow borders, fake terminals, "It's not X, it's Y", placeholder mockups, purple dark mode, orbs, dot grids, sparkles, animated arrows, uniform hover elevation, rainbow borders, hero pills, buzzwords, uniform radius.

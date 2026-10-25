@@ -51,21 +51,23 @@ Product line: **"Web simulator open now. iOS app next."**
   primary readers of the landing. Both get the same words: nothing informational is only in
   the 3D scene.
 
-## 4. Visual direction (light default, low-vision friendly)
+## 4. Visual direction (chosen 2026-10-25 evening: warm beige, editorial, live instrument)
 
-- Light theme is the default: paper `#F6F3EC`, ink `#15181C`, panels `#FFFFFF` with a
-  `#CFC9BD` hairline. Dark and high-contrast themes derive from the same tokens.
-- Measured = amber (fill `#F2A93B`, text `#8A5200`). Inferred = cyan (fill `#5FD3E8`, text
-  `#0B6478`). Warning `#B02C17`, used only for placement warnings, always with a left rule, a
-  glyph and the word "Warning".
-- Type: IBM Plex Sans (UI) and JetBrains Mono (readings, probabilities, row labels, captions).
-  Base body 18px on the simulator, 20 to 22px lead on the landing, display 68px. Tabular numerals.
-- Layout: left-aligned editorial grid (12 columns, 24px gutters, 64px margins). No centered
-  hero, no gradient blobs, no card grids of identical cards, no stock illustrations, no
-  "Get Started" buttons, no generic SaaS dashboard chrome.
-- Motion communicates state only (reading accepted, belief shifting, warning, settling).
-  Reduced motion snaps. Nothing faster than 3 Hz.
-- Every section carries a static mono caption that is the DOM twin of the scene.
+Reference board: "B2" in the design canvas "Plumbline UI Directions". Implementation prompt: docs/HANDOFF_UI.md.
+
+### 4.1 Palette and type
+- Light default. Page #F3EDE3, cards #FBF8F2 with a 1px #DCD2C2 border, bands #EBE2D3, ink sections #1E1A16 with #F3EDE3 text. Text #1E1A16, muted #5E554B. Measured amber: text #9A4A0C, fill #F2A93B; primary action #B95A0F. Inferred (told site, plumb line) #0B6478. Warning #B02C17 on #FBEEE8, used only for placement warnings, always with the left rule, the glyph and the word. Dark and high-contrast themes derive from the same tokens.
+- Type: Fraunces (display, variable, optical sizes) for headlines and big numbers; Atkinson Hyperlegible Next for everything else (designed by the Braille Institute for low vision, which is part of the story); JetBrains Mono for readings, probabilities, captions and status tags. Display 84, h2 48 to 52, lead 21, body 17 to 18, captions 13 to 15. Nothing below 13px, nothing below 4.5:1.
+- Shape: sharp sections and tables, 12px cards, 8px buttons, 24px phone frame. Shadows only on the hero instrument card and the phone.
+
+### 4.2 Layout
+Asymmetric by rule: 7:5 hero with the live instrument card, 2:3 research with a pinned left column and an offset numbered quote list, full-bleed ink technology section 5:7, 3:2 product with an offset three-row list and the phone card, 2:3 validation with a ruled four-cell stat grid, 7:5 CTA band. A thin plumb line pinned at the right page edge follows scroll. One 72px header: wordmark, four links, one theme button that opens the Display popover (Theme radiogroup, Text only, Reduce motion), one ink "Open the simulator" button.
+
+### 4.3 Banned (the twenty tropes, from the user's anti-slop playbook)
+Generic line-icon libraries; emoji in headings or badges; glass and blur; em-dashes; the Inter, Geist or Space Grotesk stack as the brand type; three equal cards in a row; bento grids; glowing or gradient borders; fake terminal windows; "It's not X, it's Y" headlines; placeholder mockups; dark mode with purple; radial orbs and blobs; dot grids and mesh backgrounds; sparkle icons; animated CTA arrows; uniform hover elevation; rainbow card borders; pill badges above the hero; vague buzzwords. Also: uniform 12 to 16px radius everywhere, floating 3D clay shapes, low-contrast grey text, and the template page rhythm (hero, logo ticker, three cards, bento, testimonials, pricing, FAQ, dark footer).
+
+### 4.4 Motion
+The page is the instrument. The hero card runs the real engine on recorded fixtures in a loop with a Pause control; the headline rises word by word; research quotes type in; the technology section pins and scrubs the two-method belief race; product rows stagger in; validation stats count up once; the edge plumb line follows scroll and its swing follows the landing progress. GSAP ScrollTrigger drives the DOM; the 3D camera keeps its own pose function. Every animation snaps to its final state under reduced motion (OS setting or the in-page switch) and has a DOM text twin. Transform and opacity only. Nothing near 3 Hz.
 
 ## 5. The simulator (`/sim`) must read as an instrument
 
