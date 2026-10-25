@@ -3,8 +3,11 @@ import { useRef } from 'react'
 import { gsap, ScrollTrigger } from './scroll'
 import LandingMotion from './index'
 import { useLanding } from '@/state/landing'
+import { HEADLINE_LATE_MS } from './constants'
 
 const HEADLINE = 'Measurement you can trust without looking.'
+const EARLY_MS = 100
+
 const QUOTE = 'I could not tell which hole the probe was in.'
 
 interface MediaStub {
@@ -147,6 +150,11 @@ async function setReduceMotion(on: boolean): Promise<void> {
   })
 }
 
+// The page just loaded: the motion chunk arrived before the headline counts as painted for long.
+beforeEach(() => {
+  vi.spyOn(performance, 'now').mockReturnValue(EARLY_MS)
+})
+
 afterEach(() => {
   vi.restoreAllMocks()
   delete document.documentElement.dataset.reduceMotion
@@ -227,6 +235,28 @@ describe('LandingMotion', () => {
     const { getByRole, container } = render(<Fixture />)
     expect(container.querySelector('[data-motion="headline"] span')).not.toBeNull()
     expect(getByRole('heading', { level: 1, name: HEADLINE })).toBeInTheDocument()
+  })
+
+  it('rises_the_headline_when_the_motion_chunk_arrives_early', () => {
+    vi.spyOn(performance, 'now').mockReturnValue(HEADLINE_LATE_MS - 1)
+    const { container } = render(<Fixture />)
+    const h1 = container.querySelector('[data-motion="headline"]')!
+    expect(h1.querySelectorAll('span')).toHaveLength(6)
+    expect(h1.getAttribute('aria-label')).toBe(HEADLINE)
+  })
+
+  it('leaves_an_already_painted_headline_alone_when_the_motion_chunk_arrives_late', () => {
+    vi.spyOn(performance, 'now').mockReturnValue(HEADLINE_LATE_MS + 1)
+    const before = staticHtml()
+    const { container } = render(<Fixture />)
+    const h1 = container.querySelector('[data-motion="headline"]')!
+    expect(h1.childNodes).toHaveLength(1)
+    expect(h1.textContent).toBe(HEADLINE)
+    expect(h1.hasAttribute('aria-label')).toBe(false)
+    expect(h1.getAttribute('style')).toBeNull()
+    // Everything below the fold still animates.
+    expect(container.querySelector('[data-motion="quote"] span')).not.toBeNull()
+    expect(container.innerHTML).not.toBe(before)
   })
 
   it('leaves_quote_words_readable_by_assistive_technology', () => {

@@ -1,6 +1,7 @@
 import { gsap } from '../scroll'
 import {
   HEADLINE_DELAY_S,
+  HEADLINE_LATE_MS,
   HEADLINE_RISE_PERCENT,
   HEADLINE_WORD_DURATION_S,
   HEADLINE_WORD_STAGGER_S,
@@ -13,8 +14,13 @@ import { groupByLine } from '../helpers'
 import { splitWords } from '../split'
 import type { Cleanup } from './types'
 
-/** The H1 rises word by word on load. Spans are aria-hidden; the H1 keeps its name through aria-label. */
+/**
+ * The H1 rises word by word on load. Spans are aria-hidden; the H1 keeps its name through
+ * aria-label. Skipped when the motion chunk arrives after the H1 has already been painted for a
+ * while: the H1 is on screen from first paint, so time since navigation is how long it has shown.
+ */
 export function headline(root: HTMLElement): Cleanup {
+  if (performance.now() > HEADLINE_LATE_MS) return () => {}
   const el = root.querySelector<HTMLElement>('[data-motion="headline"]')
   const split = el ? splitWords(el, { label: true }) : null
   if (!split) return () => {}

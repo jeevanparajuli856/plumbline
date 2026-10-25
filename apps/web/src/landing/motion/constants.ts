@@ -9,6 +9,11 @@ export const MOTION_NARROW = `${MOTION_ALLOWED} and (max-width: ${PIN_MIN_WIDTH_
 export const REVEAL_START = 'top 85%'
 
 // Headline: rises word by word on load.
+/**
+ * Past this many ms since navigation the H1 has been on screen long enough that hiding it to
+ * rise would read as a flicker, so a late motion chunk leaves it as painted.
+ */
+export const HEADLINE_LATE_MS = 600
 export const HEADLINE_RISE_PERCENT = 40
 export const HEADLINE_WORD_DURATION_S = 0.7
 export const HEADLINE_WORD_STAGGER_S = 0.08
