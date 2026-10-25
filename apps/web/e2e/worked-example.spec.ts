@@ -107,7 +107,10 @@ test.describe('worked example replay', () => {
 
   test('a reading the recording does not expect is refused, not replayed', async ({ page }) => {
     await sim.submitReading(sim.voltsInput, UNEXPECTED_READING)
-    await expect(page.getByText(NOT_NEXT_SENTENCE)).toBeVisible()
+    // The sentence is shown in the error panel and also spoken through the assertive region;
+    // scope to the panel so the two copies never make the locator ambiguous.
+    await expect(page.getByTestId('session-error').getByText(NOT_NEXT_SENTENCE)).toBeVisible()
+    await expect(sim.liveAssertive).toHaveText(NOT_NEXT_SENTENCE)
     await expect(sim.logRows()).toHaveCount(0)
     await expect(sim.warning).toHaveCount(0)
   })
