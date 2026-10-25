@@ -9,7 +9,7 @@
   padding: var(--space-6);
   display: grid;
   gap: var(--space-4);
-  min-height: 620px;
+  min-height: 560px;
   align-content: start;
 }
 @media (max-width: 767px) {
@@ -153,7 +153,7 @@
   }
 }
 .instSlot {
-  min-height: 112px;
+  min-height: 96px;
 }
 .instMeta {
   font-family: var(--font-mono);

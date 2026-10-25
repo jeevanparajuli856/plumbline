@@ -269,8 +269,8 @@
 /* ---------- Mast (hero, 7:5) ---------- */
 .mast {
   background: var(--bench);
-  padding-top: 88px;
-  padding-bottom: 112px;
+  padding-top: 56px;
+  padding-bottom: 72px;
 }
 .mastText {
   align-self: center;
@@ -704,7 +704,7 @@
 
 /* ---------- Multi-page rhythm (ADR-0014) ---------- */
 .sectionTight {
-  padding-block: 96px;
+  padding-block: 72px;
 }
 @media (max-width: 767px) {
   .sectionTight {
@@ -760,4 +760,14 @@
   .outcome {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+/* The rung where we start: an amber tick on its rule. */
+.outcomeNow {
+  box-shadow: inset 0 3px 0 var(--measured-fill);
+}
+.rungTitle {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  line-height: 1.3;
+  font-weight: 560;
 }

@@ -17,6 +17,9 @@ import { Caption, WarningGlyph } from '../parts'
 import { useFixtures } from '../useFixture'
 import { uncertaintyWord } from '../workedExample'
 
+/** Fault rows shown in the card's belief list; the conventional assistant gets one more. */
+const BELIEF_ROWS = 2
+
 interface InstrumentCardProps {
   reduced: boolean
 }
@@ -206,11 +209,11 @@ function Belief({ frame }: { frame: HeroFrame }) {
   return (
     <div className="grid gap-4">
       <div className={s.beliefHead}>
-        <p className={s.label}>Truehand belief, top {frame.truehand.length}</p>
+        <p className={s.label}>Truehand belief, top {BELIEF_ROWS}</p>
         <p className={cx(s.mono, 'text-sm text-text-2')}>{frame.hypothesisCount} faults</p>
       </div>
       <ul className={s.bars}>
-        {frame.truehand.map((h, i) => (
+        {frame.truehand.slice(0, BELIEF_ROWS).map((h, i) => (
           <li key={i}>
             <div className={s.barLabel}>
               <span>{h.label}</span>

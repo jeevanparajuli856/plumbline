@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { buttonClass } from '@/ui/button'
 import { PRODUCT_LINE, STATUS_LINE } from '../content'
 import s from '../landing.module.css'
-import { Caption, Eyebrow, Section } from '../parts'
+import { Eyebrow, Section } from '../parts'
 import { cx } from '../cx'
 import { HERO_INSTRUCTION_MS } from '../heroLoop'
 import { InstrumentCard } from './InstrumentCard'
@@ -52,11 +52,6 @@ export function Hero({ reduced }: HeroProps) {
               See how it works
             </Link>
           </div>
-          <Caption className="mt-12">
-            Right edge of the page: a column of identical holes, like a braille cell or a
-            breadboard. The ringed dot moves to your place on the page; it is decoration and carries
-            no data.
-          </Caption>
         </div>
         <div className="col-span-4 md:col-span-8 md:col-start-3 lg:col-span-5 lg:col-start-8">
           <InstrumentCard reduced={reduced} />

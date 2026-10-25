@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { buttonClass } from '@/ui/button'
 import { OUTCOMES, PROMISE, STATUS_LINE, VALIDATION_STATS } from '../content'
 import s from '../landing.module.css'
-import { Eyebrow, Section } from '../parts'
+import { Caption, Eyebrow, Section } from '../parts'
 import { cx } from '../cx'
 import { StatGrid } from './StatGrid'
 
@@ -65,7 +65,7 @@ export function HomeCta() {
   return (
     <Section id="cta" className={cx(s.section, s.sectionTight, s.ink)}>
       <div className={cx(s.frame, s.grid, 'items-end gap-y-10')}>
-        <h2 id="cta-title" className={cx(s.display, 'col-span-4 md:col-span-8')}>
+        <h2 id="cta-title" className={cx(s.h2, 'col-span-4 md:col-span-8')}>
           {PROMISE}
         </h2>
         <div className="col-span-4 flex flex-wrap gap-4 md:col-span-4 md:justify-end">
@@ -76,6 +76,10 @@ export function HomeCta() {
             Talk to us about a pilot
           </Link>
         </div>
+        <Caption className="col-span-4 md:col-span-8">
+          Right edge of the page: a column of identical holes, like a braille cell or a breadboard.
+          The ringed dot moves to your place on the page; it is decoration and carries no data.
+        </Caption>
       </div>
     </Section>
   )
