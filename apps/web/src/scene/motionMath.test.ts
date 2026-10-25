@@ -4,7 +4,7 @@ import {
   MAX_PENDULUM_RAD,
   PENDULUM_PERIOD_S,
   TREMOR_FREQS_HZ,
-  TREMOR_REFERENCE_M,
+  TREMOR_AT_ASSUMED_PRIOR_M,
   TREMOR_VISIBLE_M,
   alternateIndex,
   confusionPSame,
@@ -18,7 +18,7 @@ import {
 
 describe('tremor', () => {
   it('is 0.6 mm under the assumed confusion model and scales with 1 - p_same (ARCHITECTURE 8)', () => {
-    expect(TREMOR_REFERENCE_M).toBe(0.0006)
+    expect(TREMOR_AT_ASSUMED_PRIOR_M).toBe(0.0006)
     expect(tremorAmplitude(DEFAULT_P_SAME)).toBeCloseTo(0.0006, 12)
     expect(tremorAmplitude(0.56)).toBeCloseTo(0.0012, 12)
     expect(tremorAmplitude(1)).toBe(0)
