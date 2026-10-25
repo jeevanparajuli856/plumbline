@@ -42,7 +42,8 @@ export function argmax(values: readonly number[]): number {
 export interface PlacementItem {
   site: Site
   label: string
-  p: number
+  /** Null until a reading has produced a placement posterior. */
+  p: number | null
   isTold: boolean
   isLikely: boolean
   isLanded: boolean
@@ -70,7 +71,7 @@ export function placementItems({
   return catalog.sites.map((site) => ({
     site: site.index,
     label: site.label,
-    p: placement[site.index] ?? 0,
+    p: hasPosterior ? (placement[site.index] ?? 0) : null,
     isTold: site.index === toldSite,
     isLikely: site.index === likely,
     isLanded: site.index === landedSite,
@@ -78,16 +79,42 @@ export function placementItems({
   }))
 }
 
-export function placementSentence(item: PlacementItem): string {
-  const roles = [
+export function placementRoles(item: PlacementItem): string[] {
+  return [
     item.isTold && 'told',
     item.isLikely && 'likely',
     item.isLanded && 'landed',
     item.isAimed && 'aimed',
-  ]
-    .filter(Boolean)
-    .join(', ')
-  return `${capitalize(item.label)}${roles ? `, ${roles}` : ''}, ${formatPct(item.p, 0)}`
+  ].filter((r): r is string => Boolean(r))
+}
+
+export const NO_READING = 'No reading yet'
+
+export function placementSentence(item: PlacementItem): string {
+  const roles = placementRoles(item).join(', ')
+  const value = item.p === null ? NO_READING.toLowerCase() : formatPct(item.p, 0)
+  return `${capitalize(item.label)}${roles ? `, ${roles}` : ''}, ${value}`
+}
+
+export type Verdict =
+  | { kind: 'waiting' }
+  | { kind: 'unresolved'; text: string }
+  | { kind: 'top'; label: string; p: number }
+
+/**
+ * Plumbline's one-line answer beside the published method. When the engine refused, it names the
+ * indistinguishable faults and gives no single percentage (rule 3: never force one answer).
+ */
+export function plumblineVerdict(
+  rows: readonly BeliefRow[],
+  hasReadings: boolean,
+  unresolvedLabels: readonly string[] | null,
+): Verdict {
+  if (unresolvedLabels && unresolvedLabels.length > 0)
+    return { kind: 'unresolved', text: `Unresolved: ${unresolvedLabels.join(' or ')}` }
+  const top = rows[0]
+  if (!hasReadings || !top) return { kind: 'waiting' }
+  return { kind: 'top', label: top.label, p: top.p }
 }
 
 export function capitalize(text: string): string {

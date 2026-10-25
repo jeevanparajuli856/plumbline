@@ -11,13 +11,17 @@ interface WarningBannerProps {
 
 const LEAD = 'Warning.'
 
-/** Placement warning: vermilion left rule, glyph, the word, then the likely row. Reserved for this one event. */
+/**
+ * Placement warning: vermilion left rule, glyph, the word, then the likely row. A focusable region,
+ * not a live region: the announcer's assertive message is the only spoken copy (UI_CONTRACT M5).
+ */
 export function WarningBanner({ warning, likelyLabel, ref }: WarningBannerProps) {
   const rest = warning.text.startsWith(LEAD) ? warning.text.slice(LEAD.length).trim() : warning.text
   return (
     <div
       ref={ref}
-      role="alert"
+      role="region"
+      aria-label="Placement warning"
       tabIndex={-1}
       data-testid="warning-banner"
       className="relative overflow-hidden rounded-hard border-2 border-warning bg-warning-surface py-5 pl-8 pr-5 text-warning-text"

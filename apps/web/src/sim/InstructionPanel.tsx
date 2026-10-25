@@ -1,3 +1,4 @@
+import { buttonClass, KEYCAP } from '@/ui/button'
 import { formatBits } from '@/lib/format'
 import type { Heading } from './flow'
 import { uncertaintyFraction } from './view'
@@ -10,6 +11,8 @@ interface InstructionPanelProps {
   entropyBits: number
   maxEntropyBits: number
   settled: boolean
+  /** The R key's button twin; omitted when there is nothing to repeat. */
+  onRepeat?: () => void
 }
 
 /**
@@ -21,6 +24,7 @@ export function InstructionPanel({
   entropyBits,
   maxEntropyBits,
   settled,
+  onRepeat,
 }: InstructionPanelProps) {
   const u = uncertaintyFraction(entropyBits, maxEntropyBits)
   const hasEntropy = maxEntropyBits > 0
@@ -39,6 +43,19 @@ export function InstructionPanel({
           {heading.title}
         </h1>
         {heading.sub ? <p className="mt-2 text-lg text-text-2">{heading.sub}</p> : null}
+        {onRepeat ? (
+          <button
+            type="button"
+            onClick={onRepeat}
+            aria-keyshortcuts="R"
+            className={buttonClass('quiet', 'mt-2 -ml-1 px-1')}
+          >
+            Repeat instruction
+            <kbd aria-hidden="true" className={KEYCAP}>
+              R
+            </kbd>
+          </button>
+        ) : null}
         {hasEntropy ? (
           <p className="mt-5 flex flex-wrap items-baseline gap-x-3">
             <span className="label-caps">Uncertainty left</span>

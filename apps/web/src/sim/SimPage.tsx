@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { useShallow } from 'zustand/react/shallow'
-import { repeatInstruction } from '@/a11y/repeatInstruction'
+import { currentPhrase, repeatInstruction } from '@/a11y/repeatInstruction'
 import { registeredShortcut } from '@/a11y/shortcutRegistry'
 import { useKeyboardMap } from '@/a11y/useKeyboardMap'
 import { DOMAINS } from '@/state/domains'
@@ -169,6 +169,9 @@ export function SimPage() {
               entropyBits={s.entropyBits}
               maxEntropyBits={s.maxEntropyBits}
               settled={settled}
+              {...(currentPhrase(s)
+                ? { onRepeat: () => repeatInstruction(useSession.getState()) }
+                : {})}
             />
             {s.error ? (
               <ErrorNotice
@@ -223,6 +226,7 @@ export function SimPage() {
             {catalog ? (
               <PlacementStrip
                 siteNoun={spec.siteNoun}
+                onAim={(site) => useSession.getState().aimProbe(site)}
                 items={placementItems({
                   placement: s.placement,
                   catalog,
@@ -242,6 +246,9 @@ export function SimPage() {
                 catalog={catalog}
                 baseline={s.baseline}
                 hasReadings={s.readings.length > 0}
+                unresolvedLabels={
+                  s.phase === 'unresolved' ? unresolvedPair.map((h) => h.label) : null
+                }
               />
             ) : null}
           </div>

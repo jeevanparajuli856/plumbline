@@ -1,12 +1,14 @@
 import { formatPct } from '@/lib/format'
-import type { BaselineState, Catalog, Diagnosis } from '@/state/types'
-import { baselineName, beliefRows, type BeliefRow } from './view'
+import type { BaselineState, Catalog } from '@/state/types'
+import { baselineName, beliefRows, plumblineVerdict, type BeliefRow, type Verdict } from './view'
 
 interface BeliefChartProps {
   belief: readonly number[]
   catalog: Catalog
   baseline: BaselineState | null
   hasReadings: boolean
+  /** Labels of the indistinguishable faults when the engine refused; null otherwise. */
+  unresolvedLabels?: readonly string[] | null
 }
 
 const NAME = 'Belief over faults'
@@ -15,11 +17,16 @@ const NAME = 'Belief over faults'
  * Plumbline's belief (cyan, outlined) beside the published method (neutral, dashed) on the same
  * readings. The chart is a real table, so the table twin is the chart itself.
  */
-export function BeliefChart({ belief, catalog, baseline, hasReadings }: BeliefChartProps) {
+export function BeliefChart({
+  belief,
+  catalog,
+  baseline,
+  hasReadings,
+  unresolvedLabels = null,
+}: BeliefChartProps) {
   const rows = beliefRows(belief, catalog)
   const uniform = catalog.hypotheses.length > 0 ? 1 / catalog.hypotheses.length : 0
   const baselineTop = baseline?.diagnosis ?? null
-  const plumblineTop = rows[0]
   return (
     <figure aria-label={NAME} className="m-0">
       <figcaption className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
@@ -33,18 +40,20 @@ export function BeliefChart({ belief, catalog, baseline, hasReadings }: BeliefCh
       </figcaption>
 
       <div className="mt-4 grid gap-px overflow-hidden rounded-hard border-2 border-border-strong bg-border-strong sm:grid-cols-2">
-        <Verdict
+        <VerdictCell
           title="Plumbline"
           note="Infers where the probe landed"
-          top={
-            hasReadings && plumblineTop ? { label: plumblineTop.label, p: plumblineTop.p } : null
-          }
+          verdict={plumblineVerdict(rows, hasReadings, unresolvedLabels)}
           look="inferred"
         />
-        <Verdict
+        <VerdictCell
           title={baselineName(baseline?.method ?? 'entropy_exact')}
           note="Assumes the probe is where it was told"
-          top={baselineTop ? { label: baselineTop.label, p: baselineTop.confidence } : null}
+          verdict={
+            baselineTop
+              ? { kind: 'top', label: baselineTop.label, p: baselineTop.confidence }
+              : { kind: 'waiting' }
+          }
           look="baseline"
         />
       </div>
@@ -90,15 +99,15 @@ export function BeliefChart({ belief, catalog, baseline, hasReadings }: BeliefCh
   )
 }
 
-function Verdict({
+function VerdictCell({
   title,
   note,
-  top,
+  verdict,
   look,
 }: {
   title: string
   note: string
-  top: (Pick<Diagnosis, 'label'> & { p: number }) | null
+  verdict: Verdict
   look: 'inferred' | 'baseline'
 }) {
   return (
@@ -112,11 +121,13 @@ function Verdict({
       </p>
       <p className="text-text-2">{note}</p>
       <p className="mt-3 min-h-[3.25rem] text-md">
-        {top ? (
+        {verdict.kind === 'top' ? (
           <>
-            <span className="block font-medium">{top.label}</span>
-            <span className="font-mono tnum text-lg">{formatPct(top.p, 1)}</span>
+            <span className="block font-medium">{verdict.label}</span>
+            <span className="font-mono tnum text-lg">{formatPct(verdict.p, 1)}</span>
           </>
+        ) : verdict.kind === 'unresolved' ? (
+          <span className="block font-medium">{verdict.text}</span>
         ) : (
           <span className="text-text-2">Waiting for a reading.</span>
         )}

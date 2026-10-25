@@ -21,6 +21,7 @@ import {
   parseReadingInput,
   placementItems,
   placementSentence,
+  plumblineVerdict,
   splitFirstSentence,
   uncertaintyFraction,
 } from './view'
@@ -122,7 +123,8 @@ describe('view helpers', () => {
       aimedSite: 2,
     })
     expect(before.some((i) => i.isLikely)).toBe(false)
-    expect(before[2]).toMatchObject({ isTold: true, isAimed: true })
+    expect(before[2]).toMatchObject({ isTold: true, isAimed: true, p: null })
+    expect(placementSentence(before[2]!)).toBe('Row 3, told, aimed, no reading yet')
     const after = placementItems({
       placement: [0.1, 0.8, 0.1],
       catalog,
@@ -133,6 +135,24 @@ describe('view helpers', () => {
     expect(after[1]).toMatchObject({ isLikely: true, isLanded: true, p: 0.8 })
     expect(placementSentence(after[1]!)).toBe('Row 2, likely, landed, 80%')
     expect(placementSentence(after[0]!)).toBe('Row 1, 10%')
+  })
+
+  it('plumblineVerdict names the indistinguishable faults with no single percentage when unresolved', () => {
+    const rows = [
+      { id: 'LED_open', label: 'LED is open', p: 0.5 },
+      { id: 'LED_reversed', label: 'LED is backwards', p: 0.5 },
+    ]
+    expect(plumblineVerdict(rows, true, ['LED is open', 'LED is backwards'])).toEqual({
+      kind: 'unresolved',
+      text: 'Unresolved: LED is open or LED is backwards',
+    })
+    expect(plumblineVerdict(rows, true, null)).toEqual({
+      kind: 'top',
+      label: 'LED is open',
+      p: 0.5,
+    })
+    expect(plumblineVerdict(rows, false, null)).toEqual({ kind: 'waiting' })
+    expect(plumblineVerdict([], true, [])).toEqual({ kind: 'waiting' })
   })
 
   it('splitFirstSentence separates the command from its follow-up', () => {

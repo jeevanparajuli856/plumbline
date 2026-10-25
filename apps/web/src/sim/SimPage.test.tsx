@@ -76,7 +76,8 @@ describe('SimPage', () => {
     await ready()
     press(']')
     const banner = await screen.findByTestId('warning-banner')
-    expect(banner).toHaveAttribute('role', 'alert')
+    expect(banner).toHaveAttribute('role', 'region')
+    expect(banner).toHaveAccessibleName('Placement warning')
     expect(banner.textContent?.startsWith('Warning.')).toBe(true)
     expect(banner).toHaveTextContent('row 2')
     await waitFor(() => expect(document.activeElement).toBe(banner))
@@ -133,9 +134,16 @@ describe('SimPage', () => {
 
     press('r')
     expect(readQueue().last?.text).toBe('Touch the red probe to row 3. Say or type the reading.')
+    replaceQueue(emptyQueue)
+    fireEvent.click(screen.getByRole('button', { name: 'Repeat instruction' }))
+    expect(readQueue().last?.text).toBe('Touch the red probe to row 3. Say or type the reading.')
 
     press('2')
     expect(useSession.getState().aimedSite).toBe(1)
+    const strip = screen.getByRole('list', { name: 'Where the probe landed' })
+    expect(within(strip).getAllByRole('listitem')[1]).toHaveAttribute('aria-current', 'true')
+    fireEvent.click(within(within(strip).getAllByRole('listitem')[4]!).getByRole('button'))
+    expect(useSession.getState().aimedSite).toBe(4)
 
     press('?')
     expect(screen.getByRole('dialog', { name: 'Keyboard shortcuts' })).toHaveAttribute('open')

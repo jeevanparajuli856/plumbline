@@ -72,7 +72,9 @@ export function RefusalPanel({ text, pair, ref }: RefusalPanelProps) {
           ))}
         </ul>
       ) : null}
-      <p className="mt-4 text-text-2">A different measurement, not a guess, is the way forward.</p>
+      <p className="mt-4 text-text-2">
+        Plumbline will not guess between them. A different measurement is the way forward.
+      </p>
     </div>
   )
 }

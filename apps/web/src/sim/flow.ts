@@ -20,7 +20,7 @@ export function headingFor(state: HeadingInput): Heading {
   if (phase === 'resolved' && diagnosis)
     return { title: `${diagnosis.label}.`, sub: '', isInstruction: false }
   if (phase === 'unresolved')
-    return { title: 'Unresolved. Two faults look the same here.', sub: '', isInstruction: false }
+    return { title: 'Unresolved. These faults look the same here.', sub: '', isInstruction: false }
   const site = instruction && catalog ? catalog.sites[instruction.site] : undefined
   if (site) {
     const [title, sub] = splitFirstSentence(DOMAINS[state.domain].phrases.instruction(site))
