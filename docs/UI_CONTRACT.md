@@ -85,3 +85,4 @@ Recorded fixtures must parse with `Fixture` in `apps/web/src/engine/schemas.ts` 
 | 11 | Voice (section 4): a phrase said before the mic opens is held for the next listen; transcripts are data and are never rendered as markup. |
 | 12 | Full e2e run: after the Sprint 1 integration, `PLUMBLINE_E2E_FULL` gating becomes opt-out (all specs run by default). |
 | 13 | Aim buttons: each placement-strip item contains a button named "Aim at <site label>" (e.g. "Aim at row 4"; thermometer "Aim at 3.5 cm"), which calls `aimProbe`. Single-key shortcuts switch: `getByRole('switch', { name: 'Single-key shortcuts' })`, on by default, in the site Display bar or the shortcuts dialog. |
+| 14 | Belief verdict: the one-line Plumbline verdict inside the belief figure is `data-testid="belief-verdict"`. Resolved or continuing: the top fault and its percentage. Unresolved: text starting "Unresolved" naming the class members, with no percentage. |
