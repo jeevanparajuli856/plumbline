@@ -93,6 +93,37 @@ describe('helpers', () => {
     expect(r[0]!.p).toBeGreaterThanOrEqual(r[1]!.p)
   })
 
+  it('reads the band from the interior row of the recorded confusion matrix and the thresholds', () => {
+    expect(fixtureConfig(fx)).toEqual({
+      sigma: fx.config.sigma,
+      pSame: 0.78,
+      pPm1: 0.08,
+      pPm2: 0.03,
+      warningThreshold: 0.5,
+      resolveThreshold: 0.95,
+    })
+  })
+
+  it('still reads the older three-number confusion object and flat thresholds', () => {
+    const old = {
+      ...fx,
+      config: {
+        sigma: 0.02,
+        confusion: { p_same: 0.7, p_pm1: 0.1, p_pm2: 0.05 },
+        warning_threshold: 0.4,
+        resolve_threshold: 0.9,
+      },
+    }
+    expect(fixtureConfig(old)).toEqual({
+      sigma: 0.02,
+      pSame: 0.7,
+      pPm1: 0.1,
+      pPm2: 0.05,
+      warningThreshold: 0.4,
+      resolveThreshold: 0.9,
+    })
+  })
+
   it('reads config numbers and tolerates missing ones', () => {
     const c = fixtureConfig(fx)
     expect(c.sigma).toBe(fx.config.sigma)

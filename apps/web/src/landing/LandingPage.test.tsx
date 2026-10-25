@@ -88,6 +88,21 @@ describe('LandingPage', () => {
     expect(line).toContain('Preliminary. Not peer reviewed.')
   })
 
+  it('fills the assumed hand model and thresholds from the recorded config everywhere they appear', async () => {
+    const { container } = renderLanding()
+    await settle()
+    const how = within(container.querySelector<HTMLElement>('section#how')!)
+    const lines = how.getByRole('list', { name: 'The six lines' }).querySelectorAll('li')
+    expect(lines[0]).toHaveTextContent('0.78 same row, 0.08 one row off, 0.03 two rows off')
+    expect(lines[4]).toHaveTextContent('> 0.5')
+    const problem = within(container.querySelector<HTMLElement>('section#problem')!)
+    const caption = problem.getAllByTestId('caption').map((c) => c.textContent).join(' ')
+    expect(caption).toMatch(/78%.*8%.*3%/)
+    expect(container.querySelector('section#evidence')).toHaveTextContent(
+      'three assumed numbers: 0.78, 0.08, 0.03',
+    )
+  })
+
   it('does not start the replay on render; Play starts it in replay mode and plays', async () => {
     const start = vi.spyOn(useSession.getState(), 'start')
     const replayPlay = vi.spyOn(useSession.getState(), 'replayPlay')

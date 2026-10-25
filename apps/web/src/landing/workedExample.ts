@@ -2,6 +2,7 @@
  * Turns a recorded fixture into the words and numbers the landing shows. Nothing here is typed
  * by hand: every reading, row, percentage and threshold comes from the fixture passed in.
  */
+import { confusionBand } from '@/about/confusionBand'
 import type { FixtureT } from '@/engine/schemas'
 import { formatPct } from '@/lib/format'
 import { DOMAINS } from '@/state/domains'
@@ -59,19 +60,25 @@ function num(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null
 }
 
-/** The fixture's config is free-form JSON; read only the fields the landing names. */
+function record(value: unknown): Record<string, unknown> {
+  return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {}
+}
+
+/**
+ * The fixture's config is free-form JSON; read only the fields the landing names. Recordings
+ * store a told-by-landed matrix and nest thresholds; older ones stored three numbers and flat keys.
+ */
 export function fixtureConfig(fx: FixtureT): FixtureConfig {
   const c = fx.config
-  const confusion = (
-    typeof c.confusion === 'object' && c.confusion !== null ? c.confusion : {}
-  ) as Record<string, unknown>
+  const band = confusionBand(c.confusion)
+  const thresholds = record(c.thresholds)
   return {
     sigma: num(c.sigma),
-    pSame: num(confusion.p_same),
-    pPm1: num(confusion.p_pm1),
-    pPm2: num(confusion.p_pm2),
-    warningThreshold: num(c.warning_threshold),
-    resolveThreshold: num(c.resolve_threshold),
+    pSame: band?.p_same ?? null,
+    pPm1: band?.p_pm1 ?? null,
+    pPm2: band?.p_pm2 ?? null,
+    warningThreshold: num(thresholds.placement_warning) ?? num(c.warning_threshold),
+    resolveThreshold: num(thresholds.resolve) ?? num(c.resolve_threshold),
   }
 }
 
