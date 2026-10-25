@@ -53,7 +53,7 @@ Keyboard guard: no single-key shortcut fires when focus is in an input, textarea
 - The scene calls `setSceneMounted(true)` from `@/state/session` on Canvas mount and `false` on unmount. Without it the store does not wait for a reveal animation; with it the store still finishes the reveal itself after `REVEAL_TIMEOUT_MS` (3000) if the scene never calls `finishReveal(token)`.
 - Landing camera: `poseAt(progress)` and `ScenePose` from `@/landing/choreography` (signature frozen on `main`; landing owns the body, scene consumes the type).
 
-- Canvas wrapper `role="img"` with an `aria-label` (from `SceneHost`); `data-testid="scene"`.
+- Canvas wrapper `data-testid="scene"`. In sim mode it carries `role="img"` with an `aria-label`. In landing mode the fixed layer is decorative and `aria-hidden="true"` (the landing captions are the content), so it adds no landmark and no axe `region` finding.
 - `window.__plumblineScene` is set in dev and test builds only to `{ drawCalls: number, frames: number }`, updated after each rendered frame, so e2e and perf can read `renderer.info.render.calls` without a GPU profiler.
 - No informational text is only in the scene.
 - Without WebGL (or in text-only view) no `<canvas>` is created: `SceneHost` renders `SceneUnavailable` (or nothing) and three.js is never loaded.
