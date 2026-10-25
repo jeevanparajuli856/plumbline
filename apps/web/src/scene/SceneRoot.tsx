@@ -1,36 +1,35 @@
 import { Canvas } from '@react-three/fiber'
+import { SIM_POSE } from '@/landing/choreography'
+import { ROAST_LAYER } from './livePose'
+import { SceneContent } from './SceneContent'
 import { SceneUnavailable } from './SceneUnavailable'
+import { useSceneTokens } from './tokens'
+import { useAnimating } from './useAnimating'
 
 /**
- * The single app-level Canvas. Sprint 0 placeholder: a lit breadboard slab in the light theme.
- * The scene lane replaces the contents; the Canvas props and the `fallback` are the contract.
+ * The single app-level Canvas. Demand frameloop, switched to `always` only while a lease from
+ * useAnimating is held (tremor, reveal), so it idles at 0 fps.
  */
 export default function SceneRoot() {
+  const animating = useAnimating()
+  const tokens = useSceneTokens()
   return (
     <Canvas
       dpr={[1, 1.75]}
-      shadows
-      frameloop="demand"
-      camera={{ fov: 35, near: 0.01, far: 5, position: [0.18, 0.22, 0.28] }}
+      // PCF explicitly: three 0.186 removed PCFSoftShadowMap, R3F's default for `shadows`.
+      shadows="percentage"
+      frameloop={animating ? 'always' : 'demand'}
+      camera={{ fov: SIM_POSE.fov, near: 0.01, far: 5, position: [...SIM_POSE.camera] }}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
       fallback={<SceneUnavailable />}
-      onCreated={({ gl, camera }) => {
-        gl.setClearColor(readToken('--scene-bg', '#f6f3ec'))
-        camera.lookAt(0, 0, 0)
+      onCreated={({ camera, raycaster }) => {
+        camera.layers.enable(ROAST_LAYER)
+        raycaster.layers.enableAll()
+        camera.lookAt(...SIM_POSE.target)
       }}
     >
-      <ambientLight intensity={0.9} />
-      <directionalLight position={[0.3, 0.6, 0.4]} intensity={1.6} castShadow shadow-mapSize={1024} />
-      <mesh name="breadboard" receiveShadow>
-        <boxGeometry args={[0.165, 0.009, 0.055]} />
-        <meshStandardMaterial color={readToken('--scene-board', '#d9d3c6')} />
-      </mesh>
+      <color attach="background" args={[tokens.sceneBg]} />
+      <SceneContent />
     </Canvas>
   )
-}
-
-function readToken(name: string, fallback: string): string {
-  if (typeof document === 'undefined') return fallback
-  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
-  return value || fallback
 }

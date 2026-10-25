@@ -7,10 +7,10 @@ import { useShortcutPref } from '@/a11y/shortcutPref'
 import { usePrefs } from '@/state/prefs'
 import { useSession } from '@/state/session'
 import { SimPage } from './SimPage'
-import { requestViewReset } from './viewControlShim'
+import { requestViewReset } from '@/scene/viewControl'
 import { catalogFromFixture, loadFixture } from '@/state/replay'
 
-vi.mock('./viewControlShim', () => ({ requestViewReset: vi.fn() }))
+vi.mock('@/scene/viewControl', () => ({ requestViewReset: vi.fn() }))
 
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
