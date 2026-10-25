@@ -4,6 +4,7 @@ import { emptyQueue, readQueue, replaceQueue } from './liveQueue'
 import { applyReduceMotion, useMotionPref } from './motionPref'
 import { currentPhrase, repeatInstruction } from './repeatInstruction'
 import { registerShortcut } from './shortcutRegistry'
+import { useShortcutPref } from './shortcutPref'
 import { dispatchShortcut, useKeyboardMap } from './useKeyboardMap'
 import { prefersReducedMotion, useReducedMotion } from './useReducedMotion'
 import { focusHeading, useRouteFocus } from './useRouteFocus'
@@ -136,6 +137,37 @@ describe('shortcut dispatch', () => {
     renderHook(() => useKeyboardMap({ help }, false))
     window.dispatchEvent(new KeyboardEvent('keydown', { key: '?' }))
     expect(help).not.toHaveBeenCalled()
+  })
+})
+
+describe('single-key shortcut preference', () => {
+  afterEach(() => useShortcutPref.getState().setSingleKeys(true))
+
+  it('defaults on, persists off, and gates the window listener', () => {
+    expect(useShortcutPref.getState().singleKeys).toBe(true)
+    const next = vi.fn()
+    const submit = vi.fn()
+    const { unmount } = renderHook(() => useKeyboardMap({ next, submit }))
+    useShortcutPref.getState().setSingleKeys(false)
+    expect(localStorage.getItem('plumbline.singleKeyShortcuts')).toBe('0')
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: ']' }))
+    expect(next).not.toHaveBeenCalled()
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
+    expect(submit).toHaveBeenCalledOnce()
+    useShortcutPref.getState().setSingleKeys(true)
+    expect(localStorage.getItem('plumbline.singleKeyShortcuts')).toBeNull()
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: ']' }))
+    expect(next).toHaveBeenCalledOnce()
+    unmount()
+  })
+
+  it('does not prevent the default when a handler declines the key', () => {
+    const { unmount } = renderHook(() => useKeyboardMap({ escape: () => false }))
+    const event = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true })
+    window.dispatchEvent(event)
+    expect(event.defaultPrevented).toBe(false)
+    expect(dispatchShortcut({ type: 'escape' }, { escape: () => false })).toBe(false)
+    unmount()
   })
 })
 

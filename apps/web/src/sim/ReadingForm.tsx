@@ -1,5 +1,6 @@
 import { useId, useState, type FormEvent, type Ref } from 'react'
 import type { DomainSpec, Mode } from '@/state/types'
+import { ariaKeysFor } from '@/a11y/keymap'
 import { buttonClass } from '@/ui/button'
 import { parseReadingInput, READING_LABELS } from './view'
 
@@ -87,6 +88,7 @@ export function ReadingForm({
         </div>
         <button
           type="submit"
+          aria-keyshortcuts={ariaKeysFor('submit')}
           disabled={!canSubmit}
           className={buttonClass('primary', 'min-h-14 px-6 text-md')}
         >

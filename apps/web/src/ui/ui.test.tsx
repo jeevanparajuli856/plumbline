@@ -12,6 +12,7 @@ import { Switch } from './Switch'
 import { systemThemeClass } from './useSystemTheme'
 import { buttonClass } from './button'
 import { usePrefs } from '@/state/prefs'
+import { useShortcutPref } from '@/a11y/shortcutPref'
 
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
@@ -108,6 +109,23 @@ describe('Badge and buttons', () => {
 })
 
 describe('KeyboardMapDialog', () => {
+  it('closes before returning focus to the opener and toggles single-key shortcuts', () => {
+    const opener = document.createElement('button')
+    document.body.appendChild(opener)
+    opener.focus()
+    const { rerender } = render(<KeyboardMapDialog open onClose={() => {}} />)
+    const dialog = screen.getByRole('dialog', { name: 'Keyboard shortcuts' })
+    const sw = screen.getByRole('switch', { name: 'Single-key shortcuts' })
+    expect(sw).toHaveAttribute('aria-checked', 'true')
+    fireEvent.click(sw)
+    expect(useShortcutPref.getState().singleKeys).toBe(false)
+    useShortcutPref.getState().setSingleKeys(true)
+    rerender(<KeyboardMapDialog open={false} onClose={() => {}} />)
+    expect(dialog).not.toHaveAttribute('open')
+    expect(document.activeElement).toBe(opener)
+    opener.remove()
+  })
+
   it('opens as a named dialog listing the map and closes', () => {
     const onClose = vi.fn()
     const { rerender } = render(<KeyboardMapDialog open onClose={onClose} />)

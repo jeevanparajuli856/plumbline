@@ -9,7 +9,7 @@ import { useLanding } from '@/state/landing'
 import { usePrefs } from '@/state/prefs'
 import { ReplayClient } from '@/state/replay'
 import { currentClient, useSession } from '@/state/session'
-import type { DomainId, Mode } from '@/state/types'
+import type { DomainId, Mode, Phase } from '@/state/types'
 import { KeyboardMapDialog } from '@/ui/KeyboardMapDialog'
 import { BeliefChart } from './BeliefChart'
 import { headingFor } from './flow'
@@ -19,13 +19,16 @@ import { PlacementStrip } from './PlacementStrip'
 import { ReadingForm } from './ReadingForm'
 import { ReadingLog } from './ReadingLog'
 import { ReplayControls } from './ReplayControls'
-import { stepBack } from './replayNav'
+import { isRewinding, stepBack, useRewinding } from './replayNav'
 import { SimToolbar } from './SimToolbar'
 import { parseSimParams, withChoice } from './simParams'
 import { useApiHealthProbe } from './useApiHealthProbe'
 import { useSimFocus, type FocusRefs } from './useSimFocus'
 import { WarningBanner } from './WarningBanner'
 import { logRows, placementItems } from './view'
+
+/** Phases from which [ may rewind; never mid-step. */
+const REWINDABLE: readonly Phase[] = ['awaiting_reading', 'resolved', 'unresolved']
 
 /** The simulator as an instrument (POSITIONING 5). Container: owns params, session start, keys and focus. */
 export function SimPage() {
@@ -106,28 +109,39 @@ export function SimPage() {
     [params, setParams],
   )
 
+  const rewinding = useRewinding()
+  const next = () => {
+    if (!isRewinding()) void useSession.getState().replayNext()
+  }
   const playPause = () => {
+    if (isRewinding()) return
     const st = useSession.getState()
     if (st.replay?.autoplay) st.replayPause()
     else st.replayPlay()
   }
 
-  useKeyboardMap({
-    aim: ({ site }) => useSession.getState().aimProbe(site),
-    submit: () => formRef.current?.requestSubmit(),
-    focusInput: () => inputRef.current?.focus(),
-    speech: () => setVoiceEnabled(!usePrefs.getState().voiceEnabled),
-    repeat: () => repeatInstruction(useSession.getState()),
-    log: () => setLogOpen((open) => !open),
-    playPause,
-    previous: () => void stepBack(useSession),
-    next: () => void useSession.getState().replayNext(),
-    help: () => setHelpOpen(true),
-    escape: () => {
-      setHelpOpen(false)
-      registeredShortcut('escape')?.({ type: 'escape' })
+  useKeyboardMap(
+    {
+      aim: ({ site }) => useSession.getState().aimProbe(site),
+      submit: () => formRef.current?.requestSubmit(),
+      focusInput: () => inputRef.current?.focus(),
+      speech: () => setVoiceEnabled(!usePrefs.getState().voiceEnabled),
+      repeat: () => repeatInstruction(useSession.getState()),
+      log: () => setLogOpen((open) => !open),
+      playPause,
+      previous: () => void stepBack(useSession),
+      next,
+      help: () => setHelpOpen(true),
+      // Only consumed when something (the voice lane's listener) is there to cancel.
+      escape: () => {
+        const cancel = registeredShortcut('escape')
+        if (!cancel) return false
+        cancel({ type: 'escape' })
+        return true
+      },
     },
-  })
+    !helpOpen,
+  )
 
   const spec = DOMAINS[s.domain]
   const catalog = s.catalog
@@ -215,9 +229,10 @@ export function SimPage() {
               <div className="mt-6 border-t border-hairline pt-5">
                 <ReplayControls
                   replay={s.replay}
-                  canStep={s.phase === 'awaiting_reading'}
+                  canStep={s.phase === 'awaiting_reading' && !rewinding}
+                  canPrevious={!rewinding && REWINDABLE.includes(s.phase)}
                   onPrevious={() => void stepBack(useSession)}
-                  onNext={() => void useSession.getState().replayNext()}
+                  onNext={next}
                   onPlayPause={playPause}
                   onReset={() => void useSession.getState().reset()}
                 />

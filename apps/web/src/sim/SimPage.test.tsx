@@ -3,6 +3,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { emptyQueue, readQueue, replaceQueue } from '@/a11y/liveQueue'
 import { registerShortcut } from '@/a11y/shortcutRegistry'
+import { useShortcutPref } from '@/a11y/shortcutPref'
 import { usePrefs } from '@/state/prefs'
 import { useSession } from '@/state/session'
 import { SimPage } from './SimPage'
@@ -147,7 +148,7 @@ describe('SimPage', () => {
 
     press('?')
     expect(screen.getByRole('dialog', { name: 'Keyboard shortcuts' })).toHaveAttribute('open')
-    press('Escape')
+    act(() => void screen.getByRole('dialog').dispatchEvent(new Event('cancel')))
     await waitFor(() =>
       expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open'),
     )
@@ -166,6 +167,46 @@ describe('SimPage', () => {
 
     press('Enter')
     expect(screen.getByRole('alert')).toHaveTextContent('Type the reading in volts first.')
+  })
+
+  it('ignores the keyboard map while the shortcuts dialog is open', async () => {
+    renderSim()
+    await ready()
+    press('?')
+    press(']')
+    expect(useSession.getState().readings).toHaveLength(0)
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+    press(']')
+    await screen.findByTestId('warning-banner')
+  })
+
+  it('turns single-key shortcuts off from the dialog but keeps Enter', async () => {
+    renderSim()
+    await ready()
+    press('?')
+    fireEvent.click(screen.getByRole('switch', { name: 'Single-key shortcuts' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+    press(']')
+    expect(useSession.getState().readings).toHaveLength(0)
+    press('Enter')
+    expect(screen.getByRole('alert')).toHaveTextContent('Type the reading in volts first.')
+    useShortcutPref.getState().setSingleKeys(true)
+  })
+
+  it('disables Previous and ignores ] and P while a rewind is running', async () => {
+    renderSim()
+    await ready()
+    press(']')
+    await screen.findByTestId('warning-banner')
+    press(']')
+    await screen.findByTestId('diagnosis')
+    press('[')
+    press(']')
+    press('p')
+    expect(screen.getByRole('button', { name: 'Previous step' })).toBeDisabled()
+    await waitFor(() => expect(useSession.getState().replay?.stepIndex).toBe(1))
+    expect(useSession.getState().replay?.autoplay).toBe(false)
+    expect(screen.getByRole('button', { name: 'Previous step' })).toBeEnabled()
   })
 
   it('switches mode and instrument through the URL, and labels the thermometer SIMULATED', async () => {

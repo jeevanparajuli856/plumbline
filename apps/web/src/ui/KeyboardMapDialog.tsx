@@ -1,6 +1,8 @@
 import { useEffect, useId, useRef } from 'react'
 import { SHORTCUTS } from '@/a11y/keymap'
+import { useShortcutPref } from '@/a11y/shortcutPref'
 import { buttonClass } from './button'
+import { Switch } from './Switch'
 
 interface KeyboardMapDialogProps {
   open: boolean
@@ -9,6 +11,8 @@ interface KeyboardMapDialogProps {
 
 /** Native modal dialog listing the keyboard map. Esc closes it (native cancel), focus returns to the opener. */
 export function KeyboardMapDialog({ open, onClose }: KeyboardMapDialogProps) {
+  const singleKeys = useShortcutPref((s) => s.singleKeys)
+  const setSingleKeys = useShortcutPref((s) => s.setSingleKeys)
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   useEffect(() => {
@@ -17,7 +21,11 @@ export function KeyboardMapDialog({ open, onClose }: KeyboardMapDialogProps) {
     if (open && !dialog.open) {
       const opener = document.activeElement as HTMLElement | null
       dialog.showModal()
-      return () => opener?.focus?.()
+      return () => {
+        // Close first: focus cannot leave a modal dialog that is still open.
+        if (dialog.open) dialog.close()
+        opener?.focus?.()
+      }
     }
     if (!open && dialog.open) dialog.close()
   }, [open])
@@ -38,10 +46,18 @@ export function KeyboardMapDialog({ open, onClose }: KeyboardMapDialogProps) {
           Close
         </button>
       </div>
-      <p className="px-6 pt-4 text-text-2">
-        Single keys work anywhere on the simulator except while you are typing in a field. Every key
-        also has a button.
-      </p>
+      <div className="grid gap-2 px-6 pt-4">
+        <Switch
+          label="Single-key shortcuts"
+          checked={singleKeys}
+          onChange={setSingleKeys}
+          description="Turn off if speech input or a stray key press triggers them. Enter and Esc keep working."
+        />
+        <p className="text-text-2">
+          Single keys work anywhere on the simulator except while you are typing in a field. Most
+          also have a control on the page: the row cells aim, and the buttons carry their key.
+        </p>
+      </div>
       <table className="mx-6 my-4 w-[calc(100%-3rem)] border-collapse text-left">
         <caption className="sr-only">Keyboard shortcuts</caption>
         <thead>

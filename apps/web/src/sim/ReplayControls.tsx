@@ -5,6 +5,7 @@ import { buttonClass, KEYCAP } from '@/ui/button'
 interface ReplayControlsProps {
   replay: ReplayState | null
   canStep: boolean
+  canPrevious: boolean
   onPrevious(): void
   onNext(): void
   onPlayPause(): void
@@ -15,6 +16,7 @@ interface ReplayControlsProps {
 export function ReplayControls({
   replay,
   canStep,
+  canPrevious,
   onPrevious,
   onNext,
   onPlayPause,
@@ -47,7 +49,7 @@ export function ReplayControls({
             <button
               type="button"
               onClick={onPrevious}
-              disabled={replay.stepIndex === 0}
+              disabled={!canPrevious || replay.stepIndex === 0}
               aria-keyshortcuts="["
               className={buttonClass('secondary')}
             >
@@ -71,7 +73,7 @@ export function ReplayControls({
             <button
               type="button"
               onClick={onPlayPause}
-              disabled={finished && !replay.autoplay}
+              disabled={(finished && !replay.autoplay) || (!canStep && !replay.autoplay)}
               aria-keyshortcuts="P"
               className={buttonClass('secondary')}
             >

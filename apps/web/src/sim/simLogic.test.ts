@@ -11,7 +11,7 @@ import {
   onProbeResult,
   probeOnce,
 } from './healthProbe'
-import { stepBack } from './replayNav'
+import { isRewinding, stepBack } from './replayNav'
 import { parseSimParams, THERMOMETER_FIXTURE, withChoice } from './simParams'
 import {
   argmax,
@@ -295,6 +295,15 @@ describe('stepBack', () => {
 
   it('does nothing at the first step', async () => {
     expect(await stepBack(useSession)).toBe(false)
+  })
+
+  it('ignores a second call while the first is still rewinding', async () => {
+    await useSession.getState().replayNext()
+    await useSession.getState().replayNext()
+    const [first, second] = await Promise.all([stepBack(useSession), stepBack(useSession)])
+    expect([first, second]).toEqual([true, false])
+    expect(useSession.getState().replay?.stepIndex).toBe(1)
+    expect(isRewinding()).toBe(false)
   })
 
   it('rewinds one recorded step and lands awaiting the next reading', async () => {

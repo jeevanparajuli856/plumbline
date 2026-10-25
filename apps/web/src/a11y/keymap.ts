@@ -83,6 +83,8 @@ export function isEditableTarget(target: EventTarget | null): boolean {
   const el = asElement(target)
   if (!el) return false
   if (el.closest('input, textarea, select')) return true
+  if (el instanceof HTMLElement && el.isContentEditable) return true
+  // jsdom does not implement isContentEditable; the attribute check covers it there.
   return el.closest('[contenteditable=""], [contenteditable="true"]') !== null
 }
 
@@ -95,12 +97,18 @@ export function isActivatableTarget(target: EventTarget | null): boolean {
   return role !== undefined && role !== null && ACTIVATABLE_ROLES.has(role)
 }
 
-export function resolveKey(input: KeyInput): ShortcutAction | null {
+export interface ResolveOptions {
+  /** False when the user turned single-key shortcuts off (WCAG 2.1.4). Enter and Esc still resolve. */
+  singleKeys?: boolean
+}
+
+export function resolveKey(input: KeyInput, options: ResolveOptions = {}): ShortcutAction | null {
   if (input.ctrlKey || input.metaKey || input.altKey) return null
   if (isEditableTarget(input.target)) return null
   const { key } = input
   if (key === 'Escape') return { type: 'escape' }
   if (key === 'Enter') return isActivatableTarget(input.target) ? null : { type: 'submit' }
+  if (options.singleKeys === false) return null
   if (/^[1-9]$/.test(key)) return { type: 'aim', site: Number(key) - 1 }
   const letter = LETTERS[key.toLowerCase()]
   if (key.length === 1 && letter) return { type: letter } as ShortcutAction

@@ -76,6 +76,17 @@ describe('resolveKey', () => {
     expect(resolveKey(key('Enter', { target: el('<div role="switch"></div>') }))).toBeNull()
   })
 
+  it('drops single-character keys but keeps Enter and Esc when single-key shortcuts are off', () => {
+    const off = { singleKeys: false }
+    expect(resolveKey(key('t'), off)).toBeNull()
+    expect(resolveKey(key('3'), off)).toBeNull()
+    expect(resolveKey(key(']'), off)).toBeNull()
+    expect(resolveKey(key('?'), off)).toBeNull()
+    expect(resolveKey(key('Enter'), off)).toEqual({ type: 'submit' })
+    expect(resolveKey(key('Escape'), off)).toEqual({ type: 'escape' })
+    expect(resolveKey(key('t'), { singleKeys: true })).toEqual({ type: 'focusInput' })
+  })
+
   it('leaves unknown keys alone', () => {
     expect(resolveKey(key('x'))).toBeNull()
     expect(resolveKey(key(' '))).toBeNull()

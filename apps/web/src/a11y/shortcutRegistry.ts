@@ -1,6 +1,6 @@
 import type { ShortcutAction, ShortcutType } from './keymap'
 
-export type ShortcutHandler = (action: ShortcutAction) => void
+export type ShortcutHandler = (action: ShortcutAction) => void | boolean
 
 const registry = new Map<ShortcutType, ShortcutHandler>()
 
