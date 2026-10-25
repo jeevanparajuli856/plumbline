@@ -45,7 +45,7 @@ Keyboard guard: no single-key shortcut fires when focus is in an input, textarea
 | Sections        | `<section aria-labelledby>` with ids `mast, research, problem, play, how, generalize, product, ladder, evidence, close` |
 | Play transcript | `getByRole('list', { name: 'Worked example, step by step' })`, always in the DOM                                        |
 | Captions        | `data-testid="caption"`, mono, not live regions                                                                         |
-| Reduce motion   | `getByRole('switch', { name: 'Reduce motion' })`                                                                        |
+| Reduce motion | ONE app-wide `getByRole('switch', { name: 'Reduce motion' })` in the site Display bar (web-shell, `ui/PrefsBar.tsx`, state in `a11y/motionPref.ts`, mirrored to `<html data-reduce-motion="true">`). Landing does not render its own; it reads `prefersReducedMotion()` / `useReducedMotion()` from `@/a11y/useReducedMotion`, which returns the OS setting OR the switch after integration |
 
 ## 3. Scene (scene)
 
