@@ -20,8 +20,9 @@ export function circuitDrift(elapsedMs: number, periodMs = CIRCUIT_DRIFT_PERIOD_
 export function useCircuitDrift(enabled: boolean): void {
   useEffect(() => {
     if (!enabled) return
-    const narrow = window.matchMedia('(max-width: 767px)')
-    if (narrow.matches) return
+    const narrow =
+      typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 767px)').matches
+    if (narrow) return
     let frame = 0
     let quietTimer = 0
     let quiet = true
