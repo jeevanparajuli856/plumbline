@@ -6,7 +6,7 @@ services:
     plan: free # switch to starter for the semifinal review window and finals week (cold starts)
     rootDir: engine
     buildCommand: pip install uv && uv sync --frozen --no-dev
-    startCommand: uv run --no-sync uvicorn plumbline_api.main:app --host 0.0.0.0 --port $PORT
+    startCommand: uv run --no-sync uvicorn plumbline_api.main:app --host 0.0.0.0 --port $PORT --limit-concurrency 64
     healthCheckPath: /v1/health
     envVars:
       - key: PYTHON_VERSION
