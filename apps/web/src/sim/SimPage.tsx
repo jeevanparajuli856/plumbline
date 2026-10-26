@@ -173,7 +173,6 @@ export function SimPage() {
         onSpeech={setVoiceEnabled}
         onShortcuts={() => setHelpOpen(true)}
         onRetryHealth={checkAgain}
-        listen={<ListenButton />}
       />
       <main id="main" className="bg-bench">
         <div className="mx-auto grid max-w-[90rem] grid-cols-1 gap-x-12 gap-y-10 px-4 pb-16 pt-8 sm:px-8 lg:grid-cols-12 lg:px-16 lg:pt-12">
@@ -227,6 +226,7 @@ export function SimPage() {
                 expectedReading={expected}
                 inputRef={inputRef}
                 formRef={formRef}
+                voice={<ListenButton />}
                 onSubmit={(value) =>
                   void useSession
                     .getState()

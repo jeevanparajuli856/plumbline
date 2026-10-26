@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { useMotionPref } from '@/a11y/motionPref'
 import type { ApiHealth, DomainId, Mode } from '@/state/types'
@@ -31,8 +30,6 @@ interface SimToolbarProps {
   onSpeech(on: boolean): void
   onShortcuts(): void
   onRetryHealth(): void
-  /** Integration slot for the voice lane's Listen button (M). Empty until voice/ lands. */
-  listen?: ReactNode
 }
 
 /**
@@ -70,7 +67,6 @@ export function SimToolbar(props: SimToolbarProps) {
             keyHint="V"
             description="Spoken output. Off by default; screen-reader text is always on."
           />
-          {props.listen}
           <ReduceMotionSwitch />
           <button
             type="button"

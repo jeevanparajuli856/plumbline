@@ -52,6 +52,14 @@ async function ready() {
 }
 
 describe('SimPage', () => {
+  it('offers Say reading next to Submit reading, once, inside the reading form', async () => {
+    renderSim()
+    await ready()
+    const form = screen.getByRole('button', { name: 'Submit reading' }).closest('form')!
+    expect(within(form).getByRole('button', { name: /Say reading/ })).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: /Say reading/ })).toHaveLength(1)
+  })
+
   it('starts on the instruction with every contract element present', async () => {
     renderSim()
     await ready()

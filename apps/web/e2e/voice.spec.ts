@@ -28,7 +28,7 @@ test.describe('voice loop', () => {
     Boolean(process.env.TRUEHAND_E2E_BASE_URL),
     'a deployed production build has no fake recognition stub',
   )
-  needsFullUi('voice (fake recognition stub) and the integration step (Listen button, M key)')
+  needsFullUi('voice (fake recognition stub) and the integration step (Say reading button, M key)')
 
   let sim: SimPage
   test.beforeEach(async ({ page }) => {

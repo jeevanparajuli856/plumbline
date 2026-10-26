@@ -63,7 +63,7 @@ export class SimPage {
     this.modeGroup = page.getByRole('radiogroup', { name: 'Mode' })
     this.instrumentGroup = page.getByRole('radiogroup', { name: 'Instrument' })
     this.speech = page.getByRole('switch', { name: 'Speech' })
-    this.listen = page.getByRole('button', { name: /Listen/ })
+    this.listen = page.getByRole('button', { name: /Say reading/ })
     this.reduceMotion = page.getByRole('switch', { name: 'Reduce motion' })
     this.displaySettings = page.getByRole('link', { name: 'Display settings' })
     this.shortcuts = page.getByRole('dialog', { name: 'Keyboard shortcuts' })

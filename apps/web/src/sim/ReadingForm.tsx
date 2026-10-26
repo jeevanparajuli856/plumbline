@@ -1,4 +1,4 @@
-import { useId, useState, type FormEvent, type Ref } from 'react'
+import { useId, useState, type FormEvent, type ReactNode, type Ref } from 'react'
 import type { DomainSpec, Mode } from '@/state/types'
 import { ariaKeysFor } from '@/a11y/keymap'
 import { buttonClass } from '@/ui/button'
@@ -12,6 +12,8 @@ interface ReadingFormProps {
   onSubmit(value: number): void
   inputRef?: Ref<HTMLInputElement>
   formRef?: Ref<HTMLFormElement>
+  /** Voice input control (Say reading), shown beside Submit reading. */
+  voice?: ReactNode
 }
 
 function hintFor(mode: Mode, spec: DomainSpec, expected: number | null): string {
@@ -31,6 +33,7 @@ export function ReadingForm({
   onSubmit,
   inputRef,
   formRef,
+  voice,
 }: ReadingFormProps) {
   const [text, setText] = useState('')
   const [message, setMessage] = useState<string | null>(null)
@@ -97,6 +100,7 @@ export function ReadingForm({
             Enter
           </kbd>
         </button>
+        {simulated ? null : voice}
       </div>
       {message ? (
         <p id={errorId} role="alert" className="font-medium text-text">
