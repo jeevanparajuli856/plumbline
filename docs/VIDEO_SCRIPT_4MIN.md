@@ -1,6 +1,6 @@
-# Truehand demo video: script (v4)
+# Truehand demo video: script (v5)
 
-Date: 2026-10-25. One video, about 4:55. YouTube, exported at 4K.
+Date: 2026-10-25. One video, about 5:05. YouTube, exported at 4K.
 Supersedes the 2:45 cut in `docs/VIDEO_STORYBOARD.md`.
 
 **How to use this file:** the lines in quotes under **VO** are what you read. Everything else is for the edit.
@@ -8,20 +8,25 @@ Read slowly, about 2.4 words per second. `(beat)` = half-second pause. `/` = bre
 
 ---
 
-## 1. Cold open (0:00-0:14)
+## 1. Cold open: my uncle (0:00-0:25)
 
-**SCREEN:** Black. One multimeter beep. Then a close-up of a probe coming down onto a breadboard (3D bench from the app, tight crop, or the re-shoot footage if we film it).
-**TEXT:** `3.671 V` slams in, one digit at a time.
+**SCREEN:** Black. One multimeter beep. Fade up on a slow, quiet shot: your uncle at his workbench (only with his permission), or his tools on a bench in soft light, a multimeter and a soldering iron, no hands shown. Warm grade, no music, room tone only.
+**TEXT (small, lower left):** `My uncle. Blind. Still fixing things.`
+On "where his probe really is": hard cut to the 3D bench, tight on a probe tip coming down between two rows.
+**TEXT:** `3.671 V` slams in, one digit at a time, with a small screen shake.
 
-**VO:**
+**VO:** (first part quiet and personal, like telling one person; last line punchy)
 
-> "This reading is real. / The meter is right. / And it is about to make a machine completely, confidently wrong."
+> "My uncle is blind. / He loves working on electronics. (beat)
+> He has been shocked more than once. / He still picks up the probe. (beat)
+> His meter can tell him a number. / It cannot tell him where his probe really is. (beat)
+> And that one gap is enough to make a machine / completely, / confidently wrong."
 
 **SFX:** hard cut to silence on "wrong".
 
 ---
 
-## 2. The problem (0:14-0:44)
+## 2. The problem (0:25-0:55)
 
 **SCREEN:** 3D bench in slow motion: the probe slides one row off. Freeze frame. Two labels draw on: `told: row 3` and `actually: row 2`.
 
@@ -41,7 +46,7 @@ Under it: `Participant 23, "Misfitting With AI," ASSETS 2024`
 
 ---
 
-## 3. The numbers (0:44-1:08)
+## 3. The numbers (0:55-1:19)
 
 Animated statement, kinetic type over a field of dots. Every number has its source in small type on screen while it is visible.
 
@@ -61,7 +66,7 @@ Animated statement, kinetic type over a field of dots. Every number has its sour
 
 ---
 
-## 4. Meet Truehand (1:08-1:24)
+## 4. Meet Truehand (1:19-1:35)
 
 **SCREEN:** Home page hero: the three phones. Zoom through the center phone into the live app.
 **TEXT:** `Truehand`
@@ -73,7 +78,7 @@ Animated statement, kinetic type over a field of dots. Every number has its sour
 
 ---
 
-## 5. The slip (1:24-2:12)
+## 5. The slip (1:35-2:23)
 
 **SCREEN:** Desktop web app, side by side. Left: Truehand. Right: the published method.
 Instruction on screen and spoken by the app: "Touch the red probe to row 3."
@@ -91,7 +96,7 @@ Left panel: belief spreads out, top answer `63.1%`, nothing certain yet.
 
 ---
 
-## 6. The warning (2:12-2:40)
+## 6. The warning (2:23-2:51)
 
 **SCREEN:** Warning banner slides in. Everything else dims. Let the app's own voice play, no music:
 _"Warning. That reading did not come from row 3. It most likely came from row 2..."_
@@ -105,7 +110,7 @@ Then the second reading `0.338 V`. Whip pan to the answer card: `R3 is ten times
 
 ---
 
-## 7. It refuses to guess (2:40-2:56)
+## 7. It refuses to guess (2:51-3:07)
 
 **SCREEN:** Unresolved replay. Two candidates slide in from left and right and stop, never merging: `LED open` and `LED reversed`. Status: `Unresolved`.
 
@@ -116,7 +121,7 @@ Then the second reading `0.338 V`. Whip pan to the answer card: `R3 is ten times
 
 ---
 
-## 8. We tested it blindfolded (2:56-3:24)
+## 8. We tested it blindfolded (3:07-3:35)
 
 No footage from the original tests, so this scene is type-driven. No generated people or hands.
 
@@ -131,7 +136,7 @@ No footage from the original tests, so this scene is type-driven. No generated p
 
 ---
 
-## 9. At scale, in simulation (3:24-3:46)
+## 9. At scale, in simulation (3:35-3:57)
 
 **SCREEN:** Two bars grow from zero. SIMULATED badge fixed top-right for the whole scene.
 **TEXT:** `Ends confidently wrong` / Published method `27.7%` / Truehand `0.5%`
@@ -145,7 +150,7 @@ No footage from the original tests, so this scene is type-driven. No generated p
 
 ---
 
-## 10. In your pocket (3:46-4:00)
+## 10. In your pocket (3:57-4:11)
 
 **SCREEN:** Real iPhone screen recording (iOS Screen Recording, mic on). Tap the Truehand icon on the Home Screen → splash mark → app opens full screen with the bottom tab bar → app says "Touch the red probe to row 3." → tap **Say reading**, speak "three point six seven one volts" → the number appears → the app speaks the warning → **Say reading**, "zero point three three eight volts" → the answer. In the edit, the recording sits inside a 3D phone that tilts to face-on, and a caption shows the spoken words as they are said.
 
@@ -157,7 +162,7 @@ No footage from the original tests, so this scene is type-driven. No generated p
 
 ---
 
-## 11. Our mission (4:00-4:30)
+## 11. Our mission (4:11-4:41)
 
 **SCREEN:** Pull back from the breadboard. The circuit fades and a kitchen thermometer probe in a roast fades in (the app's thermometer scene, SIMULATED badge), then the frame widens to a montage of everyday instruments a blind hand has to place: a probe, a sensor, a tool tip. Clean line art, one accent colour.
 **TEXT:** `Circuits are the first instrument. Not the last.`
@@ -170,7 +175,7 @@ No footage from the original tests, so this scene is type-driven. No generated p
 
 ---
 
-## 12. Close (4:30-4:54)
+## 12. Close (4:41-5:05)
 
 **SCREEN:** Calm dark background.
 **TEXT:** `Mid-November 2026 · Field sessions with blind participants · Louisiana Center for the Blind`
@@ -182,6 +187,7 @@ Then the logo, and: `It cannot tell you something it has not measured.` / `trueh
 > "In mid-November, / we take Truehand to the Louisiana Center for the Blind, / and we measure real hands. (beat)
 > Remember three point six seven one volts? (beat)
 > One machine heard that number and named the wrong part. / Truehand heard the same number / and knew where your hand really was. (beat)
+> We built it for my uncle, / and for everyone like him / who keeps picking up the probe. (beat)
 > Truehand. (beat)
 > It cannot tell you something it has not measured."
 
@@ -195,7 +201,8 @@ Then the logo, and: `It cannot tell you something it has not measured.` / `trueh
 - One file per scene (`vo-01.wav` ... `vo-12.wav`), 48 kHz. Two takes each, 2 seconds of silence between takes.
 - Say numbers the way they are written in the VO ("three point six seven one volts").
 - If a scene runs long, cut words. Do not speed up.
-- Energy: scenes 1, 5, 6 punchy. Scene 3 (numbers) firm and steady, let each number land. Scenes 7, 8 slower. Scene 11 rising, confident. Scene 12 starts quiet, lands hard on the last line.
+- Energy: scene 1 starts quiet and personal (your uncle), then turns punchy on the last line. Scenes 5, 6 punchy. Scene 3 (numbers) firm and steady. Scenes 7, 8 slower. Scene 11 rising, confident. Scene 12 starts quiet, warm on the uncle line, lands hard on the last line.
+- Scene 1 first line: record it five or six times. Use the take where you sound like you are just telling someone about him, not performing.
 
 ## What we film (you two)
 
@@ -211,5 +218,6 @@ Then the logo, and: `It cannot tell you something it has not measured.` / `trueh
 
 ## Open items
 
-- [ ] Music: low bed under the VO that drops out for scenes 6 and 7, or voice only.
+- [ ] Music: low bed under the VO that drops out for scenes 1, 6 and 7, or voice only.
 - [ ] Before the final render, open the Frontiers in Education (2023) paper and the Bell & Silverman (2018) abstract and confirm the 547,000 figure and the wording on screen.
+- [ ] Scene 1: ask your uncle if we may show him (photo or short clip) and whether to use his name. If not, use the tools-on-a-bench shot.
